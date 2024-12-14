@@ -1,0 +1,29 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+
+#linux/vi stuff
+*.tmp
+*.bak
+*.swp
+
+#mac stuff
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Trashes
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Environment variables
+.env
