@@ -3,6 +3,9 @@
 # dependencies
 /node_modules
 
+# vs code stuff
+/.vscode
+
 #linux/vi stuff
 *.tmp
 *.bak

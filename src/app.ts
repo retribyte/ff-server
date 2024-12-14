@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction } from "express";
-import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -19,7 +18,6 @@ class App {
 
     private config(): void {
         this.app.use(express.json());
-        this.app.use(cors());
         this.app.use(express.static(__dirname + "/public"));
     }
 

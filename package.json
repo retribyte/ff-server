@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "My name vortox",
   "main": "server.ts",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon",
+    "start": "ts-node --transpile-only ./server.ts"
   },
   "author": "Trey R.",
-  "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@types/bcrypt": "^5.0.2",
@@ -24,10 +25,10 @@
     "express-flash": "^0.0.2",
     "express-session": "^1.18.1",
     "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
     "prisma": "^5.22.0",
     "ts-jest": "^29.2.5",
-    "typescript": "^5.7.2",
-    "morgan": "^1.10.0"
+    "typescript": "^5.7.2"
   },
   "nodemonConfig": {
     "ignore": [
@@ -44,7 +45,7 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.10.1",
     "nodemon": "^3.1.7",
-    "ts-node": "^10.9.2",
-    "prisma": "^5.20.0"
+    "prisma": "^5.20.0",
+    "ts-node": "^10.9.2"
   }
 }
