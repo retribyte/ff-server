@@ -15,11 +15,12 @@ The backend uses a SQLite database to store user data, such as user accounts and
 2. Create a `.env` file in the root directory of the project and add the following environment variables:
 
 ```
+PORT=number
 DATABASE_URL="file:./dev.db"
-JWT_SECRET="your-secret-here"
+JWT_SECRET=your_secret_here
+JWT_EXPIRATION=number
+SALT_ROUNDS=number
 ```
 
 3. Run `npx prisma migrate dev` to create the SQLite database.
-    
-    3.1. You may need to seed the database with some initial data. You can do this by running `npx prisma db seed --preview-feature`.
 4. Run `npm start` to start the server.
