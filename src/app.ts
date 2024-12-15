@@ -1,12 +1,23 @@
-import express, { Request, Response, NextFunction } from "express";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+import express, { Application, Request, Response, NextFunction } from "express";
+import { hashSync, compare } from "bcrypt";
+import { sign, verify } from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 
+import { TokenService } from "./auth/token.service";
+import { SecurityMiddleware } from "./auth/security.middleware";
+
+import { UserService } from "./user/user.service";
+import { UserController } from "./user/user.controller";
+
 class App {
-    public app: express.Application;
+    public app: Application;
     private prisma: PrismaClient;
+
+    private tokenService: TokenService;
+    private securityMiddleware: SecurityMiddleware;
+
+    private userService: UserService;
+    private userController: UserController;
 
     constructor() {
         this.app = express();
@@ -17,21 +28,26 @@ class App {
     }
 
     private config(): void {
+        this.tokenService = new TokenService({ sign, verify });
+        this.securityMiddleware = new SecurityMiddleware(this.tokenService);
+
+        this.userService = new UserService();
+        this.userController = new UserController(this.userService, this.tokenService, this.securityMiddleware);
+
         this.app.use(express.json());
         this.app.use(express.static(__dirname + "/public"));
     }
 
     private routes(): void {
         // Routes go here, mmkay?
+        this.app.use(this.userController.router);
     }
 
     private errorHandlers(): void {
-        this.app.use(
-            (err: Error, req: Request, res: Response, next: NextFunction) => {
-                console.error(err.stack);
-                res.status(500).send("L, 500 server error");
-            }
-        );
+        this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+            console.error(err.stack);
+            res.status(500).send("L, 500 server error");
+        });
 
         this.app.use((req: Request, res: Response, next: NextFunction) => {
             res.status(404).send("Resource not found");

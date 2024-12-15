@@ -9,8 +9,9 @@ generator client {
 
 model User {
     id          Int         @id @default(autoincrement())
-    email       String      @unique
+    username    String      @unique
+    email       String?     @unique
     password    String      // hashed using bcrypt?
-    name        String?
     icon        String?     // If null, use identicon?
+    wikiUser    String?
 }
