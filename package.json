@@ -26,9 +26,7 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "prisma": "^5.22.0",
-    "ts-jest": "^29.2.5",
-    "tsc": "^2.0.4",
-    "typescript": "^5.7.2"
+    "ts-jest": "^29.2.5"
   },
   "nodemonConfig": {
     "ignore": [
@@ -47,6 +45,7 @@
     "@types/node": "^22.10.1",
     "nodemon": "^3.1.7",
     "prisma": "^5.20.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
   }
 }
