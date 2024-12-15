@@ -5,8 +5,8 @@
   "main": "server.ts",
   "type": "module",
   "scripts": {
-    "dev": "nodemon",
-    "start": "tsc ./server.ts --outDir ./dist"
+    "dev": "npx tsx server.ts",
+    "start": "tsc -w ./server.ts --outDir ./dist --esModuleInterop"
   },
   "author": "Trey R.",
   "dependencies": {
@@ -46,6 +46,7 @@
     "nodemon": "^3.1.7",
     "prisma": "^5.20.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
 }

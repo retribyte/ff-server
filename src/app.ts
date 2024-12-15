@@ -1,6 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import { hashSync, compare } from "bcrypt";
-import { sign, verify } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 
 import { TokenService } from "./auth/token.service";
@@ -28,14 +28,14 @@ class App {
     }
 
     private config(): void {
-        this.tokenService = new TokenService({ sign, verify });
+        this.tokenService = new TokenService(jwt);
         this.securityMiddleware = new SecurityMiddleware(this.tokenService);
 
         this.userService = new UserService();
         this.userController = new UserController(this.userService, this.tokenService, this.securityMiddleware);
 
         this.app.use(express.json());
-        this.app.use(express.static(__dirname + "/public"));
+        // this.app.use(express.static(__dirname + "/public"));
     }
 
     private routes(): void {

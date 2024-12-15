@@ -15,20 +15,23 @@ export class UserService {
         const saltRounds: number = process.env.SALT_ROUNDS ? parseInt(process.env.SALT_ROUNDS) : 12;
         const encryptedPassword = this.bcrypt.hashSync(password, saltRounds);
 
-        const newUser = await this.prisma.user.upsert({
+        const existingUser = await this.prisma.user.findUnique({
             where: {
                 username,
             },
-            update: {
+        });
+
+        if (existingUser) {
+            throw new Error("User already exists");
+        }
+
+        const newUser = await this.prisma.user.create({
+            data: {
+                username,
                 email,
                 password: encryptedPassword,
             },
-            create: {
-                username,
-                email,
-                password: encryptedPassword
-            },
-        })
+        });
 
         return newUser;
     }
@@ -43,10 +46,20 @@ export class UserService {
         return user;
     }
 
+    async getUserByUsername(username: string) {
+        const user = await this.prisma.user.findUnique({
+            where: {
+                username: username,
+            },
+        });
+
+        return user;
+    }
+
     async authenticateUser(user: any) {
         const foundUser = await this.prisma.user.findUnique({
             where: {
-                email: user.email,
+                username: user.username,
             },
         });
 

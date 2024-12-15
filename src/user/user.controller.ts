@@ -39,23 +39,19 @@ export class UserController {
                 user = await this.userService.createUser(username, email, password);
             } catch (err: any) {
                 res.status(400).json({
-                    error: "Error occured creating user: " + err.message
+                    error: "Error occurred creating user: " + err.message
                 });
                 return;
             }
 
-            return res.status(201).json(user);
+            const { password: userPassword, ...userWithoutPassword } = user;
+            return res.status(201).json(userWithoutPassword);
         });
 
-        this.router.post("/login", async (req: any, res: any) => {
-            const { email, password } = req.body;
+        this.router.post("/login", async (req: Request, res: Response) => {
+            const { username, password } = req.body;
 
-            if (
-                !email ||
-                !password ||
-                typeof email !== "string" ||
-                typeof password !== "string"
-            ) {
+            if (!username || !password) {
                 return res
                     .status(400)
                     .json({ error: "Missing required fields" });
@@ -63,7 +59,7 @@ export class UserController {
 
             try {
                 const user = await this.userService.authenticateUser({
-                    email,
+                    username,
                     password,
                 });
                 const token = await this.tokenService.generateToken(user);
@@ -75,13 +71,14 @@ export class UserController {
             }
         });
 
-        this.router.get(
-            "/profile",
-            this.securityMiddleware.authenticate,
-            async (req: any, res: any) => {
-                const user = req.user;
-                return res.status(200).json(user);
-            }
-        );
+        this.router.get("/user", this.securityMiddleware.authenticate, async (req: any, res: Response) => {
+            const user = req.user as User;
+            const { password: userPassword, ...userWithoutPassword } = user;
+            return res.status(200).json(userWithoutPassword);
+        });
+
+        this.router.patch("/user", this.securityMiddleware.authenticate, async (req: any, res: Response) => {
+            
+        });
     }
 }
