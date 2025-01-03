@@ -1,18 +1,19 @@
-import { Prisma, PrismaClient } from "@prisma/client";
-import { hashSync, compare } from "bcrypt";
-import type { User } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import { compare, hashSync } from "bcrypt";
 
 export class UserService {
     private prisma: any;
     private bcrypt: any;
 
     constructor() {
-      this.prisma = new PrismaClient();
-      this.bcrypt = { hashSync, compare };
+        this.prisma = new PrismaClient();
+        this.bcrypt = { hashSync, compare };
     }
-  
+
     async createUser(username: string, email: string, password: string) {
-        const saltRounds: number = process.env.SALT_ROUNDS ? parseInt(process.env.SALT_ROUNDS) : 12;
+        const saltRounds: number = process.env.SALT_ROUNDS
+            ? parseInt(process.env.SALT_ROUNDS)
+            : 12;
         const encryptedPassword = this.bcrypt.hashSync(password, saltRounds);
 
         const existingUser = await this.prisma.user.findUnique({
@@ -64,7 +65,10 @@ export class UserService {
         });
 
         if (foundUser) {
-            const isPasswordCorrect = await this.bcrypt.compare(user.password, foundUser.password);
+            const isPasswordCorrect = await this.bcrypt.compare(
+                user.password,
+                foundUser.password
+            );
 
             if (isPasswordCorrect) {
                 return foundUser;

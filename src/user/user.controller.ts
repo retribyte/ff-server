@@ -3,19 +3,20 @@ import { TokenService } from "../auth/token.service";
 import { Request, Response, Router } from "express";
 import type { User } from "@prisma/client";
 import { SecurityMiddleware } from "../auth/security.middleware";
+import { RoutesController } from "routes/routes.controller";
 
 export class UserController {
-    public router: Router = Router();
+    public router: Router;
     private userService: UserService;
     private tokenService: TokenService;
     private securityMiddleware: SecurityMiddleware;
 
     constructor(
-        userService: UserService,
         tokenService: TokenService,
         securityMiddleware: SecurityMiddleware
     ) {
-        this.userService = userService;
+        this.router = RoutesController.router;
+        this.userService = new UserService();
         this.tokenService = tokenService;
         this.securityMiddleware = securityMiddleware;
         this.initializeRouter();
@@ -28,7 +29,7 @@ export class UserController {
 
             if (!username || !email || !password) {
                 res.status(400).json({
-                    error: "Missing required fields"
+                    error: "Missing required fields",
                 });
                 return;
             }
@@ -36,10 +37,14 @@ export class UserController {
             let user: any;
 
             try {
-                user = await this.userService.createUser(username, email, password);
+                user = await this.userService.createUser(
+                    username,
+                    email,
+                    password
+                );
             } catch (err: any) {
                 res.status(400).json({
-                    error: "Error occurred creating user: " + err.message
+                    error: "Error occurred creating user: " + err.message,
                 });
                 return;
             }
@@ -71,14 +76,20 @@ export class UserController {
             }
         });
 
-        this.router.get("/user", this.securityMiddleware.authenticate, async (req: any, res: Response) => {
-            const user = req.user as User;
-            const { password: userPassword, ...userWithoutPassword } = user;
-            return res.status(200).json(userWithoutPassword);
-        });
+        this.router.get(
+            "/user",
+            this.securityMiddleware.authenticate,
+            async (req: any, res: Response) => {
+                const user = req.user as User;
+                const { password: userPassword, ...userWithoutPassword } = user;
+                return res.status(200).json(userWithoutPassword);
+            }
+        );
 
-        this.router.patch("/user", this.securityMiddleware.authenticate, async (req: any, res: Response) => {
-            
-        });
+        this.router.patch(
+            "/user",
+            this.securityMiddleware.authenticate,
+            async (req: any, res: Response) => {}
+        );
     }
 }

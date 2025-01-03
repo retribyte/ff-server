@@ -1,19 +1,57 @@
 datasource db {
-    provider    = "sqlite"
-    url         = env("DATABASE_URL")
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
 }
 
 generator client {
-    provider    = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 model User {
-    id          Int         @id @default(autoincrement())
-    username    String      @unique
-    email       String?     @unique
-    password    String      // hashed using bcrypt?
-    icon        String?     // If null, use identicon?
-    wikiUser    String?
-    createdAt   DateTime    @default(now())
-    updatedAt   DateTime    @updatedAt
+    id        Int      @id @default(autoincrement())
+    username  String   @unique
+    email     String?  @unique
+    password  String // hashed using bcrypt?
+    icon      String? // If null, use identicon?
+    wikiUser  String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Character {
+    id            Int            @id @default(autoincrement())
+    name          String
+    dob           DateTime? // Date of birth, converted to UTC. Will be displayed in GUY notation.
+    pob           String? // Place of birth
+    aliases       Alias[] // Array of aliases
+    relationships Relationship[] // Array for describing relationships (e.g., "Parent: X", "Sibling: Y")
+    homePlanet    String?
+    species       String
+    class         String // Enum: "Higher Sentients", "Lower Sentients"
+    sex           String // Enum: "Male", "Female", "Other", "Unspecified"
+    height        Float? // Height in meters (e.g., 1.75)
+    weight        Float? // Weight in kilograms
+    hairColor     String?
+    eyeColor      String?
+    creator       String // Name or ID of the creator
+
+    @@map("characters") // Maps the table name in the SQLite database
+}
+
+model Alias {
+    id          Int       @id @default(autoincrement())
+    name        String
+    characterId Int
+    character   Character @relation(fields: [characterId], references: [id])
+
+    @@map("aliases")
+}
+
+model Relationship {
+    id          Int       @id @default(autoincrement())
+    description String // Example: "Parent of John"
+    characterId Int
+    character   Character @relation(fields: [characterId], references: [id])
+
+    @@map("relationships")
 }
