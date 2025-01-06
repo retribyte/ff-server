@@ -1,14 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import express, { Application, NextFunction, Request, Response } from "express";
 
-import { SecurityMiddleware } from "./auth/security.middleware";
-import { TokenService } from "./auth/token.service";
+import { SecurityMiddleware } from "./auth/security.middleware.js";
+import { TokenService } from "./auth/token.service.js";
 
-import { RoutesController } from "routes/routes.controller";
+import { RoutesController } from "./routes/routes.controller.js";
 
 class App {
     public app: Application;
-    private prisma: PrismaClient;
+    public static prisma: PrismaClient;
 
     private tokenService: TokenService;
     private securityMiddleware: SecurityMiddleware;
@@ -17,7 +17,7 @@ class App {
 
     constructor() {
         this.app = express();
-        this.prisma = new PrismaClient();
+        App.prisma = new PrismaClient();
 
         // Keep constructed objects in the constructor, not in a separate method
         this.tokenService = new TokenService();
@@ -53,8 +53,8 @@ class App {
         });
     }
 
-    public listen(port: number): void {
-        this.app.listen(port, () => {
+    public listen(port: number, host: string = "0.0.0.0"): void {
+        this.app.listen(port, host, () => {
             console.log(`Server is running on port ${port}`);
         });
     }

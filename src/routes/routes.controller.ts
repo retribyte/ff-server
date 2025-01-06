@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { UserController } from "user/user.controller";
-import { SecurityMiddleware } from "../auth/security.middleware";
-import { TokenService } from "../auth/token.service";
+import { UserController } from "../user/user.controller.js";
+import { SecurityMiddleware } from "../auth/security.middleware.js";
+import { TokenService } from "../auth/token.service.js";
 
 export class RoutesController {
     public static router: Router = Router();

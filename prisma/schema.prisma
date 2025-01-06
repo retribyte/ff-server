@@ -1,5 +1,5 @@
 datasource db {
-    provider = "sqlite"
+    provider = "postgresql"
     url      = env("DATABASE_URL")
 }
 
@@ -27,7 +27,7 @@ model Character {
     relationships Relationship[] // Array for describing relationships (e.g., "Parent: X", "Sibling: Y")
     homePlanet    String?
     species       String
-    class         String // Enum: "Higher Sentients", "Lower Sentients"
+    class         String // Enum: "Higher Sentients", "Lower Sentients" // Should this even be here?
     sex           String // Enum: "Male", "Female", "Other", "Unspecified"
     height        Float? // Height in meters (e.g., 1.75)
     weight        Float? // Weight in kilograms
@@ -54,4 +54,20 @@ model Relationship {
     character   Character @relation(fields: [characterId], references: [id])
 
     @@map("relationships")
+}
+
+// 
+model Species {
+    id            Int     @id @default(autoincrement())
+    name          String
+    description   String
+    binomialName  String? // Equivalent to taxonomy
+    class         String // Enum: "Higher Sentients", "Lower Sentients"
+    lifespan      String // Average lifespan in GUYs
+    diet          String? // Enum: "Carnivore", "Herbivore", "Omnivore", "Other"
+    habitat       String?
+    placeOfOrigin String?
+    creator       String // Name or ID of the creator
+
+    @@map("species")
 }

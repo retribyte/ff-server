@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "target": "es6",
-        "module": "es6",
+        "target": "esnext",
+        "module": "esnext",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
@@ -15,9 +15,6 @@
         },
         "baseUrl": "src"
     },
-    "include": [
-        "src/**/*",
-        "src"
-    ],
+    "include": ["src/**/*", "src/server.ts"],
     "exclude": ["node_modules", "**/*.spec.ts"]
 }

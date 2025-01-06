@@ -1,13 +1,15 @@
-import { UserService } from "./user.service";
-import { TokenService } from "../auth/token.service";
+import { UserService } from "./user.service.js";
+import { TokenService } from "../auth/token.service.js";
 import { Request, Response, Router } from "express";
-import type { User } from "@prisma/client";
-import { SecurityMiddleware } from "../auth/security.middleware";
-import { RoutesController } from "routes/routes.controller";
+import type { PrismaClient, User } from "@prisma/client";
+import { SecurityMiddleware } from "../auth/security.middleware.js";
+import { RoutesController } from "../routes/routes.controller.js";
+import App from "../app.js";
 
 export class UserController {
     public router: Router;
     private userService: UserService;
+    private prisma: PrismaClient;
     private tokenService: TokenService;
     private securityMiddleware: SecurityMiddleware;
 
@@ -17,6 +19,7 @@ export class UserController {
     ) {
         this.router = RoutesController.router;
         this.userService = new UserService();
+        this.prisma = App.prisma;
         this.tokenService = tokenService;
         this.securityMiddleware = securityMiddleware;
         this.initializeRouter();

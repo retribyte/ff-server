@@ -1,12 +1,13 @@
 import { PrismaClient } from "@prisma/client";
+import App from "../app.js";
 import { compare, hashSync } from "bcrypt";
 
 export class UserService {
-    private prisma: any;
-    private bcrypt: any;
+    private prisma: PrismaClient;
+    private bcrypt: { hashSync: typeof hashSync; compare: typeof compare };
 
     constructor() {
-        this.prisma = new PrismaClient();
+        this.prisma = App.prisma;
         this.bcrypt = { hashSync, compare };
     }
 

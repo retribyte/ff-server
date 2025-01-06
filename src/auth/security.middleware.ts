@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { TokenService } from "./token.service";
+import { TokenService } from "./token.service.js";
 
 export class SecurityMiddleware {
     private tokenService: TokenService;
