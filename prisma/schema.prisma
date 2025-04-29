@@ -1,23 +1,16 @@
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider  = "prisma-client-js"
+  output    = "./client"
 }
 
-model User {
-  id         Int         @id @unique @default(autoincrement())
-  username   String      @unique
-  email      String?     @unique
-  password   String // hashed using bcrypt?
-  icon       String? // If null, use identicon?
-  wikiUser   String?
-  characters Character[]
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  species    Species[]
+enum UserRole {
+  USER
+  ADMIN
 }
 
 enum Sex {
@@ -34,47 +27,72 @@ enum Class {
   NON_SENTIENT
 }
 
+enum MessageType {
+  BOT_RESPONSE
+  COMMAND
+  QUOTE
+  ACTION
+  EMBED
+  OTHER
+}
+
+model User {
+  id          Int         @id @unique @default(autoincrement())
+  username    String      @unique
+  email       String?     @unique
+  password    String // hashed using bcrypt?
+  role        UserRole
+  icon        String? // If null, use identicon?
+  wikiUser    String?
+  characters  Character[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  species     Species[]
+  messages    Message[]
+}
+
 model Character {
-  id            Int            @id @unique @default(autoincrement())
+  id            Int       @id @unique @default(autoincrement())
   name          String
   dob           DateTime? // Date of birth, converted to UTC. Will be displayed in GUY notation.
   pob           String? // Place of birth
   aliases       Alias[] // Array of aliases
   relationships Relationship[] // Array for describing relationships (e.g., "Parent: X", "Sibling: Y")
   homePlanet    String?
-  species       Species        @relation(fields: [speciesId], references: [id])
+  species       Species   @relation(fields: [speciesId], references: [id])
   speciesId     Int
   sex           Sex // Enum: "Male", "Female", "Other", "Unspecified"
   height        Float? // Height in meters (e.g., 1.75)
   weight        Float? // Weight in kilograms
   hairColor     String?
   eyeColor      String?
-  creator       User           @relation(fields: [creatorId], references: [id])
+  creator       User      @relation(fields: [creatorId], references: [id])
   creatorId     Int
+  messages      Message[]
 
   @@map("characters") // Maps the table name in the SQLite database
 }
 
 model Alias {
-  id          Int       @id @unique @default(autoincrement())
+  id          Int         @id @unique @default(autoincrement())
   name        String
   characterId Int
-  character   Character @relation(fields: [characterId], references: [id])
+  character   Character   @relation(fields: [characterId], references: [id])
 
   @@map("aliases")
 }
 
 model Relationship {
-  id          Int       @id @unique @default(autoincrement())
+  id          Int         @id @unique @default(autoincrement())
   description String // Example: "Parent of John"
   characterId Int
-  character   Character @relation(fields: [characterId], references: [id])
+  character   Character   @relation(fields: [characterId], references: [id])
 
   @@map("relationships")
 }
 
 model Species {
-  id            Int         @id @unique @default(autoincrement())
+  id            Int       @id @unique @default(autoincrement())
   name          String
   description   String
   binomialName  String? // Equivalent to taxonomy
@@ -83,7 +101,7 @@ model Species {
   diet          String? // Enum: "Carnivore", "Herbivore", "Omnivore", "Other"
   habitat       String?
   placeOfOrigin String?
-  creator       User        @relation(fields: [creatorId], references: [id])
+  creator       User      @relation(fields: [creatorId], references: [id])
   Character     Character[]
   creatorId     Int
 
@@ -91,23 +109,35 @@ model Species {
 }
 
 model Season {
-  title    String    @id @unique
+  title    String         @id @unique
   episodes Episode[]
+
+  @@map("seasons")
 }
 
 model Episode {
-  title       String  @unique
-  season      Season  @relation(fields: [seasonTitle], references: [title])
+  title       String      @unique
+  season      Season      @relation(fields: [seasonTitle], references: [title])
   episode_no  Int
-  quotes      Quote[]
+  messages    Message[]
   seasonTitle String
-  @@id([seasonTitle, episode_no])
 
+  @@id([seasonTitle, episode_no])
+  @@map("episodes")
 }
 
-model Quote {
-  episode      Episode @relation(fields: [episodeTitle], references: [title])
-  quote_no     Int     
+model Message {
+  episode      Episode    @relation(fields: [episodeTitle], references: [title])
+  message_no   Int
   episodeTitle String
-  @@id([episodeTitle, quote_no])
+  player       User       @relation(fields: [playerId], references: [id])
+  playerId     Int
+  character    Character? @relation(fields: [characterId], references: [id])
+  characterId  Int?
+  date         DateTime
+  type         MessageType
+  text         String
+
+  @@id([episodeTitle, message_no])
+  @@map("messages")
 }
