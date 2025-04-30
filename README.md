@@ -26,7 +26,8 @@ There are now two separate methods for continuing the installation process: usin
 
 ### Docker
 
-1. Run `docker compose build` to build the three docker containers: the node API container, the PostgresQL database container, and the NGINX proxy container.
+0. Run `sudo dockerd` to start the docker daemon if it is not already running.
+1. Run `docker compose build --no-cache` to build the three docker containers: the node API container, the PostgresQL database container, and the NGINX proxy container.
 2. Run `docker compose up` to run the docker containers.
 3. Run the following two commands to generate the prisma client and fill the database schema:
 

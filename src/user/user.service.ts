@@ -1,14 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import App from "../app.js";
-import { compare, hashSync } from "bcrypt";
+import { compareSync, hashSync } from "bcryptjs";
 
 export class UserService {
     private prisma: PrismaClient;
-    private bcrypt: { hashSync: typeof hashSync; compare: typeof compare };
+    private bcrypt: { hashSync: typeof hashSync; compareSync: typeof compareSync };
 
     constructor() {
         this.prisma = App.prisma;
-        this.bcrypt = { hashSync, compare };
+        this.bcrypt = { hashSync, compareSync };
     }
 
     async createUser(username: string, email: string, password: string) {
@@ -66,7 +66,7 @@ export class UserService {
         });
 
         if (foundUser) {
-            const isPasswordCorrect = await this.bcrypt.compare(
+            const isPasswordCorrect = await this.bcrypt.compareSync(
                 user.password,
                 foundUser.password
             );

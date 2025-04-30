@@ -10,8 +10,18 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
+# Copy prisma separately (important!)
+COPY prisma ./prisma
+
 # Copy the rest of the application code
 COPY . .
+
+# Copy the start script and make it executable
+COPY start.sh ./start.sh
+RUN chmod +x ./start.sh
+
+# Generate Prisma client
+RUN npx prisma generate
 
 # Install TypeScript globally
 RUN npm install -g typescript
