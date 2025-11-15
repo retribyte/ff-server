@@ -54,7 +54,7 @@ model User {
 model Character {
   id            Int       @id @unique @default(autoincrement())
   name          String
-  dob           DateTime? // Date of birth, converted to UTC. Will be displayed in GUY notation.
+  dob           Int?    // Date of birth as a unix timestamp. Will be displayed in GUY notation.
   pob           String? // Place of birth
   aliases       Alias[] // Array of aliases
   relationships Relationship[] // Array for describing relationships (e.g., "Parent: X", "Sibling: Y")
