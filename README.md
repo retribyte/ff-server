@@ -53,7 +53,7 @@ DATABASE_URL=postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@db:5432/{POSTGRES_
 
 ```bash
 npx prisma generate
-npx prisma dev --name init
+npx prisma migrate dev --name init
 ```
 
 4. You can now access the api through Postman or a similar HTTP request client through the address: "http://localhost:3000/"

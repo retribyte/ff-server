@@ -1,73 +1,143 @@
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
 }
 
 generator client {
-    provider = "prisma-client-js"
+  provider  = "prisma-client-js"
+  output    = "./client"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum Sex {
+  MALE
+  FEMALE
+  OTHER
+  UNSPECIFIED
+}
+
+enum Class {
+  BLACK
+  HIGHER_SENTIENT
+  LOWER_SENTIENT
+  NON_SENTIENT
+}
+
+enum MessageType {
+  BOT_RESPONSE
+  COMMAND
+  QUOTE
+  ACTION
+  EMBED
+  OTHER
 }
 
 model User {
-    id        Int      @id @default(autoincrement())
-    username  String   @unique
-    email     String?  @unique
-    password  String // hashed using bcrypt?
-    icon      String? // If null, use identicon?
-    wikiUser  String?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id          Int         @id @unique @default(autoincrement())
+  username    String      @unique
+  email       String?     @unique
+  password    String // hashed using bcrypt?
+  role        UserRole
+  icon        String? // If null, use identicon?
+  wikiUser    String?
+  characters  Character[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  species     Species[]
+  messages    Message[]
 }
 
 model Character {
-    id            Int            @id @default(autoincrement())
-    name          String
-    dob           DateTime? // Date of birth, converted to UTC. Will be displayed in GUY notation.
-    pob           String? // Place of birth
-    aliases       Alias[] // Array of aliases
-    relationships Relationship[] // Array for describing relationships (e.g., "Parent: X", "Sibling: Y")
-    homePlanet    String?
-    species       String
-    class         String // Enum: "Higher Sentients", "Lower Sentients" // Should this even be here?
-    sex           String // Enum: "Male", "Female", "Other", "Unspecified"
-    height        Float? // Height in meters (e.g., 1.75)
-    weight        Float? // Weight in kilograms
-    hairColor     String?
-    eyeColor      String?
-    creator       String // Name or ID of the creator
+  id            Int       @id @unique @default(autoincrement())
+  name          String
+  dob           Int?    // Date of birth as a unix timestamp. Will be displayed in GUY notation.
+  pob           String? // Place of birth
+  aliases       Alias[] // Array of aliases
+  relationships Relationship[] // Array for describing relationships (e.g., "Parent: X", "Sibling: Y")
+  homePlanet    String?
+  species       Species   @relation(fields: [speciesId], references: [id])
+  speciesId     Int
+  sex           Sex // Enum: "Male", "Female", "Other", "Unspecified"
+  height        Float? // Height in meters (e.g., 1.75)
+  weight        Float? // Weight in kilograms
+  hairColor     String?
+  eyeColor      String?
+  creator       User      @relation(fields: [creatorId], references: [id])
+  creatorId     Int
+  messages      Message[]
 
-    @@map("characters") // Maps the table name in the SQLite database
+  @@map("characters") // Maps the table name in the SQLite database
 }
 
 model Alias {
-    id          Int       @id @default(autoincrement())
-    name        String
-    characterId Int
-    character   Character @relation(fields: [characterId], references: [id])
+  id          Int         @id @unique @default(autoincrement())
+  name        String
+  characterId Int
+  character   Character   @relation(fields: [characterId], references: [id])
 
-    @@map("aliases")
+  @@map("aliases")
 }
 
 model Relationship {
-    id          Int       @id @default(autoincrement())
-    description String // Example: "Parent of John"
-    characterId Int
-    character   Character @relation(fields: [characterId], references: [id])
+  id          Int         @id @unique @default(autoincrement())
+  description String // Example: "Parent of John"
+  characterId Int
+  character   Character   @relation(fields: [characterId], references: [id])
 
-    @@map("relationships")
+  @@map("relationships")
 }
 
-// 
 model Species {
-    id            Int     @id @default(autoincrement())
-    name          String
-    description   String
-    binomialName  String? // Equivalent to taxonomy
-    class         String // Enum: "Higher Sentients", "Lower Sentients"
-    lifespan      String // Average lifespan in GUYs
-    diet          String? // Enum: "Carnivore", "Herbivore", "Omnivore", "Other"
-    habitat       String?
-    placeOfOrigin String?
-    creator       String // Name or ID of the creator
+  id            Int       @id @unique @default(autoincrement())
+  name          String
+  description   String
+  binomialName  String? // Equivalent to taxonomy
+  class         Class // Enum: "Higher Sentients", "Lower Sentients"
+  lifespan      String // Average lifespan in GUYs
+  diet          String? // Enum: "Carnivore", "Herbivore", "Omnivore", "Other"
+  habitat       String?
+  placeOfOrigin String?
+  creator       User      @relation(fields: [creatorId], references: [id])
+  Character     Character[]
+  creatorId     Int
 
-    @@map("species")
+  @@map("species")
+}
+
+model Season {
+  title    String         @id @unique
+  episodes Episode[]
+
+  @@map("seasons")
+}
+
+model Episode {
+  title       String      @unique
+  season      Season      @relation(fields: [seasonTitle], references: [title])
+  episode_no  Int
+  messages    Message[]
+  seasonTitle String
+
+  @@id([seasonTitle, episode_no])
+  @@map("episodes")
+}
+
+model Message {
+  episode      Episode    @relation(fields: [episodeTitle], references: [title])
+  message_no   Int
+  episodeTitle String
+  player       User       @relation(fields: [playerId], references: [id])
+  playerId     Int
+  character    Character? @relation(fields: [characterId], references: [id])
+  characterId  Int?
+  date         DateTime
+  type         MessageType
+  text         String
+
+  @@id([episodeTitle, message_no])
+  @@map("messages")
 }
