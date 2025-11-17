@@ -33,3 +33,6 @@ $RECYCLE.BIN/
 
 # Environment variables
 .env
+
+*.code-workspace
+prisma/client/

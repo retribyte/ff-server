@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Sex } from "@prisma/client";
 import App from "../app.js";
 import { Request, Response } from "express";
 
@@ -7,16 +7,15 @@ type CreateCharacterBody = {
     dob?: string; // Date of birth
     pob?: string; // Place of birth
     homePlanet?: string;
-    species: string;
-    class: "Higher Sentients" | "Lower Sentients";
-    sex: "Male" | "Female" | "Other" | "Unspecified";
+    speciesId: number; // Foreign key to Species
+    sex: Sex;
     height?: number; // Height in meters
     weight?: number; // Weight in kilograms
     hairColor?: string;
     eyeColor?: string;
-    creator: string; // Creator's name or ID
+    creatorId: number; // Foreign key to User
     aliases?: { name: string }[]; // Array of alias objects with only the `name` field
-    relationships?: { description: string; characterId: number }[]; // Array of relationship objects with a `description`
+    relationships?: { description: string }[]; // Array of relationship objects with a `description`
 };
 
 export class CharacterService {
@@ -37,39 +36,32 @@ export class CharacterService {
             aliases,
             relationships,
             homePlanet,
-            species,
-            class: charClass,
+            speciesId,
             sex,
             height,
             weight,
             hairColor,
             eyeColor,
-            creator,
+            creatorId,
         } = req.body;
 
         try {
             const newCharacter = await this.prisma.character.create({
                 data: {
                     name,
-                    dob: dob ? new Date(dob) : null,
+                    dob: dob ? Math.floor(new Date(dob).getTime() / 1000) : null,
                     pob,
                     homePlanet,
-                    species,
-                    class: charClass,
+                    speciesId,
                     sex,
                     height,
                     weight,
                     hairColor,
                     eyeColor,
-                    creator,
+                    creatorId,
                     aliases: aliases ? { create: aliases } : undefined,
                     relationships: relationships
-                        ? {
-                              create: relationships.map((rel) => ({
-                                  characterId: rel.characterId,
-                                  description: rel.description,
-                              })),
-                          }
+                        ? { create: relationships }
                         : undefined,
                 },
                 include: {
@@ -130,14 +122,13 @@ export class CharacterService {
             aliases,
             relationships,
             homePlanet,
-            species,
-            class: charClass,
+            speciesId,
             sex,
             height,
             weight,
             hairColor,
             eyeColor,
-            creator,
+            creatorId,
         } = req.body;
 
         try {
@@ -145,17 +136,16 @@ export class CharacterService {
                 where: { id },
                 data: {
                     name,
-                    dob: dob ? new Date(dob) : null,
+                    dob: dob ? Math.floor(new Date(dob).getTime() / 1000) : null,
                     pob,
                     homePlanet,
-                    species,
-                    class: charClass,
+                    speciesId,
                     sex,
                     height,
                     weight,
                     hairColor,
                     eyeColor,
-                    creator,
+                    creatorId,
                     aliases: aliases
                         ? { deleteMany: {}, create: aliases }
                         : undefined,

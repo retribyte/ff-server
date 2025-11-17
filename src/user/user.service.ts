@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserRole } from "@prisma/client";
 import App from "../app.js";
 import { compareSync, hashSync } from "bcryptjs";
 
@@ -32,6 +32,7 @@ export class UserService {
                 username,
                 email,
                 password: encryptedPassword,
+                role: UserRole.USER,
             },
         });
 
