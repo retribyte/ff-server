@@ -90,8 +90,6 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 - **FR-AUTH-2** The System MUST support password-based login that yields an authenticated session.
 - **FR-AUTH-3** The System MUST hash passwords using a recognized password-hashing function at rest.
 - **FR-AUTH-4** A user MUST be able to view and edit their own profile (display name, avatar, bio).
-- **FR-AUTH-5** Admins MUST be able to change another user's role.
-- **FR-AUTH-6** Sessions MUST expire and be revocable; logout MUST invalidate the active session.
 
 ### 3.2 Archive Browsing (read-only, public)
 
@@ -102,7 +100,6 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 - **FR-ARC-5** Each line/block of a transcript MUST be individually addressable via a URL anchor for deep-linking.
 - **FR-ARC-6** A visitor MUST be able to search within an episode's transcript.
 - **FR-ARC-7** Characters mentioned in a transcript MUST render with their associated avatar/color.
-- **FR-ARC-8** Legacy URLs from the previous `ff-site` MUST resolve (via redirect) to the equivalent new URLs so existing links do not break.
 
 ### 3.3 CYOA Reader
 
@@ -141,8 +138,7 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 
 ### 3.8 Episodes and Transcripts
 
-- **FR-EP-1** A member MUST be able to create an episode within a season: title, episode number, summary, played date.
-- **FR-EP-2** An episode MUST hold an ordered sequence of messages; see §3.9 for the message model.
+- **FR-EP-1** An episode MUST hold an ordered sequence of messages; see §3.9 for the message model.
 
 ### 3.9 Messages
 
@@ -244,8 +240,8 @@ This section captures the *entities* and *relationships* the System must represe
 
 ### 5.5 Maintainability
 
-- **NFR-MNT-1** The codebase MUST be a single repository (or a deliberate few) covering frontend and backend; the legacy split into three independent repos is being collapsed.
-- **NFR-MNT-2** The API contract MUST be documented (e.g. OpenAPI, generated client types, or equivalent).
+- **NFR-MNT-1** The codebase MUST be two repositories covering frontend and backend; the legacy split into three independent repos is being collapsed.
+- **NFR-MNT-2** The API contract MUST be documented (e.g. OpenAPI, Swagger).
 
 ### 5.6 Extensibility
 
@@ -258,7 +254,7 @@ This section captures the *entities* and *relationships* the System must represe
 
 ### 5.8 Internationalization
 
-- **NFR-I18N-1** Out of scope for v1. Text strings SHOULD nonetheless be authored in a way that does not block future translation.
+- **NFR-I18N-1** Out of scope for v1.
 
 ---
 
