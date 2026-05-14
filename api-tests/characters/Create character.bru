@@ -1,11 +1,11 @@
 meta {
-  name: Update character
+  name: Create character
   type: http
-  seq: 8
+  seq: 3
 }
 
-put {
-  url: http://localhost:3000/api/characters/1
+post {
+  url: http://localhost:3000/api/characters
   body: json
   auth: inherit
 }
@@ -19,9 +19,9 @@ body:json {
     "dob": "1990-01-01",
     "pob": "Earth",
     "homePlanet": "Earth",
-    "height": 1.90,
-    "weight": 85.0,
-    "hairColor": "black",
+    "height": 1.85,
+    "weight": 82.0,
+    "hairColor": "brown",
     "eyeColor": "blue",
     "aliases": [{ "name": "The Hawk" }],
     "relationships": [{ "description": "Father of John" }]

@@ -1,0 +1,23 @@
+meta {
+  name: Update episode
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:3000/api/episodes/The Derelict
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "summary": "The crew boards the derelict vessel and discovers its crew did not leave willingly — something drove them out.",
+    "playedDate": "2022-04-12"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

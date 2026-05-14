@@ -1,0 +1,26 @@
+meta {
+  name: Create message
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:3000/api/episodes/Pilot/messages
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "playerId": 2,
+    "characterId": 1,
+    "date": "2022-03-15T18:30:00Z",
+    "type": "ACTION",
+    "text": "Garrick exits the ship and immediately pockets a keg before joining the others."
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

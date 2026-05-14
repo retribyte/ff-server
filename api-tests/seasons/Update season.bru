@@ -1,0 +1,22 @@
+meta {
+  name: Update season
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:3000/api/seasons/Final Frontier Season 2
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "Final Frontier Season 2: The Return"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

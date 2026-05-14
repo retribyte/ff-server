@@ -1,0 +1,22 @@
+meta {
+  name: Update item
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:3000/api/items/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "description": "Standard-issue long-arm of the Outer Belt Expeditionary Forces. Fires superheated plasma bolts with moderate range and excellent armor penetration. Rix keeps his in meticulously maintained condition. Recently upgraded with a custom grip."
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

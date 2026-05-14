@@ -1,0 +1,23 @@
+meta {
+  name: Update species
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:3000/api/species/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "description": "Resilient and adaptable bipeds originating from the Sol system. Their tenacity makes them exceptional explorers, diplomats, and soldiers.",
+    "lifespan": "~85 GUY"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

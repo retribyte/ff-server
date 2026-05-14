@@ -1,0 +1,16 @@
+meta {
+  name: Get character quotes
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:3000/api/characters/1/quotes
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
