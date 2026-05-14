@@ -6,6 +6,7 @@ import { authenticate } from "../auth/security.middleware.js";
 const initializeUserRoutes = (): Router => {
     const router: Router = Router();
 
+    // POST /api/register: Register a new user account
     router.post("/register", async (req: Request, res: Response) => {
         const { username, email, password } = req.body;
         if (!username || !email || !password) {
@@ -27,6 +28,7 @@ const initializeUserRoutes = (): Router => {
         }
     });
 
+    // POST /api/login: Authenticate and return a JWT access token
     router.post("/login", async (req: Request, res: Response) => {
         const { username, password } = req.body;
         if (!username || !password) {
@@ -52,6 +54,7 @@ const initializeUserRoutes = (): Router => {
         }
     });
 
+    // GET /api/user: Return the currently authenticated user
     router.get("/user", authenticate, async (req: Request, res: Response) => {
         return res.status(200).json({ status: "success", data: req.user });
     });

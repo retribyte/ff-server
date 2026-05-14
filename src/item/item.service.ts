@@ -1,0 +1,59 @@
+import { PrismaClient, ItemType } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+type ItemData = {
+    name: string;
+    itemType: ItemType;
+    description: string;
+    image?: string;
+    creatorId: number;
+    characterId?: number;
+};
+
+async function getAllItems() {
+    return await prisma.item.findMany({
+        include: { character: true },
+    });
+}
+
+async function getItemById(id: number) {
+    return await prisma.item.findUnique({
+        where: { id },
+        include: { character: true, creator: { select: { id: true, username: true } } },
+    });
+}
+
+async function createItem(data: ItemData) {
+    return await prisma.item.create({
+        data: {
+            name: data.name,
+            itemType: data.itemType,
+            description: data.description,
+            image: data.image,
+            creatorId: data.creatorId,
+            characterId: data.characterId,
+        },
+        include: { character: true },
+    });
+}
+
+async function updateItem(id: number, data: Partial<ItemData>) {
+    return await prisma.item.update({
+        where: { id },
+        data: {
+            name: data.name,
+            itemType: data.itemType,
+            description: data.description,
+            image: data.image,
+            characterId: data.characterId,
+        },
+        include: { character: true },
+    });
+}
+
+async function deleteItem(id: number): Promise<void> {
+    await prisma.item.delete({ where: { id } });
+}
+
+export default { getAllItems, getItemById, createItem, updateItem, deleteItem };

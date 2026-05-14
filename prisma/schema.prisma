@@ -35,6 +35,13 @@ enum MessageType {
   OTHER
 }
 
+enum ItemType {
+  WEAPON
+  EQUIPMENT
+  ARTIFACT
+  OTHER
+}
+
 model User {
   id          Int         @id @unique @default(autoincrement())
   username    String      @unique
@@ -48,6 +55,7 @@ model User {
   updatedAt   DateTime    @updatedAt
   species     Species[]
   messages    Message[]
+  items       Item[]
 }
 
 model Character {
@@ -68,6 +76,9 @@ model Character {
   creator       User      @relation(fields: [creatorId], references: [id])
   creatorId     Int
   messages      Message[]
+  image         String?
+  themeColor    String?
+  items         Item[]
 
   @@map("characters") // Maps the table name in the SQLite database
 }
@@ -120,6 +131,8 @@ model Episode {
   episode_no  Int
   messages    Message[]
   seasonTitle String
+  summary     String?
+  playedDate  DateTime?
 
   @@id([seasonTitle, episode_no])
   @@map("episodes")
@@ -139,4 +152,20 @@ model Message {
 
   @@id([episodeTitle, message_no])
   @@map("messages")
+}
+
+model Item {
+  id          Int        @id @unique @default(autoincrement())
+  name        String
+  itemType    ItemType
+  description String
+  image       String?
+  creator     User       @relation(fields: [creatorId], references: [id])
+  creatorId   Int
+  character   Character? @relation(fields: [characterId], references: [id])
+  characterId Int?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("items")
 }

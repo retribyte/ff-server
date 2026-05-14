@@ -10,6 +10,9 @@
         "docker:up": "docker compose up -d --build",
         "docker:down": "docker compose down"
     },
+    "prisma": {
+        "seed": "tsx prisma/seed.ts"
+    },
     "author": "Trey R.",
     "dependencies": {
         "@prisma/client": "^6.19.0",

@@ -1,6 +1,11 @@
 import express, { Application, NextFunction, Request, Response } from "express";
 import userController from "./user/user.controller.js";
 import characterController from "./character/character.controller.js";
+import speciesController from "./species/species.controller.js";
+import seasonController from "./season/season.controller.js";
+import episodeController from "./episode/episode.controller.js";
+import messageController from "./message/message.controller.js";
+import itemController from "./item/item.controller.js";
 
 class App {
     public app: Application;
@@ -15,6 +20,11 @@ class App {
     private routes(): void {
         this.app.use("/api", userController.initializeUserRoutes());
         this.app.use("/api", characterController.initializeCharacterRoutes());
+        this.app.use("/api", speciesController.initializeSpeciesRoutes());
+        this.app.use("/api", seasonController.initializeSeasonRoutes());
+        this.app.use("/api", episodeController.initializeEpisodeRoutes());
+        this.app.use("/api", messageController.initializeMessageRoutes());
+        this.app.use("/api", itemController.initializeItemRoutes());
     }
 
     private errorHandlers(): void {

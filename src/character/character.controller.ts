@@ -5,6 +5,7 @@ import { authenticate } from "../auth/security.middleware.js";
 const initializeCharacterRoutes = (): Router => {
     const router: Router = Router();
 
+    // GET /api/characters: Return all characters with aliases and relationships
     router.get("/characters", authenticate, async (req: Request, res: Response) => {
         try {
             const characters = await characterService.getAllCharacters();
@@ -15,6 +16,7 @@ const initializeCharacterRoutes = (): Router => {
         }
     });
 
+    // GET /api/characters/:id: Return a character by id
     router.get("/characters/:id", authenticate, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
 
@@ -33,6 +35,7 @@ const initializeCharacterRoutes = (): Router => {
         }
     });
 
+    // POST /api/characters: Create a new character
     router.post("/characters", authenticate, async (req: Request, res: Response) => {
         try {
             const character = await characterService.createCharacter(req.body);
@@ -42,6 +45,7 @@ const initializeCharacterRoutes = (): Router => {
         }
     });
 
+    // PUT /api/characters/:id: Update a character by id
     router.put("/characters/:id", authenticate, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
 
@@ -53,6 +57,7 @@ const initializeCharacterRoutes = (): Router => {
         }
     });
 
+    // DELETE /api/characters/:id: Delete a character by id
     router.delete("/characters/:id", authenticate, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
 
