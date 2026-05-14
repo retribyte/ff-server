@@ -1,82 +1,45 @@
-import { PrismaClient, UserRole } from "@prisma/client";
-import App from "../app.js";
-import { compareSync, hashSync } from "bcryptjs";
+import { PrismaClient, User, UserRole } from "@prisma/client";
+import { hashSync, compareSync } from "bcryptjs";
 
-export class UserService {
-    private prisma: PrismaClient;
-    private bcrypt: { hashSync: typeof hashSync; compareSync: typeof compareSync };
+const prisma = new PrismaClient();
 
-    constructor() {
-        this.prisma = App.prisma;
-        this.bcrypt = { hashSync, compareSync };
+const SALT_ROUNDS = process.env.SALT_ROUNDS ? parseInt(process.env.SALT_ROUNDS) : 12;
+
+async function createUser(
+    username: string,
+    email: string,
+    password: string
+): Promise<User> {
+    const existingUser = await prisma.user.findUnique({ where: { username } });
+    if (existingUser) {
+        throw new Error("User already exists");
     }
-
-    async createUser(username: string, email: string, password: string) {
-        const saltRounds: number = process.env.SALT_ROUNDS
-            ? parseInt(process.env.SALT_ROUNDS)
-            : 12;
-        const encryptedPassword = this.bcrypt.hashSync(password, saltRounds);
-
-        const existingUser = await this.prisma.user.findUnique({
-            where: {
-                username,
-            },
-        });
-
-        if (existingUser) {
-            throw new Error("User already exists");
-        }
-
-        const newUser = await this.prisma.user.create({
-            data: {
-                username,
-                email,
-                password: encryptedPassword,
-                role: UserRole.USER,
-            },
-        });
-
-        return newUser;
-    }
-
-    async getUserByEmail(email: string) {
-        const user = await this.prisma.user.findUnique({
-            where: {
-                email: email,
-            },
-        });
-
-        return user;
-    }
-
-    async getUserByUsername(username: string) {
-        const user = await this.prisma.user.findUnique({
-            where: {
-                username: username,
-            },
-        });
-
-        return user;
-    }
-
-    async authenticateUser(user: any) {
-        const foundUser = await this.prisma.user.findUnique({
-            where: {
-                username: user.username,
-            },
-        });
-
-        if (foundUser) {
-            const isPasswordCorrect = await this.bcrypt.compareSync(
-                user.password,
-                foundUser.password
-            );
-
-            if (isPasswordCorrect) {
-                return foundUser;
-            }
-        }
-
-        return null;
-    }
+    return await prisma.user.create({
+        data: {
+            username,
+            email,
+            password: hashSync(password, SALT_ROUNDS),
+            role: UserRole.USER,
+        },
+    });
 }
+
+async function getUserByUsername(username: string): Promise<User | null> {
+    return await prisma.user.findUnique({ where: { username } });
+}
+
+async function getUserByEmail(email: string): Promise<User | null> {
+    return await prisma.user.findUnique({ where: { email } });
+}
+
+async function authenticateUser(
+    username: string,
+    password: string
+): Promise<User | null> {
+    const user = await prisma.user.findUnique({ where: { username } });
+    if (!user) return null;
+    if (!compareSync(password, user.password)) return null;
+    return user;
+}
+
+export default { createUser, getUserByUsername, getUserByEmail, authenticateUser };

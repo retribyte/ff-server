@@ -1,0 +1,35 @@
+meta {
+  name: Insert new message
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3000/api/message
+  body: json
+  auth: inherit
+}
+
+body:json {
+  
+          {
+              "player": "Trey",
+              "character": "Garrick",
+              "date": "18-Aug-18 02:29 PM",
+              "content": [
+                  {
+                      "type": "action",
+                      "text": "Garrick exits the ship and immediately pockets a keg before joining the others."
+                  },
+                  {
+                      "type": "quote",
+                      "text": "Heyo."
+                  }
+              ]
+          }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,181 +1,93 @@
 import { PrismaClient, Sex } from "@prisma/client";
-import App from "../app.js";
-import { Request, Response } from "express";
 
-type CreateCharacterBody = {
+const prisma = new PrismaClient();
+
+type CharacterData = {
     name: string;
-    dob?: string; // Date of birth
-    pob?: string; // Place of birth
+    dob?: string;
+    pob?: string;
     homePlanet?: string;
-    speciesId: number; // Foreign key to Species
+    speciesId: number;
     sex: Sex;
-    height?: number; // Height in meters
-    weight?: number; // Weight in kilograms
+    height?: number;
+    weight?: number;
     hairColor?: string;
     eyeColor?: string;
-    creatorId: number; // Foreign key to User
-    aliases?: { name: string }[]; // Array of alias objects with only the `name` field
-    relationships?: { description: string }[]; // Array of relationship objects with a `description`
+    creatorId: number;
+    aliases?: { name: string }[];
+    relationships?: { description: string }[];
 };
 
-export class CharacterService {
-    private prisma: PrismaClient;
-
-    constructor() {
-        this.prisma = App.prisma;
-    }
-
-    async createCharacter(
-        req: Request<{}, {}, CreateCharacterBody>,
-        res: Response
-    ) {
-        const {
-            name,
-            dob,
-            pob,
-            aliases,
-            relationships,
-            homePlanet,
-            speciesId,
-            sex,
-            height,
-            weight,
-            hairColor,
-            eyeColor,
-            creatorId,
-        } = req.body;
-
-        try {
-            const newCharacter = await this.prisma.character.create({
-                data: {
-                    name,
-                    dob: dob ? Math.floor(new Date(dob).getTime() / 1000) : null,
-                    pob,
-                    homePlanet,
-                    speciesId,
-                    sex,
-                    height,
-                    weight,
-                    hairColor,
-                    eyeColor,
-                    creatorId,
-                    aliases: aliases ? { create: aliases } : undefined,
-                    relationships: relationships
-                        ? { create: relationships }
-                        : undefined,
-                },
-                include: {
-                    aliases: true,
-                    relationships: true,
-                },
-            });
-
-            res.status(201).json(newCharacter);
-        } catch (err) {
-            res.status(400).json({ error: (err as Error).message });
-        }
-    }
-
-    async getAllCharacters(_req: Request, res: Response) {
-        try {
-            const characters = await this.prisma.character.findMany({
-                include: {
-                    aliases: true,
-                    relationships: true,
-                },
-            });
-
-            res.status(200).json(characters);
-        } catch (err) {
-            res.status(500).json({ error: (err as Error).message });
-        }
-    }
-
-    async getCharacterById(req: Request, res: Response) {
-        const id = parseInt(req.params.id, 10);
-
-        try {
-            const character = await this.prisma.character.findUnique({
-                where: { id },
-                include: {
-                    aliases: true,
-                    relationships: true,
-                },
-            });
-
-            if (!character) {
-                return res.status(404).json({ error: "Character not found" });
-            }
-
-            res.status(200).json(character);
-        } catch (err) {
-            res.status(400).json({ error: (err as Error).message });
-        }
-    }
-
-    async updateCharacter(req: Request, res: Response) {
-        const id = parseInt(req.params.id, 10);
-        const {
-            name,
-            dob,
-            pob,
-            aliases,
-            relationships,
-            homePlanet,
-            speciesId,
-            sex,
-            height,
-            weight,
-            hairColor,
-            eyeColor,
-            creatorId,
-        } = req.body;
-
-        try {
-            const updatedCharacter = await this.prisma.character.update({
-                where: { id },
-                data: {
-                    name,
-                    dob: dob ? Math.floor(new Date(dob).getTime() / 1000) : null,
-                    pob,
-                    homePlanet,
-                    speciesId,
-                    sex,
-                    height,
-                    weight,
-                    hairColor,
-                    eyeColor,
-                    creatorId,
-                    aliases: aliases
-                        ? { deleteMany: {}, create: aliases }
-                        : undefined,
-                    relationships: relationships
-                        ? { deleteMany: {}, create: relationships }
-                        : undefined,
-                },
-                include: {
-                    aliases: true,
-                    relationships: true,
-                },
-            });
-
-            res.status(200).json(updatedCharacter);
-        } catch (err) {
-            res.status(400).json({ error: (err as Error).message });
-        }
-    }
-
-    async deleteCharacter(req: Request, res: Response) {
-        const id = parseInt(req.params.id, 10);
-
-        try {
-            await this.prisma.character.delete({
-                where: { id },
-            });
-
-            res.status(204).send();
-        } catch (err) {
-            res.status(400).json({ error: (err as Error).message });
-        }
-    }
+async function getAllCharacters() {
+    return await prisma.character.findMany({
+        include: { aliases: true, relationships: true },
+    });
 }
+
+async function getCharacterById(id: number) {
+    return await prisma.character.findUnique({
+        where: { id },
+        include: { aliases: true, relationships: true },
+    });
+}
+
+async function createCharacter(data: CharacterData) {
+    return await prisma.character.create({
+        data: {
+            name: data.name,
+            dob: data.dob ? Math.floor(new Date(data.dob).getTime() / 1000) : null,
+            pob: data.pob,
+            homePlanet: data.homePlanet,
+            speciesId: data.speciesId,
+            sex: data.sex,
+            height: data.height,
+            weight: data.weight,
+            hairColor: data.hairColor,
+            eyeColor: data.eyeColor,
+            creatorId: data.creatorId,
+            aliases: data.aliases ? { create: data.aliases } : undefined,
+            relationships: data.relationships
+                ? { create: data.relationships }
+                : undefined,
+        },
+        include: { aliases: true, relationships: true },
+    });
+}
+
+async function updateCharacter(id: number, data: Partial<CharacterData>) {
+    return await prisma.character.update({
+        where: { id },
+        data: {
+            name: data.name,
+            dob: data.dob ? Math.floor(new Date(data.dob).getTime() / 1000) : null,
+            pob: data.pob,
+            homePlanet: data.homePlanet,
+            speciesId: data.speciesId,
+            sex: data.sex,
+            height: data.height,
+            weight: data.weight,
+            hairColor: data.hairColor,
+            eyeColor: data.eyeColor,
+            creatorId: data.creatorId,
+            aliases: data.aliases
+                ? { deleteMany: {}, create: data.aliases }
+                : undefined,
+            relationships: data.relationships
+                ? { deleteMany: {}, create: data.relationships }
+                : undefined,
+        },
+        include: { aliases: true, relationships: true },
+    });
+}
+
+async function deleteCharacter(id: number): Promise<void> {
+    await prisma.character.delete({ where: { id } });
+}
+
+export default {
+    getAllCharacters,
+    getCharacterById,
+    createCharacter,
+    updateCharacter,
+    deleteCharacter,
+};

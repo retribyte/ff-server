@@ -1,30 +1,70 @@
-import { Router } from "express";
-import { CharacterService } from "./character.service.js";
+import { Router, Request, Response } from "express";
+import characterService from "./character.service.js";
+import { authenticate } from "../auth/security.middleware.js";
 
-export class CharacterController {
-    public router: Router;
-    private characterService: CharacterService;
+const initializeCharacterRoutes = (): Router => {
+    const router: Router = Router();
 
-    constructor() {
-        this.router = Router();
-        this.characterService = new CharacterService();
-        this.initializeRoutes();
-    }
+    router.get("/characters", authenticate, async (req: Request, res: Response) => {
+        try {
+            const characters = await characterService.getAllCharacters();
+            res.status(200).json({ status: "success", data: characters });
+        } catch (error) {
+            console.error("Error fetching characters:", error);
+            res.status(500).json({ status: "error", message: "Failed to fetch characters" });
+        }
+    });
 
-    private initializeRoutes() {
-        this.router.post("/characters", this.characterService.createCharacter);
-        this.router.get("/characters", this.characterService.getAllCharacters);
-        this.router.get(
-            "/characters/:id",
-            this.characterService.getCharacterById
-        );
-        this.router.put(
-            "/characters/:id",
-            this.characterService.updateCharacter
-        );
-        this.router.delete(
-            "/characters/:id",
-            this.characterService.deleteCharacter
-        );
-    }
-}
+    router.get("/characters/:id", authenticate, async (req: Request, res: Response) => {
+        const id = parseInt(req.params.id, 10);
+
+        try {
+            const character = await characterService.getCharacterById(id);
+            if (!character) {
+                return res.status(404).json({
+                    status: "error",
+                    message: `Character with id '${id}' not found`,
+                });
+            }
+            res.status(200).json({ status: "success", data: character });
+        } catch (error) {
+            console.error("Error fetching character:", error);
+            res.status(500).json({ status: "error", message: "Failed to fetch character" });
+        }
+    });
+
+    router.post("/characters", authenticate, async (req: Request, res: Response) => {
+        try {
+            const character = await characterService.createCharacter(req.body);
+            res.status(201).json({ status: "success", data: character });
+        } catch (error: any) {
+            res.status(400).json({ status: "error", message: error.message });
+        }
+    });
+
+    router.put("/characters/:id", authenticate, async (req: Request, res: Response) => {
+        const id = parseInt(req.params.id, 10);
+
+        try {
+            const character = await characterService.updateCharacter(id, req.body);
+            res.status(200).json({ status: "success", data: character });
+        } catch (error: any) {
+            res.status(400).json({ status: "error", message: error.message });
+        }
+    });
+
+    router.delete("/characters/:id", authenticate, async (req: Request, res: Response) => {
+        const id = parseInt(req.params.id, 10);
+
+        try {
+            await characterService.deleteCharacter(id);
+            res.status(204).send();
+        } catch (error: any) {
+            res.status(400).json({ status: "error", message: error.message });
+        }
+    });
+
+    return router;
+};
+
+export default { initializeCharacterRoutes };

@@ -1,0 +1,34 @@
+meta {
+  name: Update character
+  type: http
+  seq: 8
+}
+
+put {
+  url: http://localhost:3000/api/characters/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Garrick",
+    "speciesId": 1,
+    "sex": "MALE",
+    "creatorId": 1,
+    "dob": "1990-01-01",
+    "pob": "Earth",
+    "homePlanet": "Earth",
+    "height": 1.90,
+    "weight": 85.0,
+    "hairColor": "black",
+    "eyeColor": "blue",
+    "aliases": [{ "name": "The Hawk" }],
+    "relationships": [{ "description": "Father of John" }]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
