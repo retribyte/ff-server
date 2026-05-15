@@ -1,0 +1,24 @@
+meta {
+  name: Update user
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:3000/api/user
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "retribyte",
+    "icon": "https://example.com/avatar.png",
+    "bio": "Campaign GM and lore keeper."
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

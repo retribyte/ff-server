@@ -31,12 +31,14 @@ const initializeMessageRoutes = (): Router => {
         }
     });
 
-    // GET /api/episodes/:episodeTitle/messages: Return all messages in an episode ordered by message_no
+    // GET /api/episodes/:episodeTitle/messages: Return paginated messages in an episode ordered by message_no
     router.get("/episodes/:episodeTitle/messages", async (req: Request, res: Response) => {
         const { episodeTitle } = req.params;
+        const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 100;
         try {
-            const messages = await messageService.getMessagesByEpisode(episodeTitle);
-            res.status(200).json({ status: "success", data: messages });
+            const result = await messageService.getMessagesByEpisode(episodeTitle, page, limit);
+            res.status(200).json({ status: "success", ...result });
         } catch (error) {
             console.error("Error fetching messages:", error);
             res.status(500).json({ status: "error", message: "Failed to fetch messages" });
@@ -62,17 +64,6 @@ const initializeMessageRoutes = (): Router => {
         }
     });
 
-    // POST /api/episodes/:episodeTitle/messages: Append a new message to an episode
-    router.post("/episodes/:episodeTitle/messages", authenticate, async (req: Request, res: Response) => {
-        const { episodeTitle } = req.params;
-        try {
-            const message = await messageService.createMessage(episodeTitle, req.body);
-            res.status(201).json({ status: "success", data: message });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
-        }
-    });
-
     // PUT /api/episodes/:episodeTitle/messages/:messageNo: Update a message by episode and sequence number
     router.put("/episodes/:episodeTitle/messages/:messageNo", authenticate, async (req: Request, res: Response) => {
         const { episodeTitle } = req.params;
@@ -80,18 +71,6 @@ const initializeMessageRoutes = (): Router => {
         try {
             const message = await messageService.updateMessage(episodeTitle, messageNo, req.body);
             res.status(200).json({ status: "success", data: message });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
-        }
-    });
-
-    // DELETE /api/episodes/:episodeTitle/messages/:messageNo: Delete a message by episode and sequence number
-    router.delete("/episodes/:episodeTitle/messages/:messageNo", authenticate, async (req: Request, res: Response) => {
-        const { episodeTitle } = req.params;
-        const messageNo = parseInt(req.params.messageNo, 10);
-        try {
-            await messageService.deleteMessage(episodeTitle, messageNo);
-            res.status(204).send();
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });
         }

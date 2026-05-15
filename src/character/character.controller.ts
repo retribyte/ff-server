@@ -1,14 +1,21 @@
 import { Router, Request, Response } from "express";
 import characterService from "./character.service.js";
-import { authenticate } from "../auth/security.middleware.js";
+import { authenticate, isAdmin } from "../auth/security.middleware.js";
+import { UserRole } from "@prisma/client";
 
 const initializeCharacterRoutes = (): Router => {
     const router: Router = Router();
 
-    // GET /api/characters: Return all characters with aliases and relationships
-    router.get("/characters", authenticate, async (req: Request, res: Response) => {
+    // GET /api/characters: Return all characters, optionally filtered/searched (public)
+    router.get("/characters", async (req: Request, res: Response) => {
         try {
-            const characters = await characterService.getAllCharacters();
+            const { search, speciesId, ownerId, season } = req.query;
+            const characters = await characterService.getAllCharacters({
+                search: search as string | undefined,
+                speciesId: speciesId ? parseInt(speciesId as string, 10) : undefined,
+                ownerId: ownerId ? parseInt(ownerId as string, 10) : undefined,
+                season: season as string | undefined,
+            });
             res.status(200).json({ status: "success", data: characters });
         } catch (error) {
             console.error("Error fetching characters:", error);
@@ -16,8 +23,8 @@ const initializeCharacterRoutes = (): Router => {
         }
     });
 
-    // GET /api/characters/:id: Return a character by id
-    router.get("/characters/:id", authenticate, async (req: Request, res: Response) => {
+    // GET /api/characters/:id: Return a character by id (public)
+    router.get("/characters/:id", async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
 
         try {
@@ -50,8 +57,15 @@ const initializeCharacterRoutes = (): Router => {
         const id = parseInt(req.params.id, 10);
 
         try {
-            const character = await characterService.updateCharacter(id, req.body);
-            res.status(200).json({ status: "success", data: character });
+            const character = await characterService.getCharacterById(id);
+            if (!character) {
+                return res.status(404).json({ status: "error", message: `Character with id '${id}' not found` });
+            }
+            if (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
+                return res.status(403).json({ status: "error", message: "Forbidden" });
+            }
+            const updated = await characterService.updateCharacter(id, req.body);
+            res.status(200).json({ status: "success", data: updated });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });
         }
@@ -62,6 +76,13 @@ const initializeCharacterRoutes = (): Router => {
         const id = parseInt(req.params.id, 10);
 
         try {
+            const character = await characterService.getCharacterById(id);
+            if (!character) {
+                return res.status(404).json({ status: "error", message: `Character with id '${id}' not found` });
+            }
+            if (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
+                return res.status(403).json({ status: "error", message: "Forbidden" });
+            }
             await characterService.deleteCharacter(id);
             res.status(204).send();
         } catch (error: any) {

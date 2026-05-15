@@ -18,8 +18,31 @@ type CharacterData = {
     relationships?: { description: string }[];
 };
 
-async function getAllCharacters() {
+type CharacterFilters = {
+    search?: string;
+    speciesId?: number;
+    ownerId?: number;
+    season?: string;
+};
+
+async function getAllCharacters(filters: CharacterFilters = {}) {
+    const { search, speciesId, ownerId, season } = filters;
+    const where: any = {};
+
+    if (search) {
+        where.OR = [
+            { name: { contains: search, mode: "insensitive" } },
+            { aliases: { some: { name: { contains: search, mode: "insensitive" } } } },
+        ];
+    }
+    if (speciesId !== undefined) where.speciesId = speciesId;
+    if (ownerId !== undefined) where.creatorId = ownerId;
+    if (season) {
+        where.messages = { some: { episode: { seasonTitle: season } } };
+    }
+
     return await prisma.character.findMany({
+        where,
         include: { aliases: true, relationships: true },
     });
 }

@@ -42,4 +42,23 @@ async function authenticateUser(
     return user;
 }
 
-export default { createUser, getUserByUsername, getUserByEmail, authenticateUser };
+type ProfileUpdate = {
+    username?: string;
+    icon?: string;
+    bio?: string;
+};
+
+async function updateUser(id: number, data: ProfileUpdate): Promise<Omit<User, "password">> {
+    const updated = await prisma.user.update({
+        where: { id },
+        data: {
+            username: data.username,
+            icon: data.icon,
+            bio: data.bio,
+        },
+    });
+    const { password: _, ...safe } = updated;
+    return safe;
+}
+
+export default { createUser, getUserByUsername, getUserByEmail, authenticateUser, updateUser };

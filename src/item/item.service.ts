@@ -11,8 +11,12 @@ type ItemData = {
     characterId?: number;
 };
 
-async function getAllItems() {
+async function getAllItems(search?: string) {
+    const where = search
+        ? { name: { contains: search, mode: "insensitive" as const } }
+        : undefined;
     return await prisma.item.findMany({
+        where,
         include: { character: true },
     });
 }

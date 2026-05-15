@@ -5,17 +5,24 @@ const prisma = new PrismaClient();
 type MessageData = {
     playerId: number;
     characterId?: number;
-    date: string;
+    timestamp: string;
     type: MessageType;
     text: string;
 };
 
-async function getMessagesByEpisode(episodeTitle: string) {
-    return await prisma.message.findMany({
-        where: { episodeTitle },
-        orderBy: { message_no: "asc" },
-        include: { player: { select: { id: true, username: true, icon: true } }, character: true },
-    });
+async function getMessagesByEpisode(episodeTitle: string, page = 1, limit = 100) {
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+        prisma.message.findMany({
+            where: { episodeTitle },
+            orderBy: { message_no: "asc" },
+            skip,
+            take: limit,
+            include: { player: { select: { id: true, username: true, icon: true } }, character: true },
+        }),
+        prisma.message.count({ where: { episodeTitle } }),
+    ]);
+    return { data, total, page, limit };
 }
 
 async function getMessageByNo(episodeTitle: string, message_no: number) {
@@ -28,7 +35,7 @@ async function getMessageByNo(episodeTitle: string, message_no: number) {
 async function getQuotesByCharacter(characterId: number) {
     return await prisma.message.findMany({
         where: { characterId, type: MessageType.QUOTE },
-        orderBy: { date: "asc" },
+        orderBy: { timestamp: "asc" },
         include: { episode: true },
     });
 }
@@ -63,7 +70,7 @@ async function createMessage(episodeTitle: string, data: MessageData) {
             message_no,
             playerId: data.playerId,
             characterId: data.characterId,
-            date: new Date(data.date),
+            timestamp: new Date(data.timestamp),
             type: data.type,
             text: data.text,
         },
@@ -81,7 +88,7 @@ async function updateMessage(episodeTitle: string, message_no: number, data: Par
         data: {
             playerId: data.playerId,
             characterId: data.characterId,
-            date: data.date ? new Date(data.date) : undefined,
+            timestamp: data.timestamp ? new Date(data.timestamp) : undefined,
             type: data.type,
             text: data.text,
         },

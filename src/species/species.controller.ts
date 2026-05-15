@@ -1,14 +1,15 @@
 import { Router, Request, Response } from "express";
 import speciesService from "./species.service.js";
 import { authenticate } from "../auth/security.middleware.js";
+import { UserRole } from "@prisma/client";
 
 const initializeSpeciesRoutes = (): Router => {
     const router: Router = Router();
 
-    // GET /api/species: Return all species with their associated characters
+    // GET /api/species: Return all species, optionally searched by name (public)
     router.get("/species", async (req: Request, res: Response) => {
         try {
-            const species = await speciesService.getAllSpecies();
+            const species = await speciesService.getAllSpecies(req.query.search as string | undefined);
             res.status(200).json({ status: "success", data: species });
         } catch (error) {
             console.error("Error fetching species:", error);
@@ -16,7 +17,7 @@ const initializeSpeciesRoutes = (): Router => {
         }
     });
 
-    // GET /api/species/:id: Return a species by id with all associated characters
+    // GET /api/species/:id: Return a species by id with all associated characters (public)
     router.get("/species/:id", async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
         try {
@@ -48,8 +49,15 @@ const initializeSpeciesRoutes = (): Router => {
     router.put("/species/:id", authenticate, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
         try {
-            const species = await speciesService.updateSpecies(id, req.body);
-            res.status(200).json({ status: "success", data: species });
+            const species = await speciesService.getSpeciesById(id);
+            if (!species) {
+                return res.status(404).json({ status: "error", message: `Species with id '${id}' not found` });
+            }
+            if (species.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
+                return res.status(403).json({ status: "error", message: "Forbidden" });
+            }
+            const updated = await speciesService.updateSpecies(id, req.body);
+            res.status(200).json({ status: "success", data: updated });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });
         }
@@ -59,6 +67,13 @@ const initializeSpeciesRoutes = (): Router => {
     router.delete("/species/:id", authenticate, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
         try {
+            const species = await speciesService.getSpeciesById(id);
+            if (!species) {
+                return res.status(404).json({ status: "error", message: `Species with id '${id}' not found` });
+            }
+            if (species.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
+                return res.status(403).json({ status: "error", message: "Forbidden" });
+            }
             await speciesService.deleteSpecies(id);
             res.status(204).send();
         } catch (error: any) {

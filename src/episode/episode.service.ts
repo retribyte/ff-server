@@ -10,9 +10,13 @@ type EpisodeData = {
     playedDate?: string;
 };
 
-async function getAllEpisodes() {
+async function getAllEpisodes(search?: string) {
+    const where = search
+        ? { title: { contains: search, mode: "insensitive" as const } }
+        : undefined;
     return await prisma.episode.findMany({
-        include: { season: true, messages: true },
+        where,
+        include: { season: true },
     });
 }
 

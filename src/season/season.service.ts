@@ -2,8 +2,12 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function getAllSeasons() {
+async function getAllSeasons(search?: string) {
+    const where = search
+        ? { title: { contains: search, mode: "insensitive" as const } }
+        : undefined;
     return await prisma.season.findMany({
+        where,
         include: { episodes: true },
     });
 }

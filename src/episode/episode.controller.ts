@@ -1,14 +1,14 @@
 import { Router, Request, Response } from "express";
 import episodeService from "./episode.service.js";
-import { authenticate } from "../auth/security.middleware.js";
+import { authenticate, isAdmin } from "../auth/security.middleware.js";
 
 const initializeEpisodeRoutes = (): Router => {
     const router: Router = Router();
 
-    // GET /api/episodes: Return all episodes with their season and messages
+    // GET /api/episodes: Return all episodes, optionally searched by title (public)
     router.get("/episodes", async (req: Request, res: Response) => {
         try {
-            const episodes = await episodeService.getAllEpisodes();
+            const episodes = await episodeService.getAllEpisodes(req.query.search as string | undefined);
             res.status(200).json({ status: "success", data: episodes });
         } catch (error) {
             console.error("Error fetching episodes:", error);
@@ -16,7 +16,7 @@ const initializeEpisodeRoutes = (): Router => {
         }
     });
 
-    // GET /api/episodes/:title: Return an episode by title with its season and ordered messages
+    // GET /api/episodes/:title: Return an episode by title with its season and ordered messages (public)
     router.get("/episodes/:title", async (req: Request, res: Response) => {
         const { title } = req.params;
         try {
@@ -45,7 +45,7 @@ const initializeEpisodeRoutes = (): Router => {
     });
 
     // PUT /api/episodes/:title: Update an episode's metadata by title
-    router.put("/episodes/:title", authenticate, async (req: Request, res: Response) => {
+    router.put("/episodes/:title", authenticate, isAdmin, async (req: Request, res: Response) => {
         const { title } = req.params;
         try {
             const episode = await episodeService.updateEpisode(title, req.body);
@@ -56,7 +56,7 @@ const initializeEpisodeRoutes = (): Router => {
     });
 
     // DELETE /api/episodes/:title: Delete an episode and its messages by title
-    router.delete("/episodes/:title", authenticate, async (req: Request, res: Response) => {
+    router.delete("/episodes/:title", authenticate, isAdmin, async (req: Request, res: Response) => {
         const { title } = req.params;
         try {
             await episodeService.deleteEpisode(title);

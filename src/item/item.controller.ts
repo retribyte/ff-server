@@ -1,14 +1,15 @@
 import { Router, Request, Response } from "express";
 import itemService from "./item.service.js";
 import { authenticate } from "../auth/security.middleware.js";
+import { UserRole } from "@prisma/client";
 
 const initializeItemRoutes = (): Router => {
     const router: Router = Router();
 
-    // GET /api/items: Return all items with their associated character
+    // GET /api/items: Return all items, optionally searched by name (public)
     router.get("/items", async (req: Request, res: Response) => {
         try {
-            const items = await itemService.getAllItems();
+            const items = await itemService.getAllItems(req.query.search as string | undefined);
             res.status(200).json({ status: "success", data: items });
         } catch (error) {
             console.error("Error fetching items:", error);
@@ -16,7 +17,7 @@ const initializeItemRoutes = (): Router => {
         }
     });
 
-    // GET /api/items/:id: Return an item by id with its associated character and creator
+    // GET /api/items/:id: Return an item by id with its associated character and creator (public)
     router.get("/items/:id", async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
         try {
@@ -48,8 +49,15 @@ const initializeItemRoutes = (): Router => {
     router.put("/items/:id", authenticate, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
         try {
-            const item = await itemService.updateItem(id, req.body);
-            res.status(200).json({ status: "success", data: item });
+            const item = await itemService.getItemById(id);
+            if (!item) {
+                return res.status(404).json({ status: "error", message: `Item with id '${id}' not found` });
+            }
+            if (item.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
+                return res.status(403).json({ status: "error", message: "Forbidden" });
+            }
+            const updated = await itemService.updateItem(id, req.body);
+            res.status(200).json({ status: "success", data: updated });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });
         }
@@ -59,6 +67,13 @@ const initializeItemRoutes = (): Router => {
     router.delete("/items/:id", authenticate, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
         try {
+            const item = await itemService.getItemById(id);
+            if (!item) {
+                return res.status(404).json({ status: "error", message: `Item with id '${id}' not found` });
+            }
+            if (item.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
+                return res.status(403).json({ status: "error", message: "Forbidden" });
+            }
             await itemService.deleteItem(id);
             res.status(204).send();
         } catch (error: any) {

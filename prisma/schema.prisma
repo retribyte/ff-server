@@ -46,9 +46,10 @@ model User {
   id          Int         @id @unique @default(autoincrement())
   username    String      @unique
   email       String?     @unique
-  password    String // hashed using bcrypt?
+  password    String      // hashed using bcrypt?
   role        UserRole
-  icon        String? // If null, use identicon?
+  icon        String?     // If null, use identicon?
+  bio         String?
   wikiUser    String?
   characters  Character[]
   createdAt   DateTime    @default(now())
@@ -61,16 +62,16 @@ model User {
 model Character {
   id            Int       @id @unique @default(autoincrement())
   name          String
-  dob           Int?    // Date of birth as a unix timestamp. Will be displayed in GUY notation.
-  pob           String? // Place of birth
-  aliases       Alias[] // Array of aliases
+  dob           Int?      // Date of birth as a unix timestamp. Will be displayed in GUY notation.
+  pob           String?   // Place of birth
+  aliases       Alias[]   // Array of aliases
   relationships Relationship[] // Array for describing relationships (e.g., "Parent: X", "Sibling: Y")
   homePlanet    String?
   species       Species   @relation(fields: [speciesId], references: [id])
   speciesId     Int
-  sex           Sex // Enum: "Male", "Female", "Other", "Unspecified"
-  height        Float? // Height in meters (e.g., 1.75)
-  weight        Float? // Weight in kilograms
+  sex           Sex       // Enum: "Male", "Female", "Other", "Unspecified"
+  height        Float?    // Height in meters (e.g., 1.75)
+  weight        Float?    // Weight in kilograms
   hairColor     String?
   eyeColor      String?
   creator       User      @relation(fields: [creatorId], references: [id])
@@ -79,8 +80,9 @@ model Character {
   image         String?
   themeColor    String?
   items         Item[]
+  blurb         String?
 
-  @@map("characters") // Maps the table name in the SQLite database
+  @@map("characters")     // Maps the table name in the SQLite database
 }
 
 model Alias {
@@ -94,7 +96,7 @@ model Alias {
 
 model Relationship {
   id          Int         @id @unique @default(autoincrement())
-  description String // Example: "Parent of John"
+  description String      // Example: "Parent of John"
   characterId Int
   character   Character   @relation(fields: [characterId], references: [id])
 
@@ -105,10 +107,10 @@ model Species {
   id            Int       @id @unique @default(autoincrement())
   name          String
   description   String
-  binomialName  String? // Equivalent to taxonomy
-  class         Class // Enum: "Higher Sentients", "Lower Sentients"
-  lifespan      String // Average lifespan in GUYs
-  diet          String? // Enum: "Carnivore", "Herbivore", "Omnivore", "Other"
+  binomialName  String?   // Equivalent to taxonomy
+  class         Class     // Enum: "Higher Sentients", "Lower Sentients"
+  lifespan      String    // Average lifespan in GUYs
+  diet          String?   // Enum: "Carnivore", "Herbivore", "Omnivore", "Other"
   habitat       String?
   placeOfOrigin String?
   creator       User      @relation(fields: [creatorId], references: [id])
@@ -146,7 +148,7 @@ model Message {
   playerId     Int
   character    Character? @relation(fields: [characterId], references: [id])
   characterId  Int?
-  date         DateTime
+  timestamp    DateTime?
   type         MessageType
   text         String
 

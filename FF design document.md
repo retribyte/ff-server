@@ -63,7 +63,7 @@ A single small web application that is the canonical home for the Final Frontier
 
 - **Visitor (unauthenticated).** A fan or newcomer who wants to read finished campaigns and explore the universe' lore.
 - **Member (authenticated user).** Maintains their own characters and contributes lore entries (species, items, quotes).
-- **Admin.** Site operator. Same UI as a member, plus the ability to edit/delete any record and change another user's role.
+- **Admin.** Site operator. Same UI as a member, plus the ability to edit/delete records and change another user's role.
 
 ### 2.2 Roles and Permissions
 
@@ -72,7 +72,7 @@ The System SHALL define exactly two roles:
 | Role | Capabilities |
 |---|---|
 | Member | Read all published content. Create entities and edit/delete entities they own. Edit their own profile. |
-| Admin | All Member rights, plus edit/delete on any record, plus role assignment. |
+| Admin | All Member rights, plus edit/delete on records, plus role assignment. |
 
 Visitors (no account) MAY read all published content; they cannot create or edit anything.
 
@@ -96,7 +96,7 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 - **FR-ARC-1** A visitor MUST be able to browse a list of seasons.
 - **FR-ARC-2** A visitor MUST be able to open a season and see the list of episodes belonging to it.
 - **FR-ARC-3** A visitor MUST be able to open an episode and read its full transcript.
-- **FR-ARC-4** Transcripts MUST render multiple block types: narration, character dialogue, action, and embedded media.
+- **FR-ARC-4** Transcripts MUST render multiple block types, according to the Message schema.
 - **FR-ARC-5** Each line/block of a transcript MUST be individually addressable via a URL anchor for deep-linking.
 - **FR-ARC-6** A visitor MUST be able to search within an episode's transcript.
 - **FR-ARC-7** Characters mentioned in a transcript MUST render with their associated avatar/color.
@@ -107,13 +107,13 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 
 ### 3.4 Character Management
 
-- **FR-CHAR-1** A member MUST be able to create a character. Required field: name. Optional fields drawn from the existing `Character` model in the `ff-server` schema: aliases, species, sex, height, weight, hair color, eye color, place of birth, home planet, date of birth (in GUY), avatar image, theme color, description.
+- **FR-CHAR-1** A member MUST be able to create a character. Required field: name. Optional fields drawn from the existing `Character` model in the `ff-server` schema: aliases, species, sex, height, weight, hair color, eye color, place of birth, home planet, date of birth (in GUY), avatar image, theme color, blurb.
 - **FR-CHAR-2** A character MUST belong to exactly one user (its creator/owner).
 - **FR-CHAR-3** A character MUST be able to have zero or more aliases (per the existing `Alias` model).
 - **FR-CHAR-4** A character MUST be able to record interpersonal relationships to other characters (per the existing `Relationship` model).
 - **FR-CHAR-5** *Removed — Location entity is out of scope.*
 - **FR-CHAR-6** *Removed — in-game status (HP, shield, resistances, status effects, DoT) is out of scope.*
-- **FR-CHAR-7** A character page MUST display the character's biographical data, related quotes, and known relationships.
+- **FR-CHAR-7** A character page MUST display the character's biographical data and known relationships.
 - **FR-CHAR-8** Editing a character MUST be restricted to its owner or an admin.
 - **FR-CHAR-9** A character MUST be searchable by name and alias.
 - **FR-CHAR-10** The System MUST list all characters with filter and pagination (by species, by owner, by season they appeared in).
@@ -146,22 +146,20 @@ Messages are the core content unit of the System. Every message belongs to an ep
 
 - **FR-MSG-1** Each message MUST have: a sequence number, a timestamp, an author (user), an optional character speaker, a type, and a text body.
 - **FR-MSG-2** The message type MUST be one of: `BOT_RESPONSE`, `COMMAND`, `QUOTE`, `ACTION`, `EMBED`, `OTHER`.
-- **FR-MSG-3** The owner of an episode (and admins) MUST be able to insert, edit, reorder, and delete messages within it.
+- **FR-MSG-3** *Removed.*
 - **FR-MSG-4** A message of type `QUOTE` MUST have a character speaker (`characterId` required).
 - **FR-MSG-5** Messages of type `QUOTE` MUST be queryable by character or returned at random.
-- **FR-MSG-6** A character page MUST display all `QUOTE` messages attributed to that character.
+- **FR-MSG-6** A character page SHOULD have a subpage to display `QUOTE` messages attributed to that character.
 
 ### 3.10 External API
 
 - **FR-API-1** The System MUST expose an authenticated HTTP API covering all read and write operations available in the UI.
 - **FR-API-2** The API MUST authenticate non-browser clients via a token mechanism.
 - **FR-API-3** Write operations MUST enforce the same role/ownership rules as the UI.
-- **FR-API-4** The API MUST be versioned so external clients are not broken by schema evolution.
 
 ### 3.11 Search
 
-- **FR-SR-1** The System MUST provide a global search across characters, items, species, and episode titles.
-- **FR-SR-2** Search results MUST be filterable by entity type.
+- **FR-SR-1** The System MUST provide a search for each category such as characters, items, species, and episode titles.
 
 ---
 
@@ -179,10 +177,7 @@ This section captures the *entities* and *relationships* the System must represe
 - **Season** — grouping of episodes.
 - **Episode** — title, season, episode number, messages.
 - **Message** — sequence number, timestamps, author, optional character, type enum, text body.
-
-### 4.2 Entities to be added
-
-- **Item** — `name`, `itemType` (enum, required), `description`, `image` (optional). Optional association to a **Character**. **No** combat fields.
+- **Item** — `name`, `itemType` (enum, required), `description`, `image` (optional). Optional association to a **Character**.
 
 ### 4.3 Fields to be added to existing entities
 
@@ -197,7 +192,7 @@ This section captures the *entities* and *relationships* the System must represe
 - A **Season** has many **Episodes**; an **Episode** has many **Messages** in a stable order.
 - A **Message** is authored by a **User** and optionally spoken by a **Character**.
 - A **User** owns many **Items** as a creator/author *(new)*.
-- An **Item** MAY be associated with at most one **Character**; a Character MAY have many associated Items *(new)*.
+- An **Item** MAY be associated with at most one **Character**; a Character MAY have many associated Items.
 
 ### 4.5 Constraints
 
@@ -220,7 +215,7 @@ This section captures the *entities* and *relationships* the System must represe
 
 ### 5.2 Performance
 
-- **NFR-PERF-1** Listing endpoints (episodes, characters, weapons, etc.) MUST be paginated.
+- **NFR-PERF-1** The endpoint for retrieving an episode's messages MUST be paginated.
 - **NFR-PERF-2** Loading an episode page MUST render its first viewport within a reasonable interaction budget (target: under ~2s on a typical connection); the rest of the transcript MAY stream/virtualize.
 - **NFR-PERF-3** Search MUST return results in interactive time (target: under ~500ms server-side for typical corpora).
 
@@ -245,8 +240,7 @@ This section captures the *entities* and *relationships* the System must represe
 
 ### 5.6 Extensibility
 
-- **NFR-EXT-1** Adding a new transcript message type SHOULD require changes only to a renderer registry on the frontend and a recognized type enum on the backend.
-- **NFR-EXT-2** The API MUST be sufficient that a Discord-side client *could* be re-implemented against it without server-side changes, even though building such a client is not part of this project.
+*Removed - out of scope*
 
 ### 5.7 Accessibility
 

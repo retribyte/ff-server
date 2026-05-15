@@ -14,8 +14,12 @@ type SpeciesData = {
     creatorId: number;
 };
 
-async function getAllSpecies() {
+async function getAllSpecies(search?: string) {
+    const where = search
+        ? { name: { contains: search, mode: "insensitive" as const } }
+        : undefined;
     return await prisma.species.findMany({
+        where,
         include: { Character: true },
     });
 }
