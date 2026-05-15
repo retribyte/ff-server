@@ -1,7 +1,8 @@
 import { Router, Request, Response } from "express";
 import userService from "./user.service.js";
 import tokenService from "../auth/token.service.js";
-import { authenticate } from "../auth/security.middleware.js";
+import { authenticate, isAdmin } from "../auth/security.middleware.js";
+import { UserRole } from "@prisma/client";
 
 const initializeUserRoutes = (): Router => {
     const router: Router = Router();
@@ -65,6 +66,21 @@ const initializeUserRoutes = (): Router => {
         try {
             const updated = await userService.updateUser(req.user!.id, { username, icon, bio });
             return res.status(200).json({ status: "success", data: updated });
+        } catch (err: any) {
+            return res.status(400).json({ status: "error", message: err.message });
+        }
+    });
+
+    // PUT /api/users/:id/role: Change a user's role (admin only)
+    router.put("/users/:id/role", authenticate, isAdmin, async (req: Request, res: Response) => {
+        const id = parseInt(req.params.id, 10);
+        const { role } = req.body;
+        if (!role || !Object.values(UserRole).includes(role)) {
+            return res.status(400).json({ status: "error", message: "Invalid role" });
+        }
+        try {
+            const user = await userService.updateUserRole(id, role as UserRole);
+            return res.status(200).json({ status: "success", data: user });
         } catch (err: any) {
             return res.status(400).json({ status: "error", message: err.message });
         }

@@ -1,4 +1,5 @@
 import { PrismaClient, ItemType } from "@prisma/client";
+import { sanitizeText } from "../utils/sanitize.js";
 
 const prisma = new PrismaClient();
 
@@ -33,7 +34,7 @@ async function createItem(data: ItemData) {
         data: {
             name: data.name,
             itemType: data.itemType,
-            description: data.description,
+            description: sanitizeText(data.description),
             image: data.image,
             creatorId: data.creatorId,
             characterId: data.characterId,
@@ -48,7 +49,7 @@ async function updateItem(id: number, data: Partial<ItemData>) {
         data: {
             name: data.name,
             itemType: data.itemType,
-            description: data.description,
+            description: data.description !== undefined ? sanitizeText(data.description) : undefined,
             image: data.image,
             characterId: data.characterId,
         },

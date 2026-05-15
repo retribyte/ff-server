@@ -1,4 +1,5 @@
 import express, { Application, NextFunction, Request, Response } from "express";
+import swaggerUi from "swagger-ui-express";
 import userController from "./user/user.controller.js";
 import characterController from "./character/character.controller.js";
 import speciesController from "./species/species.controller.js";
@@ -6,6 +7,7 @@ import seasonController from "./season/season.controller.js";
 import episodeController from "./episode/episode.controller.js";
 import messageController from "./message/message.controller.js";
 import itemController from "./item/item.controller.js";
+import apiSpec from "./openapi.js";
 
 class App {
     public app: Application;
@@ -18,6 +20,7 @@ class App {
     }
 
     private routes(): void {
+        this.app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(apiSpec));
         this.app.use("/api", userController.initializeUserRoutes());
         this.app.use("/api", characterController.initializeCharacterRoutes());
         this.app.use("/api", speciesController.initializeSpeciesRoutes());

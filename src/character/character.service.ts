@@ -1,4 +1,5 @@
 import { PrismaClient, Sex } from "@prisma/client";
+import { sanitizeText } from "../utils/sanitize.js";
 
 const prisma = new PrismaClient();
 
@@ -13,6 +14,7 @@ type CharacterData = {
     weight?: number;
     hairColor?: string;
     eyeColor?: string;
+    blurb?: string;
     creatorId: number;
     aliases?: { name: string }[];
     relationships?: { description: string }[];
@@ -67,10 +69,11 @@ async function createCharacter(data: CharacterData) {
             weight: data.weight,
             hairColor: data.hairColor,
             eyeColor: data.eyeColor,
+            blurb: data.blurb !== undefined ? sanitizeText(data.blurb) : undefined,
             creatorId: data.creatorId,
             aliases: data.aliases ? { create: data.aliases } : undefined,
             relationships: data.relationships
-                ? { create: data.relationships }
+                ? { create: data.relationships.map(r => ({ description: sanitizeText(r.description) })) }
                 : undefined,
         },
         include: { aliases: true, relationships: true },
@@ -82,7 +85,7 @@ async function updateCharacter(id: number, data: Partial<CharacterData>) {
         where: { id },
         data: {
             name: data.name,
-            dob: data.dob ? Math.floor(new Date(data.dob).getTime() / 1000) : null,
+            dob: data.dob ? Math.floor(new Date(data.dob).getTime() / 1000) : undefined,
             pob: data.pob,
             homePlanet: data.homePlanet,
             speciesId: data.speciesId,
@@ -91,12 +94,12 @@ async function updateCharacter(id: number, data: Partial<CharacterData>) {
             weight: data.weight,
             hairColor: data.hairColor,
             eyeColor: data.eyeColor,
-            creatorId: data.creatorId,
+            blurb: data.blurb !== undefined ? sanitizeText(data.blurb) : undefined,
             aliases: data.aliases
                 ? { deleteMany: {}, create: data.aliases }
                 : undefined,
             relationships: data.relationships
-                ? { deleteMany: {}, create: data.relationships }
+                ? { deleteMany: {}, create: data.relationships.map(r => ({ description: sanitizeText(r.description) })) }
                 : undefined,
         },
         include: { aliases: true, relationships: true },

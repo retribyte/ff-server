@@ -36,8 +36,9 @@ const initializeMessageRoutes = (): Router => {
         const { episodeTitle } = req.params;
         const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
         const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 100;
+        const search = req.query.search as string | undefined;
         try {
-            const result = await messageService.getMessagesByEpisode(episodeTitle, page, limit);
+            const result = await messageService.getMessagesByEpisode(episodeTitle, page, limit, search);
             res.status(200).json({ status: "success", ...result });
         } catch (error) {
             console.error("Error fetching messages:", error);

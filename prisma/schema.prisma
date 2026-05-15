@@ -82,6 +82,7 @@ model Character {
   items         Item[]
   blurb         String?
 
+  @@unique([creatorId, name])
   @@map("characters")     // Maps the table name in the SQLite database
 }
 

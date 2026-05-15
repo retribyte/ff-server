@@ -107,7 +107,7 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 
 ### 3.4 Character Management
 
-- **FR-CHAR-1** A member MUST be able to create a character. Required field: name. Optional fields drawn from the existing `Character` model in the `ff-server` schema: aliases, species, sex, height, weight, hair color, eye color, place of birth, home planet, date of birth (in GUY), avatar image, theme color, blurb.
+- **FR-CHAR-1** A member MUST be able to create a character. Required field: name, species, sex. Optional fields drawn from the existing `Character` model in the `ff-server` schema: aliases, height, weight, hair color, eye color, place of birth, home planet, date of birth (in GUY), avatar image, theme color, blurb.
 - **FR-CHAR-2** A character MUST belong to exactly one user (its creator/owner).
 - **FR-CHAR-3** A character MUST be able to have zero or more aliases (per the existing `Alias` model).
 - **FR-CHAR-4** A character MUST be able to record interpersonal relationships to other characters (per the existing `Relationship` model).
@@ -116,7 +116,7 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 - **FR-CHAR-7** A character page MUST display the character's biographical data and known relationships.
 - **FR-CHAR-8** Editing a character MUST be restricted to its owner or an admin.
 - **FR-CHAR-9** A character MUST be searchable by name and alias.
-- **FR-CHAR-10** The System MUST list all characters with filter and pagination (by species, by owner, by season they appeared in).
+- **FR-CHAR-10** The System MUST list all characters with filter (by species, by owner, by season they appeared in).
 
 ### 3.5 Species
 
@@ -223,7 +223,7 @@ This section captures the *entities* and *relationships* the System must represe
 
 - **NFR-SEC-1** All write endpoints MUST require authentication.
 - **NFR-SEC-2** Role and ownership checks MUST be enforced server-side regardless of UI state.
-- **NFR-SEC-3** User-submitted text in transcripts and descriptions MUST be sanitized for safe HTML rendering.
+- **NFR-SEC-3** User-submitted text in descriptions MUST be sanitized for safe HTML rendering.
 - **NFR-SEC-4** The System MUST NOT expose password hashes or session tokens via public read endpoints.
 - **NFR-SEC-5** Secrets MUST be supplied via environment configuration, never committed.
 
@@ -284,9 +284,8 @@ The first release of the System is considered complete when:
 1. A visitor can read any episode at a stable URL, and legacy `ff-site` URLs redirect to the new ones.
 2. A registered member can create a character, edit it, give it aliases and relationships, attach it to a species, attach quotes to it, and view it on a public character page.
 3. A registered member can create an item (with an item type), optionally associate it with a character, and view it on an item page.
-4. A registered member can create a season and an episode, add transcript messages, and view it in the archive.
-5. An external client authenticating with an API token can perform all of the above operations programmatically.
-6. The site passes the non-functional bars in §5.1–§5.4 on a representative dataset.
+4. An external client authenticating with an API token can perform all of the above operations programmatically.
+5. The site passes the non-functional bars in §5.1–§5.4 on a representative dataset.
 
 ---
 

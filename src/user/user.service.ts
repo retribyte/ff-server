@@ -1,4 +1,5 @@
 import { PrismaClient, User, UserRole } from "@prisma/client";
+export { UserRole };
 import { hashSync, compareSync } from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -61,4 +62,10 @@ async function updateUser(id: number, data: ProfileUpdate): Promise<Omit<User, "
     return safe;
 }
 
-export default { createUser, getUserByUsername, getUserByEmail, authenticateUser, updateUser };
+async function updateUserRole(id: number, role: UserRole): Promise<Omit<User, "password">> {
+    const updated = await prisma.user.update({ where: { id }, data: { role } });
+    const { password: _, ...safe } = updated;
+    return safe;
+}
+
+export default { createUser, getUserByUsername, getUserByEmail, authenticateUser, updateUser, updateUserRole };

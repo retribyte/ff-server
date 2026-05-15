@@ -1,4 +1,5 @@
 import { PrismaClient, Class } from "@prisma/client";
+import { sanitizeText } from "../utils/sanitize.js";
 
 const prisma = new PrismaClient();
 
@@ -35,7 +36,7 @@ async function createSpecies(data: SpeciesData) {
     return await prisma.species.create({
         data: {
             name: data.name,
-            description: data.description,
+            description: sanitizeText(data.description),
             binomialName: data.binomialName,
             class: data.class,
             lifespan: data.lifespan,
@@ -53,7 +54,7 @@ async function updateSpecies(id: number, data: Partial<SpeciesData>) {
         where: { id },
         data: {
             name: data.name,
-            description: data.description,
+            description: data.description !== undefined ? sanitizeText(data.description) : undefined,
             binomialName: data.binomialName,
             class: data.class,
             lifespan: data.lifespan,

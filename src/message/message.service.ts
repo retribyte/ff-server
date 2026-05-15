@@ -10,17 +10,19 @@ type MessageData = {
     text: string;
 };
 
-async function getMessagesByEpisode(episodeTitle: string, page = 1, limit = 100) {
+async function getMessagesByEpisode(episodeTitle: string, page = 1, limit = 100, search?: string) {
     const skip = (page - 1) * limit;
+    const where: any = { episodeTitle };
+    if (search) where.text = { contains: search, mode: "insensitive" };
     const [data, total] = await Promise.all([
         prisma.message.findMany({
-            where: { episodeTitle },
+            where,
             orderBy: { message_no: "asc" },
             skip,
             take: limit,
             include: { player: { select: { id: true, username: true, icon: true } }, character: true },
         }),
-        prisma.message.count({ where: { episodeTitle } }),
+        prisma.message.count({ where }),
     ]);
     return { data, total, page, limit };
 }
