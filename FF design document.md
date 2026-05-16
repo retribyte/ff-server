@@ -53,7 +53,8 @@ A single small web application that is the canonical home for the Final Frontier
 | **Quote** | A `Message` of type `QUOTE`; requires a character speaker. Not a separate entity. |
 | **GUY** | The in-universe time unit used for characters' dates of birth and episode timestamps. |
 | **Transcript** | The ordered sequence of narrative blocks (narration, dialogue, action, embed) that make up an episode. |
-| **CYOA** | "Choose Your Own Adventure" — a branching narrative format that the reader navigates by selecting actions. |
+| **CYOA** | "Choose Your Own Adventure" — a transcript of a narrative format between a writer and readers. |
+| **Commentary** | A member-authored annotation attached to a specific transcript message. |
 
 ---
 
@@ -90,6 +91,8 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 - **FR-AUTH-2** The System MUST support password-based login that yields an authenticated session.
 - **FR-AUTH-3** The System MUST hash passwords using a recognized password-hashing function at rest.
 - **FR-AUTH-4** A user MUST be able to view and edit their own profile (display name, avatar, bio).
+- **FR-AUTH-5** Any authenticated user MUST be able to retrieve another user's public profile by ID (username, icon, bio, role).
+- **FR-AUTH-6** An admin MUST be able to retrieve a list of all registered users.
 
 ### 3.2 Archive Browsing (read-only, public)
 
@@ -103,7 +106,7 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 
 ### 3.3 CYOA Reader
 
-- **FR-CYOA-1** The System MUST support viewing a special narrative type, "CYOA", composed of narration, dialogue, and selectable action blocks.
+- **FR-CYOA-1** The System MUST support viewing a special narrative type, "CYOA", composed of narration, dialogue, and action blocks.
 
 ### 3.4 Character Management
 
@@ -151,15 +154,23 @@ Messages are the core content unit of the System. Every message belongs to an ep
 - **FR-MSG-5** Messages of type `QUOTE` MUST be queryable by character or returned at random.
 - **FR-MSG-6** A character page SHOULD have a subpage to display `QUOTE` messages attributed to that character.
 
-### 3.10 External API
+### 3.10 Commentary
+
+- **FR-CMT-1** A member MUST be able to write a commentary on any message in a transcript.
+- **FR-CMT-2** A message MAY have zero or more commentaries.
+- **FR-CMT-3** Each commentary MUST be attributed to its author (user).
+- **FR-CMT-4** Editing or deleting a commentary MUST be restricted to its author or an admin.
+
+### 3.11 External API
 
 - **FR-API-1** The System MUST expose an authenticated HTTP API covering all read and write operations available in the UI.
 - **FR-API-2** The API MUST authenticate non-browser clients via a token mechanism.
 - **FR-API-3** Write operations MUST enforce the same role/ownership rules as the UI.
 
-### 3.11 Search
+### 3.12 Search
 
 - **FR-SR-1** The System MUST provide a search for each category such as characters, items, species, and episode titles.
+
 
 ---
 
@@ -179,6 +190,10 @@ This section captures the *entities* and *relationships* the System must represe
 - **Message** — sequence number, timestamps, author, optional character, type enum, text body.
 - **Item** — `name`, `itemType` (enum, required), `description`, `image` (optional). Optional association to a **Character**.
 
+### 4.2 New entities
+
+- **Commentary** — A member-authored annotation on a transcript message. Fields: `content` (text body), `creator` (User reference), `message` (Message reference).
+
 ### 4.3 Fields to be added to existing entities
 
 - `Character` — optional `image` (avatar URL) and optional `themeColor` if not already present; needed by FR-ARC-7 and FR-CHAR-7.
@@ -191,7 +206,9 @@ This section captures the *entities* and *relationships* the System must represe
 - A **Character** has many **Aliases** and many **Relationships**.
 - A **Season** has many **Episodes**; an **Episode** has many **Messages** in a stable order.
 - A **Message** is authored by a **User** and optionally spoken by a **Character**.
-- A **User** owns many **Items** as a creator/author *(new)*.
+- A **Message** MAY have many **Commentaries**; each Commentary is written by exactly one **User** on exactly one **Message**.
+- A **User** MAY author many **Commentaries**.
+- A **User** owns many **Items** as a creator/author.
 - An **Item** MAY be associated with at most one **Character**; a Character MAY have many associated Items.
 
 ### 4.5 Constraints

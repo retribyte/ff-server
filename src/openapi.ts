@@ -116,7 +116,7 @@ const spec = {
                 type: "object",
                 properties: {
                     episodeTitle: { type: "string" },
-                    message_no: { type: "integer" },
+                    messageNo: { type: "integer" },
                     playerId: { type: "integer" },
                     characterId: { type: "integer", nullable: true },
                     timestamp: { type: "string", format: "date-time", nullable: true },
@@ -223,6 +223,32 @@ const spec = {
                 responses: {
                     "200": { description: "Updated profile" },
                     "401": { description: "Unauthorized" },
+                },
+            },
+        },
+        "/users": {
+            get: {
+                tags: ["Auth"],
+                summary: "List all users (admin only)",
+                security: [{ bearerAuth: [] }],
+                responses: {
+                    "200": { description: "Array of users" },
+                    "401": { description: "Unauthorized" },
+                    "403": { description: "Forbidden — not an admin" },
+                },
+            },
+        },
+        "/users/{id}": {
+            get: {
+                tags: ["Auth"],
+                summary: "Get a user's public profile by ID",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: {
+                    "200": { description: "User profile" },
+                    "400": { description: "Invalid user ID" },
+                    "401": { description: "Unauthorized" },
+                    "404": { description: "User not found" },
                 },
             },
         },

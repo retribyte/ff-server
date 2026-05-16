@@ -23,7 +23,7 @@ async function getAllEpisodes(search?: string) {
 async function getEpisodeByTitle(title: string) {
     return await prisma.episode.findUnique({
         where: { title },
-        include: { season: true, messages: { orderBy: { message_no: "asc" } } },
+        include: { season: true, messages: { orderBy: { messageNo: "asc" }, include: { commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } } } },
     });
 }
 

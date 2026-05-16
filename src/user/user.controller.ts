@@ -71,6 +71,25 @@ const initializeUserRoutes = (): Router => {
         }
     });
 
+    // GET /api/users: List all users (admin only)
+    router.get("/users", authenticate, isAdmin, async (req: Request, res: Response) => {
+        const users = await userService.getAllUsers();
+        return res.status(200).json({ status: "success", data: users });
+    });
+
+    // GET /api/users/:id: Get a single user by ID
+    router.get("/users/:id", authenticate, async (req: Request, res: Response) => {
+        const id = parseInt(req.params.id, 10);
+        if (isNaN(id)) {
+            return res.status(400).json({ status: "error", message: "Invalid user ID" });
+        }
+        const user = await userService.getUserById(id);
+        if (!user) {
+            return res.status(404).json({ status: "error", message: "User not found" });
+        }
+        return res.status(200).json({ status: "success", data: user });
+    });
+
     // PUT /api/users/:id/role: Change a user's role (admin only)
     router.put("/users/:id/role", authenticate, isAdmin, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);

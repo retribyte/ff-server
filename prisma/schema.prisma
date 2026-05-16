@@ -43,20 +43,21 @@ enum ItemType {
 }
 
 model User {
-  id          Int         @id @unique @default(autoincrement())
-  username    String      @unique
-  email       String?     @unique
-  password    String      // hashed using bcrypt?
-  role        UserRole
-  icon        String?     // If null, use identicon?
-  bio         String?
-  wikiUser    String?
-  characters  Character[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  species     Species[]
-  messages    Message[]
-  items       Item[]
+  id            Int         @id @unique @default(autoincrement())
+  username      String      @unique
+  email         String?     @unique
+  password      String      // hashed using bcrypt?
+  role          UserRole
+  icon          String?     // If null, use identicon?
+  bio           String?
+  wikiUser      String?
+  characters    Character[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  species       Species[]
+  messages      Message[]
+  items         Item[]
+  commentaries  Commentary[]
 }
 
 model Character {
@@ -81,25 +82,26 @@ model Character {
   themeColor    String?
   items         Item[]
   blurb         String?
+  wikiArticle   String?
 
   @@unique([creatorId, name])
   @@map("characters")     // Maps the table name in the SQLite database
 }
 
 model Alias {
-  id          Int         @id @unique @default(autoincrement())
-  name        String
-  characterId Int
-  character   Character   @relation(fields: [characterId], references: [id])
+  id            Int         @id @unique @default(autoincrement())
+  name          String
+  characterId   Int
+  character     Character   @relation(fields: [characterId], references: [id])
 
   @@map("aliases")
 }
 
 model Relationship {
-  id          Int         @id @unique @default(autoincrement())
-  description String      // Example: "Parent of John"
-  characterId Int
-  character   Character   @relation(fields: [characterId], references: [id])
+  id            Int         @id @unique @default(autoincrement())
+  description   String      // Example: "Parent of John"
+  characterId   Int
+  character     Character   @relation(fields: [characterId], references: [id])
 
   @@map("relationships")
 }
@@ -115,8 +117,9 @@ model Species {
   habitat       String?
   placeOfOrigin String?
   creator       User      @relation(fields: [creatorId], references: [id])
-  Character     Character[]
   creatorId     Int
+  Character     Character[]
+  wikiArticle   String?
 
   @@map("species")
 }
@@ -129,46 +132,60 @@ model Season {
 }
 
 model Episode {
-  title       String      @unique
-  season      Season      @relation(fields: [seasonTitle], references: [title])
-  episode_no  Int
-  messages    Message[]
-  seasonTitle String
-  summary     String?
-  playedDate  DateTime?
+  title         String      @unique
+  season        Season      @relation(fields: [seasonTitle], references: [title])
+  episode_no    Int
+  messages      Message[]
+  seasonTitle   String
+  summary       String?
+  playedDate    DateTime?
 
   @@id([seasonTitle, episode_no])
   @@map("episodes")
 }
 
 model Message {
-  episode      Episode    @relation(fields: [episodeTitle], references: [title])
-  message_no   Int
-  episodeTitle String
-  player       User       @relation(fields: [playerId], references: [id])
-  playerId     Int
-  character    Character? @relation(fields: [characterId], references: [id])
-  characterId  Int?
-  timestamp    DateTime?
-  type         MessageType
-  text         String
+  episode       Episode    @relation(fields: [episodeTitle], references: [title])
+  messageNo     Int
+  episodeTitle  String
+  player        User       @relation(fields: [playerId], references: [id])
+  playerId      Int
+  character     Character? @relation(fields: [characterId], references: [id])
+  characterId   Int?
+  timestamp     DateTime?
+  type          MessageType
+  text          String
+  commentaries  Commentary[]
 
-  @@id([episodeTitle, message_no])
+  @@id([episodeTitle, messageNo])
   @@map("messages")
 }
 
+model Commentary {
+  id                  Int     @id @unique @default(autoincrement())
+  creator             User    @relation(fields: [creatorId], references: [id])
+  creatorId           Int
+  message             Message @relation(fields: [messageEpisodeTitle, messageNo], references: [episodeTitle, messageNo])
+  messageEpisodeTitle String
+  messageNo           Int
+  content             String
+
+  @@map("commentaries")
+}
+
 model Item {
-  id          Int        @id @unique @default(autoincrement())
-  name        String
-  itemType    ItemType
-  description String
-  image       String?
-  creator     User       @relation(fields: [creatorId], references: [id])
-  creatorId   Int
-  character   Character? @relation(fields: [characterId], references: [id])
-  characterId Int?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id            Int        @id @unique @default(autoincrement())
+  name          String
+  itemType      ItemType
+  description   String
+  image         String?
+  creator       User       @relation(fields: [creatorId], references: [id])
+  creatorId     Int
+  character     Character? @relation(fields: [characterId], references: [id])
+  characterId   Int?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  wikiArticle   String?
 
   @@map("items")
 }

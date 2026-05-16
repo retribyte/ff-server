@@ -49,6 +49,18 @@ type ProfileUpdate = {
     bio?: string;
 };
 
+async function getAllUsers(): Promise<Omit<User, "password">[]> {
+    const users = await prisma.user.findMany({ orderBy: { id: "asc" } });
+    return users.map(({ password: _, ...safe }) => safe);
+}
+
+async function getUserById(id: number): Promise<Omit<User, "password"> | null> {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) return null;
+    const { password: _, ...safe } = user;
+    return safe;
+}
+
 async function updateUser(id: number, data: ProfileUpdate): Promise<Omit<User, "password">> {
     const updated = await prisma.user.update({
         where: { id },
@@ -68,4 +80,4 @@ async function updateUserRole(id: number, role: UserRole): Promise<Omit<User, "p
     return safe;
 }
 
-export default { createUser, getUserByUsername, getUserByEmail, authenticateUser, updateUser, updateUserRole };
+export default { createUser, getAllUsers, getUserById, getUserByUsername, getUserByEmail, authenticateUser, updateUser, updateUserRole };

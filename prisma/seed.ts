@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
     // Clear existing data in reverse dependency order
     await prisma.item.deleteMany();
+    await prisma.commentary.deleteMany();
     await prisma.message.deleteMany();
     await prisma.episode.deleteMany();
     await prisma.season.deleteMany();
@@ -255,44 +256,61 @@ async function main() {
     // Pilot messages
     await prisma.message.createMany({
         data: [
-            { episodeTitle: pilot.title, message_no: 1,  playerId: admin.id,  characterId: null,       date: new Date("2022-03-15T18:00:00Z"), type: MessageType.BOT_RESPONSE, text: "Session started. Welcome to Final Frontier Season 1, Episode 1: Pilot." },
-            { episodeTitle: pilot.title, message_no: 2,  playerId: trey.id,   characterId: rix.id,     date: new Date("2022-03-15T18:02:00Z"), type: MessageType.ACTION,       text: "Commander Rix steps onto the bridge of the Meridian and surveys his new crew with measured skepticism." },
-            { episodeTitle: pilot.title, message_no: 3,  playerId: trey.id,   characterId: rix.id,     date: new Date("2022-03-15T18:03:00Z"), type: MessageType.QUOTE,        text: "I don't care where you're from or who sent you. On this ship, you follow my orders. That's the only thing keeping us alive out here." },
-            { episodeTitle: pilot.title, message_no: 4,  playerId: alex.id,   characterId: sova.id,    date: new Date("2022-03-15T18:05:00Z"), type: MessageType.QUOTE,        text: "With respect, Commander — my loyalty is to the mission and to the wellbeing of this crew. That, I suspect, aligns perfectly with your orders." },
-            { episodeTitle: pilot.title, message_no: 5,  playerId: trey.id,   characterId: grak.id,    date: new Date("2022-03-15T18:06:00Z"), type: MessageType.QUOTE,        text: "Grak follows." },
-            { episodeTitle: pilot.title, message_no: 6,  playerId: alex.id,   characterId: maris.id,   date: new Date("2022-03-15T18:08:00Z"), type: MessageType.ACTION,       text: "Engineer Maris slides out from beneath the engine housing, grease to the elbows, and gives Rix a two-finger salute." },
-            { episodeTitle: pilot.title, message_no: 7,  playerId: alex.id,   characterId: maris.id,   date: new Date("2022-03-15T18:09:00Z"), type: MessageType.QUOTE,        text: "She'll hold, Commander. Probably." },
-            { episodeTitle: pilot.title, message_no: 8,  playerId: admin.id,  characterId: null,       date: new Date("2022-03-15T18:15:00Z"), type: MessageType.BOT_RESPONSE, text: "The Meridian clears the station dock. A long-dormant beacon signal resolves on the nav display: deep Outer Belt, sector 7-Gamma. No known habitation." },
-            { episodeTitle: pilot.title, message_no: 9,  playerId: trey.id,   characterId: rix.id,     date: new Date("2022-03-15T18:16:00Z"), type: MessageType.COMMAND,      text: "!navigate sector-7G" },
-            { episodeTitle: pilot.title, message_no: 10, playerId: admin.id,  characterId: null,       date: new Date("2022-03-15T18:16:30Z"), type: MessageType.BOT_RESPONSE, text: "Course set. ETA: 18 hours at current speed. No hazards flagged... yet." },
+            { episodeTitle: pilot.title, messageNo: 1,  playerId: admin.id,  characterId: null,       timestamp: new Date("2022-03-15T18:00:00Z"), type: MessageType.BOT_RESPONSE, text: "Session started. Welcome to Final Frontier Season 1, Episode 1: Pilot." },
+            { episodeTitle: pilot.title, messageNo: 2,  playerId: trey.id,   characterId: rix.id,     timestamp: new Date("2022-03-15T18:02:00Z"), type: MessageType.ACTION,       text: "Commander Rix steps onto the bridge of the Meridian and surveys his new crew with measured skepticism." },
+            { episodeTitle: pilot.title, messageNo: 3,  playerId: trey.id,   characterId: rix.id,     timestamp: new Date("2022-03-15T18:03:00Z"), type: MessageType.QUOTE,        text: "I don't care where you're from or who sent you. On this ship, you follow my orders. That's the only thing keeping us alive out here." },
+            { episodeTitle: pilot.title, messageNo: 4,  playerId: alex.id,   characterId: sova.id,    timestamp: new Date("2022-03-15T18:05:00Z"), type: MessageType.QUOTE,        text: "With respect, Commander — my loyalty is to the mission and to the wellbeing of this crew. That, I suspect, aligns perfectly with your orders." },
+            { episodeTitle: pilot.title, messageNo: 5,  playerId: trey.id,   characterId: grak.id,    timestamp: new Date("2022-03-15T18:06:00Z"), type: MessageType.QUOTE,        text: "Grak follows." },
+            { episodeTitle: pilot.title, messageNo: 6,  playerId: alex.id,   characterId: maris.id,   timestamp: new Date("2022-03-15T18:08:00Z"), type: MessageType.ACTION,       text: "Engineer Maris slides out from beneath the engine housing, grease to the elbows, and gives Rix a two-finger salute." },
+            { episodeTitle: pilot.title, messageNo: 7,  playerId: alex.id,   characterId: maris.id,   timestamp: new Date("2022-03-15T18:09:00Z"), type: MessageType.QUOTE,        text: "She'll hold, Commander. Probably." },
+            { episodeTitle: pilot.title, messageNo: 8,  playerId: admin.id,  characterId: null,       timestamp: new Date("2022-03-15T18:15:00Z"), type: MessageType.BOT_RESPONSE, text: "The Meridian clears the station dock. A long-dormant beacon signal resolves on the nav display: deep Outer Belt, sector 7-Gamma. No known habitation." },
+            { episodeTitle: pilot.title, messageNo: 9,  playerId: trey.id,   characterId: rix.id,     timestamp: new Date("2022-03-15T18:16:00Z"), type: MessageType.COMMAND,      text: "!navigate sector-7G" },
+            { episodeTitle: pilot.title, messageNo: 10, playerId: admin.id,  characterId: null,       timestamp: new Date("2022-03-15T18:16:30Z"), type: MessageType.BOT_RESPONSE, text: "Course set. ETA: 18 hours at current speed. No hazards flagged... yet." },
         ],
     });
 
     // Into the Void messages
     await prisma.message.createMany({
         data: [
-            { episodeTitle: intoTheVoid.title, message_no: 1,  playerId: admin.id,  characterId: null,       date: new Date("2022-03-29T18:00:00Z"), type: MessageType.BOT_RESPONSE, text: "Session started. The Meridian drops out of drift travel. All instruments flicker." },
-            { episodeTitle: intoTheVoid.title, message_no: 2,  playerId: alex.id,   characterId: maris.id,   date: new Date("2022-03-29T18:02:00Z"), type: MessageType.QUOTE,        text: "Sensors are lying. Either that or we're reading a fold in local space-time. Neither answer is good." },
-            { episodeTitle: intoTheVoid.title, message_no: 3,  playerId: trey.id,   characterId: rix.id,     date: new Date("2022-03-29T18:04:00Z"), type: MessageType.QUOTE,        text: "Sova — is that beacon biological?" },
-            { episodeTitle: intoTheVoid.title, message_no: 4,  playerId: alex.id,   characterId: sova.id,    date: new Date("2022-03-29T18:05:00Z"), type: MessageType.QUOTE,        text: "The signal carries markers I have never encountered. It is not Human. It is not Vortian. I cannot classify it." },
-            { episodeTitle: intoTheVoid.title, message_no: 5,  playerId: admin.id,  characterId: whisper.id, date: new Date("2022-03-29T18:10:00Z"), type: MessageType.QUOTE,        text: "You should not have come here. And yet — here is exactly where you need to be." },
-            { episodeTitle: intoTheVoid.title, message_no: 6,  playerId: trey.id,   characterId: grak.id,    date: new Date("2022-03-29T18:11:00Z"), type: MessageType.ACTION,       text: "Grak stands between the apparition and the rest of the crew, fists raised." },
-            { episodeTitle: intoTheVoid.title, message_no: 7,  playerId: trey.id,   characterId: grak.id,    date: new Date("2022-03-29T18:11:30Z"), type: MessageType.QUOTE,        text: "Thing does not touch crew." },
-            { episodeTitle: intoTheVoid.title, message_no: 8,  playerId: admin.id,  characterId: null,       date: new Date("2022-03-29T18:20:00Z"), type: MessageType.BOT_RESPONSE, text: "The entity vanishes. Instruments restore. At the center of the anomaly, long-range scan resolves a derelict hull — registry unknown." },
-            { episodeTitle: intoTheVoid.title, message_no: 9,  playerId: trey.id,   characterId: rix.id,     date: new Date("2022-03-29T18:21:00Z"), type: MessageType.QUOTE,        text: "Maris, I need a boarding tube ready in ten minutes. Grak — you're on point." },
-            { episodeTitle: intoTheVoid.title, message_no: 10, playerId: alex.id,   characterId: maris.id,   date: new Date("2022-03-29T18:22:00Z"), type: MessageType.ACTION,       text: "Maris starts running, already pulling tools off her belt." },
+            { episodeTitle: intoTheVoid.title, messageNo: 1,  playerId: admin.id,  characterId: null,       timestamp: new Date("2022-03-29T18:00:00Z"), type: MessageType.BOT_RESPONSE, text: "Session started. The Meridian drops out of drift travel. All instruments flicker." },
+            { episodeTitle: intoTheVoid.title, messageNo: 2,  playerId: alex.id,   characterId: maris.id,   timestamp: new Date("2022-03-29T18:02:00Z"), type: MessageType.QUOTE,        text: "Sensors are lying. Either that or we're reading a fold in local space-time. Neither answer is good." },
+            { episodeTitle: intoTheVoid.title, messageNo: 3,  playerId: trey.id,   characterId: rix.id,     timestamp: new Date("2022-03-29T18:04:00Z"), type: MessageType.QUOTE,        text: "Sova — is that beacon biological?" },
+            { episodeTitle: intoTheVoid.title, messageNo: 4,  playerId: alex.id,   characterId: sova.id,    timestamp: new Date("2022-03-29T18:05:00Z"), type: MessageType.QUOTE,        text: "The signal carries markers I have never encountered. It is not Human. It is not Vortian. I cannot classify it." },
+            { episodeTitle: intoTheVoid.title, messageNo: 5,  playerId: admin.id,  characterId: whisper.id, timestamp: new Date("2022-03-29T18:10:00Z"), type: MessageType.QUOTE,        text: "You should not have come here. And yet — here is exactly where you need to be." },
+            { episodeTitle: intoTheVoid.title, messageNo: 6,  playerId: trey.id,   characterId: grak.id,    timestamp: new Date("2022-03-29T18:11:00Z"), type: MessageType.ACTION,       text: "Grak stands between the apparition and the rest of the crew, fists raised." },
+            { episodeTitle: intoTheVoid.title, messageNo: 7,  playerId: trey.id,   characterId: grak.id,    timestamp: new Date("2022-03-29T18:11:30Z"), type: MessageType.QUOTE,        text: "Thing does not touch crew." },
+            { episodeTitle: intoTheVoid.title, messageNo: 8,  playerId: admin.id,  characterId: null,       timestamp: new Date("2022-03-29T18:20:00Z"), type: MessageType.BOT_RESPONSE, text: "The entity vanishes. Instruments restore. At the center of the anomaly, long-range scan resolves a derelict hull — registry unknown." },
+            { episodeTitle: intoTheVoid.title, messageNo: 9,  playerId: trey.id,   characterId: rix.id,     timestamp: new Date("2022-03-29T18:21:00Z"), type: MessageType.QUOTE,        text: "Maris, I need a boarding tube ready in ten minutes. Grak — you're on point." },
+            { episodeTitle: intoTheVoid.title, messageNo: 10, playerId: alex.id,   characterId: maris.id,   timestamp: new Date("2022-03-29T18:22:00Z"), type: MessageType.ACTION,       text: "Maris starts running, already pulling tools off her belt." },
         ],
     });
 
     // Machina Rising messages
     await prisma.message.createMany({
         data: [
-            { episodeTitle: machinaRising.title, message_no: 1,  playerId: admin.id,  characterId: null,    date: new Date("2023-01-10T19:00:00Z"), type: MessageType.BOT_RESPONSE, text: "Session started. Welcome to Vortox Machina, Episode 1: Machina Rising." },
-            { episodeTitle: machinaRising.title, message_no: 2,  playerId: admin.id,  characterId: null,    date: new Date("2023-01-10T19:01:00Z"), type: MessageType.EMBED,        text: "https://finalfrontier.local/assets/vortox-station-exterior.png" },
-            { episodeTitle: machinaRising.title, message_no: 3,  playerId: admin.id,  characterId: null,    date: new Date("2023-01-10T19:02:00Z"), type: MessageType.BOT_RESPONSE, text: "Vortox Station 7. Designation: Research and Containment. Operational status: OFFLINE for 30 years. Current status: all systems nominal. No authorized crew aboard." },
-            { episodeTitle: machinaRising.title, message_no: 4,  playerId: trey.id,   characterId: rix.id,  date: new Date("2023-01-10T19:05:00Z"), type: MessageType.QUOTE,        text: "Whatever woke it up, it didn't do it by accident." },
-            { episodeTitle: machinaRising.title, message_no: 5,  playerId: alex.id,   characterId: sova.id, date: new Date("2023-01-10T19:07:00Z"), type: MessageType.ACTION,       text: "Dr. Sova connects a diagnostic probe to the station's outer data port and begins pulling 30 years of compressed logs." },
-            { episodeTitle: machinaRising.title, message_no: 6,  playerId: alex.id,   characterId: sova.id, date: new Date("2023-01-10T19:09:00Z"), type: MessageType.QUOTE,        text: "There are 14,000 log entries from the last 72 hours alone. The station did not simply wake up — something woke it." },
+            { episodeTitle: machinaRising.title, messageNo: 1,  playerId: admin.id,  characterId: null,    timestamp: new Date("2023-01-10T19:00:00Z"), type: MessageType.BOT_RESPONSE, text: "Session started. Welcome to Vortox Machina, Episode 1: Machina Rising." },
+            { episodeTitle: machinaRising.title, messageNo: 2,  playerId: admin.id,  characterId: null,    timestamp: new Date("2023-01-10T19:01:00Z"), type: MessageType.EMBED,        text: "https://finalfrontier.local/assets/vortox-station-exterior.png" },
+            { episodeTitle: machinaRising.title, messageNo: 3,  playerId: admin.id,  characterId: null,    timestamp: new Date("2023-01-10T19:02:00Z"), type: MessageType.BOT_RESPONSE, text: "Vortox Station 7. Designation: Research and Containment. Operational status: OFFLINE for 30 years. Current status: all systems nominal. No authorized crew aboard." },
+            { episodeTitle: machinaRising.title, messageNo: 4,  playerId: trey.id,   characterId: rix.id,  timestamp: new Date("2023-01-10T19:05:00Z"), type: MessageType.QUOTE,        text: "Whatever woke it up, it didn't do it by accident." },
+            { episodeTitle: machinaRising.title, messageNo: 5,  playerId: alex.id,   characterId: sova.id, timestamp: new Date("2023-01-10T19:07:00Z"), type: MessageType.ACTION,       text: "Dr. Sova connects a diagnostic probe to the station's outer data port and begins pulling 30 years of compressed logs." },
+            { episodeTitle: machinaRising.title, messageNo: 6,  playerId: alex.id,   characterId: sova.id, timestamp: new Date("2023-01-10T19:09:00Z"), type: MessageType.QUOTE,        text: "There are 14,000 log entries from the last 72 hours alone. The station did not simply wake up — something woke it." },
+        ],
+    });
+
+    // ── Commentaries ──────────────────────────────────────────────────────
+    await prisma.commentary.createMany({
+        data: [
+            // Pilot – Rix's opening speech
+            { creatorId: alex.id,  messageEpisodeTitle: pilot.title, messageNo: 3,  content: "Classic Rix opener. He said almost the exact same thing in the debrief the week before." },
+            { creatorId: trey.id,  messageEpisodeTitle: pilot.title, messageNo: 3,  content: "I had no idea this line would end up defining the whole campaign tone." },
+            // Pilot – "Grak follows."
+            { creatorId: alex.id,  messageEpisodeTitle: pilot.title, messageNo: 5,  content: "Two words. Grak is a man of few words and all of them count." },
+            { creatorId: admin.id, messageEpisodeTitle: pilot.title, messageNo: 5,  content: "Honestly the funniest intro to a character we've ever had at this table. Especially since Trey was trying to make an action, but mistyped it as a quote." },
+            // Into the Void – "Thing does not touch crew."
+            { creatorId: trey.id,  messageEpisodeTitle: intoTheVoid.title, messageNo: 7, content: "I rolled a nat 20 on intimidation right after this. The Whisper actually hesitated." },
+            { creatorId: alex.id,  messageEpisodeTitle: intoTheVoid.title, messageNo: 7, content: "Grak protecting the crew against a literal void entity. Peak character moment." },
+            // Machina Rising – Rix on the station waking up
+            { creatorId: admin.id, messageEpisodeTitle: machinaRising.title, messageNo: 4, content: "This line is basically the thesis statement for the whole Vortox arc." },
         ],
     });
 
@@ -367,6 +385,7 @@ async function main() {
     console.log(`  Seasons:    ${[season1, vortoxMachina].length}`);
     console.log(`  Episodes:   ${[pilot, intoTheVoid, machinaRising].length}`);
     console.log(`  Items:      6`);
+    console.log(`  Commentaries: 7`);
 }
 
 main()

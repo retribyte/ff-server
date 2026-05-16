@@ -17,20 +17,20 @@ async function getMessagesByEpisode(episodeTitle: string, page = 1, limit = 100,
     const [data, total] = await Promise.all([
         prisma.message.findMany({
             where,
-            orderBy: { message_no: "asc" },
+            orderBy: { messageNo: "asc" },
             skip,
             take: limit,
-            include: { player: { select: { id: true, username: true, icon: true } }, character: true },
+            include: { player: { select: { id: true, username: true, icon: true } }, character: true, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
         }),
         prisma.message.count({ where }),
     ]);
     return { data, total, page, limit };
 }
 
-async function getMessageByNo(episodeTitle: string, message_no: number) {
+async function getMessageByNo(episodeTitle: string, messageNo: number) {
     return await prisma.message.findUnique({
-        where: { episodeTitle_message_no: { episodeTitle, message_no } },
-        include: { player: { select: { id: true, username: true, icon: true } }, character: true },
+        where: { episodeTitle_messageNo: { episodeTitle, messageNo } },
+        include: { player: { select: { id: true, username: true, icon: true } }, character: true, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
     });
 }
 
@@ -62,31 +62,31 @@ async function createMessage(episodeTitle: string, data: MessageData) {
 
     const last = await prisma.message.findFirst({
         where: { episodeTitle },
-        orderBy: { message_no: "desc" },
+        orderBy: { messageNo: "desc" },
     });
-    const message_no = (last?.message_no ?? 0) + 1;
+    const messageNo = (last?.messageNo ?? 0) + 1;
 
     return await prisma.message.create({
         data: {
             episodeTitle,
-            message_no,
+            messageNo,
             playerId: data.playerId,
             characterId: data.characterId,
             timestamp: new Date(data.timestamp),
             type: data.type,
             text: data.text,
         },
-        include: { player: { select: { id: true, username: true, icon: true } }, character: true },
+        include: { player: { select: { id: true, username: true, icon: true } }, character: true, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
     });
 }
 
-async function updateMessage(episodeTitle: string, message_no: number, data: Partial<MessageData>) {
+async function updateMessage(episodeTitle: string, messageNo: number, data: Partial<MessageData>) {
     if (data.type === MessageType.QUOTE && !data.characterId) {
         throw new Error("characterId is required for QUOTE messages");
     }
 
     return await prisma.message.update({
-        where: { episodeTitle_message_no: { episodeTitle, message_no } },
+        where: { episodeTitle_messageNo: { episodeTitle, messageNo } },
         data: {
             playerId: data.playerId,
             characterId: data.characterId,
@@ -94,13 +94,13 @@ async function updateMessage(episodeTitle: string, message_no: number, data: Par
             type: data.type,
             text: data.text,
         },
-        include: { player: { select: { id: true, username: true, icon: true } }, character: true },
+        include: { player: { select: { id: true, username: true, icon: true } }, character: true, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
     });
 }
 
-async function deleteMessage(episodeTitle: string, message_no: number): Promise<void> {
+async function deleteMessage(episodeTitle: string, messageNo: number): Promise<void> {
     await prisma.message.delete({
-        where: { episodeTitle_message_no: { episodeTitle, message_no } },
+        where: { episodeTitle_messageNo: { episodeTitle, messageNo } },
     });
 }
 

@@ -31,7 +31,7 @@ const initializeMessageRoutes = (): Router => {
         }
     });
 
-    // GET /api/episodes/:episodeTitle/messages: Return paginated messages in an episode ordered by message_no
+    // GET /api/episodes/:episodeTitle/messages: Return paginated messages in an episode ordered by messageNo
     router.get("/episodes/:episodeTitle/messages", async (req: Request, res: Response) => {
         const { episodeTitle } = req.params;
         const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
