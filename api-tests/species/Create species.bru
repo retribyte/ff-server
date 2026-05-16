@@ -1,0 +1,30 @@
+meta {
+  name: Create species
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/api/species
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Draknari",
+    "binomialName": "Draknus sapiens",
+    "description": "A reptilian species native to the arid moons of the Keth system, known for their exceptional memory and natural heat resistance.",
+    "class": "HIGHER_SENTIENT",
+    "lifespan": "~150 GUY",
+    "diet": "Carnivore",
+    "habitat": "Arid and volcanic worlds",
+    "placeOfOrigin": "Keth-IV",
+    "creatorId": 2
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Update message
+  type: http
+  seq: 6
+}
+
+put {
+  url: http://localhost:3000/api/episodes/Pilot/messages/3
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "text": "I don't care where you're from or who sent you. On this ship, you follow my orders. That's the only thing keeping any of us alive out here."
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Final Frontier Site",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

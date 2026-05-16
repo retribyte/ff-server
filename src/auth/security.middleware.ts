@@ -1,36 +1,31 @@
-import { NextFunction, Response } from "express";
-import { TokenService } from "./token.service.js";
+import { Request, Response, NextFunction } from "express";
+import { UserRole } from "@prisma/client";
+import tokenService from "./token.service.js";
 
-export class SecurityMiddleware {
-    private tokenService: TokenService;
-
-    constructor(tokenService: TokenService) {
-        this.tokenService = tokenService;
-        this.authenticate = this.authenticate.bind(this); // written by copilot
+export async function authenticate(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        res.status(401).json({ status: "error", message: "No authorization header" });
+        return;
     }
-
-    async authenticate(
-        req: any,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> {
-        const authHeader = req.headers.authorization;
-
-        if (!authHeader) {
-            res.status(401).json({ error: "No authorization header" });
-            return;
-        }
-
-        const token = authHeader && authHeader.split(" ")[1];
-        const isVerified = await this.tokenService.checkToken(token);
-        console.log(isVerified ? "Token verified" : "Token not verified");
-
-        if (isVerified) {
-            req.user = isVerified.user;
-            next();
-        } else {
-            res.status(401).json({ error: "Invalid token" });
-            return;
-        }
+    const token = authHeader.split(" ")[1];
+    const decoded = await tokenService.verifyAccessToken(token);
+    if (!decoded) {
+        res.status(401).json({ status: "error", message: "Invalid or expired token" });
+        return;
     }
+    req.user = decoded;
+    next();
+}
+
+export function isAdmin(req: Request, res: Response, next: NextFunction): void {
+    if (!req.user || req.user.role !== UserRole.ADMIN) {
+        res.status(403).json({ status: "error", message: "Forbidden" });
+        return;
+    }
+    next();
 }

@@ -1,0 +1,27 @@
+meta {
+  name: Create item
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/api/items
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Resonance Blade",
+    "itemType": "WEAPON",
+    "description": "A short blade forged from condensed sound-wave alloy. Vibrates at a frequency that disrupts energy shielding on contact. Rare and difficult to maintain.",
+    "image": null,
+    "creatorId": 2,
+    "characterId": 1
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

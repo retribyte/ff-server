@@ -1,0 +1,30 @@
+meta {
+  name: Login user
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/api/login
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "admin",
+    "password": "admin123"
+  }
+}
+
+script:post-response {
+  const data = res.getBody();
+  if (data?.data?.token) {
+    bru.setVar("token", data.data.token);
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

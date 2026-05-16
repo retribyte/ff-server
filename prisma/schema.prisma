@@ -1,11 +1,10 @@
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
-  provider  = "prisma-client-js"
-  output    = "./client"
+  provider = "prisma-client-js"
 }
 
 enum UserRole {
@@ -36,57 +35,73 @@ enum MessageType {
   OTHER
 }
 
+enum ItemType {
+  WEAPON
+  EQUIPMENT
+  ARTIFACT
+  OTHER
+}
+
 model User {
-  id          Int         @id @unique @default(autoincrement())
-  username    String      @unique
-  email       String?     @unique
-  password    String // hashed using bcrypt?
-  role        UserRole
-  icon        String? // If null, use identicon?
-  wikiUser    String?
-  characters  Character[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  species     Species[]
-  messages    Message[]
+  id            Int         @id @unique @default(autoincrement())
+  username      String      @unique
+  email         String?     @unique
+  password      String      // hashed using bcrypt?
+  role          UserRole
+  icon          String?     // If null, use identicon?
+  bio           String?
+  wikiUser      String?
+  characters    Character[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  species       Species[]
+  messages      Message[]
+  items         Item[]
+  commentaries  Commentary[]
 }
 
 model Character {
   id            Int       @id @unique @default(autoincrement())
   name          String
-  dob           Int?    // Date of birth as a unix timestamp. Will be displayed in GUY notation.
-  pob           String? // Place of birth
-  aliases       Alias[] // Array of aliases
+  dob           Int?      // Date of birth as a unix timestamp. Will be displayed in GUY notation.
+  pob           String?   // Place of birth
+  aliases       Alias[]   // Array of aliases
   relationships Relationship[] // Array for describing relationships (e.g., "Parent: X", "Sibling: Y")
   homePlanet    String?
   species       Species   @relation(fields: [speciesId], references: [id])
   speciesId     Int
-  sex           Sex // Enum: "Male", "Female", "Other", "Unspecified"
-  height        Float? // Height in meters (e.g., 1.75)
-  weight        Float? // Weight in kilograms
+  sex           Sex       // Enum: "Male", "Female", "Other", "Unspecified"
+  height        Float?    // Height in meters (e.g., 1.75)
+  weight        Float?    // Weight in kilograms
   hairColor     String?
   eyeColor      String?
   creator       User      @relation(fields: [creatorId], references: [id])
   creatorId     Int
   messages      Message[]
+  image         String?
+  themeColor    String?
+  items         Item[]
+  blurb         String?
+  wikiArticle   String?
 
-  @@map("characters") // Maps the table name in the SQLite database
+  @@unique([creatorId, name])
+  @@map("characters")     // Maps the table name in the SQLite database
 }
 
 model Alias {
-  id          Int         @id @unique @default(autoincrement())
-  name        String
-  characterId Int
-  character   Character   @relation(fields: [characterId], references: [id])
+  id            Int         @id @unique @default(autoincrement())
+  name          String
+  characterId   Int
+  character     Character   @relation(fields: [characterId], references: [id])
 
   @@map("aliases")
 }
 
 model Relationship {
-  id          Int         @id @unique @default(autoincrement())
-  description String // Example: "Parent of John"
-  characterId Int
-  character   Character   @relation(fields: [characterId], references: [id])
+  id            Int         @id @unique @default(autoincrement())
+  description   String      // Example: "Parent of John"
+  characterId   Int
+  character     Character   @relation(fields: [characterId], references: [id])
 
   @@map("relationships")
 }
@@ -95,15 +110,16 @@ model Species {
   id            Int       @id @unique @default(autoincrement())
   name          String
   description   String
-  binomialName  String? // Equivalent to taxonomy
-  class         Class // Enum: "Higher Sentients", "Lower Sentients"
-  lifespan      String // Average lifespan in GUYs
-  diet          String? // Enum: "Carnivore", "Herbivore", "Omnivore", "Other"
+  binomialName  String?   // Equivalent to taxonomy
+  class         Class     // Enum: "Higher Sentients", "Lower Sentients"
+  lifespan      String    // Average lifespan in GUYs
+  diet          String?   // Enum: "Carnivore", "Herbivore", "Omnivore", "Other"
   habitat       String?
   placeOfOrigin String?
   creator       User      @relation(fields: [creatorId], references: [id])
-  Character     Character[]
   creatorId     Int
+  Character     Character[]
+  wikiArticle   String?
 
   @@map("species")
 }
@@ -116,28 +132,60 @@ model Season {
 }
 
 model Episode {
-  title       String      @unique
-  season      Season      @relation(fields: [seasonTitle], references: [title])
-  episode_no  Int
-  messages    Message[]
-  seasonTitle String
+  title         String      @unique
+  season        Season      @relation(fields: [seasonTitle], references: [title])
+  episode_no    Int
+  messages      Message[]
+  seasonTitle   String
+  summary       String?
+  playedDate    DateTime?
 
   @@id([seasonTitle, episode_no])
   @@map("episodes")
 }
 
 model Message {
-  episode      Episode    @relation(fields: [episodeTitle], references: [title])
-  message_no   Int
-  episodeTitle String
-  player       User       @relation(fields: [playerId], references: [id])
-  playerId     Int
-  character    Character? @relation(fields: [characterId], references: [id])
-  characterId  Int?
-  date         DateTime
-  type         MessageType
-  text         String
+  episode       Episode    @relation(fields: [episodeTitle], references: [title])
+  messageNo     Int
+  episodeTitle  String
+  player        User       @relation(fields: [playerId], references: [id])
+  playerId      Int
+  character     Character? @relation(fields: [characterId], references: [id])
+  characterId   Int?
+  timestamp     DateTime?
+  type          MessageType
+  text          String
+  commentaries  Commentary[]
 
-  @@id([episodeTitle, message_no])
+  @@id([episodeTitle, messageNo])
   @@map("messages")
+}
+
+model Commentary {
+  id                  Int     @id @unique @default(autoincrement())
+  creator             User    @relation(fields: [creatorId], references: [id])
+  creatorId           Int
+  message             Message @relation(fields: [messageEpisodeTitle, messageNo], references: [episodeTitle, messageNo])
+  messageEpisodeTitle String
+  messageNo           Int
+  content             String
+
+  @@map("commentaries")
+}
+
+model Item {
+  id            Int        @id @unique @default(autoincrement())
+  name          String
+  itemType      ItemType
+  description   String
+  image         String?
+  creator       User       @relation(fields: [creatorId], references: [id])
+  creatorId     Int
+  character     Character? @relation(fields: [characterId], references: [id])
+  characterId   Int?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  wikiArticle   String?
+
+  @@map("items")
 }
