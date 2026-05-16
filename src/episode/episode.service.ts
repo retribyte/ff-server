@@ -12,7 +12,7 @@ type EpisodeData = {
 
 async function getAllEpisodes(search?: string) {
     const where = search
-        ? { title: { contains: search, mode: "insensitive" as const } }
+        ? { title: { contains: search } }
         : undefined;
     return await prisma.episode.findMany({
         where,
@@ -23,7 +23,7 @@ async function getAllEpisodes(search?: string) {
 async function getEpisodeByTitle(title: string) {
     return await prisma.episode.findUnique({
         where: { title },
-        include: { season: true, messages: { orderBy: { messageNo: "asc" }, include: { commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } } } },
+        include: { season: true, messages: { orderBy: { messageNo: "asc" }, include: { player: { select: { id: true, username: true, icon: true } }, character: true, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } } } },
     });
 }
 

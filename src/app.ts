@@ -1,4 +1,5 @@
 import express, { Application, NextFunction, Request, Response } from "express";
+import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import userController from "./user/user.controller.js";
 import characterController from "./character/character.controller.js";
@@ -14,6 +15,7 @@ class App {
 
     constructor() {
         this.app = express();
+        this.app.use(cors());
         this.app.use(express.json());
         this.routes();
         this.errorHandlers();

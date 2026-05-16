@@ -13,7 +13,7 @@ type MessageData = {
 async function getMessagesByEpisode(episodeTitle: string, page = 1, limit = 100, search?: string) {
     const skip = (page - 1) * limit;
     const where: any = { episodeTitle };
-    if (search) where.text = { contains: search, mode: "insensitive" };
+    if (search) where.text = { contains: search };
     const [data, total] = await Promise.all([
         prisma.message.findMany({
             where,

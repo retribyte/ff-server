@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function getAllSeasons(search?: string) {
     const where = search
-        ? { title: { contains: search, mode: "insensitive" as const } }
+        ? { title: { contains: search } }
         : undefined;
     return await prisma.season.findMany({
         where,

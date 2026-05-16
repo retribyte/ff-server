@@ -17,7 +17,7 @@ type SpeciesData = {
 
 async function getAllSpecies(search?: string) {
     const where = search
-        ? { name: { contains: search, mode: "insensitive" as const } }
+        ? { name: { contains: search } }
         : undefined;
     return await prisma.species.findMany({
         where,

@@ -14,7 +14,7 @@ type ItemData = {
 
 async function getAllItems(search?: string) {
     const where = search
-        ? { name: { contains: search, mode: "insensitive" as const } }
+        ? { name: { contains: search } }
         : undefined;
     return await prisma.item.findMany({
         where,

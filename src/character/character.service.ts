@@ -33,8 +33,8 @@ async function getAllCharacters(filters: CharacterFilters = {}) {
 
     if (search) {
         where.OR = [
-            { name: { contains: search, mode: "insensitive" } },
-            { aliases: { some: { name: { contains: search, mode: "insensitive" } } } },
+            { name: { contains: search } },
+            { aliases: { some: { name: { contains: search } } } },
         ];
     }
     if (speciesId !== undefined) where.speciesId = speciesId;
