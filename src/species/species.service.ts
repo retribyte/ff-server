@@ -12,6 +12,7 @@ type SpeciesData = {
     diet?: string;
     habitat?: string;
     placeOfOrigin?: string;
+    wikiArticle?: string;
     creatorId: number;
 };
 
@@ -43,6 +44,7 @@ async function createSpecies(data: SpeciesData) {
             diet: data.diet,
             habitat: data.habitat,
             placeOfOrigin: data.placeOfOrigin,
+            wikiArticle: data.wikiArticle,
             creatorId: data.creatorId,
         },
         include: { Character: true },
@@ -61,6 +63,7 @@ async function updateSpecies(id: number, data: Partial<SpeciesData>) {
             diet: data.diet,
             habitat: data.habitat,
             placeOfOrigin: data.placeOfOrigin,
+            wikiArticle: data.wikiArticle,
         },
         include: { Character: true },
     });

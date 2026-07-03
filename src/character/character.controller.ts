@@ -45,7 +45,7 @@ const initializeCharacterRoutes = (): Router => {
     // POST /api/characters: Create a new character
     router.post("/characters", authenticate, async (req: Request, res: Response) => {
         try {
-            const character = await characterService.createCharacter(req.body);
+            const character = await characterService.createCharacter({ ...req.body, creatorId: req.user!.id });
             res.status(201).json({ status: "success", data: character });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });

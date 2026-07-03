@@ -15,6 +15,9 @@ type CharacterData = {
     hairColor?: string;
     eyeColor?: string;
     blurb?: string;
+    image?: string;
+    themeColor?: string;
+    wikiArticle?: string;
     creatorId: number;
     aliases?: { name: string }[];
     relationships?: { description: string }[];
@@ -70,6 +73,9 @@ async function createCharacter(data: CharacterData) {
             hairColor: data.hairColor,
             eyeColor: data.eyeColor,
             blurb: data.blurb !== undefined ? sanitizeText(data.blurb) : undefined,
+            image: data.image,
+            themeColor: data.themeColor,
+            wikiArticle: data.wikiArticle,
             creatorId: data.creatorId,
             aliases: data.aliases ? { create: data.aliases } : undefined,
             relationships: data.relationships
@@ -95,6 +101,9 @@ async function updateCharacter(id: number, data: Partial<CharacterData>) {
             hairColor: data.hairColor,
             eyeColor: data.eyeColor,
             blurb: data.blurb !== undefined ? sanitizeText(data.blurb) : undefined,
+            image: data.image,
+            themeColor: data.themeColor,
+            wikiArticle: data.wikiArticle,
             aliases: data.aliases
                 ? { deleteMany: {}, create: data.aliases }
                 : undefined,
@@ -107,7 +116,14 @@ async function updateCharacter(id: number, data: Partial<CharacterData>) {
 }
 
 async function deleteCharacter(id: number): Promise<void> {
-    await prisma.character.delete({ where: { id } });
+    // Aliases/relationships have required FKs to the character — remove them
+    // in the same transaction. (Messages intentionally still block deletion:
+    // a character woven into the archive shouldn't silently vanish.)
+    await prisma.$transaction([
+        prisma.alias.deleteMany({ where: { characterId: id } }),
+        prisma.relationship.deleteMany({ where: { characterId: id } }),
+        prisma.character.delete({ where: { id } }),
+    ]);
 }
 
 export default {

@@ -8,6 +8,7 @@ type ItemData = {
     itemType: ItemType;
     description: string;
     image?: string;
+    wikiArticle?: string;
     creatorId: number;
     characterId?: number;
 };
@@ -36,6 +37,7 @@ async function createItem(data: ItemData) {
             itemType: data.itemType,
             description: sanitizeText(data.description),
             image: data.image,
+            wikiArticle: data.wikiArticle,
             creatorId: data.creatorId,
             characterId: data.characterId,
         },
@@ -51,6 +53,7 @@ async function updateItem(id: number, data: Partial<ItemData>) {
             itemType: data.itemType,
             description: data.description !== undefined ? sanitizeText(data.description) : undefined,
             image: data.image,
+            wikiArticle: data.wikiArticle,
             characterId: data.characterId,
         },
         include: { character: true },

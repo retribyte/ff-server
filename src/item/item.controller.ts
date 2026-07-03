@@ -38,7 +38,7 @@ const initializeItemRoutes = (): Router => {
     // POST /api/items: Create a new item lore entry
     router.post("/items", authenticate, async (req: Request, res: Response) => {
         try {
-            const item = await itemService.createItem(req.body);
+            const item = await itemService.createItem({ ...req.body, creatorId: req.user!.id });
             res.status(201).json({ status: "success", data: item });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });

@@ -38,7 +38,7 @@ const initializeSpeciesRoutes = (): Router => {
     // POST /api/species: Create a new species
     router.post("/species", authenticate, async (req: Request, res: Response) => {
         try {
-            const species = await speciesService.createSpecies(req.body);
+            const species = await speciesService.createSpecies({ ...req.body, creatorId: req.user!.id });
             res.status(201).json({ status: "success", data: species });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });
