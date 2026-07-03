@@ -8,6 +8,7 @@ import seasonController from "./season/season.controller.js";
 import episodeController from "./episode/episode.controller.js";
 import messageController from "./message/message.controller.js";
 import itemController from "./item/item.controller.js";
+import commentaryController from "./commentary/commentary.controller.js";
 import apiSpec from "./openapi.js";
 
 class App {
@@ -30,6 +31,7 @@ class App {
         this.app.use("/api", episodeController.initializeEpisodeRoutes());
         this.app.use("/api", messageController.initializeMessageRoutes());
         this.app.use("/api", itemController.initializeItemRoutes());
+        this.app.use("/api", commentaryController.initializeCommentaryRoutes());
     }
 
     private errorHandlers(): void {

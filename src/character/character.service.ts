@@ -63,7 +63,7 @@ async function createCharacter(data: CharacterData) {
     return await prisma.character.create({
         data: {
             name: data.name,
-            dob: data.dob ? Math.floor(new Date(data.dob).getTime() / 1000) : null,
+            dob: data.dob ? new Date(data.dob) : null,
             pob: data.pob,
             homePlanet: data.homePlanet,
             speciesId: data.speciesId,
@@ -91,7 +91,7 @@ async function updateCharacter(id: number, data: Partial<CharacterData>) {
         where: { id },
         data: {
             name: data.name,
-            dob: data.dob ? Math.floor(new Date(data.dob).getTime() / 1000) : undefined,
+            dob: data.dob === undefined ? undefined : data.dob ? new Date(data.dob) : null,
             pob: data.pob,
             homePlanet: data.homePlanet,
             speciesId: data.speciesId,
