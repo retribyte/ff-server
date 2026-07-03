@@ -1,11 +1,12 @@
 import { PrismaClient, Sex } from "@prisma/client";
 import { sanitizeText } from "../utils/sanitize.js";
+import { guyInputToEquinoxes } from "../utils/guy-time.js";
 
 const prisma = new PrismaClient();
 
 type CharacterData = {
     name: string;
-    dob?: string;
+    dob?: string | number | null; // GUY notation ('4-2-3022') or equinox count
     pob?: string;
     homePlanet?: string;
     speciesId: number;
@@ -63,7 +64,7 @@ async function createCharacter(data: CharacterData) {
     return await prisma.character.create({
         data: {
             name: data.name,
-            dob: data.dob ? new Date(data.dob) : null,
+            dob: data.dob === undefined ? null : guyInputToEquinoxes(data.dob),
             pob: data.pob,
             homePlanet: data.homePlanet,
             speciesId: data.speciesId,
@@ -91,7 +92,7 @@ async function updateCharacter(id: number, data: Partial<CharacterData>) {
         where: { id },
         data: {
             name: data.name,
-            dob: data.dob === undefined ? undefined : data.dob ? new Date(data.dob) : null,
+            dob: data.dob === undefined ? undefined : guyInputToEquinoxes(data.dob),
             pob: data.pob,
             homePlanet: data.homePlanet,
             speciesId: data.speciesId,

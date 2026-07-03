@@ -63,7 +63,7 @@ model User {
 model Character {
   id            Int       @id @unique @default(autoincrement())
   name          String
-  dob           DateTime? // Date of birth; displayed in GUY notation (dd-mm-yyyy). DateTime because in-universe years (~3022 GUY) overflow 32-bit unix seconds.
+  dob           Int?      // Date of birth as equinoxes since the GUY epoch (1-1-0 GUY = 13 Mar 1853 BCE). In-universe dates outrange every DB datetime type; see src/utils/guy-time.ts.
   pob           String?   // Place of birth
   aliases       Alias[]   // Array of aliases
   relationships Relationship[] // Array for describing relationships (e.g., "Parent: X", "Sibling: Y")
