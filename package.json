@@ -9,7 +9,8 @@
         "start": "tsc && node dist/server.js",
         "docker:up": "docker compose up -d --build",
         "docker:down": "docker compose down",
-        "docs": "npx @redocly/cli lint src/openapi.ts"
+        "docs": "npx @redocly/cli lint src/openapi.ts",
+        "seed:legacy": "tsx prisma/seed-legacy.ts"
     },
     "prisma": {
         "seed": "tsx prisma/seed.ts"
