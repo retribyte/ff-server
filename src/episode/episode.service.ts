@@ -55,7 +55,13 @@ async function updateEpisode(title: string, data: Partial<EpisodeData>) {
 }
 
 async function deleteEpisode(title: string): Promise<void> {
-    await prisma.episode.delete({ where: { title } });
+    // an episode owns its messages (and they their commentaries) — clear them
+    // first or the foreign keys block deletion
+    await prisma.$transaction([
+        prisma.commentary.deleteMany({ where: { messageEpisodeTitle: title } }),
+        prisma.message.deleteMany({ where: { episodeTitle: title } }),
+        prisma.episode.delete({ where: { title } }),
+    ]);
 }
 
 export default { getAllEpisodes, getEpisodeByTitle, createEpisode, updateEpisode, deleteEpisode };

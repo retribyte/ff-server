@@ -65,6 +65,22 @@ const initializeMessageRoutes = (): Router => {
         }
     });
 
+    // POST /api/episodes/:episodeTitle/messages: Append message(s) to an episode.
+    // Accepts a single message object, or { messages: [...] } for bulk transcript import.
+    router.post("/episodes/:episodeTitle/messages", authenticate, async (req: Request, res: Response) => {
+        const { episodeTitle } = req.params;
+        try {
+            if (Array.isArray(req.body?.messages)) {
+                const result = await messageService.createMessages(episodeTitle, req.body.messages);
+                return res.status(201).json({ status: "success", data: result });
+            }
+            const message = await messageService.createMessage(episodeTitle, req.body);
+            res.status(201).json({ status: "success", data: message });
+        } catch (error: any) {
+            res.status(400).json({ status: "error", message: error.message });
+        }
+    });
+
     // PUT /api/episodes/:episodeTitle/messages/:messageNo: Update a message by episode and sequence number
     router.put("/episodes/:episodeTitle/messages/:messageNo", authenticate, async (req: Request, res: Response) => {
         const { episodeTitle } = req.params;

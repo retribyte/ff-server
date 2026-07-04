@@ -55,6 +55,55 @@ async function getRandomQuote() {
     return quotes[0] ?? null;
 }
 
+const VALID_TYPES = new Set<string>(Object.values(MessageType));
+
+/**
+ * Bulk-append messages to an episode (transcript import). Sequential
+ * messageNos are assigned after the episode's current maximum, inside a
+ * transaction so concurrent imports can't collide.
+ */
+async function createMessages(episodeTitle: string, messages: MessageData[]) {
+    for (const [index, msg] of messages.entries()) {
+        if (!VALID_TYPES.has(msg.type)) {
+            throw new Error(`Message ${index + 1}: invalid type '${msg.type}'`);
+        }
+        if (typeof msg.playerId !== "number") {
+            throw new Error(`Message ${index + 1}: playerId is required`);
+        }
+        if (typeof msg.text !== "string") {
+            throw new Error(`Message ${index + 1}: text is required`);
+        }
+        if (msg.type === MessageType.QUOTE && !msg.characterId) {
+            throw new Error(`Message ${index + 1}: characterId is required for QUOTE messages`);
+        }
+    }
+
+    return await prisma.$transaction(async (tx) => {
+        const episode = await tx.episode.findUnique({ where: { title: episodeTitle } });
+        if (!episode) throw new Error(`Episode '${episodeTitle}' not found`);
+
+        const last = await tx.message.findFirst({
+            where: { episodeTitle },
+            orderBy: { messageNo: "desc" },
+        });
+        const firstMessageNo = (last?.messageNo ?? 0) + 1;
+
+        await tx.message.createMany({
+            data: messages.map((msg, index) => ({
+                episodeTitle,
+                messageNo: firstMessageNo + index,
+                playerId: msg.playerId,
+                characterId: msg.characterId ?? null,
+                timestamp: msg.timestamp ? new Date(msg.timestamp) : null,
+                type: msg.type,
+                text: msg.text,
+            })),
+        });
+
+        return { count: messages.length, firstMessageNo, lastMessageNo: firstMessageNo + messages.length - 1 };
+    });
+}
+
 async function createMessage(episodeTitle: string, data: MessageData) {
     if (data.type === MessageType.QUOTE && !data.characterId) {
         throw new Error("characterId is required for QUOTE messages");
@@ -110,6 +159,7 @@ export default {
     getQuotesByCharacter,
     getRandomQuote,
     createMessage,
+    createMessages,
     updateMessage,
     deleteMessage,
 };
