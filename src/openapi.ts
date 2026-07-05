@@ -126,7 +126,7 @@ const spec = {
             },
             StoryLineType: {
                 type: "string",
-                enum: ["NARRATION", "DIALOGUE", "ACTION", "TRANSCRIPT", "BREAK"],
+                enum: ["NARRATION", "DIALOGUE", "ACTION", "TRANSCRIPT", "BREAK", "HEADING"],
             },
             StoryFormat: {
                 type: "string",
@@ -135,11 +135,13 @@ const spec = {
             },
             StorySegment: {
                 type: "object",
-                description: "A sub-paragraph span; texts concatenate verbatim to the line's text. A span with a voice is dialogue, one without is narration.",
+                description: "A sub-paragraph span; texts concatenate verbatim to the line's text. A span may carry a voice (dialogue) and/or inline styling (italic/bold).",
                 properties: {
                     text: { type: "string" },
                     characterId: { type: "integer", nullable: true },
                     speaker: { type: "string", nullable: true },
+                    italic: { type: "boolean" },
+                    bold: { type: "boolean" },
                 },
                 required: ["text"],
             },

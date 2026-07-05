@@ -48,6 +48,7 @@ enum StoryLineType {
   ACTION      // a reader/protagonist choice
   TRANSCRIPT  // in-universe recording fragment (VCOMM etc.)
   BREAK       // scene break
+  HEADING     // in-chapter section heading (prose sub-sections)
 }
 
 enum StoryFormat {

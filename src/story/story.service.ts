@@ -6,6 +6,8 @@ type StorySegment = {
     text: string;
     characterId?: number | null;
     speaker?: string | null;
+    italic?: boolean;
+    bold?: boolean;
 };
 
 type StoryData = {
@@ -228,15 +230,17 @@ function validateSegments(segments: StorySegment[], label: string) {
     if (!Array.isArray(segments) || segments.length === 0) {
         throw new Error(`${label}: segments must be a non-empty array`);
     }
-    let hasVoice = false;
+    // Segments annotate a paragraph with dialogue spans and/or inline styling;
+    // a plain array with no voice and no style should just be sent as text.
+    let annotated = false;
     for (const [i, segment] of segments.entries()) {
         if (typeof segment.text !== "string") {
             throw new Error(`${label}: segment ${i + 1} needs a string text`);
         }
-        if (segment.characterId || segment.speaker) hasVoice = true;
+        if (segment.characterId || segment.speaker || segment.italic || segment.bold) annotated = true;
     }
-    if (!hasVoice) {
-        throw new Error(`${label}: segments need at least one dialogue span (characterId or speaker); send plain text otherwise`);
+    if (!annotated) {
+        throw new Error(`${label}: segments need at least one dialogue or styled span; send plain text otherwise`);
     }
 }
 
@@ -251,7 +255,11 @@ function validateLine(line: LineData, label: string) {
     if (line.type === StoryLineType.DIALOGUE && !line.characterId && !line.speaker) {
         throw new Error(`${label}: DIALOGUE lines require characterId or speaker`);
     }
-    // Segment annotations describe sub-paragraph dialogue spans — NARRATION only
+    // Headings are a short block line — no voice, no segments
+    if (line.type === StoryLineType.HEADING && line.text.trim().length === 0) {
+        throw new Error(`${label}: HEADING lines require non-empty text`);
+    }
+    // Segment annotations describe sub-paragraph spans — NARRATION only
     if (hasSegments(line)) {
         if (line.type !== StoryLineType.NARRATION) {
             throw new Error(`${label}: segments are only allowed on NARRATION lines`);
