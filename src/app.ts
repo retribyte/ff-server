@@ -7,6 +7,7 @@ import speciesController from "./species/species.controller.js";
 import seasonController from "./season/season.controller.js";
 import episodeController from "./episode/episode.controller.js";
 import messageController from "./message/message.controller.js";
+import storyController from "./story/story.controller.js";
 import itemController from "./item/item.controller.js";
 import commentaryController from "./commentary/commentary.controller.js";
 import apiSpec from "./openapi.js";
@@ -30,6 +31,7 @@ class App {
         this.app.use("/api", seasonController.initializeSeasonRoutes());
         this.app.use("/api", episodeController.initializeEpisodeRoutes());
         this.app.use("/api", messageController.initializeMessageRoutes());
+        this.app.use("/api", storyController.initializeStoryRoutes());
         this.app.use("/api", itemController.initializeItemRoutes());
         this.app.use("/api", commentaryController.initializeCommentaryRoutes());
     }

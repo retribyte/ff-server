@@ -42,6 +42,14 @@ enum ItemType {
   OTHER
 }
 
+enum StoryLineType {
+  NARRATION   // prose paragraph
+  DIALOGUE    // spoken line, colored by character
+  ACTION      // a reader/protagonist choice
+  TRANSCRIPT  // in-universe recording fragment (VCOMM etc.)
+  BREAK       // scene break
+}
+
 model User {
   id            Int         @id @unique @default(autoincrement())
   username      String      @unique
@@ -58,6 +66,7 @@ model User {
   messages      Message[]
   items         Item[]
   commentaries  Commentary[]
+  stories       Story[]
 }
 
 model Character {
@@ -83,6 +92,7 @@ model Character {
   items         Item[]
   blurb         String?
   wikiArticle   String?
+  storyLines    StoryLine[]
 
   @@unique([creatorId, name])
   @@map("characters")
@@ -171,6 +181,51 @@ model Commentary {
   content             String
 
   @@map("commentaries")
+}
+
+// Prose works (short stories, the Vortox Machina chronicle). Unlike the
+// season/episode/message hierarchy these use numeric ids + a unique slug so
+// renames never cascade through child rows.
+model Story {
+  id            Int            @id @unique @default(autoincrement())
+  slug          String         @unique // URL key, e.g. "vm"
+  title         String         @unique
+  blurb         String?
+  author        User?          @relation(fields: [authorId], references: [id])
+  authorId      Int?
+  publishedDate DateTime?      // real-world publication; an in-universe date would be a GUY Int
+  themeColor    String?
+  themeColor2   String?
+  chapters      StoryChapter[]
+
+  @@map("stories")
+}
+
+model StoryChapter {
+  id         Int         @id @unique @default(autoincrement())
+  story      Story       @relation(fields: [storyId], references: [id])
+  storyId    Int
+  chapter_no Int
+  title      String?
+  lines      StoryLine[]
+
+  @@unique([storyId, chapter_no])
+  @@map("story_chapters")
+}
+
+model StoryLine {
+  id          Int           @id @unique @default(autoincrement())
+  chapter     StoryChapter  @relation(fields: [chapterId], references: [id])
+  chapterId   Int
+  line_no     Int           // 1-based within chapter; deep-link anchor
+  type        StoryLineType
+  text        String
+  character   Character?    @relation(fields: [characterId], references: [id])
+  characterId Int?
+  speaker     String?       // display-name fallback when no Character row exists
+
+  @@unique([chapterId, line_no])
+  @@map("story_lines")
 }
 
 model Item {

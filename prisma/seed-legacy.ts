@@ -11,7 +11,7 @@
  * Run with: npm run seed:legacy   (ff-site checkout expected at ../ff-site,
  * override with FF_SITE_DIR=/path/to/ff-site)
  */
-import { PrismaClient, UserRole, Sex, Class, MessageType, Prisma } from "@prisma/client";
+import { PrismaClient, UserRole, Sex, Class, MessageType, StoryLineType, Prisma } from "@prisma/client";
 import { hashSync } from "bcryptjs";
 import { existsSync, readdirSync, readFileSync } from "fs";
 import { dirname, join, resolve } from "path";
@@ -122,6 +122,9 @@ async function main() {
     // -- Wipe existing data (reverse dependency order) --------------------
     await prisma.item.deleteMany();
     await prisma.commentary.deleteMany();
+    await prisma.storyLine.deleteMany();
+    await prisma.storyChapter.deleteMany();
+    await prisma.story.deleteMany();
     await prisma.message.deleteMany();
     await prisma.episode.deleteMany();
     await prisma.season.deleteMany();
@@ -250,52 +253,62 @@ async function main() {
         console.log(`  FF2 ep ${ep.episode_number}: "${ep.title}" — ${rows.length} messages`);
     }
 
-    // -- Vortox Machina (CYOA) as its own season with one episode -----------
-    await prisma.season.create({ data: { title: "Vortox Machina" } });
-    await prisma.episode.create({
+    // -- Vortox Machina (CYOA) as a Story with a single chapter -------------
+    // cyoa.json is flat, so one chapter keeps line 1..N identical to the
+    // legacy numbering and old ?line=N deep links stay meaningful.
+    const vmStory = await prisma.story.create({
         data: {
+            slug: "vm",
             title: "Vortox Machina",
-            seasonTitle: "Vortox Machina",
-            episode_no: 1,
-            summary:
+            blurb:
                 "A VCOMM broadcast from Emmett, last known Squoatling, lost in space. The choose-your-own-adventure chronicle.",
+            authorId: archivist.id,
+            themeColor: "#e8b23b",
+            themeColor2: "#d3612c",
         },
     });
+    const vmChapter = await prisma.storyChapter.create({
+        data: { storyId: vmStory.id, chapter_no: 1 },
+    });
 
-    const cyoaRows: Prisma.MessageCreateManyInput[] = cyoaLines.map((line, index) => {
+    const cyoaRows: Prisma.StoryLineCreateManyInput[] = cyoaLines.map((line, index) => {
         const characterId = line.character ? (characterIds.get(line.character) ?? null) : null;
-        let type: MessageType;
+        let type: StoryLineType;
         switch (line.type) {
             case "dialogue":
-                type = characterId !== null ? MessageType.QUOTE : MessageType.OTHER;
+                type = StoryLineType.DIALOGUE;
                 break;
             case "action":
-                type = MessageType.ACTION;
+                type = StoryLineType.ACTION;
                 break;
             case "transcript":
-                type = MessageType.EMBED;
+                type = StoryLineType.TRANSCRIPT;
                 break;
             default:
-                type = MessageType.BOT_RESPONSE; // narration = narrator voice
+                type = StoryLineType.NARRATION;
         }
         return {
-            episodeTitle: "Vortox Machina",
-            messageNo: index + 1,
-            playerId: archivist.id,
-            characterId,
-            timestamp: null,
+            chapterId: vmChapter.id,
+            line_no: index + 1,
             type,
-            text: line.type === "transcript" ? JSON.stringify({ description: [line.text] }) : line.text,
+            text: line.text,
+            characterId,
+            // Uncatalogued voices still render as dialogue via the name fallback
+            speaker: line.character && characterId === null ? line.character : null,
         };
     });
-    await createMessagesChunked(cyoaRows);
+    const CHUNK = 2000;
+    for (let i = 0; i < cyoaRows.length; i += CHUNK) {
+        await prisma.storyLine.createMany({ data: cyoaRows.slice(i, i + CHUNK) });
+    }
 
     console.log("\nLegacy import complete.");
     console.log(`  Users:      ${playerNames.size + 1}`);
     console.log(`  Characters: ${characterNames.size}`);
-    console.log(`  Seasons:    2 (FF2, Vortox Machina)`);
-    console.log(`  Episodes:   ${episodes.length + 1}`);
-    console.log(`  Messages:   ${ff2MessageCount + cyoaRows.length} (FF2 ${ff2MessageCount}, CYOA ${cyoaRows.length})`);
+    console.log(`  Seasons:    1 (FF2)`);
+    console.log(`  Episodes:   ${episodes.length}`);
+    console.log(`  Messages:   ${ff2MessageCount} (FF2)`);
+    console.log(`  Stories:    1 (Vortox Machina, ${cyoaRows.length} lines)`);
 }
 
 main()

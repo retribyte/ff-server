@@ -124,6 +124,45 @@ const spec = {
                     text: { type: "string" },
                 },
             },
+            StoryLineType: {
+                type: "string",
+                enum: ["NARRATION", "DIALOGUE", "ACTION", "TRANSCRIPT", "BREAK"],
+            },
+            Story: {
+                type: "object",
+                properties: {
+                    id: { type: "integer" },
+                    slug: { type: "string" },
+                    title: { type: "string" },
+                    blurb: { type: "string", nullable: true },
+                    authorId: { type: "integer", nullable: true },
+                    publishedDate: { type: "string", format: "date-time", nullable: true },
+                    themeColor: { type: "string", nullable: true },
+                    themeColor2: { type: "string", nullable: true },
+                    chapters: { type: "array", items: { $ref: "#/components/schemas/StoryChapter" } },
+                },
+            },
+            StoryChapter: {
+                type: "object",
+                properties: {
+                    id: { type: "integer" },
+                    storyId: { type: "integer" },
+                    chapter_no: { type: "integer" },
+                    title: { type: "string", nullable: true },
+                },
+            },
+            StoryLine: {
+                type: "object",
+                properties: {
+                    id: { type: "integer" },
+                    chapterId: { type: "integer" },
+                    line_no: { type: "integer" },
+                    type: { $ref: "#/components/schemas/StoryLineType" },
+                    text: { type: "string" },
+                    characterId: { type: "integer", nullable: true },
+                    speaker: { type: "string", nullable: true, description: "Display name when no Character row exists" },
+                },
+            },
             Item: {
                 type: "object",
                 properties: {
@@ -580,6 +619,170 @@ const spec = {
                 tags: ["Messages"],
                 summary: "Get a random QUOTE message",
                 responses: { "200": { description: "A random quote" }, "404": { description: "No quotes found" } },
+            },
+        },
+        "/stories": {
+            get: {
+                tags: ["Stories"],
+                summary: "List all stories with chapter summaries",
+                parameters: [{ name: "search", in: "query", schema: { type: "string" }, description: "Search title and blurb" }],
+                responses: { "200": { description: "Array of stories" } },
+            },
+            post: {
+                tags: ["Stories"],
+                summary: "Create a story",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["slug", "title"],
+                                properties: {
+                                    slug: { type: "string", pattern: "^[a-z0-9-]+$" },
+                                    title: { type: "string" },
+                                    blurb: { type: "string" },
+                                    authorId: { type: "integer" },
+                                    publishedDate: { type: "string", format: "date-time" },
+                                    themeColor: { type: "string" },
+                                    themeColor2: { type: "string" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: { "201": { description: "Story created" }, "401": { description: "Unauthorized" } },
+            },
+        },
+        "/stories/{slug}": {
+            get: {
+                tags: ["Stories"],
+                summary: "Get a story by slug with chapter summaries",
+                parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+                responses: { "200": { description: "Story" }, "404": { description: "Not found" } },
+            },
+            put: {
+                tags: ["Stories"],
+                summary: "Update story metadata (admin only)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+                requestBody: {
+                    content: { "application/json": { schema: { $ref: "#/components/schemas/Story" } } },
+                },
+                responses: { "200": { description: "Updated story" }, "403": { description: "Forbidden" } },
+            },
+            delete: {
+                tags: ["Stories"],
+                summary: "Delete a story with its chapters and lines (admin only)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+                responses: { "204": { description: "Deleted" }, "403": { description: "Forbidden" } },
+            },
+        },
+        "/stories/{slug}/chapters": {
+            post: {
+                tags: ["Stories"],
+                summary: "Add a chapter (auto-numbered when chapter_no omitted)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+                requestBody: {
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    title: { type: "string" },
+                                    chapter_no: { type: "integer" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: { "201": { description: "Chapter created" }, "401": { description: "Unauthorized" } },
+            },
+        },
+        "/stories/{slug}/chapters/{chapterNo}": {
+            put: {
+                tags: ["Stories"],
+                summary: "Retitle a chapter",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "slug", in: "path", required: true, schema: { type: "string" } },
+                    { name: "chapterNo", in: "path", required: true, schema: { type: "integer" } },
+                ],
+                requestBody: {
+                    content: {
+                        "application/json": {
+                            schema: { type: "object", properties: { title: { type: "string", nullable: true } } },
+                        },
+                    },
+                },
+                responses: { "200": { description: "Updated chapter" }, "401": { description: "Unauthorized" } },
+            },
+            delete: {
+                tags: ["Stories"],
+                summary: "Delete a chapter and its lines (admin only)",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "slug", in: "path", required: true, schema: { type: "string" } },
+                    { name: "chapterNo", in: "path", required: true, schema: { type: "integer" } },
+                ],
+                responses: { "204": { description: "Deleted" }, "403": { description: "Forbidden" } },
+            },
+        },
+        "/stories/{slug}/chapters/{chapterNo}/lines": {
+            get: {
+                tags: ["Stories"],
+                summary: "Get paginated lines in a chapter",
+                parameters: [
+                    { name: "slug", in: "path", required: true, schema: { type: "string" } },
+                    { name: "chapterNo", in: "path", required: true, schema: { type: "integer" } },
+                    { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+                    { name: "limit", in: "query", schema: { type: "integer", default: 100 } },
+                    { name: "search", in: "query", schema: { type: "string" }, description: "Full-text search within the chapter" },
+                ],
+                responses: { "200": { description: "Paginated lines" }, "404": { description: "Not found" } },
+            },
+            post: {
+                tags: ["Stories"],
+                summary: "Bulk-append lines to a chapter",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "slug", in: "path", required: true, schema: { type: "string" } },
+                    { name: "chapterNo", in: "path", required: true, schema: { type: "integer" } },
+                ],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["lines"],
+                                properties: {
+                                    lines: { type: "array", items: { $ref: "#/components/schemas/StoryLine" } },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: { "201": { description: "Lines created" }, "401": { description: "Unauthorized" } },
+            },
+        },
+        "/stories/{slug}/chapters/{chapterNo}/lines/{lineNo}": {
+            put: {
+                tags: ["Stories"],
+                summary: "Update a line",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "slug", in: "path", required: true, schema: { type: "string" } },
+                    { name: "chapterNo", in: "path", required: true, schema: { type: "integer" } },
+                    { name: "lineNo", in: "path", required: true, schema: { type: "integer" } },
+                ],
+                requestBody: {
+                    content: { "application/json": { schema: { $ref: "#/components/schemas/StoryLine" } } },
+                },
+                responses: { "200": { description: "Updated line" }, "401": { description: "Unauthorized" } },
             },
         },
         "/items": {
