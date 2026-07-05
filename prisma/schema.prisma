@@ -50,6 +50,11 @@ enum StoryLineType {
   BREAK       // scene break
 }
 
+enum StoryFormat {
+  SCRIPT      // narration and dialogue alternate as whole paragraphs (Vortox Machina)
+  PROSE       // novel-style: dialogue embedded inside narration paragraphs
+}
+
 model User {
   id            Int         @id @unique @default(autoincrement())
   username      String      @unique
@@ -196,6 +201,7 @@ model Story {
   publishedDate DateTime?      // real-world publication; an in-universe date would be a GUY Int
   themeColor    String?
   themeColor2   String?
+  format        StoryFormat    @default(SCRIPT) // dialogue presentation: script vs novel-style prose
   chapters      StoryChapter[]
 
   @@map("stories")
@@ -223,6 +229,13 @@ model StoryLine {
   character   Character?    @relation(fields: [characterId], references: [id])
   characterId Int?
   speaker     String?       // display-name fallback when no Character row exists
+  // Sub-paragraph dialogue spans for novel-style prose: [{text, characterId?, speaker?}]
+  // where a segment with a voice is dialogue, one without is narration. The
+  // segment texts concatenate verbatim (no separators) to exactly `text`, so
+  // search/scan/highlight keep working on `text`. Only set on NARRATION lines.
+  // NOTE: segment characterIds live in JSON — no FK, so Character.storyLines
+  // does not capture in-paragraph speakers (nothing queries that relation).
+  segments    Json?
 
   @@unique([chapterId, line_no])
   @@map("story_lines")

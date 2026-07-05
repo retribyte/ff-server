@@ -128,6 +128,21 @@ const spec = {
                 type: "string",
                 enum: ["NARRATION", "DIALOGUE", "ACTION", "TRANSCRIPT", "BREAK"],
             },
+            StoryFormat: {
+                type: "string",
+                enum: ["SCRIPT", "PROSE"],
+                description: "Dialogue presentation: SCRIPT (whole-paragraph) or PROSE (novel-style, dialogue inline in narration)",
+            },
+            StorySegment: {
+                type: "object",
+                description: "A sub-paragraph span; texts concatenate verbatim to the line's text. A span with a voice is dialogue, one without is narration.",
+                properties: {
+                    text: { type: "string" },
+                    characterId: { type: "integer", nullable: true },
+                    speaker: { type: "string", nullable: true },
+                },
+                required: ["text"],
+            },
             Story: {
                 type: "object",
                 properties: {
@@ -139,6 +154,7 @@ const spec = {
                     publishedDate: { type: "string", format: "date-time", nullable: true },
                     themeColor: { type: "string", nullable: true },
                     themeColor2: { type: "string", nullable: true },
+                    format: { $ref: "#/components/schemas/StoryFormat" },
                     chapters: { type: "array", items: { $ref: "#/components/schemas/StoryChapter" } },
                 },
             },
@@ -161,6 +177,12 @@ const spec = {
                     text: { type: "string" },
                     characterId: { type: "integer", nullable: true },
                     speaker: { type: "string", nullable: true, description: "Display name when no Character row exists" },
+                    segments: {
+                        type: "array",
+                        nullable: true,
+                        description: "Sub-paragraph dialogue spans (NARRATION lines only); concatenation equals text",
+                        items: { $ref: "#/components/schemas/StorySegment" },
+                    },
                 },
             },
             Item: {
@@ -647,6 +669,7 @@ const spec = {
                                     publishedDate: { type: "string", format: "date-time" },
                                     themeColor: { type: "string" },
                                     themeColor2: { type: "string" },
+                                    format: { $ref: "#/components/schemas/StoryFormat" },
                                 },
                             },
                         },
@@ -742,7 +765,7 @@ const spec = {
                     { name: "limit", in: "query", schema: { type: "integer", default: 100 } },
                     { name: "search", in: "query", schema: { type: "string" }, description: "Full-text search within the chapter" },
                 ],
-                responses: { "200": { description: "Paginated lines" }, "404": { description: "Not found" } },
+                responses: { "200": { description: "Paginated lines; response also carries a `characters` array hydrating any Character referenced only inside segment spans" }, "404": { description: "Not found" } },
             },
             post: {
                 tags: ["Stories"],

@@ -1,6 +1,12 @@
-import { PrismaClient, StoryLineType } from "@prisma/client";
+import { PrismaClient, Prisma, StoryLineType, StoryFormat } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
+type StorySegment = {
+    text: string;
+    characterId?: number | null;
+    speaker?: string | null;
+};
 
 type StoryData = {
     slug: string;
@@ -10,6 +16,7 @@ type StoryData = {
     publishedDate?: string | null;
     themeColor?: string | null;
     themeColor2?: string | null;
+    format?: StoryFormat;
 };
 
 type LineData = {
@@ -17,10 +24,12 @@ type LineData = {
     text: string;
     characterId?: number | null;
     speaker?: string | null;
+    segments?: StorySegment[] | null;
 };
 
 const SLUG_PATTERN = /^[a-z0-9-]+$/;
 const VALID_LINE_TYPES = new Set<string>(Object.values(StoryLineType));
+const VALID_FORMATS = new Set<string>(Object.values(StoryFormat));
 
 const AUTHOR_SELECT = { select: { id: true, username: true, icon: true } };
 const CHAPTER_LIST = {
@@ -81,6 +90,9 @@ function validateStoryData(data: StoryData, requireAll: boolean) {
     if (requireAll && (typeof data.title !== "string" || data.title.length === 0)) {
         throw new Error("title is required");
     }
+    if (data.format !== undefined && !VALID_FORMATS.has(data.format)) {
+        throw new Error(`format must be one of ${[...VALID_FORMATS].join(", ")}`);
+    }
 }
 
 async function createStory(data: StoryData) {
@@ -94,6 +106,7 @@ async function createStory(data: StoryData) {
             publishedDate: data.publishedDate ? new Date(data.publishedDate) : null,
             themeColor: data.themeColor ?? null,
             themeColor2: data.themeColor2 ?? null,
+            format: data.format ?? undefined,
         },
         include: { author: AUTHOR_SELECT, chapters: CHAPTER_LIST },
     });
@@ -114,6 +127,7 @@ async function updateStory(slug: string, data: Partial<StoryData>) {
                 : undefined,
             themeColor: data.themeColor,
             themeColor2: data.themeColor2,
+            format: data.format,
         },
         include: { author: AUTHOR_SELECT, chapters: CHAPTER_LIST },
     });
@@ -176,7 +190,54 @@ async function getLinesByChapter(slug: string, chapterNo: number, page = 1, limi
         }),
         prisma.storyLine.count({ where }),
     ]);
-    return { data, total, page, limit };
+
+    // Characters referenced only inside segment JSON aren't hydrated by the
+    // line-level `character` include — fetch them so the reader can resolve
+    // names/colors for in-paragraph dialogue spans.
+    const lineCharacterIds = new Set(
+        data.map((l) => l.characterId).filter((id): id is number => id != null),
+    );
+    const segmentCharacterIds = new Set<number>();
+    for (const line of data) {
+        const segments = line.segments as StorySegment[] | null;
+        if (!Array.isArray(segments)) continue;
+        for (const seg of segments) {
+            if (typeof seg.characterId === "number" && !lineCharacterIds.has(seg.characterId)) {
+                segmentCharacterIds.add(seg.characterId);
+            }
+        }
+    }
+    const characters = segmentCharacterIds.size
+        ? await prisma.character.findMany({ where: { id: { in: [...segmentCharacterIds] } } })
+        : [];
+
+    return { data, total, page, limit, characters };
+}
+
+/** True when a segment array is present (not null/undefined) on a line. */
+function hasSegments(line: { segments?: StorySegment[] | null }): line is { segments: StorySegment[] } {
+    return Array.isArray(line.segments);
+}
+
+/** The verbatim concatenation of segment texts — the canonical `text` for a segmented line. */
+function textFromSegments(segments: StorySegment[]): string {
+    return segments.map((s) => s.text).join("");
+}
+
+function validateSegments(segments: StorySegment[], label: string) {
+    if (!Array.isArray(segments) || segments.length === 0) {
+        throw new Error(`${label}: segments must be a non-empty array`);
+    }
+    let hasVoice = false;
+    for (const [i, segment] of segments.entries()) {
+        if (typeof segment.text !== "string") {
+            throw new Error(`${label}: segment ${i + 1} needs a string text`);
+        }
+        if (segment.characterId || segment.speaker) hasVoice = true;
+    }
+    if (!hasVoice) {
+        throw new Error(`${label}: segments need at least one dialogue span (characterId or speaker); send plain text otherwise`);
+    }
 }
 
 function validateLine(line: LineData, label: string) {
@@ -189,6 +250,13 @@ function validateLine(line: LineData, label: string) {
     // Dialogue needs a speaking voice — a linked character or a display name
     if (line.type === StoryLineType.DIALOGUE && !line.characterId && !line.speaker) {
         throw new Error(`${label}: DIALOGUE lines require characterId or speaker`);
+    }
+    // Segment annotations describe sub-paragraph dialogue spans — NARRATION only
+    if (hasSegments(line)) {
+        if (line.type !== StoryLineType.NARRATION) {
+            throw new Error(`${label}: segments are only allowed on NARRATION lines`);
+        }
+        validateSegments(line.segments, label);
     }
 }
 
@@ -215,9 +283,11 @@ async function createLines(slug: string, chapterNo: number, lines: LineData[]) {
                 chapterId: chapter.id,
                 line_no: firstLineNo + index,
                 type: line.type,
-                text: line.text,
+                // Segmented lines derive `text` from the spans so the two can't desync
+                text: hasSegments(line) ? textFromSegments(line.segments) : line.text,
                 characterId: line.characterId ?? null,
                 speaker: line.speaker ?? null,
+                segments: hasSegments(line) ? (line.segments as object[]) : undefined,
             })),
         });
 
@@ -232,16 +302,44 @@ async function updateLine(slug: string, chapterNo: number, lineNo: number, data:
     });
     if (!existing) throw new Error(`Line ${lineNo} of chapter ${chapterNo} in story '${slug}' not found`);
 
-    const merged = { ...existing, ...data };
+    const existingSegments = (existing.segments as StorySegment[] | null) ?? null;
+
+    // segments: absent = leave as-is, null = clear, array = replace
+    const effectiveSegments: StorySegment[] | null =
+        data.segments === undefined ? existingSegments : data.segments;
+
+    // A text-only edit on a segmented line would silently desync text from spans
+    if (data.text !== undefined && existingSegments && data.segments === undefined) {
+        throw new Error(`Line ${lineNo}: cannot edit text of a segmented line directly — update its segments, or send segments:null to clear them`);
+    }
+
+    // Segmented lines derive text from the spans; otherwise take the edit or keep existing
+    const effectiveText = effectiveSegments
+        ? textFromSegments(effectiveSegments)
+        : (data.text !== undefined ? data.text : existing.text);
+
+    const merged = {
+        type: data.type ?? existing.type,
+        text: effectiveText,
+        characterId: data.characterId !== undefined ? data.characterId : existing.characterId,
+        speaker: data.speaker !== undefined ? data.speaker : existing.speaker,
+        segments: effectiveSegments,
+    };
     validateLine(merged as LineData, `Line ${lineNo}`);
 
     return await prisma.storyLine.update({
         where: { id: existing.id },
         data: {
             type: data.type,
-            text: data.text,
+            text: effectiveText,
             characterId: data.characterId,
             speaker: data.speaker,
+            segments:
+                data.segments === undefined
+                    ? undefined
+                    : data.segments === null
+                      ? Prisma.DbNull
+                      : (data.segments as object[]),
         },
         include: { character: true },
     });
