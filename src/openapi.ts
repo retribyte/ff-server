@@ -25,6 +25,10 @@ const spec = {
                 type: "string",
                 enum: ["WEAPON", "EQUIPMENT", "ARTIFACT", "OTHER"],
             },
+            EightBallAnswerType: {
+                type: "string",
+                enum: ["YES", "NO", "MAYBE"],
+            },
             SentienceClass: {
                 type: "string",
                 enum: ["BLACK", "HIGHER_SENTIENT", "LOWER_SENTIENT", "NON_SENTIENT"],
@@ -199,6 +203,14 @@ const spec = {
                     characterId: { type: "integer", nullable: true },
                     createdAt: { type: "string", format: "date-time" },
                     updatedAt: { type: "string", format: "date-time" },
+                },
+            },
+            EightBallAnswer: {
+                type: "object",
+                properties: {
+                    id: { type: "integer" },
+                    type: { $ref: "#/components/schemas/EightBallAnswerType" },
+                    text: { type: "string" },
                 },
             },
         },
@@ -870,6 +882,62 @@ const spec = {
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 responses: { "204": { description: "Deleted" }, "403": { description: "Forbidden" } },
+            },
+        },
+        "/8ball": {
+            get: {
+                tags: ["8-Ball"],
+                summary: "Shake the 8-ball for a weighted-random answer (YES:NO:MAYBE = 2:1:1, renormalized over non-empty types)",
+                responses: {
+                    "200": { description: "A random answer" },
+                    "404": { description: "No answers configured" },
+                },
+            },
+        },
+        "/8ball/answers": {
+            get: {
+                tags: ["8-Ball"],
+                summary: "List all 8-ball answers, ordered by type then id",
+                responses: { "200": { description: "Array of answers" } },
+            },
+            post: {
+                tags: ["8-Ball"],
+                summary: "Add a new 8-ball answer (any authenticated user)",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["type", "text"],
+                                properties: {
+                                    type: { $ref: "#/components/schemas/EightBallAnswerType" },
+                                    text: { type: "string" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "201": { description: "Answer created" },
+                    "400": { description: "Validation error" },
+                    "401": { description: "Unauthorized" },
+                },
+            },
+        },
+        "/8ball/answers/{id}": {
+            delete: {
+                tags: ["8-Ball"],
+                summary: "Delete an 8-ball answer (admin only)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: {
+                    "204": { description: "Deleted" },
+                    "401": { description: "Unauthorized" },
+                    "403": { description: "Forbidden — not an admin" },
+                    "404": { description: "Not found" },
+                },
             },
         },
     },

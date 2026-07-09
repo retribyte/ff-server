@@ -11,6 +11,7 @@
         "docker:down": "docker compose down",
         "docs": "npx @redocly/cli lint src/openapi.ts",
         "seed:legacy": "tsx prisma/seed-legacy.ts",
+        "seed:8ball": "tsx prisma/seed-8ball.ts",
         "migrate:vm": "tsx prisma/migrate-vm-to-story.ts"
     },
     "prisma": {

@@ -42,6 +42,12 @@ enum ItemType {
   OTHER
 }
 
+enum EightBallAnswerType {
+  YES
+  NO
+  MAYBE
+}
+
 enum StoryLineType {
   NARRATION   // prose paragraph
   DIALOGUE    // spoken line, colored by character
@@ -262,4 +268,12 @@ model Item {
   wikiArticle   String?
 
   @@map("items")
+}
+
+model EightBallAnswer {
+  id   Int                 @id @default(autoincrement())
+  type EightBallAnswerType
+  text String
+
+  @@map("eight_ball_answers")
 }
