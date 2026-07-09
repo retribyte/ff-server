@@ -19,17 +19,6 @@ const initializeMessageRoutes = (): Router => {
         }
     });
 
-    // GET /api/characters/:characterId/quotes: Return all QUOTE messages attributed to a character
-    router.get("/characters/:characterId/quotes", async (req: Request, res: Response) => {
-        const characterId = parseInt(req.params.characterId, 10);
-        try {
-            const quotes = await messageService.getQuotesByCharacter(characterId);
-            res.status(200).json({ status: "success", data: quotes });
-        } catch (error) {
-            console.error("Error fetching quotes:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch quotes" });
-        }
-    });
 
     // GET /api/episodes/:episodeTitle/messages: Return paginated messages in an episode ordered by messageNo
     router.get("/episodes/:episodeTitle/messages", async (req: Request, res: Response) => {

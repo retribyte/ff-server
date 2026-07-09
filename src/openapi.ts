@@ -425,10 +425,14 @@ const spec = {
         },
         "/characters/{id}/quotes": {
             get: {
-                tags: ["Characters", "Messages"],
-                summary: "Get all QUOTE messages attributed to a character",
-                parameters: [{ name: "characterId", in: "path", required: true, schema: { type: "integer" } }],
-                responses: { "200": { description: "Array of quote messages" } },
+                tags: ["Characters", "Messages", "Stories"],
+                summary: "Get quotes attributed to a character: transcript QUOTE messages and story-embedded dialogue",
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: {
+                    "200": {
+                        description: "{ messages: Message[], storyQuotes: StoryLine[] } — two arrays, no shared sort key between sources",
+                    },
+                },
             },
         },
         "/species": {

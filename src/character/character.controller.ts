@@ -1,5 +1,7 @@
 import { Router, Request, Response } from "express";
 import characterService from "./character.service.js";
+import messageService from "../message/message.service.js";
+import storyService from "../story/story.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { UserRole } from "@prisma/client";
 
@@ -39,6 +41,24 @@ const initializeCharacterRoutes = (): Router => {
         } catch (error) {
             console.error("Error fetching character:", error);
             res.status(500).json({ status: "error", message: "Failed to fetch character" });
+        }
+    });
+
+    // GET /api/characters/:id/quotes: Return quotes attributed to a character —
+    // transcript QUOTE messages and story-embedded dialogue, from two
+    // different sources with no shared sort key (message timestamp vs.
+    // story/chapter/line position), so they come back as separate arrays.
+    router.get("/characters/:id/quotes", async (req: Request, res: Response) => {
+        const id = parseInt(req.params.id, 10);
+        try {
+            const [messages, storyQuotes] = await Promise.all([
+                messageService.getQuotesByCharacter(id),
+                storyService.getStoryQuotesByCharacter(id),
+            ]);
+            res.status(200).json({ status: "success", data: { messages, storyQuotes } });
+        } catch (error) {
+            console.error("Error fetching quotes:", error);
+            res.status(500).json({ status: "error", message: "Failed to fetch quotes" });
         }
     });
 

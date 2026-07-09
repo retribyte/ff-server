@@ -216,6 +216,44 @@ async function getLinesByChapter(slug: string, chapterNo: number, page = 1, limi
     return { data, total, page, limit, characters };
 }
 
+type CharacterQuote = {
+    id: number;
+    chapterId: number;
+    line_no: number;
+    type: StoryLineType;
+    text: string;
+    characterId: number | null;
+    speaker: string | null;
+    segments: StorySegment[] | null;
+    storySlug: string;
+    storyTitle: string;
+    chapterNo: number;
+};
+
+/**
+ * Lines where a character speaks — either as the line's own `characterId`
+ * (a whole DIALOGUE line) or as a segment's `characterId` (an inline quote
+ * inside a NARRATION paragraph). The segment match relies on the `segments`
+ * GIN(jsonb_path_ops) index via containment (`@>`); Prisma's JSON filter API
+ * can't express "object key match inside an array" on PostgreSQL, so this
+ * goes through $queryRaw.
+ */
+async function getStoryQuotesByCharacter(characterId: number): Promise<CharacterQuote[]> {
+    const containment = JSON.stringify([{ characterId }]);
+    return prisma.$queryRaw<CharacterQuote[]>`
+        SELECT
+            sl.id, sl."chapterId", sl.line_no, sl.type, sl.text,
+            sl."characterId", sl.speaker, sl.segments,
+            s.slug AS "storySlug", s.title AS "storyTitle", sc.chapter_no AS "chapterNo"
+        FROM story_lines sl
+        JOIN story_chapters sc ON sc.id = sl."chapterId"
+        JOIN stories s ON s.id = sc."storyId"
+        WHERE sl."characterId" = ${characterId}
+           OR sl.segments @> ${containment}::jsonb
+        ORDER BY s.id, sc.chapter_no, sl.line_no
+    `;
+}
+
 /** True when a segment array is present (not null/undefined) on a line. */
 function hasSegments(line: { segments?: StorySegment[] | null }): line is { segments: StorySegment[] } {
     return Array.isArray(line.segments);
@@ -365,4 +403,5 @@ export default {
     getLinesByChapter,
     createLines,
     updateLine,
+    getStoryQuotesByCharacter,
 };

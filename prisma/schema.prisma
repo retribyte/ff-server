@@ -239,6 +239,11 @@ model StoryLine {
   segments    Json?
 
   @@unique([chapterId, line_no])
+  // Containment lookups (`segments @> '[{"characterId": N}]'`) for finding
+  // in-paragraph quotes by character — see findQuotesByCharacter in
+  // story.service.ts. jsonb_path_ops (not the default jsonb_ops) because the
+  // only operator used is `@>`; it's smaller and faster for that one case.
+  @@index([segments(ops: JsonbPathOps)], type: Gin)
   @@map("story_lines")
 }
 
