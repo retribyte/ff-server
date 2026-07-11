@@ -48,6 +48,18 @@ enum EightBallAnswerType {
   MAYBE
 }
 
+enum CelestialBodyType {
+  STAR
+  PLANET
+  MOON
+}
+
+enum BodyComposition {
+  TERRESTRIAL
+  GAS
+  ICE
+}
+
 enum StoryLineType {
   NARRATION   // prose paragraph
   DIALOGUE    // spoken line, colored by character
@@ -79,6 +91,8 @@ model User {
   items         Item[]
   commentaries  Commentary[]
   stories       Story[]
+  starSystems   StarSystem[]
+  landmarks     Landmark[]
 }
 
 model Character {
@@ -276,4 +290,75 @@ model EightBallAnswer {
   text String
 
   @@map("eight_ball_answers")
+}
+
+// Space builder: one shared canonical galaxy map (not per-user sandboxes).
+// Systems and landmarks belong to a galaxy and carry creatorId, matching the
+// character/item convention (any member creates; creator or admin edits).
+model Galaxy {
+  id          Int          @id @unique @default(autoincrement())
+  slug        String       @unique          // e.g. "ff"
+  name        String       @unique
+  description String?
+  image       String?                       // background map, e.g. /space/galaxy.png
+  systems     StarSystem[]
+  landmarks   Landmark[]
+
+  @@map("galaxies")
+}
+
+model StarSystem {
+  id          Int             @id @unique @default(autoincrement())
+  galaxy      Galaxy          @relation(fields: [galaxyId], references: [id])
+  galaxyId    Int
+  name        String
+  description String?
+  // Map position normalized to 0..1 of the galaxy map (legacy 0..1000 / 1000)
+  xPos        Float?
+  yPos        Float?
+  creator     User            @relation(fields: [creatorId], references: [id])
+  creatorId   Int
+  bodies      CelestialBody[]
+  wikiArticle String?
+
+  @@unique([galaxyId, name])
+  @@map("star_systems")
+}
+
+model CelestialBody {
+  id           Int               @id @unique @default(autoincrement())
+  system       StarSystem        @relation(fields: [systemId], references: [id])
+  systemId     Int
+  parent       CelestialBody?    @relation("orbit", fields: [parentId], references: [id])
+  parentId     Int?              // null = orbits nothing (the star); planet→star, moon→planet
+  children     CelestialBody[]   @relation("orbit")
+  type         CelestialBodyType
+  name         String
+  radiusKm     Float
+  // Orbital distance from parent: AU for planets, km for moons (unit implied by type), null for stars
+  distance     Float?
+  composition  BodyComposition?  // planets/moons only
+  temperatureK Float?            // stars only (drives rendered color)
+  color        String?           // optional render override
+  description  String?
+  wikiArticle  String?
+
+  @@unique([systemId, name])
+  @@map("celestial_bodies")
+}
+
+model Landmark {
+  id          Int     @id @unique @default(autoincrement())
+  galaxy      Galaxy  @relation(fields: [galaxyId], references: [id])
+  galaxyId    Int
+  name        String
+  description String?
+  xPos        Float
+  yPos        Float
+  creator     User    @relation(fields: [creatorId], references: [id])
+  creatorId   Int
+  wikiArticle String?
+
+  @@unique([galaxyId, name])
+  @@map("landmarks")
 }

@@ -11,6 +11,7 @@ import storyController from "./story/story.controller.js";
 import itemController from "./item/item.controller.js";
 import commentaryController from "./commentary/commentary.controller.js";
 import eightballController from "./eightball/eightball.controller.js";
+import galaxyController from "./space/galaxy.controller.js";
 import apiSpec from "./openapi.js";
 
 class App {
@@ -36,6 +37,7 @@ class App {
         this.app.use("/api", itemController.initializeItemRoutes());
         this.app.use("/api", commentaryController.initializeCommentaryRoutes());
         this.app.use("/api", eightballController.initializeEightballRoutes());
+        this.app.use("/api", galaxyController.initializeGalaxyRoutes());
     }
 
     private errorHandlers(): void {
