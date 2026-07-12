@@ -171,6 +171,18 @@ Messages are the core content unit of the System. Every message belongs to an ep
 
 - **FR-SR-1** The System MUST provide a search for each category such as characters, items, species, and episode titles.
 
+### 3.13 Galaxy / Space Builder
+
+- **FR-SPACE-1** The System MUST maintain one shared, canonical galaxy (not per-user sandboxes) that any member can contribute star systems and landmarks to.
+- **FR-SPACE-2** A member MUST be able to create a star system: exactly one star (name, radius, temperature) plus zero or more planets (name, radius, orbital distance, composition), each of which MAY have zero or more moons (name, radius, orbital distance, composition).
+- **FR-SPACE-3** A star system MUST belong to exactly one creator (owner). Editing or deleting a system, or any body within it, MUST be restricted to its creator or an admin.
+- **FR-SPACE-4** A member MUST be able to create a landmark (name, description) independent of any star system.
+- **FR-SPACE-5** A landmark MUST belong to exactly one creator (owner). Editing or deleting a landmark MUST be restricted to its creator or an admin.
+- **FR-SPACE-6** A visitor MUST be able to view the galaxy map: a plotted chart of every placed star system and landmark.
+- **FR-SPACE-7** A system's or landmark's creator (or an admin) MUST be able to place or move it on the galaxy map by setting its normalized map position. An unplaced star system MUST NOT render as a map marker.
+- **FR-SPACE-8** A visitor MUST be able to open a star system and view its body tree and a rendered diagram, read-only.
+- **FR-SPACE-9** The System SHOULD derive display-only physical stats for a body (mass, surface gravity, orbital period, habitability) from its stored fields; these derived stats MUST NOT be persisted.
+
 
 ---
 
@@ -193,6 +205,10 @@ This section captures the *entities* and *relationships* the System must represe
 ### 4.2 New entities
 
 - **Commentary** — A member-authored annotation on a transcript message. Fields: `content` (text body), `creator` (User reference), `message` (Message reference).
+- **Galaxy** — A named map. Fields: `slug`, `name`, `description`, `image` (map background). Has many StarSystems and Landmarks.
+- **StarSystem** — Fields: `name`, `description`, normalized map position (nullable — unset means unplaced), `creator` (User reference), belongs to a Galaxy. Has many CelestialBody rows.
+- **CelestialBody** — A star, planet, or moon, in one self-referential table. Fields: `type` (enum `STAR`/`PLANET`/`MOON`), `name`, `radius`, `orbitalDistance` (nullable, unit implied by type), `composition` (enum, planets/moons only), `temperature` (stars only), `parent` (self-reference: null for the star, the star for a planet, a planet for a moon).
+- **Landmark** — Fields: `name`, `description`, normalized map position (required), `creator` (User reference), belongs to a Galaxy.
 
 ### 4.3 Fields to be added to existing entities
 
@@ -210,6 +226,9 @@ This section captures the *entities* and *relationships* the System must represe
 - A **User** MAY author many **Commentaries**.
 - A **User** owns many **Items** as a creator/author.
 - An **Item** MAY be associated with at most one **Character**; a Character MAY have many associated Items.
+- A **Galaxy** has many **StarSystems** and many **Landmarks**.
+- A **User** owns many **StarSystems** and many **Landmarks** as creator.
+- A **StarSystem** has many **CelestialBody** rows, self-referentially nested (star → planets → moons).
 
 ### 4.5 Constraints
 
@@ -218,6 +237,7 @@ This section captures the *entities* and *relationships* the System must represe
 - Episode `(season, episode_number)` MUST be unique.
 - Message `(episode, sequence_number)` MUST be unique and gap-tolerant (reordering is permitted).
 - Deleting a User MUST NOT cascade-destroy their content; ownership SHOULD be reassignable or preserved as "orphaned".
+- `(galaxy, star system name)` and `(galaxy, landmark name)` MUST be unique; `(star system, body name)` MUST be unique.
 
 ---
 
@@ -328,3 +348,4 @@ For traceability. Each row is a responsibility currently held by a legacy app an
 | Guild-scoped multi-tenancy | `vortox-bot` | **OUT OF SCOPE** (no multi-tenant model in the new System) |
 | Importing legacy data from MongoDB or Discord | n/a | **OUT OF SCOPE** |
 | Admin operator dashboard / bulk tooling | n/a | **OUT OF SCOPE** |
+| Galaxy map + solar-system authoring (per-user Firebase sandbox) | `space-builder` (standalone Vite/Firebase app) | §3.13 Galaxy / Space Builder |
