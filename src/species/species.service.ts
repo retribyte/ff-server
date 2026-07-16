@@ -1,18 +1,14 @@
 import { PrismaClient, Class } from "@prisma/client";
 import { sanitizeText } from "../utils/sanitize.js";
+import { slugify } from "../utils/slug.js";
 
 const prisma = new PrismaClient();
 
 type SpeciesData = {
     name: string;
     description: string;
-    binomialName?: string;
     class: Class;
-    lifespan: string;
-    diet?: string;
-    habitat?: string;
-    placeOfOrigin?: string;
-    wikiArticle?: string;
+    slug?: string;
     creatorId: number;
 };
 
@@ -33,18 +29,20 @@ async function getSpeciesById(id: number) {
     });
 }
 
+async function getSpeciesBySlug(slug: string) {
+    return await prisma.species.findUnique({
+        where: { slug },
+        include: { Character: true },
+    });
+}
+
 async function createSpecies(data: SpeciesData) {
     return await prisma.species.create({
         data: {
             name: data.name,
             description: sanitizeText(data.description),
-            binomialName: data.binomialName,
             class: data.class,
-            lifespan: data.lifespan,
-            diet: data.diet,
-            habitat: data.habitat,
-            placeOfOrigin: data.placeOfOrigin,
-            wikiArticle: data.wikiArticle,
+            slug: data.slug ?? slugify(data.name),
             creatorId: data.creatorId,
         },
         include: { Character: true },
@@ -57,13 +55,8 @@ async function updateSpecies(id: number, data: Partial<SpeciesData>) {
         data: {
             name: data.name,
             description: data.description !== undefined ? sanitizeText(data.description) : undefined,
-            binomialName: data.binomialName,
             class: data.class,
-            lifespan: data.lifespan,
-            diet: data.diet,
-            habitat: data.habitat,
-            placeOfOrigin: data.placeOfOrigin,
-            wikiArticle: data.wikiArticle,
+            slug: data.slug,
         },
         include: { Character: true },
     });
@@ -73,4 +66,4 @@ async function deleteSpecies(id: number): Promise<void> {
     await prisma.species.delete({ where: { id } });
 }
 
-export default { getAllSpecies, getSpeciesById, createSpecies, updateSpecies, deleteSpecies };
+export default { getAllSpecies, getSpeciesById, getSpeciesBySlug, createSpecies, updateSpecies, deleteSpecies };

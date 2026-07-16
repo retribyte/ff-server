@@ -1,5 +1,6 @@
-import { PrismaClient, UserRole, Sex, Class, MessageType, ItemType } from "@prisma/client";
+import { PrismaClient, UserRole, Class, MessageType, ItemType } from "@prisma/client";
 import { hashSync } from "bcryptjs";
+import { slugify } from "../src/utils/slug.js";
 
 const prisma = new PrismaClient();
 
@@ -10,8 +11,6 @@ async function main() {
     await prisma.message.deleteMany();
     await prisma.episode.deleteMany();
     await prisma.season.deleteMany();
-    await prisma.alias.deleteMany();
-    await prisma.relationship.deleteMany();
     await prisma.character.deleteMany();
     await prisma.species.deleteMany();
     await prisma.user.deleteMany();
@@ -49,53 +48,37 @@ async function main() {
         prisma.species.create({
             data: {
                 name: "Human",
-                binomialName: "Homo sapiens",
                 description: "Resilient and adaptable bipeds originating from the Sol system. Their tenacity makes them exceptional explorers and soldiers alike.",
                 class: Class.HIGHER_SENTIENT,
-                lifespan: "~80 GUY",
-                diet: "Omnivore",
-                habitat: "Temperate terrestrial worlds",
-                placeOfOrigin: "Sol III (Earth)",
                 creatorId: admin.id,
+                slug: slugify("Human"),
             },
         }),
         prisma.species.create({
             data: {
                 name: "Vortian",
-                binomialName: "Vortus intelligens",
                 description: "Tall, silver-skinned intellectuals from the Vortus Cluster. Renowned across the galaxy for advances in xenobiology and quantum medicine.",
                 class: Class.HIGHER_SENTIENT,
-                lifespan: "~200 GUY",
-                diet: "Photosynthetic supplement / light omnivore",
-                habitat: "High-altitude crystalline worlds",
-                placeOfOrigin: "Vortus Prime",
                 creatorId: admin.id,
+                slug: slugify("Vortian"),
             },
         }),
         prisma.species.create({
             data: {
                 name: "Krell",
-                binomialName: "Krellus ferox",
                 description: "Massive, stone-skinned brutes from the volcanic moon Char. Low sentience but fiercely loyal once bonded. Used historically as heavy labor and shock troops.",
                 class: Class.LOWER_SENTIENT,
-                lifespan: "~40 GUY",
-                diet: "Carnivore",
-                habitat: "Volcanic / extreme-heat environments",
-                placeOfOrigin: "Char (moon of Gol IV)",
                 creatorId: trey.id,
+                slug: slugify("Krell"),
             },
         }),
         prisma.species.create({
             data: {
                 name: "Void Walker",
-                binomialName: null,
                 description: "Entities of unclear origin that exist partially outside conventional space-time. Classified BLACK due to near-incomprehensible cognition and unknown motivations.",
                 class: Class.BLACK,
-                lifespan: "Unknown",
-                diet: "Unknown",
-                habitat: "Interstitial void / deep space",
-                placeOfOrigin: "Unknown",
                 creatorId: admin.id,
+                slug: slugify("Void Walker"),
             },
         }),
     ]);
@@ -105,120 +88,59 @@ async function main() {
         prisma.character.create({
             data: {
                 name: "Commander Rix",
-                dob: -378691200, // ~Year -12 GUY
-                pob: "New Meridian Station, Outer Belt",
-                homePlanet: "Earth",
                 speciesId: human.id,
-                sex: Sex.MALE,
-                height: 1.88,
-                weight: 92,
-                hairColor: "Dark brown",
-                eyeColor: "Steel grey",
                 image: null,
-                themeColor: "#2e6fad",
+                color: "#2e6fad",
                 creatorId: trey.id,
-                aliases: { create: [{ name: "The Commander" }, { name: "Rix-7" }] },
-                relationships: {
-                    create: [
-                        { description: "Commanding officer of Dr. Sova" },
-                        { description: "Former colleague of Engineer Maris" },
-                    ],
-                },
+                slug: slugify("Commander Rix"),
             },
         }),
         prisma.character.create({
             data: {
                 name: "Dr. Sova",
-                dob: -504921600, // ~Year -16 GUY
-                pob: "Vortus Prime, Crystal Spires District",
-                homePlanet: "Vortus Prime",
                 speciesId: vortian.id,
-                sex: Sex.FEMALE,
-                height: 2.1,
-                weight: 70,
-                hairColor: null,
-                eyeColor: "Luminescent violet",
                 image: null,
-                themeColor: "#8a4fbf",
+                color: "#8a4fbf",
                 creatorId: alex.id,
-                aliases: { create: [{ name: "Sova" }, { name: "Doc" }] },
-                relationships: {
-                    create: [{ description: "Chief Medical Officer under Commander Rix" }],
-                },
+                slug: slugify("Dr. Sova"),
             },
         }),
         prisma.character.create({
             data: {
                 name: "Grak",
-                dob: -220752000,
-                pob: "Char, Molten Flats",
-                homePlanet: "Char",
                 speciesId: krell.id,
-                sex: Sex.MALE,
-                height: 2.6,
-                weight: 340,
-                hairColor: null,
-                eyeColor: "Amber",
                 image: null,
-                themeColor: "#c45e1a",
+                color: "#c45e1a",
                 creatorId: trey.id,
-                aliases: { create: [{ name: "Grak the Unbroken" }] },
-                relationships: {
-                    create: [{ description: "Bonded heavy unit assigned to Commander Rix" }],
-                },
+                slug: slugify("Grak"),
             },
         }),
         prisma.character.create({
             data: {
                 name: "The Whisper",
-                dob: null,
-                pob: null,
-                homePlanet: null,
                 speciesId: voidWalker.id,
-                sex: Sex.UNSPECIFIED,
-                height: null,
-                weight: null,
-                hairColor: null,
-                eyeColor: "None / shifting void",
                 image: null,
-                themeColor: "#1a1a2e",
+                color: "#1a1a2e",
                 creatorId: admin.id,
-                aliases: { create: [{ name: "It" }, { name: "The Presence" }] },
-                relationships: {
-                    create: [{ description: "Entity of unknown allegiance; observed following the crew" }],
-                },
+                slug: slugify("The Whisper"),
             },
         }),
         prisma.character.create({
             data: {
                 name: "Engineer Maris",
-                dob: -346032000,
-                pob: "Tethys Colony, Saturn Orbit",
-                homePlanet: "Tethys Colony",
                 speciesId: human.id,
-                sex: Sex.OTHER,
-                height: 1.72,
-                weight: 68,
-                hairColor: "Shaved / rust-red stubble",
-                eyeColor: "Brown",
                 image: null,
-                themeColor: "#4aab6d",
+                color: "#4aab6d",
                 creatorId: alex.id,
-                aliases: { create: [{ name: "Maris" }, { name: "Wrench" }] },
-                relationships: {
-                    create: [
-                        { description: "Ship engineer, old acquaintance of Commander Rix" },
-                        { description: "Maintains Grak's restraint harness" },
-                    ],
-                },
+                slug: slugify("Engineer Maris"),
             },
         }),
     ]);
 
     // ── Seasons ───────────────────────────────────────────────────────────
     const [season1, vortoxMachina] = await Promise.all([
-        prisma.season.create({ data: { title: "Final Frontier Season 1" } }),
-        prisma.season.create({ data: { title: "Vortox Machina" } }),
+        prisma.season.create({ data: { title: "Final Frontier Season 1", slug: slugify("Final Frontier Season 1") } }),
+        prisma.season.create({ data: { title: "Vortox Machina", slug: slugify("Vortox Machina") } }),
     ]);
 
     // ── Episodes ──────────────────────────────────────────────────────────
@@ -230,6 +152,7 @@ async function main() {
                 episode_no: 1,
                 summary: "The crew of the Meridian assembles for the first time and receives their assignment: investigate a silent distress beacon deep in the Outer Belt.",
                 playedDate: new Date("2022-03-15"),
+                slug: `1_${slugify("Pilot")}`,
             },
         }),
         prisma.episode.create({
@@ -239,6 +162,7 @@ async function main() {
                 episode_no: 2,
                 summary: "Following the coordinates from the beacon, the crew enters a region of space where their instruments fail — and they are not alone.",
                 playedDate: new Date("2022-03-29"),
+                slug: `2_${slugify("Into the Void")}`,
             },
         }),
         prisma.episode.create({
@@ -248,6 +172,7 @@ async function main() {
                 episode_no: 1,
                 summary: "A new arc begins. The derelict station Vortox-7 has come back online after 30 years of silence, and a fresh crew is dispatched to find out why.",
                 playedDate: new Date("2023-01-10"),
+                slug: `1_${slugify("Machina Rising")}`,
             },
         }),
     ]);
@@ -323,7 +248,7 @@ async function main() {
                 description: "Standard-issue long-arm of the Outer Belt Expeditionary Forces. Fires superheated plasma bolts with moderate range and excellent armor penetration. Rix keeps his in meticulously maintained condition.",
                 image: null,
                 creatorId: trey.id,
-                characterId: rix.id,
+                slug: slugify("Plasma Rifle Mk. IV"),
             },
         }),
         prisma.item.create({
@@ -333,7 +258,7 @@ async function main() {
                 description: "A compact, multi-species trauma kit developed from Vortian xenobiology research. Contains nanite applicators, a tissue re-knitter, and synthetic blood compounds compatible with twelve known species.",
                 image: null,
                 creatorId: alex.id,
-                characterId: sova.id,
+                slug: slugify("Vortian Field Medkit"),
             },
         }),
         prisma.item.create({
@@ -343,7 +268,7 @@ async function main() {
                 description: "A fragment of crystallized interstitial matter recovered from the anomaly in Sector 7-Gamma. Emits faint energy readings on no known frequency. Dr. Sova has been unable to determine its composition.",
                 image: null,
                 creatorId: admin.id,
-                characterId: null,
+                slug: slugify("Void Crystal Shard"),
             },
         }),
         prisma.item.create({
@@ -353,7 +278,7 @@ async function main() {
                 description: "Heavy restraint harness originally used to transport bonded Krell units. Grak wears his voluntarily — a symbol of the oath sworn to Commander Rix, and a reminder that his strength is chosen, not compelled.",
                 image: null,
                 creatorId: trey.id,
-                characterId: grak.id,
+                slug: slugify("Krell Bonding Chains"),
             },
         }),
         prisma.item.create({
@@ -363,7 +288,7 @@ async function main() {
                 description: "Maris's custom multi-function tool: part mechanical wrench, part neural interface probe. Can interface with most pre-GUY-40 ship architectures. The 'wrench' nickname stuck when she used it to cold-start the Meridian's engine with three minutes to spare.",
                 image: null,
                 creatorId: alex.id,
-                characterId: maris.id,
+                slug: slugify("Neural Splice Wrench"),
             },
         }),
         prisma.item.create({
@@ -373,7 +298,7 @@ async function main() {
                 description: "The original navigation core salvaged from the first-generation Meridian-class vessel. Considered obsolete but Rix refuses to replace it — it has never plotted a wrong course.",
                 image: null,
                 creatorId: admin.id,
-                characterId: null,
+                slug: slugify("Meridian Navigation Core"),
             },
         }),
     ]);

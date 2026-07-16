@@ -17,15 +17,21 @@ const initializeSpeciesRoutes = (): Router => {
         }
     });
 
-    // GET /api/species/:id: Return a species by id with all associated characters (public)
+    // GET /api/species/:id: Return a species by id with all associated
+    // characters, or by slug when the param isn't a bare integer (public)
     router.get("/species/:id", async (req: Request, res: Response) => {
-        const id = parseInt(req.params.id, 10);
+        const { id: param } = req.params;
+        const isId = /^\d+$/.test(param);
         try {
-            const species = await speciesService.getSpeciesById(id);
+            const species = isId
+                ? await speciesService.getSpeciesById(parseInt(param, 10))
+                : await speciesService.getSpeciesBySlug(param);
             if (!species) {
                 return res.status(404).json({
                     status: "error",
-                    message: `Species with id '${id}' not found`,
+                    message: isId
+                        ? `Species with id '${param}' not found`
+                        : `Species with slug '${param}' not found`,
                 });
             }
             res.status(200).json({ status: "success", data: species });

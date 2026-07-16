@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma, StoryLineType, StoryFormat } from "@prisma/client";
+import { SLUG_PATTERN } from "../utils/slug.js";
 
 const prisma = new PrismaClient();
 
@@ -29,7 +30,6 @@ type LineData = {
     segments?: StorySegment[] | null;
 };
 
-const SLUG_PATTERN = /^[a-z0-9-]+$/;
 const VALID_LINE_TYPES = new Set<string>(Object.values(StoryLineType));
 const VALID_FORMATS = new Set<string>(Object.values(StoryFormat));
 
@@ -86,7 +86,7 @@ async function getStoryBySlug(slug: string) {
 function validateStoryData(data: StoryData, requireAll: boolean) {
     if (requireAll || data.slug !== undefined) {
         if (typeof data.slug !== "string" || !SLUG_PATTERN.test(data.slug)) {
-            throw new Error("slug must match ^[a-z0-9-]+$");
+            throw new Error(`slug must match ${SLUG_PATTERN.source}`);
         }
     }
     if (requireAll && (typeof data.title !== "string" || data.title.length === 0)) {

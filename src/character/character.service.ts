@@ -1,27 +1,17 @@
-import { PrismaClient, Sex } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { sanitizeText } from "../utils/sanitize.js";
-import { guyInputToEquinoxes } from "../utils/guy-time.js";
+import { slugify } from "../utils/slug.js";
 
 const prisma = new PrismaClient();
 
 type CharacterData = {
     name: string;
-    dob?: string | number | null; // GUY notation ('4-2-3022') or equinox count
-    pob?: string;
-    homePlanet?: string;
     speciesId: number;
-    sex: Sex;
-    height?: number;
-    weight?: number;
-    hairColor?: string;
-    eyeColor?: string;
     blurb?: string;
     image?: string;
-    themeColor?: string;
-    wikiArticle?: string;
+    color?: string;
+    slug?: string;
     creatorId: number;
-    aliases?: { name: string }[];
-    relationships?: { description: string }[];
 };
 
 type CharacterFilters = {
@@ -36,10 +26,7 @@ async function getAllCharacters(filters: CharacterFilters = {}) {
     const where: any = {};
 
     if (search) {
-        where.OR = [
-            { name: { contains: search } },
-            { aliases: { some: { name: { contains: search } } } },
-        ];
+        where.name = { contains: search };
     }
     if (speciesId !== undefined) where.speciesId = speciesId;
     if (ownerId !== undefined) where.creatorId = ownerId;
@@ -47,43 +34,28 @@ async function getAllCharacters(filters: CharacterFilters = {}) {
         where.messages = { some: { episode: { seasonTitle: season } } };
     }
 
-    return await prisma.character.findMany({
-        where,
-        include: { aliases: true, relationships: true },
-    });
+    return await prisma.character.findMany({ where });
 }
 
 async function getCharacterById(id: number) {
-    return await prisma.character.findUnique({
-        where: { id },
-        include: { aliases: true, relationships: true },
-    });
+    return await prisma.character.findUnique({ where: { id } });
+}
+
+async function getCharacterBySlug(slug: string) {
+    return await prisma.character.findUnique({ where: { slug } });
 }
 
 async function createCharacter(data: CharacterData) {
     return await prisma.character.create({
         data: {
             name: data.name,
-            dob: data.dob === undefined ? null : guyInputToEquinoxes(data.dob),
-            pob: data.pob,
-            homePlanet: data.homePlanet,
             speciesId: data.speciesId,
-            sex: data.sex,
-            height: data.height,
-            weight: data.weight,
-            hairColor: data.hairColor,
-            eyeColor: data.eyeColor,
             blurb: data.blurb !== undefined ? sanitizeText(data.blurb) : undefined,
             image: data.image,
-            themeColor: data.themeColor,
-            wikiArticle: data.wikiArticle,
+            color: data.color,
+            slug: data.slug ?? slugify(data.name),
             creatorId: data.creatorId,
-            aliases: data.aliases ? { create: data.aliases } : undefined,
-            relationships: data.relationships
-                ? { create: data.relationships.map(r => ({ description: sanitizeText(r.description) })) }
-                : undefined,
         },
-        include: { aliases: true, relationships: true },
     });
 }
 
@@ -92,44 +64,25 @@ async function updateCharacter(id: number, data: Partial<CharacterData>) {
         where: { id },
         data: {
             name: data.name,
-            dob: data.dob === undefined ? undefined : guyInputToEquinoxes(data.dob),
-            pob: data.pob,
-            homePlanet: data.homePlanet,
             speciesId: data.speciesId,
-            sex: data.sex,
-            height: data.height,
-            weight: data.weight,
-            hairColor: data.hairColor,
-            eyeColor: data.eyeColor,
             blurb: data.blurb !== undefined ? sanitizeText(data.blurb) : undefined,
             image: data.image,
-            themeColor: data.themeColor,
-            wikiArticle: data.wikiArticle,
-            aliases: data.aliases
-                ? { deleteMany: {}, create: data.aliases }
-                : undefined,
-            relationships: data.relationships
-                ? { deleteMany: {}, create: data.relationships.map(r => ({ description: sanitizeText(r.description) })) }
-                : undefined,
+            color: data.color,
+            slug: data.slug,
         },
-        include: { aliases: true, relationships: true },
     });
 }
 
 async function deleteCharacter(id: number): Promise<void> {
-    // Aliases/relationships have required FKs to the character — remove them
-    // in the same transaction. (Messages intentionally still block deletion:
-    // a character woven into the archive shouldn't silently vanish.)
-    await prisma.$transaction([
-        prisma.alias.deleteMany({ where: { characterId: id } }),
-        prisma.relationship.deleteMany({ where: { characterId: id } }),
-        prisma.character.delete({ where: { id } }),
-    ]);
+    // Messages intentionally still block deletion: a character woven into
+    // the archive shouldn't silently vanish.
+    await prisma.character.delete({ where: { id } });
 }
 
 export default {
     getAllCharacters,
     getCharacterById,
+    getCharacterBySlug,
     createCharacter,
     updateCharacter,
     deleteCharacter,

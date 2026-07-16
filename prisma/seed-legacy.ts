@@ -11,11 +11,12 @@
  * Run with: npm run seed:legacy   (ff-site checkout expected at ../ff-site,
  * override with FF_SITE_DIR=/path/to/ff-site)
  */
-import { PrismaClient, UserRole, Sex, Class, MessageType, StoryLineType, Prisma } from "@prisma/client";
+import { PrismaClient, UserRole, Class, MessageType, StoryLineType, Prisma } from "@prisma/client";
 import { hashSync } from "bcryptjs";
 import { existsSync, readdirSync, readFileSync } from "fs";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
+import { slugify } from "../src/utils/slug.js";
 
 const prisma = new PrismaClient();
 
@@ -75,6 +76,19 @@ function avatarShorthand(name: string): string {
     return name.toLowerCase().replaceAll(/\s/g, "");
 }
 
+// Slugs are globally unique per table; dedup collisions (distinct names that
+// slugify to the same string) by appending _2, _3, ... to later occurrences.
+function uniqueSlug(base: string, used: Set<string>): string {
+    let slug = base;
+    let n = 2;
+    while (used.has(slug)) {
+        slug = `${base}_${n}`;
+        n++;
+    }
+    used.add(slug);
+    return slug;
+}
+
 const CONTENT_TYPE_MAP: Record<string, MessageType> = {
     quote: MessageType.QUOTE,
     bot_response: MessageType.BOT_RESPONSE,
@@ -128,8 +142,6 @@ async function main() {
     await prisma.message.deleteMany();
     await prisma.episode.deleteMany();
     await prisma.season.deleteMany();
-    await prisma.alias.deleteMany();
-    await prisma.relationship.deleteMany();
     await prisma.character.deleteMany();
     await prisma.species.deleteMany();
     await prisma.user.deleteMany();
@@ -169,8 +181,8 @@ async function main() {
             description:
                 "Placeholder taxon for characters imported from the legacy archive. Assign a real species when known.",
             class: Class.HIGHER_SENTIENT,
-            lifespan: "Unknown",
             creatorId: archivist.id,
+            slug: slugify("Unclassified"),
         },
     });
 
@@ -193,6 +205,7 @@ async function main() {
     ]);
 
     const characterIds = new Map<string, number>();
+    const usedCharacterSlugs = new Set<string>();
     for (const name of [...characterNames].sort()) {
         const byPlayer = blockCounts.get(name);
         const mainPlayer = byPlayer ? [...byPlayer.entries()].sort((a, b) => b[1] - a[1])[0][0] : null;
@@ -201,28 +214,31 @@ async function main() {
             data: {
                 name,
                 speciesId: unclassified.id,
-                sex: Sex.UNSPECIFIED,
                 creatorId: mainPlayer ? userIds.get(mainPlayer)! : archivist.id,
-                themeColor: colors.dark[name] ?? null,
+                color: colors.dark[name] ?? null,
                 image: avatarFiles.has(`${shorthand}.png`) ? `/avatars/${shorthand}.png` : null,
+                slug: uniqueSlug(slugify(name), usedCharacterSlugs),
             },
         });
         characterIds.set(name, character.id);
     }
 
     // -- Season FF2 + its 22 episodes ---------------------------------------
-    await prisma.season.create({ data: { title: "FF2" } });
+    await prisma.season.create({ data: { title: "FF2", slug: slugify("FF2") } });
 
     let ff2MessageCount = 0;
+    const usedEpisodeSlugs = new Set<string>();
     for (const ep of episodes) {
         const firstDate = ep.blocks.map((b) => parseBlockDate(b.date)).find((d) => d !== null) ?? null;
+        const episode_no = parseInt(ep.episode_number);
         await prisma.episode.create({
             data: {
                 title: ep.title,
                 seasonTitle: "FF2",
-                episode_no: parseInt(ep.episode_number),
+                episode_no,
                 summary: ep.short_desc,
                 playedDate: firstDate,
+                slug: uniqueSlug(`${episode_no}_${slugify(ep.title)}`, usedEpisodeSlugs),
             },
         });
 

@@ -17,15 +17,21 @@ const initializeItemRoutes = (): Router => {
         }
     });
 
-    // GET /api/items/:id: Return an item by id with its associated character and creator (public)
+    // GET /api/items/:id: Return an item by id with its creator, or by slug
+    // when the param isn't a bare integer (public)
     router.get("/items/:id", async (req: Request, res: Response) => {
-        const id = parseInt(req.params.id, 10);
+        const { id: param } = req.params;
+        const isId = /^\d+$/.test(param);
         try {
-            const item = await itemService.getItemById(id);
+            const item = isId
+                ? await itemService.getItemById(parseInt(param, 10))
+                : await itemService.getItemBySlug(param);
             if (!item) {
                 return res.status(404).json({
                     status: "error",
-                    message: `Item with id '${id}' not found`,
+                    message: isId
+                        ? `Item with id '${param}' not found`
+                        : `Item with slug '${param}' not found`,
                 });
             }
             res.status(200).json({ status: "success", data: item });

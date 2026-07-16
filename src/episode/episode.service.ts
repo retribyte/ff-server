@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { slugify } from "../utils/slug.js";
 
 const prisma = new PrismaClient();
 
@@ -8,6 +9,7 @@ type EpisodeData = {
     episode_no: number;
     summary?: string;
     playedDate?: string;
+    slug?: string;
 };
 
 async function getAllEpisodes(search?: string) {
@@ -35,6 +37,7 @@ async function createEpisode(data: EpisodeData) {
             episode_no: data.episode_no,
             summary: data.summary,
             playedDate: data.playedDate ? new Date(data.playedDate) : undefined,
+            slug: data.slug ?? `${data.episode_no}_${slugify(data.title)}`,
         },
         include: { season: true, messages: true },
     });
@@ -49,6 +52,7 @@ async function updateEpisode(title: string, data: Partial<EpisodeData>) {
             episode_no: data.episode_no,
             summary: data.summary,
             playedDate: data.playedDate ? new Date(data.playedDate) : undefined,
+            slug: data.slug,
         },
         include: { season: true, messages: true },
     });

@@ -12,13 +12,6 @@ enum UserRole {
   ADMIN
 }
 
-enum Sex {
-  MALE
-  FEMALE
-  OTHER
-  UNSPECIFIED
-}
-
 enum Class {
   BLACK
   HIGHER_SENTIENT
@@ -84,64 +77,30 @@ model User {
 model Character {
   id            Int       @id @unique @default(autoincrement())
   name          String
-  dob           Int?      // Date of birth as equinoxes since the GUY epoch (1-1-0 GUY = 13 Mar 1853 BCE). In-universe dates outrange every DB datetime type; see src/utils/guy-time.ts.
-  pob           String?   // Place of birth
-  aliases       Alias[]   // Array of aliases
-  relationships Relationship[] // Array for describing relationships (e.g., "Parent: X", "Sibling: Y")
-  homePlanet    String?
   species       Species   @relation(fields: [speciesId], references: [id])
   speciesId     Int
-  sex           Sex       // Enum: "Male", "Female", "Other", "Unspecified"
-  height        Float?    // Height in meters (e.g., 1.75)
-  weight        Float?    // Weight in kilograms
-  hairColor     String?
-  eyeColor      String?
   creator       User      @relation(fields: [creatorId], references: [id])
   creatorId     Int
   messages      Message[]
   image         String?
-  themeColor    String?
-  items         Item[]
+  color         String?
   blurb         String?
-  wikiArticle   String?
   storyLines    StoryLine[]
+  slug          String    @unique
 
   @@unique([creatorId, name])
   @@map("characters")
-}
-
-model Alias {
-  id            Int         @id @unique @default(autoincrement())
-  name          String
-  characterId   Int
-  character     Character   @relation(fields: [characterId], references: [id])
-
-  @@map("aliases")
-}
-
-model Relationship {
-  id            Int         @id @unique @default(autoincrement())
-  description   String      // Example: "Parent of John"
-  characterId   Int
-  character     Character   @relation(fields: [characterId], references: [id])
-
-  @@map("relationships")
 }
 
 model Species {
   id            Int       @id @unique @default(autoincrement())
   name          String
   description   String
-  binomialName  String?   // Equivalent to taxonomy
   class         Class     // Enum: "Higher Sentients", "Lower Sentients"
-  lifespan      String    // Average lifespan in GUYs
-  diet          String?   // Enum: "Carnivore", "Herbivore", "Omnivore", "Other"
-  habitat       String?
-  placeOfOrigin String?
   creator       User      @relation(fields: [creatorId], references: [id])
   creatorId     Int
   Character     Character[]
-  wikiArticle   String?
+  slug          String    @unique
 
   @@map("species")
 }
@@ -149,6 +108,7 @@ model Species {
 model Season {
   title    String         @id @unique
   episodes Episode[]
+  slug     String         @unique
 
   @@map("seasons")
 }
@@ -161,6 +121,7 @@ model Episode {
   seasonTitle   String
   summary       String?
   playedDate    DateTime?
+  slug          String      @unique
 
   @@id([seasonTitle, episode_no])
   @@map("episodes")
@@ -200,7 +161,7 @@ model Commentary {
 // renames never cascade through child rows.
 model Story {
   id            Int            @id @unique @default(autoincrement())
-  slug          String         @unique // URL key, e.g. "vm"
+  slug          String         @unique
   title         String         @unique
   blurb         String?
   author        User?          @relation(fields: [authorId], references: [id])
@@ -254,18 +215,16 @@ model StoryLine {
 }
 
 model Item {
-  id            Int        @id @unique @default(autoincrement())
+  id            Int         @id @unique @default(autoincrement())
   name          String
   itemType      ItemType
   description   String
   image         String?
-  creator       User       @relation(fields: [creatorId], references: [id])
+  creator       User        @relation(fields: [creatorId], references: [id])
   creatorId     Int
-  character     Character? @relation(fields: [characterId], references: [id])
-  characterId   Int?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  wikiArticle   String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  slug          String      @unique
 
   @@map("items")
 }

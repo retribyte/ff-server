@@ -1,5 +1,6 @@
 import { PrismaClient, ItemType } from "@prisma/client";
 import { sanitizeText } from "../utils/sanitize.js";
+import { slugify } from "../utils/slug.js";
 
 const prisma = new PrismaClient();
 
@@ -8,25 +9,28 @@ type ItemData = {
     itemType: ItemType;
     description: string;
     image?: string;
-    wikiArticle?: string;
+    slug?: string;
     creatorId: number;
-    characterId?: number;
 };
 
 async function getAllItems(search?: string) {
     const where = search
         ? { name: { contains: search } }
         : undefined;
-    return await prisma.item.findMany({
-        where,
-        include: { character: true },
-    });
+    return await prisma.item.findMany({ where });
 }
 
 async function getItemById(id: number) {
     return await prisma.item.findUnique({
         where: { id },
-        include: { character: true, creator: { select: { id: true, username: true } } },
+        include: { creator: { select: { id: true, username: true } } },
+    });
+}
+
+async function getItemBySlug(slug: string) {
+    return await prisma.item.findUnique({
+        where: { slug },
+        include: { creator: { select: { id: true, username: true } } },
     });
 }
 
@@ -37,11 +41,9 @@ async function createItem(data: ItemData) {
             itemType: data.itemType,
             description: sanitizeText(data.description),
             image: data.image,
-            wikiArticle: data.wikiArticle,
+            slug: data.slug ?? slugify(data.name),
             creatorId: data.creatorId,
-            characterId: data.characterId,
         },
-        include: { character: true },
     });
 }
 
@@ -53,10 +55,8 @@ async function updateItem(id: number, data: Partial<ItemData>) {
             itemType: data.itemType,
             description: data.description !== undefined ? sanitizeText(data.description) : undefined,
             image: data.image,
-            wikiArticle: data.wikiArticle,
-            characterId: data.characterId,
+            slug: data.slug,
         },
-        include: { character: true },
     });
 }
 
@@ -64,4 +64,4 @@ async function deleteItem(id: number): Promise<void> {
     await prisma.item.delete({ where: { id } });
 }
 
-export default { getAllItems, getItemById, createItem, updateItem, deleteItem };
+export default { getAllItems, getItemById, getItemBySlug, createItem, updateItem, deleteItem };

@@ -25,16 +25,22 @@ const initializeCharacterRoutes = (): Router => {
         }
     });
 
-    // GET /api/characters/:id: Return a character by id (public)
+    // GET /api/characters/:id: Return a character by id, or by slug when the
+    // param isn't a bare integer (public)
     router.get("/characters/:id", async (req: Request, res: Response) => {
-        const id = parseInt(req.params.id, 10);
+        const { id: param } = req.params;
+        const isId = /^\d+$/.test(param);
 
         try {
-            const character = await characterService.getCharacterById(id);
+            const character = isId
+                ? await characterService.getCharacterById(parseInt(param, 10))
+                : await characterService.getCharacterBySlug(param);
             if (!character) {
                 return res.status(404).json({
                     status: "error",
-                    message: `Character with id '${id}' not found`,
+                    message: isId
+                        ? `Character with id '${param}' not found`
+                        : `Character with slug '${param}' not found`,
                 });
             }
             res.status(200).json({ status: "success", data: character });

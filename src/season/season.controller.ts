@@ -36,12 +36,12 @@ const initializeSeasonRoutes = (): Router => {
 
     // POST /api/seasons: Create a new season
     router.post("/seasons", authenticate, async (req: Request, res: Response) => {
-        const { title } = req.body;
+        const { title, slug } = req.body;
         if (!title) {
             return res.status(400).json({ status: "error", message: "title is required" });
         }
         try {
-            const season = await seasonService.createSeason(title);
+            const season = await seasonService.createSeason(title, slug);
             res.status(201).json({ status: "success", data: season });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });
@@ -51,12 +51,12 @@ const initializeSeasonRoutes = (): Router => {
     // PUT /api/seasons/:title: Rename a season
     router.put("/seasons/:title", authenticate, isAdmin, async (req: Request, res: Response) => {
         const { title } = req.params;
-        const { title: newTitle } = req.body;
+        const { title: newTitle, slug } = req.body;
         if (!newTitle) {
             return res.status(400).json({ status: "error", message: "title is required" });
         }
         try {
-            const season = await seasonService.updateSeason(title, newTitle);
+            const season = await seasonService.updateSeason(title, newTitle, slug);
             res.status(200).json({ status: "success", data: season });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });

@@ -16,7 +16,6 @@ const spec = {
         },
         schemas: {
             UserRole: { type: "string", enum: ["USER", "ADMIN"] },
-            Sex: { type: "string", enum: ["MALE", "FEMALE", "OTHER", "UNSPECIFIED"] },
             MessageType: {
                 type: "string",
                 enum: ["BOT_RESPONSE", "COMMAND", "QUOTE", "ACTION", "EMBED", "OTHER"],
@@ -51,37 +50,12 @@ const spec = {
                 properties: {
                     id: { type: "integer" },
                     name: { type: "string" },
-                    dob: { type: "integer", nullable: true, description: "Date of birth as Unix timestamp (GUY)" },
-                    pob: { type: "string", nullable: true },
-                    homePlanet: { type: "string", nullable: true },
                     speciesId: { type: "integer" },
-                    sex: { $ref: "#/components/schemas/Sex" },
-                    height: { type: "number", nullable: true },
-                    weight: { type: "number", nullable: true },
-                    hairColor: { type: "string", nullable: true },
-                    eyeColor: { type: "string", nullable: true },
                     image: { type: "string", nullable: true },
-                    themeColor: { type: "string", nullable: true },
+                    color: { type: "string", nullable: true },
                     blurb: { type: "string", nullable: true },
                     creatorId: { type: "integer" },
-                    aliases: { type: "array", items: { $ref: "#/components/schemas/Alias" } },
-                    relationships: { type: "array", items: { $ref: "#/components/schemas/Relationship" } },
-                },
-            },
-            Alias: {
-                type: "object",
-                properties: {
-                    id: { type: "integer" },
-                    name: { type: "string" },
-                    characterId: { type: "integer" },
-                },
-            },
-            Relationship: {
-                type: "object",
-                properties: {
-                    id: { type: "integer" },
-                    description: { type: "string" },
-                    characterId: { type: "integer" },
+                    slug: { type: "string" },
                 },
             },
             Species: {
@@ -89,14 +63,10 @@ const spec = {
                 properties: {
                     id: { type: "integer" },
                     name: { type: "string" },
-                    binomialName: { type: "string", nullable: true },
                     description: { type: "string" },
                     class: { $ref: "#/components/schemas/SentienceClass" },
-                    lifespan: { type: "string" },
-                    diet: { type: "string", nullable: true },
-                    habitat: { type: "string", nullable: true },
-                    placeOfOrigin: { type: "string", nullable: true },
                     creatorId: { type: "integer" },
+                    slug: { type: "string" },
                 },
             },
             Season: {
@@ -104,6 +74,7 @@ const spec = {
                 properties: {
                     title: { type: "string" },
                     episodes: { type: "array", items: { $ref: "#/components/schemas/Episode" } },
+                    slug: { type: "string" },
                 },
             },
             Episode: {
@@ -114,6 +85,7 @@ const spec = {
                     episode_no: { type: "integer" },
                     summary: { type: "string", nullable: true },
                     playedDate: { type: "string", format: "date-time", nullable: true },
+                    slug: { type: "string" },
                 },
             },
             Message: {
@@ -200,7 +172,7 @@ const spec = {
                     description: { type: "string" },
                     image: { type: "string", nullable: true },
                     creatorId: { type: "integer" },
-                    characterId: { type: "integer", nullable: true },
+                    slug: { type: "string" },
                     createdAt: { type: "string", format: "date-time" },
                     updatedAt: { type: "string", format: "date-time" },
                 },
@@ -357,7 +329,7 @@ const spec = {
                 tags: ["Characters"],
                 summary: "List all characters",
                 parameters: [
-                    { name: "search", in: "query", schema: { type: "string" }, description: "Search by name or alias" },
+                    { name: "search", in: "query", schema: { type: "string" }, description: "Search by name" },
                     { name: "speciesId", in: "query", schema: { type: "integer" } },
                     { name: "ownerId", in: "query", schema: { type: "integer" } },
                     { name: "season", in: "query", schema: { type: "string" } },
@@ -374,22 +346,18 @@ const spec = {
                         "application/json": {
                             schema: {
                                 type: "object",
-                                required: ["name", "speciesId", "sex", "creatorId"],
+                                required: ["name", "speciesId"],
                                 properties: {
                                     name: { type: "string" },
                                     speciesId: { type: "integer" },
-                                    sex: { $ref: "#/components/schemas/Sex" },
-                                    creatorId: { type: "integer" },
-                                    dob: { type: "string", description: "ISO date string" },
-                                    pob: { type: "string" },
-                                    homePlanet: { type: "string" },
-                                    height: { type: "number" },
-                                    weight: { type: "number" },
-                                    hairColor: { type: "string" },
-                                    eyeColor: { type: "string" },
+                                    image: { type: "string" },
+                                    color: { type: "string" },
                                     blurb: { type: "string" },
-                                    aliases: { type: "array", items: { type: "object", properties: { name: { type: "string" } } } },
-                                    relationships: { type: "array", items: { type: "object", properties: { description: { type: "string" } } } },
+                                    slug: {
+                                        type: "string",
+                                        pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
+                                        description: "Defaults to a slugified name",
+                                    },
                                 },
                             },
                         },
@@ -405,8 +373,8 @@ const spec = {
         "/characters/{id}": {
             get: {
                 tags: ["Characters"],
-                summary: "Get a character by id",
-                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                summary: "Get a character by id, or by slug when the param isn't a bare integer",
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" }, description: "Numeric id or slug" }],
                 responses: { "200": { description: "Character" }, "404": { description: "Not found" } },
             },
             put: {
@@ -464,17 +432,16 @@ const spec = {
                         "application/json": {
                             schema: {
                                 type: "object",
-                                required: ["name", "description", "class", "lifespan", "creatorId"],
+                                required: ["name", "description", "class"],
                                 properties: {
                                     name: { type: "string" },
                                     description: { type: "string" },
-                                    binomialName: { type: "string" },
                                     class: { $ref: "#/components/schemas/SentienceClass" },
-                                    lifespan: { type: "string" },
-                                    diet: { type: "string" },
-                                    habitat: { type: "string" },
-                                    placeOfOrigin: { type: "string" },
-                                    creatorId: { type: "integer" },
+                                    slug: {
+                                        type: "string",
+                                        pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
+                                        description: "Defaults to a slugified name",
+                                    },
                                 },
                             },
                         },
@@ -486,8 +453,8 @@ const spec = {
         "/species/{id}": {
             get: {
                 tags: ["Species"],
-                summary: "Get a species by id, including its characters",
-                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                summary: "Get a species by id or slug, including its characters",
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" }, description: "Numeric id or slug" }],
                 responses: { "200": { description: "Species" }, "404": { description: "Not found" } },
             },
             put: {
@@ -523,7 +490,18 @@ const spec = {
                     required: true,
                     content: {
                         "application/json": {
-                            schema: { type: "object", required: ["title"], properties: { title: { type: "string" } } },
+                            schema: {
+                                type: "object",
+                                required: ["title"],
+                                properties: {
+                                    title: { type: "string" },
+                                    slug: {
+                                        type: "string",
+                                        pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
+                                        description: "Defaults to a slugified title",
+                                    },
+                                },
+                            },
                         },
                     },
                 },
@@ -546,7 +524,18 @@ const spec = {
                     required: true,
                     content: {
                         "application/json": {
-                            schema: { type: "object", required: ["title"], properties: { title: { type: "string" } } },
+                            schema: {
+                                type: "object",
+                                required: ["title"],
+                                properties: {
+                                    title: { type: "string" },
+                                    slug: {
+                                        type: "string",
+                                        pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
+                                        description: "Explicit only — not re-derived from the new title",
+                                    },
+                                },
+                            },
                         },
                     },
                 },
@@ -584,6 +573,11 @@ const spec = {
                                     episode_no: { type: "integer" },
                                     summary: { type: "string" },
                                     playedDate: { type: "string", format: "date-time" },
+                                    slug: {
+                                        type: "string",
+                                        pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
+                                        description: "Defaults to `<episode_no>_<slugified_title>`",
+                                    },
                                 },
                             },
                         },
@@ -680,7 +674,7 @@ const spec = {
                                 type: "object",
                                 required: ["slug", "title"],
                                 properties: {
-                                    slug: { type: "string", pattern: "^[a-z0-9-]+$" },
+                                    slug: { type: "string", pattern: "^[a-z0-9]+(_[a-z0-9]+)*$" },
                                     title: { type: "string" },
                                     blurb: { type: "string" },
                                     authorId: { type: "integer" },
@@ -843,14 +837,17 @@ const spec = {
                         "application/json": {
                             schema: {
                                 type: "object",
-                                required: ["name", "itemType", "description", "creatorId"],
+                                required: ["name", "itemType", "description"],
                                 properties: {
                                     name: { type: "string" },
                                     itemType: { $ref: "#/components/schemas/ItemType" },
                                     description: { type: "string" },
                                     image: { type: "string" },
-                                    creatorId: { type: "integer" },
-                                    characterId: { type: "integer" },
+                                    slug: {
+                                        type: "string",
+                                        pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
+                                        description: "Defaults to a slugified name",
+                                    },
                                 },
                             },
                         },
@@ -862,8 +859,8 @@ const spec = {
         "/items/{id}": {
             get: {
                 tags: ["Items"],
-                summary: "Get an item by id",
-                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                summary: "Get an item by id, or by slug when the param isn't a bare integer",
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" }, description: "Numeric id or slug" }],
                 responses: { "200": { description: "Item" }, "404": { description: "Not found" } },
             },
             put: {
