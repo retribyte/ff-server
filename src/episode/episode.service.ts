@@ -37,7 +37,7 @@ async function createEpisode(data: EpisodeData) {
             episode_no: data.episode_no,
             summary: data.summary,
             playedDate: data.playedDate ? new Date(data.playedDate) : undefined,
-            slug: data.slug ?? `${data.episode_no}_${slugify(data.title)}`,
+            slug: data.slug ?? `${slugify(data.title)}`,
         },
         include: { season: true, messages: true },
     });

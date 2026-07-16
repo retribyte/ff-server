@@ -238,7 +238,7 @@ async function main() {
                 episode_no,
                 summary: ep.short_desc,
                 playedDate: firstDate,
-                slug: uniqueSlug(`${episode_no}_${slugify(ep.title)}`, usedEpisodeSlugs),
+                slug: uniqueSlug(`${slugify(ep.title)}`, usedEpisodeSlugs),
             },
         });
 

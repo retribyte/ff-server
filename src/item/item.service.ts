@@ -1,6 +1,6 @@
 import { PrismaClient, ItemType } from "@prisma/client";
 import { sanitizeText } from "../utils/sanitize.js";
-import { slugify } from "../utils/slug.js";
+import { normalizeSlug, slugify } from "../utils/slug.js";
 
 const prisma = new PrismaClient();
 
@@ -27,11 +27,21 @@ async function getItemById(id: number) {
     });
 }
 
+// Falls back to a normalized (hyphen -> underscore) lookup so old
+// hyphenated bookmarks from before the slug convention settled still resolve.
 async function getItemBySlug(slug: string) {
-    return await prisma.item.findUnique({
+    const item = await prisma.item.findUnique({
         where: { slug },
         include: { creator: { select: { id: true, username: true } } },
     });
+    if (item) return item;
+    const normalized = normalizeSlug(slug);
+    return normalized !== slug
+        ? await prisma.item.findUnique({
+              where: { slug: normalized },
+              include: { creator: { select: { id: true, username: true } } },
+          })
+        : null;
 }
 
 async function createItem(data: ItemData) {

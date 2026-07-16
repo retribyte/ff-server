@@ -200,10 +200,10 @@ async function backfillEpisodeSlugs(): Promise<number> {
     // "title" is unique on Episode (used as the UPDATE key below); episode_no
     // + seasonTitle is the real primary key but title alone is enough here.
     const rows = await prisma.$queryRawUnsafe<{ title: string; episode_no: number }[]>(
-        `SELECT title, episode_no FROM ${table} WHERE slug IS NULL ORDER BY "seasonTitle", episode_no`,
+        `SELECT title, episode_no FROM ${table} ORDER BY "seasonTitle", episode_no`,
     );
     for (const row of rows) {
-        const slug = uniqueSlug(`${row.episode_no}_${slugify(row.title)}`, used);
+        const slug = uniqueSlug(`${slugify(row.title)}`, used);
         await prisma.$executeRawUnsafe(`UPDATE ${table} SET slug = $1 WHERE title = $2`, slug, row.title);
     }
     console.log(`  ${table}: backfilled ${rows.length} slug(s).`);

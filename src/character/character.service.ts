@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { sanitizeText } from "../utils/sanitize.js";
-import { slugify } from "../utils/slug.js";
+import { normalizeSlug, slugify } from "../utils/slug.js";
 
 const prisma = new PrismaClient();
 
@@ -41,8 +41,13 @@ async function getCharacterById(id: number) {
     return await prisma.character.findUnique({ where: { id } });
 }
 
+// Falls back to a normalized (hyphen -> underscore) lookup so old
+// hyphenated bookmarks from before the slug convention settled still resolve.
 async function getCharacterBySlug(slug: string) {
-    return await prisma.character.findUnique({ where: { slug } });
+    const character = await prisma.character.findUnique({ where: { slug } });
+    if (character) return character;
+    const normalized = normalizeSlug(slug);
+    return normalized !== slug ? await prisma.character.findUnique({ where: { slug: normalized } }) : null;
 }
 
 async function createCharacter(data: CharacterData) {
