@@ -576,7 +576,7 @@ const spec = {
                                     slug: {
                                         type: "string",
                                         pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
-                                        description: "Defaults to `<episode_no>_<slugified_title>`",
+                                        description: "Defaults to `<slugified_title>`",
                                     },
                                 },
                             },
