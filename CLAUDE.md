@@ -26,8 +26,11 @@ actually there.
   overrides the legacy-data path used by one-off scripts in `prisma/`
   (defaults to `../ff-site-old` or `../ff-site` depending on the script — see
   below).
-- `docker-compose.yml` brings up Postgres (+ optionally the API) in a
-  container; `npm run docker:up` / `docker:down`.
+- `docker-compose.yml` defines `db` (Postgres) and `ff-api` services.
+  `npm run docker:up` (`docker compose up -d --build`) with no args starts
+  **both** — since `ff-api` also binds host `:3000`, that collides with a
+  locally-run `npm run dev`. When running the API locally, start only
+  Postgres: `npm run docker:up -- db`. `npm run docker:down` stops both.
 - Schema changes go through **`npx prisma db push`** — `prisma/migrations/` is
   present but empty; this project isn't using versioned migrations day to day
   despite NFR-REL-2's aspiration. Run `npx prisma generate` after any schema
