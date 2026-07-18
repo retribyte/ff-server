@@ -5,6 +5,7 @@
  * A failing script is logged and skipped rather than aborting the batch.
  */
 import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PrismaClient } from "@prisma/client";
@@ -15,8 +16,13 @@ const prisma = new PrismaClient();
 const SEED_SCRIPTS = ["seed-legacy.ts", "seed-8ball.ts", "seed-galaxy.ts"];
 
 function runScript(script: string) {
+    const scriptPath = path.join(__dirname, script);
+    if (!existsSync(scriptPath)) {
+        console.log(`\n=== Skipping ${script} (not found) ===`);
+        return;
+    }
     console.log(`\n=== Running ${script} ===`);
-    const result = spawnSync("npx", ["tsx", path.join(__dirname, script)], { stdio: "inherit" });
+    const result = spawnSync("npx", ["tsx", scriptPath], { stdio: "inherit" });
     if (result.status !== 0) {
         console.error(`${script} failed (exit ${result.status}) — skipping.`);
     }

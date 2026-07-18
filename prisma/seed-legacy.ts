@@ -1,16 +1,27 @@
 /**
  * Legacy archive import — one-time seed.
  *
- * Loads the real campaign data bundled with the old ff-site React app into Postgres:
- *   - FF2: 22 finished episodes (~22k messages) from src/assets/json/archives/ff2
- *   - Vortox Machina: the CYOA chronicle (~2.5k lines) from src/assets/json/cyoa.json
- *   - Players → Users, speakers → Characters (colors from characterColors.json,
- *     avatars matched against the pixel-art files carried over to the new frontend)
+ * Loads the real campaign data into Postgres:
+ *   - Every season under ff-site/archive-to-markdown/api/<season>/*.json —
+ *     API-shaped episode payloads produced by md-to-api.py (one JSON file per
+ *     episode: {seasonTitle, episode: {title, episode_no, summary, playedDate},
+ *     messages: [{player, character, timestamp, type, text}]}).
+ *   - Vortox Machina: the CYOA chronicle (~2.5k lines) from ff-site-old's
+ *     src/assets/json/cyoa.json
+ *   - Players → Users, speakers → Characters (colors from ff-site-old's
+ *     characterColors.json, avatars matched against the pixel-art files
+ *     carried over to the new frontend)
  *
  * Assumes an empty database — the wipe lives in prisma/seed.ts, which runs
  * this script as one step of the full seed. Run standalone with:
- * npm run seed:legacy   (ff-site checkout expected at ../ff-site, override
- * with FF_SITE_DIR=/path/to/ff-site) — only safe against an already-empty DB.
+ * npm run seed:legacy   (only safe against an already-empty DB)
+ *
+ * Two sibling checkouts are read, independently overridable since they're
+ * unrelated repos that may not share a naming convention across machines:
+ *   FF_SITE_OLD_DIR  — the legacy React app (colors/avatars/cyoa.json).
+ *                       Default: ../ff-site-old
+ *   FF_SITE_DIR       — the Next.js rebuild (archive-to-markdown/api/*).
+ *                       Default: ../ff-site, falling back to ../ff-site-new.
  */
 import { PrismaClient, UserRole, Class, MessageType, StoryLineType, Prisma } from "@prisma/client";
 import { hashSync } from "bcryptjs";
@@ -21,30 +32,39 @@ import { slugify } from "../src/utils/slug.js";
 
 const prisma = new PrismaClient();
 
-const FF_SITE_DIR = process.env.FF_SITE_DIR ?? resolve(dirname(fileURLToPath(import.meta.url)), "../../ff-site-old");
-const JSON_DIR = join(FF_SITE_DIR, "src/assets/json");
-const AVATAR_DIR = join(FF_SITE_DIR, "src/assets/images/avatars");
+const HERE = dirname(fileURLToPath(import.meta.url));
 
-// ---------- Legacy JSON shapes ----------
+const FF_SITE_OLD_DIR = process.env.FF_SITE_OLD_DIR ?? resolve(HERE, "../../ff-site-old");
+const JSON_DIR = join(FF_SITE_OLD_DIR, "src/assets/json");
+const AVATAR_DIR = join(FF_SITE_OLD_DIR, "src/assets/images/avatars");
 
-interface LegacyContent {
-    type: "quote" | "bot_response" | "command" | "action" | "other" | "embed";
-    text?: string;
-    embed?: { title?: string; description: string[]; footer?: string };
+function resolveFfSiteDir(): string {
+    if (process.env.FF_SITE_DIR) return process.env.FF_SITE_DIR;
+    const primary = resolve(HERE, "../../ff-site");
+    if (existsSync(primary)) return primary;
+    return resolve(HERE, "../../ff-site-new");
 }
+const ARCHIVE_API_DIR = join(resolveFfSiteDir(), "archive-to-markdown/api");
 
-interface LegacyBlock {
+// ---------- API-shaped episode payload (produced by md-to-api.py) ----------
+
+interface ImportMessage {
     player: string;
     character: string | null;
-    date: string;
-    content: LegacyContent[];
+    timestamp: string | null;
+    type: string;
+    text: string;
 }
 
-interface LegacyEpisode {
-    title: string;
-    episode_number: string;
-    short_desc: string;
-    blocks: LegacyBlock[];
+interface ImportPayload {
+    seasonTitle: string;
+    episode: {
+        title: string;
+        episode_no: number;
+        summary: string | null;
+        playedDate: string | null;
+    };
+    messages: ImportMessage[];
 }
 
 interface CyoaLine {
@@ -54,23 +74,6 @@ interface CyoaLine {
 }
 
 // ---------- Helpers ----------
-
-const MONTHS: Record<string, number> = {
-    jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
-    jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
-};
-
-// Legacy block dates look like "13-Jul-18 05:14 PM" (hour may be one digit)
-function parseBlockDate(raw: string): Date | null {
-    const m = raw?.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{2}) (\d{1,2}):(\d{2}) (AM|PM)$/);
-    if (!m) return null;
-    const [, day, mon, yy, hour, min, meridiem] = m;
-    const month = MONTHS[mon.toLowerCase()];
-    if (month === undefined) return null;
-    let h = parseInt(hour) % 12;
-    if (meridiem === "PM") h += 12;
-    return new Date(2000 + parseInt(yy), month, parseInt(day), h, parseInt(min));
-}
 
 // Matches the old site's avatar lookup: "FF 8 Ball" -> "ff8ball.png"
 function avatarShorthand(name: string): string {
@@ -90,14 +93,7 @@ function uniqueSlug(base: string, used: Set<string>): string {
     return slug;
 }
 
-const CONTENT_TYPE_MAP: Record<string, MessageType> = {
-    quote: MessageType.QUOTE,
-    bot_response: MessageType.BOT_RESPONSE,
-    command: MessageType.COMMAND,
-    action: MessageType.ACTION,
-    other: MessageType.OTHER,
-    embed: MessageType.EMBED,
-};
+const MESSAGE_TYPES = new Set(Object.values(MessageType));
 
 async function createMessagesChunked(rows: Prisma.MessageCreateManyInput[]): Promise<void> {
     const CHUNK = 2000;
@@ -106,39 +102,61 @@ async function createMessagesChunked(rows: Prisma.MessageCreateManyInput[]): Pro
     }
 }
 
+// ---------- Loading every season under archive-to-markdown/api/ ----------
+
+interface LoadedSeason {
+    seasonTitle: string;
+    slug: string;
+    episodes: ImportPayload[];
+}
+
+function loadSeasons(): LoadedSeason[] {
+    if (!existsSync(ARCHIVE_API_DIR)) {
+        throw new Error(`archive-to-markdown/api not found at ${ARCHIVE_API_DIR} — set FF_SITE_DIR`);
+    }
+    const seasons = new Map<string, LoadedSeason>();
+    for (const dirName of readdirSync(ARCHIVE_API_DIR).sort()) {
+        const seasonDir = join(ARCHIVE_API_DIR, dirName);
+        const files = readdirSync(seasonDir).filter((f) => f.endsWith(".json"));
+        for (const file of files) {
+            const payload = JSON.parse(readFileSync(join(seasonDir, file), "utf8")) as ImportPayload;
+            let season = seasons.get(payload.seasonTitle);
+            if (!season) {
+                season = { seasonTitle: payload.seasonTitle, slug: slugify(payload.seasonTitle), episodes: [] };
+                seasons.set(payload.seasonTitle, season);
+            }
+            season.episodes.push(payload);
+        }
+    }
+    for (const season of seasons.values()) {
+        season.episodes.sort((a, b) => a.episode.episode_no - b.episode.episode_no);
+    }
+    return [...seasons.values()].sort((a, b) => a.seasonTitle.localeCompare(b.seasonTitle));
+}
+
 // ---------- Main ----------
 
 async function main() {
-    if (!existsSync(JSON_DIR)) {
-        throw new Error(`Legacy ff-site JSON not found at ${JSON_DIR} — set FF_SITE_DIR`);
+    const seasons = loadSeasons();
+    if (seasons.length === 0) {
+        throw new Error(`No season data found under ${ARCHIVE_API_DIR}`);
     }
 
-    const colors = JSON.parse(readFileSync(join(JSON_DIR, "characterColors.json"), "utf8")) as {
-        dark: Record<string, string>;
-        light: Record<string, string>;
-    };
+    const colors = existsSync(join(JSON_DIR, "characterColors.json"))
+        ? (JSON.parse(readFileSync(join(JSON_DIR, "characterColors.json"), "utf8")) as {
+              dark: Record<string, string>;
+              light: Record<string, string>;
+          })
+        : { dark: {}, light: {} };
     const avatarFiles = new Set(existsSync(AVATAR_DIR) ? readdirSync(AVATAR_DIR) : []);
 
-    const episodeIndex = JSON.parse(readFileSync(join(JSON_DIR, "ff2.json"), "utf8")) as Array<{
-        title: string;
-        file_name: string;
-        episode_number: string;
-        short_desc: string;
-    }>;
+    const cyoaFile = join(JSON_DIR, "cyoa.json");
+    const cyoaLines: CyoaLine[] = existsSync(cyoaFile) ? JSON.parse(readFileSync(cyoaFile, "utf8")) : [];
 
-    const episodes: LegacyEpisode[] = episodeIndex.map((entry) => {
-        const file = join(JSON_DIR, "archives/ff2", `${entry.episode_number}-${entry.file_name}.json`);
-        const data = JSON.parse(readFileSync(file, "utf8")) as LegacyEpisode;
-        return { ...data, short_desc: entry.short_desc };
-    });
+    const allMessages = seasons.flatMap((s) => s.episodes.flatMap((ep) => ep.messages));
 
-    const cyoaLines = JSON.parse(readFileSync(join(JSON_DIR, "cyoa.json"), "utf8")) as CyoaLine[];
-
-    // -- Users: every player seen in FF2, plus the Archivist (CYOA author) --
-    const playerNames = new Set<string>();
-    for (const ep of episodes) {
-        for (const block of ep.blocks) playerNames.add(block.player);
-    }
+    // -- Users: every player seen across all seasons, plus the Archivist (CYOA author) --
+    const playerNames = new Set<string>(allMessages.map((m) => m.player));
 
     const userIds = new Map<string, number>();
     for (const name of [...playerNames].sort()) {
@@ -174,16 +192,14 @@ async function main() {
         },
     });
 
-    // -- Characters: FF2 speakers, CYOA speakers, and color-table entries --
+    // -- Characters: every speaker across all seasons, CYOA speakers, and color-table entries --
     // Owner = the player who voiced them most; CYOA/color-only speakers -> Archivist.
     const blockCounts = new Map<string, Map<string, number>>();
-    for (const ep of episodes) {
-        for (const block of ep.blocks) {
-            if (!block.character) continue;
-            const byPlayer = blockCounts.get(block.character) ?? new Map<string, number>();
-            byPlayer.set(block.player, (byPlayer.get(block.player) ?? 0) + 1);
-            blockCounts.set(block.character, byPlayer);
-        }
+    for (const m of allMessages) {
+        if (!m.character) continue;
+        const byPlayer = blockCounts.get(m.character) ?? new Map<string, number>();
+        byPlayer.set(m.player, (byPlayer.get(m.player) ?? 0) + 1);
+        blockCounts.set(m.character, byPlayer);
     }
 
     const characterNames = new Set<string>([
@@ -211,108 +227,107 @@ async function main() {
         characterIds.set(name, character.id);
     }
 
-    // -- Season FF2 + its 22 episodes ---------------------------------------
-    await prisma.season.create({ data: { title: "FF2", slug: slugify("FF2") } });
-
-    let ff2MessageCount = 0;
+    // -- Seasons + episodes -------------------------------------------------
+    let totalMessageCount = 0;
     const usedEpisodeSlugs = new Set<string>();
-    for (const ep of episodes) {
-        const firstDate = ep.blocks.map((b) => parseBlockDate(b.date)).find((d) => d !== null) ?? null;
-        const episode_no = parseInt(ep.episode_number);
-        await prisma.episode.create({
-            data: {
-                title: ep.title,
-                seasonTitle: "FF2",
-                episode_no,
-                summary: ep.short_desc,
-                playedDate: firstDate,
-                slug: uniqueSlug(`${slugify(ep.title)}`, usedEpisodeSlugs),
-            },
-        });
+    for (const season of seasons) {
+        await prisma.season.create({ data: { title: season.seasonTitle, slug: season.slug } });
 
-        const rows: Prisma.MessageCreateManyInput[] = [];
-        let messageNo = 0;
-        for (const block of ep.blocks) {
-            const timestamp = parseBlockDate(block.date);
-            const characterId = block.character ? (characterIds.get(block.character) ?? null) : null;
-            for (const content of block.content) {
-                messageNo += 1;
-                let type = CONTENT_TYPE_MAP[content.type] ?? MessageType.OTHER;
-                // FR-MSG-4: QUOTE requires a character speaker
+        for (const payload of season.episodes) {
+            await prisma.episode.create({
+                data: {
+                    title: payload.episode.title,
+                    seasonTitle: season.seasonTitle,
+                    episode_no: payload.episode.episode_no,
+                    summary: payload.episode.summary ?? undefined,
+                    playedDate: payload.episode.playedDate ? new Date(payload.episode.playedDate) : undefined,
+                    slug: uniqueSlug(slugify(payload.episode.title), usedEpisodeSlugs),
+                },
+            });
+
+            const rows: Prisma.MessageCreateManyInput[] = payload.messages.map((msg, index) => {
+                const characterId = msg.character ? (characterIds.get(msg.character) ?? null) : null;
+                let type = MESSAGE_TYPES.has(msg.type as MessageType) ? (msg.type as MessageType) : MessageType.OTHER;
+                // FR-MSG-4: QUOTE requires a character speaker (md-to-api.py
+                // already applies this at conversion time; kept here as a
+                // cheap defense against payloads from other producers).
                 if (type === MessageType.QUOTE && characterId === null) type = MessageType.OTHER;
-                rows.push({
-                    episodeTitle: ep.title,
-                    messageNo,
-                    playerId: userIds.get(block.player)!,
+                return {
+                    episodeTitle: payload.episode.title,
+                    messageNo: index + 1,
+                    playerId: userIds.get(msg.player)!,
                     characterId,
-                    timestamp,
+                    timestamp: msg.timestamp ? new Date(msg.timestamp) : null,
                     type,
-                    // Embeds keep their structure as a JSON payload in the text body
-                    text: content.type === "embed" ? JSON.stringify(content.embed) : (content.text ?? ""),
-                });
-            }
+                    text: msg.text,
+                };
+            });
+            await createMessagesChunked(rows);
+            totalMessageCount += rows.length;
+            console.log(`  ${season.seasonTitle} ep ${payload.episode.episode_no}: "${payload.episode.title}" — ${rows.length} messages`);
         }
-        await createMessagesChunked(rows);
-        ff2MessageCount += rows.length;
-        console.log(`  FF2 ep ${ep.episode_number}: "${ep.title}" — ${rows.length} messages`);
     }
 
     // -- Vortox Machina (CYOA) as a Story with a single chapter -------------
     // cyoa.json is flat, so one chapter keeps line 1..N identical to the
     // legacy numbering and old ?line=N deep links stay meaningful.
-    const vmStory = await prisma.story.create({
-        data: {
-            slug: "vm",
-            title: "Vortox Machina",
-            blurb:
-                "A VCOMM broadcast from Emmett, last known Squoatling, lost in space. The choose-your-own-adventure chronicle.",
-            authorId: archivist.id,
-            themeColor: "#e8b23b",
-            themeColor2: "#d3612c",
-        },
-    });
-    const vmChapter = await prisma.storyChapter.create({
-        data: { storyId: vmStory.id, chapter_no: 1 },
-    });
+    let cyoaRowCount = 0;
+    if (cyoaLines.length > 0) {
+        const vmStory = await prisma.story.create({
+            data: {
+                slug: "vm",
+                title: "Vortox Machina",
+                blurb:
+                    "A VCOMM broadcast from Emmett, last known Squoatling, lost in space. The choose-your-own-adventure chronicle.",
+                authorId: archivist.id,
+                themeColor: "#e8b23b",
+                themeColor2: "#d3612c",
+            },
+        });
+        const vmChapter = await prisma.storyChapter.create({
+            data: { storyId: vmStory.id, chapter_no: 1 },
+        });
 
-    const cyoaRows: Prisma.StoryLineCreateManyInput[] = cyoaLines.map((line, index) => {
-        const characterId = line.character ? (characterIds.get(line.character) ?? null) : null;
-        let type: StoryLineType;
-        switch (line.type) {
-            case "dialogue":
-                type = StoryLineType.DIALOGUE;
-                break;
-            case "action":
-                type = StoryLineType.ACTION;
-                break;
-            case "transcript":
-                type = StoryLineType.TRANSCRIPT;
-                break;
-            default:
-                type = StoryLineType.NARRATION;
+        const cyoaRows: Prisma.StoryLineCreateManyInput[] = cyoaLines.map((line, index) => {
+            const characterId = line.character ? (characterIds.get(line.character) ?? null) : null;
+            let type: StoryLineType;
+            switch (line.type) {
+                case "dialogue":
+                    type = StoryLineType.DIALOGUE;
+                    break;
+                case "action":
+                    type = StoryLineType.ACTION;
+                    break;
+                case "transcript":
+                    type = StoryLineType.TRANSCRIPT;
+                    break;
+                default:
+                    type = StoryLineType.NARRATION;
+            }
+            return {
+                chapterId: vmChapter.id,
+                line_no: index + 1,
+                type,
+                text: line.text,
+                characterId,
+                // Uncatalogued voices still render as dialogue via the name fallback
+                speaker: line.character && characterId === null ? line.character : null,
+            };
+        });
+        const CHUNK = 2000;
+        for (let i = 0; i < cyoaRows.length; i += CHUNK) {
+            await prisma.storyLine.createMany({ data: cyoaRows.slice(i, i + CHUNK) });
         }
-        return {
-            chapterId: vmChapter.id,
-            line_no: index + 1,
-            type,
-            text: line.text,
-            characterId,
-            // Uncatalogued voices still render as dialogue via the name fallback
-            speaker: line.character && characterId === null ? line.character : null,
-        };
-    });
-    const CHUNK = 2000;
-    for (let i = 0; i < cyoaRows.length; i += CHUNK) {
-        await prisma.storyLine.createMany({ data: cyoaRows.slice(i, i + CHUNK) });
+        cyoaRowCount = cyoaRows.length;
     }
 
     console.log("\nLegacy import complete.");
     console.log(`  Users:      ${playerNames.size + 1}`);
     console.log(`  Characters: ${characterNames.size}`);
-    console.log(`  Seasons:    1 (FF2)`);
-    console.log(`  Episodes:   ${episodes.length}`);
-    console.log(`  Messages:   ${ff2MessageCount} (FF2)`);
-    console.log(`  Stories:    1 (Vortox Machina, ${cyoaRows.length} lines)`);
+    console.log(`  Seasons:    ${seasons.length} (${seasons.map((s) => s.seasonTitle).join(", ")})`);
+    console.log(`  Episodes:   ${seasons.reduce((n, s) => n + s.episodes.length, 0)}`);
+    console.log(`  Messages:   ${totalMessageCount}`);
+    if (cyoaRowCount > 0) console.log(`  Stories:    1 (Vortox Machina, ${cyoaRowCount} lines)`);
 }
 
 main()
