@@ -7,9 +7,10 @@
  *   - Players → Users, speakers → Characters (colors from characterColors.json,
  *     avatars matched against the pixel-art files carried over to the new frontend)
  *
- * DESTRUCTIVE: wipes all existing rows first (same as prisma/seed.ts).
- * Run with: npm run seed:legacy   (ff-site checkout expected at ../ff-site,
- * override with FF_SITE_DIR=/path/to/ff-site)
+ * Assumes an empty database — the wipe lives in prisma/seed.ts, which runs
+ * this script as one step of the full seed. Run standalone with:
+ * npm run seed:legacy   (ff-site checkout expected at ../ff-site, override
+ * with FF_SITE_DIR=/path/to/ff-site) — only safe against an already-empty DB.
  */
 import { PrismaClient, UserRole, Class, MessageType, StoryLineType, Prisma } from "@prisma/client";
 import { hashSync } from "bcryptjs";
@@ -20,7 +21,7 @@ import { slugify } from "../src/utils/slug.js";
 
 const prisma = new PrismaClient();
 
-const FF_SITE_DIR = process.env.FF_SITE_DIR ?? resolve(dirname(fileURLToPath(import.meta.url)), "../../ff-site");
+const FF_SITE_DIR = process.env.FF_SITE_DIR ?? resolve(dirname(fileURLToPath(import.meta.url)), "../../ff-site-old");
 const JSON_DIR = join(FF_SITE_DIR, "src/assets/json");
 const AVATAR_DIR = join(FF_SITE_DIR, "src/assets/images/avatars");
 
@@ -132,19 +133,6 @@ async function main() {
     });
 
     const cyoaLines = JSON.parse(readFileSync(join(JSON_DIR, "cyoa.json"), "utf8")) as CyoaLine[];
-
-    // -- Wipe existing data (reverse dependency order) --------------------
-    await prisma.item.deleteMany();
-    await prisma.commentary.deleteMany();
-    await prisma.storyLine.deleteMany();
-    await prisma.storyChapter.deleteMany();
-    await prisma.story.deleteMany();
-    await prisma.message.deleteMany();
-    await prisma.episode.deleteMany();
-    await prisma.season.deleteMany();
-    await prisma.character.deleteMany();
-    await prisma.species.deleteMany();
-    await prisma.user.deleteMany();
 
     // -- Users: every player seen in FF2, plus the Archivist (CYOA author) --
     const playerNames = new Set<string>();
