@@ -110,15 +110,15 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 
 ### 3.4 Character Management
 
-- **FR-CHAR-1** A member MUST be able to create a character. Required field: name, species, sex. Optional fields drawn from the existing `Character` model in the `ff-server` schema: aliases, height, weight, hair color, eye color, place of birth, home planet, date of birth (in GUY), avatar image, theme color, blurb.
+- **FR-CHAR-1** A member MUST be able to create a character. Required field: name, species, sex. Optional fields drawn from the existing `Character` model in the `ff-server` schema: personas (see FR-CHAR-3), height, weight, hair color, eye color, place of birth, home planet, date of birth (in GUY), avatar image, theme color, blurb. A character's displayed avatar image and theme color MUST resolve per message on each field independently as `persona ?? character` (a persona that sets only one of image/color falls through to the character's value for the other); the transcript reader's full display fallback chain (name, avatar, color) is `persona ?? character ?? player` (see FR-CHAR-3).
 - **FR-CHAR-2** A character MUST belong to exactly one user (its creator/owner).
-- **FR-CHAR-3** A character MUST be able to have zero or more aliases (per the existing `Alias` model).
+- **FR-CHAR-3** A character MUST be able to have zero or more **personas** (per the existing `Persona` model, renamed from the earlier name-only `Alias` model). A persona represents how a character is presented for some stretch of the archive — an alternate display name, an alternate avatar image, an alternate theme color, or any combination — and is the System's single presentation mechanism: attribution is per message (`Message.personaId`, optional), not a stored default consulted at render time. A persona MUST set at least one of `name`, `image`, or `color`; when `name` is not set (a "look-only" persona, e.g. a mid-archive appearance change with no name change) the persona MUST also carry a `label`, an admin-facing handle never rendered in transcripts, so it stays distinguishable in management UIs. A named persona MUST have a permanent, unique `slug` (derived `<character_slug>_<name_slug>`, same philosophy as Character/Item/Species) that resolves to the persona's owning character wherever a character slug is accepted; a name-less persona has no slug. A persona MUST belong to exactly one character, and a message's persona, if set, MUST belong to the same character the message is attributed to — the database itself MUST enforce this (a composite foreign key on `(personaId, characterId)` referencing `Persona(id, characterId)`), not only the application layer. To assign a persona across many messages at once, the System MUST provide write-time bulk-assignment ("stamp") operations scoped to all of a character's messages within one episode or within one season; stamping with `personaId: null` clears the affected messages back to canonical (character-only) attribution. Performing a stamp MUST be restricted to the character's owner or an admin (FR-CHAR-8).
 - **FR-CHAR-4** A character MUST be able to record interpersonal relationships to other characters (per the existing `Relationship` model).
 - **FR-CHAR-5** *Removed — Location entity is out of scope.*
 - **FR-CHAR-6** *Removed — in-game status (HP, shield, resistances, status effects, DoT) is out of scope.*
 - **FR-CHAR-7** A character page MUST display the character's biographical data and known relationships.
 - **FR-CHAR-8** Editing a character MUST be restricted to its owner or an admin.
-- **FR-CHAR-9** A character MUST be searchable by name and alias.
+- **FR-CHAR-9** A character MUST be searchable by name and persona name.
 - **FR-CHAR-10** The System MUST list all characters with filter (by species, by owner, by season they appeared in).
 
 ### 3.5 Species
@@ -182,7 +182,7 @@ This section captures the *entities* and *relationships* the System must represe
 
 - **User** — credentials, profile fields, role enum.
 - **Character** — biographical fields as currently defined; ownership via `creator`.
-- **Alias** — name, character reference.
+- **Persona** (renamed from the earlier name-only `Alias`) — nullable name, label, nullable image, nullable color, nullable (name-less personas only) permanent slug, character reference.
 - **Relationship** — description, character reference.
 - **Species** — full taxonomic record as currently defined.
 - **Season** — grouping of episodes.
@@ -203,9 +203,9 @@ This section captures the *entities* and *relationships* the System must represe
 
 - A **User** owns many **Characters**; a Character has exactly one owner.
 - A **Character** belongs to at most one **Species**; a Species has many Characters.
-- A **Character** has many **Aliases** and many **Relationships**.
+- A **Character** has many **Personas** and many **Relationships**.
 - A **Season** has many **Episodes**; an **Episode** has many **Messages** in a stable order.
-- A **Message** is authored by a **User** and optionally spoken by a **Character**.
+- A **Message** is authored by a **User** and optionally spoken by a **Character**; it MAY also carry an optional **Persona**, which MUST belong to that same Character (see FR-CHAR-3).
 - A **Message** MAY have many **Commentaries**; each Commentary is written by exactly one **User** on exactly one **Message**.
 - A **User** MAY author many **Commentaries**.
 - A **User** owns many **Items** as a creator/author.
@@ -299,7 +299,7 @@ These are stack preferences for the Technical Design phase and do not change the
 The first release of the System is considered complete when:
 
 1. A visitor can read any episode at a stable URL, and legacy `ff-site` URLs redirect to the new ones.
-2. A registered member can create a character, edit it, give it aliases and relationships, attach it to a species, attach quotes to it, and view it on a public character page.
+2. A registered member can create a character, edit it, give it personas and relationships, attach it to a species, attach quotes to it, and view it on a public character page.
 3. A registered member can create an item (with an item type), optionally associate it with a character, and view it on an item page.
 4. An external client authenticating with an API token can perform all of the above operations programmatically.
 5. The site passes the non-functional bars in §5.1–§5.4 on a representative dataset.

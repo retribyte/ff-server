@@ -10,11 +10,11 @@ Requirements live in `FF design document.md` (FR-*/NFR-* ids) — read it before
 adding or changing scope. **Treat it as a starting point, not current truth**:
 the schema has already grown past it in places (the `Story`/`StoryChapter`/
 `StoryLine` models implement CYOA/prose reading, which the doc only gestures
-at; `EightBallAnswer` isn't in the doc at all) and lags it in others (`Alias`
-and `Relationship`, called for by FR-CHAR-3/4, don't exist as models yet —
-only `Species`, `Season`, `Episode`, `Message`, `Item`, `Commentary`,
-`Character`, `User` are implemented). Check `prisma/schema.prisma` for what's
-actually there.
+at; `EightBallAnswer` isn't in the doc at all) and lags it in others
+(`Relationship`, called for by FR-CHAR-4, doesn't exist as a model yet —
+`Persona` (FR-CHAR-3, formerly `Alias`), `Species`, `Season`, `Episode`,
+`Message`, `Item`, `Commentary`, `Character`, `User` are implemented). Check
+`prisma/schema.prisma` for what's actually there.
 
 ## Environment
 
