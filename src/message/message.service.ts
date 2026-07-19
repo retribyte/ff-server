@@ -200,6 +200,57 @@ async function deleteMessage(episodeTitle: string, messageNo: number): Promise<v
     });
 }
 
+// --- Bulk persona stamping (write-time "set it once" path, PLAN-alias.md §4) ---
+// personaId: null clears every matching message back to canonical
+// (character-only) attribution. Both variants revalidate character/persona
+// existence and ownership even though the controller already checked them
+// for the auth decision, matching the redundant-but-self-contained
+// validation style used elsewhere (e.g. Persona create/update).
+
+async function applyPersonaToEpisode(
+    episodeTitle: string,
+    characterId: number,
+    personaId: number | null
+): Promise<number> {
+    const episode = await prisma.episode.findUnique({ where: { title: episodeTitle } });
+    if (!episode) {
+        throw new Error(`Episode '${episodeTitle}' not found`);
+    }
+    const character = await prisma.character.findUnique({ where: { id: characterId } });
+    if (!character) {
+        throw new Error(`Character with id '${characterId}' not found`);
+    }
+    await assertPersonaMatchesCharacter(personaId, characterId);
+
+    const { count } = await prisma.message.updateMany({
+        where: { episodeTitle, characterId },
+        data: { personaId },
+    });
+    return count;
+}
+
+async function applyPersonaToSeason(
+    seasonTitle: string,
+    characterId: number,
+    personaId: number | null
+): Promise<number> {
+    const season = await prisma.season.findUnique({ where: { title: seasonTitle } });
+    if (!season) {
+        throw new Error(`Season '${seasonTitle}' not found`);
+    }
+    const character = await prisma.character.findUnique({ where: { id: characterId } });
+    if (!character) {
+        throw new Error(`Character with id '${characterId}' not found`);
+    }
+    await assertPersonaMatchesCharacter(personaId, characterId);
+
+    const { count } = await prisma.message.updateMany({
+        where: { characterId, episode: { seasonTitle } },
+        data: { personaId },
+    });
+    return count;
+}
+
 export default {
     getMessagesByEpisode,
     getMessageByNo,
@@ -209,4 +260,6 @@ export default {
     createMessages,
     updateMessage,
     deleteMessage,
+    applyPersonaToEpisode,
+    applyPersonaToSeason,
 };

@@ -1,0 +1,23 @@
+meta {
+  name: Apply persona to season
+  type: http
+  seq: 10
+}
+
+post {
+  url: http://localhost:3000/api/seasons/FF2/personas/apply
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "characterId": 1,
+    "personaId": 2
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

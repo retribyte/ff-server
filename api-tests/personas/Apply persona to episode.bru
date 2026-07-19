@@ -1,0 +1,23 @@
+meta {
+  name: Apply persona to episode
+  type: http
+  seq: 8
+}
+
+post {
+  url: http://localhost:3000/api/episodes/Pilot/personas/apply
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "characterId": 1,
+    "personaId": 2
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

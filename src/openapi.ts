@@ -770,6 +770,68 @@ const spec = {
                 responses: { "200": { description: "Updated message" }, "401": { description: "Unauthorized" } },
             },
         },
+        "/episodes/{episodeTitle}/personas/apply": {
+            post: {
+                tags: ["Messages", "Personas"],
+                summary: "Bulk-stamp personaId on every message of a character within this episode (owner of the character, or admin)",
+                description: "Write-time 'set it once' bulk assignment (PLAN-alias.md §4): sets personaId on every message matching {characterId} in this episode. personaId: null clears those messages back to canonical (character-only) attribution. Exceptions afterward go through the per-message PUT.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "episodeTitle", in: "path", required: true, schema: { type: "string" } }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["characterId", "personaId"],
+                                properties: {
+                                    characterId: { type: "integer" },
+                                    personaId: { type: "integer", nullable: true, description: "null clears every matching message back to canonical attribution" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "{ count: number } — how many messages were updated" },
+                    "400": { description: "Validation error (missing/invalid characterId or personaId, persona belongs to a different character)" },
+                    "401": { description: "Unauthorized" },
+                    "403": { description: "Forbidden" },
+                    "404": { description: "Episode or character not found" },
+                },
+            },
+        },
+        "/seasons/{seasonTitle}/personas/apply": {
+            post: {
+                tags: ["Messages", "Personas"],
+                summary: "Bulk-stamp personaId on every message of a character across every episode of this season (owner of the character, or admin)",
+                description: "Same semantics as the episode variant, applied across every episode of the season.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "seasonTitle", in: "path", required: true, schema: { type: "string" } }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["characterId", "personaId"],
+                                properties: {
+                                    characterId: { type: "integer" },
+                                    personaId: { type: "integer", nullable: true, description: "null clears every matching message back to canonical attribution" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "{ count: number } — how many messages were updated" },
+                    "400": { description: "Validation error (missing/invalid characterId or personaId, persona belongs to a different character)" },
+                    "401": { description: "Unauthorized" },
+                    "403": { description: "Forbidden" },
+                    "404": { description: "Season or character not found" },
+                },
+            },
+        },
         "/quotes/random": {
             get: {
                 tags: ["Messages"],

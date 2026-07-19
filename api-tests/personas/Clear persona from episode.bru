@@ -1,0 +1,23 @@
+meta {
+  name: Clear persona from episode
+  type: http
+  seq: 9
+}
+
+post {
+  url: http://localhost:3000/api/episodes/Pilot/personas/apply
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "characterId": 1,
+    "personaId": null
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

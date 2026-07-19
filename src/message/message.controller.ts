@@ -1,6 +1,36 @@
 import { Router, Request, Response } from "express";
+import { UserRole } from "@prisma/client";
 import messageService from "./message.service.js";
+import characterService from "../character/character.service.js";
 import { authenticate } from "../auth/security.middleware.js";
+
+// Shared body validation + ownership check for the two bulk persona-stamp
+// routes below. Returns the resolved character on success, or writes an
+// error response and returns null so the caller can bail out.
+async function resolveStampAuthorization(req: Request, res: Response): Promise<{ characterId: number; personaId: number | null } | null> {
+    const { characterId, personaId } = req.body ?? {};
+
+    if (typeof characterId !== "number") {
+        res.status(400).json({ status: "error", message: "characterId is required and must be a number" });
+        return null;
+    }
+    if (personaId !== null && typeof personaId !== "number") {
+        res.status(400).json({ status: "error", message: "personaId is required (a number, or null to clear)" });
+        return null;
+    }
+
+    const character = await characterService.getCharacterById(characterId);
+    if (!character) {
+        res.status(404).json({ status: "error", message: `Character with id '${characterId}' not found` });
+        return null;
+    }
+    if (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
+        res.status(403).json({ status: "error", message: "Forbidden" });
+        return null;
+    }
+
+    return { characterId, personaId: personaId ?? null };
+}
 
 const initializeMessageRoutes = (): Router => {
     const router: Router = Router();
@@ -79,6 +109,40 @@ const initializeMessageRoutes = (): Router => {
             res.status(200).json({ status: "success", data: message });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });
+        }
+    });
+
+    // POST /api/episodes/:episodeTitle/personas/apply: Bulk-stamp personaId
+    // on every message of {characterId} within this episode; personaId: null
+    // clears back to canonical attribution. Owner-of-character or admin
+    // (PLAN-alias.md §4/§8.2).
+    router.post("/episodes/:episodeTitle/personas/apply", authenticate, async (req: Request, res: Response) => {
+        const { episodeTitle } = req.params;
+        try {
+            const resolved = await resolveStampAuthorization(req, res);
+            if (!resolved) return;
+            const count = await messageService.applyPersonaToEpisode(episodeTitle, resolved.characterId, resolved.personaId);
+            res.status(200).json({ status: "success", data: { count } });
+        } catch (error: any) {
+            const status = /not found/i.test(error.message ?? "") ? 404 : 400;
+            res.status(status).json({ status: "error", message: error.message });
+        }
+    });
+
+    // POST /api/seasons/:seasonTitle/personas/apply: Bulk-stamp personaId on
+    // every message of {characterId} across every episode of this season;
+    // personaId: null clears back to canonical attribution. Owner-of-character
+    // or admin (PLAN-alias.md §4/§8.2).
+    router.post("/seasons/:seasonTitle/personas/apply", authenticate, async (req: Request, res: Response) => {
+        const { seasonTitle } = req.params;
+        try {
+            const resolved = await resolveStampAuthorization(req, res);
+            if (!resolved) return;
+            const count = await messageService.applyPersonaToSeason(seasonTitle, resolved.characterId, resolved.personaId);
+            res.status(200).json({ status: "success", data: { count } });
+        } catch (error: any) {
+            const status = /not found/i.test(error.message ?? "") ? 404 : 400;
+            res.status(status).json({ status: "error", message: error.message });
         }
     });
 
