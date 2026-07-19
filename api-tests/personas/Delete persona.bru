@@ -1,11 +1,11 @@
 meta {
-  name: List all aliases
+  name: Delete persona
   type: http
-  seq: 1
+  seq: 6
 }
 
-get {
-  url: http://localhost:3000/api/aliases
+delete {
+  url: http://localhost:3000/api/personas/1
   body: none
   auth: inherit
 }

@@ -95,18 +95,20 @@ const spec = {
                     messageNo: { type: "integer" },
                     playerId: { type: "integer" },
                     characterId: { type: "integer", nullable: true },
-                    aliasId: {
+                    personaId: {
                         type: "integer",
                         nullable: true,
-                        description: "If set, characterId must also be set and the alias must belong to that character",
+                        description: "If set, characterId must also be set and the persona must belong to that character",
                     },
-                    alias: {
+                    persona: {
                         type: "object",
                         nullable: true,
-                        description: "Included on reads: the era-correct display name this message is attributed under, e.g. 'as Fungus' (only id/alias are selected, not the full Alias record)",
+                        description: "Included on reads: the era-correct presentation this message is attributed under (e.g. 'as Fungus', or just a different image/color). Nullable fields included so the site can build its lookup table without a second fetch.",
                         properties: {
                             id: { type: "integer" },
-                            alias: { type: "string" },
+                            name: { type: "string", nullable: true },
+                            image: { type: "string", nullable: true },
+                            color: { type: "string", nullable: true },
                         },
                     },
                     timestamp: { type: "string", format: "date-time", nullable: true },
@@ -114,13 +116,16 @@ const spec = {
                     text: { type: "string" },
                 },
             },
-            Alias: {
+            Persona: {
                 type: "object",
-                description: "Era-correct display name for a character (FR-CHAR-3/9), e.g. Vec appears as 'Fungus' in FF4 episodes 2-10. Slug is permanent once created.",
+                description: "A way a character is presented for some stretch of the archive: a different name, a different look, or both (FR-CHAR-3/9), e.g. Vec appears as 'Fungus' in FF4 episodes 2-10. Attached per message via Message.personaId — the only presentation mechanism. Named-persona slugs are permanent once created.",
                 properties: {
                     id: { type: "integer" },
-                    alias: { type: "string" },
-                    slug: { type: "string" },
+                    name: { type: "string", nullable: true, description: "null = no name opinion, canonical character name shows" },
+                    label: { type: "string", nullable: true, description: "Admin-facing handle (\"fungus era\", \"battle-scarred\"); never rendered in transcripts. Required when name is null." },
+                    slug: { type: "string", nullable: true, description: "null for name-less personas (no URL identity)" },
+                    image: { type: "string", nullable: true, description: "Era avatar; falls back to character.image" },
+                    color: { type: "string", nullable: true, description: "Era theme color; falls back to character.color" },
                     characterId: { type: "integer" },
                 },
             },
@@ -439,16 +444,16 @@ const spec = {
                 },
             },
         },
-        "/characters/{id}/aliases": {
+        "/characters/{id}/personas": {
             get: {
-                tags: ["Characters", "Aliases"],
-                summary: "List a character's aliases",
+                tags: ["Characters", "Personas"],
+                summary: "List a character's personas",
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
-                responses: { "200": { description: "Array of aliases" } },
+                responses: { "200": { description: "Array of personas" } },
             },
             post: {
-                tags: ["Characters", "Aliases"],
-                summary: "Add an alias to a character (owner or admin)",
+                tags: ["Characters", "Personas"],
+                summary: "Add a persona to a character (owner or admin)",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 requestBody: {
@@ -457,40 +462,43 @@ const spec = {
                         "application/json": {
                             schema: {
                                 type: "object",
-                                required: ["alias"],
+                                description: "At least one of name/image/color is required; label is required when name is omitted",
                                 properties: {
-                                    alias: { type: "string" },
+                                    name: { type: "string", description: "Omit for a look-only persona (image/color change with no name change)" },
+                                    label: { type: "string", description: "Admin-facing handle; required when name is omitted" },
                                     slug: {
                                         type: "string",
                                         pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
-                                        description: "Defaults to `<character_slug>_<alias_slug>`; permanent once set",
+                                        description: "Defaults to `<character_slug>_<name_slug>`; permanent once set. Ignored (no slug is created) when name is omitted.",
                                     },
+                                    image: { type: "string" },
+                                    color: { type: "string" },
                                 },
                             },
                         },
                     },
                 },
                 responses: {
-                    "201": { description: "Alias created" },
-                    "400": { description: "Validation error (missing alias, duplicate slug/name, character not found)" },
+                    "201": { description: "Persona created" },
+                    "400": { description: "Validation error (no name/image/color set, missing label for a name-less persona, duplicate slug/name, character not found)" },
                     "401": { description: "Unauthorized" },
                     "403": { description: "Forbidden" },
                     "404": { description: "Character not found" },
                 },
             },
         },
-        "/aliases": {
+        "/personas": {
             get: {
-                tags: ["Aliases"],
-                summary: "Full alias index, optionally filtered by name — no pagination. Intended for bulk speaker-name matching (e.g. the transcript importer) without N+1-ing over /characters/:id/aliases",
-                parameters: [{ name: "search", in: "query", schema: { type: "string" }, description: "Search by alias name" }],
-                responses: { "200": { description: "Array of every alias" } },
+                tags: ["Personas"],
+                summary: "Full persona index, optionally filtered by name — no pagination. Intended for bulk speaker-name matching (e.g. the transcript importer) without N+1-ing over /characters/:id/personas",
+                parameters: [{ name: "search", in: "query", schema: { type: "string" }, description: "Search by persona name" }],
+                responses: { "200": { description: "Array of every persona" } },
             },
         },
-        "/aliases/{id}": {
+        "/personas/{id}": {
             put: {
-                tags: ["Aliases"],
-                summary: "Update an alias (owner of the parent character, or admin)",
+                tags: ["Personas"],
+                summary: "Update a persona (owner of the parent character, or admin)",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 requestBody: {
@@ -499,28 +507,31 @@ const spec = {
                             schema: {
                                 type: "object",
                                 properties: {
-                                    alias: { type: "string" },
+                                    name: { type: "string", nullable: true },
+                                    label: { type: "string", nullable: true },
                                     slug: { type: "string", pattern: "^[a-z0-9]+(_[a-z0-9]+)*$" },
+                                    image: { type: "string", nullable: true },
+                                    color: { type: "string", nullable: true },
                                 },
                             },
                         },
                     },
                 },
                 responses: {
-                    "200": { description: "Updated alias" },
-                    "400": { description: "Validation error (duplicate slug/name)" },
+                    "200": { description: "Updated persona" },
+                    "400": { description: "Validation error (no name/image/color set, missing label for a name-less persona, duplicate slug/name)" },
                     "403": { description: "Forbidden" },
                     "404": { description: "Not found" },
                 },
             },
             delete: {
-                tags: ["Aliases"],
-                summary: "Delete an alias (owner of the parent character, or admin)",
+                tags: ["Personas"],
+                summary: "Delete a persona (owner of the parent character, or admin)",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 responses: {
                     "204": { description: "Deleted" },
-                    "400": { description: "Cannot delete: messages still reference this alias" },
+                    "400": { description: "Cannot delete: messages still reference this persona" },
                     "403": { description: "Forbidden" },
                     "404": { description: "Not found" },
                 },

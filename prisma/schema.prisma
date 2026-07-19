@@ -86,28 +86,31 @@ model Character {
   color         String?
   blurb         String?
   storyLines    StoryLine[]
-  aliases       Alias[]
+  personas      Persona[]
   slug          String    @unique
 
   @@unique([creatorId, name])
   @@map("characters")
 }
 
-// Era-correct display name for a character (e.g. Vec appears as "Fungus" in
-// FF4 episodes 2-10). References the real character so the transcript reader
-// can display the alias while still linking through to who it actually is.
-// Slugs are permanent once created — renaming the character or the alias
-// never cascades into the slug (matches Character/Item/Species philosophy).
-model Alias {
+// A way a character is presented for some stretch of the archive: a
+// different name, a different look, or both. Attached per message via
+// Message.personaId — the only presentation mechanism. Named-persona slugs
+// are permanent once created (same philosophy as Character/Item/Species).
+model Persona {
   id          Int       @id @unique @default(autoincrement())
-  alias       String
-  slug        String    @unique
+  name        String?   // null = no name opinion -> canonical name shows
+  label       String?   // admin-facing handle ("fungus era", "battle-scarred"); never rendered in transcripts
+  slug        String?   @unique // null for name-less personas (no URL identity)
+  image       String?   // era avatar; falls back to character.image
+  color       String?   // era theme color; falls back to character.color
   character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
   characterId Int
   messages    Message[]
 
-  @@unique([characterId, alias])
-  @@map("aliases")
+  @@unique([characterId, name]) // Postgres: NULLs distinct -> many name-less personas allowed
+  @@unique([id, characterId])   // composite FK target for Message.persona (retires assertPersonaMatchesCharacter as load-bearing)
+  @@map("personas")
 }
 
 model Species {
@@ -153,8 +156,8 @@ model Message {
   playerId      Int
   character     Character? @relation(fields: [characterId], references: [id])
   characterId   Int?
-  alias         Alias?     @relation(fields: [aliasId], references: [id], onDelete: Restrict)
-  aliasId       Int?
+  persona       Persona?   @relation(fields: [personaId, characterId], references: [id, characterId], onDelete: Restrict)
+  personaId     Int?
   timestamp     DateTime?
   type          MessageType
   text          String

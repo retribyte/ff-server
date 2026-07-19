@@ -1,11 +1,11 @@
 meta {
-  name: Get character by alias slug
+  name: Search characters by persona
   type: http
-  seq: 4
+  seq: 7
 }
 
 get {
-  url: http://localhost:3000/api/characters/vec_fungus
+  url: http://localhost:3000/api/characters?search=Fungus
   body: none
   auth: inherit
 }
