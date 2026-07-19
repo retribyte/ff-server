@@ -2,13 +2,37 @@ import { PrismaClient, MessageType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const ALIAS_SELECT = { select: { id: true, alias: true } };
+
 type MessageData = {
     playerId: number;
     characterId?: number;
+    aliasId?: number;
     timestamp: string;
     type: MessageType;
     text: string;
 };
+
+// A message's aliasId, if set, must belong to the same characterId the
+// message is (or is being) attributed to. `prefix` lets bulk import include
+// the message index in the thrown error, matching the existing QUOTE check.
+async function assertAliasMatchesCharacter(
+    aliasId: number | null | undefined,
+    characterId: number | null | undefined,
+    prefix = ""
+): Promise<void> {
+    if (aliasId === undefined || aliasId === null) return;
+    if (!characterId) {
+        throw new Error(`${prefix}characterId is required when aliasId is set`);
+    }
+    const alias = await prisma.alias.findUnique({ where: { id: aliasId } });
+    if (!alias) {
+        throw new Error(`${prefix}Alias with id '${aliasId}' not found`);
+    }
+    if (alias.characterId !== characterId) {
+        throw new Error(`${prefix}Alias with id '${aliasId}' does not belong to character '${characterId}'`);
+    }
+}
 
 async function getMessagesByEpisode(episodeTitle: string, page = 1, limit = 100, search?: string) {
     const skip = (page - 1) * limit;
@@ -20,7 +44,7 @@ async function getMessagesByEpisode(episodeTitle: string, page = 1, limit = 100,
             orderBy: { messageNo: "asc" },
             skip,
             take: limit,
-            include: { player: { select: { id: true, username: true, icon: true } }, character: true, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
+            include: { player: { select: { id: true, username: true, icon: true } }, character: true, alias: ALIAS_SELECT, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
         }),
         prisma.message.count({ where }),
     ]);
@@ -30,7 +54,7 @@ async function getMessagesByEpisode(episodeTitle: string, page = 1, limit = 100,
 async function getMessageByNo(episodeTitle: string, messageNo: number) {
     return await prisma.message.findUnique({
         where: { episodeTitle_messageNo: { episodeTitle, messageNo } },
-        include: { player: { select: { id: true, username: true, icon: true } }, character: true, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
+        include: { player: { select: { id: true, username: true, icon: true } }, character: true, alias: ALIAS_SELECT, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
     });
 }
 
@@ -38,7 +62,7 @@ async function getQuotesByCharacter(characterId: number) {
     return await prisma.message.findMany({
         where: { characterId, type: MessageType.QUOTE },
         orderBy: { timestamp: "asc" },
-        include: { episode: true },
+        include: { episode: true, alias: ALIAS_SELECT },
     });
 }
 
@@ -50,7 +74,7 @@ async function getRandomQuote() {
         where: { type: MessageType.QUOTE },
         skip,
         take: 1,
-        include: { character: true, episode: true },
+        include: { character: true, episode: true, alias: ALIAS_SELECT },
     });
     return quotes[0] ?? null;
 }
@@ -76,6 +100,7 @@ async function createMessages(episodeTitle: string, messages: MessageData[]) {
         if (msg.type === MessageType.QUOTE && !msg.characterId) {
             throw new Error(`Message ${index + 1}: characterId is required for QUOTE messages`);
         }
+        await assertAliasMatchesCharacter(msg.aliasId, msg.characterId, `Message ${index + 1}: `);
     }
 
     return await prisma.$transaction(async (tx) => {
@@ -94,6 +119,7 @@ async function createMessages(episodeTitle: string, messages: MessageData[]) {
                 messageNo: firstMessageNo + index,
                 playerId: msg.playerId,
                 characterId: msg.characterId ?? null,
+                aliasId: msg.aliasId ?? null,
                 timestamp: msg.timestamp ? new Date(msg.timestamp) : null,
                 type: msg.type,
                 text: msg.text,
@@ -108,6 +134,7 @@ async function createMessage(episodeTitle: string, data: MessageData) {
     if (data.type === MessageType.QUOTE && !data.characterId) {
         throw new Error("characterId is required for QUOTE messages");
     }
+    await assertAliasMatchesCharacter(data.aliasId, data.characterId);
 
     const last = await prisma.message.findFirst({
         where: { episodeTitle },
@@ -121,11 +148,12 @@ async function createMessage(episodeTitle: string, data: MessageData) {
             messageNo,
             playerId: data.playerId,
             characterId: data.characterId,
+            aliasId: data.aliasId,
             timestamp: new Date(data.timestamp),
             type: data.type,
             text: data.text,
         },
-        include: { player: { select: { id: true, username: true, icon: true } }, character: true, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
+        include: { player: { select: { id: true, username: true, icon: true } }, character: true, alias: ALIAS_SELECT, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
     });
 }
 
@@ -134,16 +162,32 @@ async function updateMessage(episodeTitle: string, messageNo: number, data: Part
         throw new Error("characterId is required for QUOTE messages");
     }
 
+    if (data.aliasId !== undefined && data.aliasId !== null) {
+        // characterId may not be part of this partial update — fall back to
+        // the message's existing characterId so the alias check still sees
+        // the character the message is actually attributed to.
+        const effectiveCharacterId =
+            data.characterId !== undefined
+                ? data.characterId
+                : (
+                      await prisma.message.findUnique({
+                          where: { episodeTitle_messageNo: { episodeTitle, messageNo } },
+                      })
+                  )?.characterId;
+        await assertAliasMatchesCharacter(data.aliasId, effectiveCharacterId);
+    }
+
     return await prisma.message.update({
         where: { episodeTitle_messageNo: { episodeTitle, messageNo } },
         data: {
             playerId: data.playerId,
             characterId: data.characterId,
+            aliasId: data.aliasId,
             timestamp: data.timestamp ? new Date(data.timestamp) : undefined,
             type: data.type,
             text: data.text,
         },
-        include: { player: { select: { id: true, username: true, icon: true } }, character: true, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
+        include: { player: { select: { id: true, username: true, icon: true } }, character: true, alias: ALIAS_SELECT, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
     });
 }
 

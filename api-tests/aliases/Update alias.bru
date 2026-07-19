@@ -1,0 +1,22 @@
+meta {
+  name: Update alias
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://localhost:3000/api/aliases/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "alias": "Fungus (revised)"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

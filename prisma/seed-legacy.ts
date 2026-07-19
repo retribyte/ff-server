@@ -116,6 +116,12 @@ function loadSeasons(): LoadedSeason[] {
     }
     const seasons = new Map<string, LoadedSeason>();
     for (const dirName of readdirSync(ARCHIVE_API_DIR).sort()) {
+        // archive-to-markdown/api/stories/ holds Story-shaped payloads
+        // ({story, author, chapters}), not season/episode payloads — the
+        // Vortox Machina CYOA import further below is this script's only
+        // Story handling so far, so skip that directory rather than
+        // misreading its files as episodes.
+        if (dirName === "stories") continue;
         const seasonDir = join(ARCHIVE_API_DIR, dirName);
         const files = readdirSync(seasonDir).filter((f) => f.endsWith(".json"));
         for (const file of files) {

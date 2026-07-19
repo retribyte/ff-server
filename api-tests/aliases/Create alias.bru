@@ -1,0 +1,22 @@
+meta {
+  name: Create alias
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/api/characters/1/aliases
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "alias": "Fungus"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -95,9 +95,33 @@ const spec = {
                     messageNo: { type: "integer" },
                     playerId: { type: "integer" },
                     characterId: { type: "integer", nullable: true },
+                    aliasId: {
+                        type: "integer",
+                        nullable: true,
+                        description: "If set, characterId must also be set and the alias must belong to that character",
+                    },
+                    alias: {
+                        type: "object",
+                        nullable: true,
+                        description: "Included on reads: the era-correct display name this message is attributed under, e.g. 'as Fungus' (only id/alias are selected, not the full Alias record)",
+                        properties: {
+                            id: { type: "integer" },
+                            alias: { type: "string" },
+                        },
+                    },
                     timestamp: { type: "string", format: "date-time", nullable: true },
                     type: { $ref: "#/components/schemas/MessageType" },
                     text: { type: "string" },
+                },
+            },
+            Alias: {
+                type: "object",
+                description: "Era-correct display name for a character (FR-CHAR-3/9), e.g. Vec appears as 'Fungus' in FF4 episodes 2-10. Slug is permanent once created.",
+                properties: {
+                    id: { type: "integer" },
+                    alias: { type: "string" },
+                    slug: { type: "string" },
+                    characterId: { type: "integer" },
                 },
             },
             StoryLineType: {
@@ -412,6 +436,93 @@ const spec = {
                     "200": {
                         description: "{ messages: Message[], storyQuotes: StoryLine[] } — two arrays, no shared sort key between sources",
                     },
+                },
+            },
+        },
+        "/characters/{id}/aliases": {
+            get: {
+                tags: ["Characters", "Aliases"],
+                summary: "List a character's aliases",
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: { "200": { description: "Array of aliases" } },
+            },
+            post: {
+                tags: ["Characters", "Aliases"],
+                summary: "Add an alias to a character (owner or admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["alias"],
+                                properties: {
+                                    alias: { type: "string" },
+                                    slug: {
+                                        type: "string",
+                                        pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
+                                        description: "Defaults to `<character_slug>_<alias_slug>`; permanent once set",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "201": { description: "Alias created" },
+                    "400": { description: "Validation error (missing alias, duplicate slug/name, character not found)" },
+                    "401": { description: "Unauthorized" },
+                    "403": { description: "Forbidden" },
+                    "404": { description: "Character not found" },
+                },
+            },
+        },
+        "/aliases": {
+            get: {
+                tags: ["Aliases"],
+                summary: "Full alias index, optionally filtered by name — no pagination. Intended for bulk speaker-name matching (e.g. the transcript importer) without N+1-ing over /characters/:id/aliases",
+                parameters: [{ name: "search", in: "query", schema: { type: "string" }, description: "Search by alias name" }],
+                responses: { "200": { description: "Array of every alias" } },
+            },
+        },
+        "/aliases/{id}": {
+            put: {
+                tags: ["Aliases"],
+                summary: "Update an alias (owner of the parent character, or admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                requestBody: {
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    alias: { type: "string" },
+                                    slug: { type: "string", pattern: "^[a-z0-9]+(_[a-z0-9]+)*$" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "Updated alias" },
+                    "400": { description: "Validation error (duplicate slug/name)" },
+                    "403": { description: "Forbidden" },
+                    "404": { description: "Not found" },
+                },
+            },
+            delete: {
+                tags: ["Aliases"],
+                summary: "Delete an alias (owner of the parent character, or admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: {
+                    "204": { description: "Deleted" },
+                    "400": { description: "Cannot delete: messages still reference this alias" },
+                    "403": { description: "Forbidden" },
+                    "404": { description: "Not found" },
                 },
             },
         },

@@ -1,0 +1,16 @@
+meta {
+  name: Get character by alias slug
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:3000/api/characters/vec_fungus
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
