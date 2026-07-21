@@ -34,7 +34,10 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
 - Schema changes go through **`npx prisma db push`** — `prisma/migrations/` is
   present but empty; this project isn't using versioned migrations day to day
   despite NFR-REL-2's aspiration. Run `npx prisma generate` after any schema
-  edit.
+  edit. `db push` can't see or manage the GIN expression indexes behind
+  `/api/search`'s full-text search (Prisma has no syntax for expression
+  indexes) — run `npm run db:search-indexes` after every `db push` too; it's
+  idempotent and safe to re-run.
 
 ## Architecture
 
@@ -68,15 +71,18 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   rich text (character blurbs, species descriptions, item descriptions,
   commentary) goes through `sanitizeText()` before storage.
 - `prisma/seed.ts` is the orchestrator: wipes all data, then runs
-  `SEED_SCRIPTS` (`seed-legacy.ts`, `seed-8ball.ts`, `seed-galaxy.ts`) as
-  child processes, skipping (not aborting) any that fail or don't exist on
-  disk — `seed-galaxy.ts` is currently in that list but not present in the
-  repo, and is expected to just be skipped. `seed:legacy` replays the real
-  archive from `ff-site-old`'s bundled JSON (`FF_SITE_DIR`, default
-  `../ff-site-old`) — **only safe against an empty DB**, don't rerun against a
-  live dev database with user-authored content. `migrate-vm-to-story.ts` and
-  `backfill-slugs.ts` are one-off historical migration scripts, already run
-  against the live data; treat them as reference, not as repeatable tooling.
+  `SEED_SCRIPTS` (`seed-legacy.ts`, `seed-8ball.ts`, `seed-galaxy.ts`,
+  `create-search-indexes.ts`) as child processes, skipping (not aborting) any
+  that fail or don't exist on disk — `seed-galaxy.ts` is currently in that
+  list but not present in the repo, and is expected to just be skipped.
+  `seed:legacy` replays the real archive from `ff-site-old`'s bundled JSON
+  (`FF_SITE_DIR`, default `../ff-site-old`) — **only safe against an empty
+  DB**, don't rerun against a live dev database with user-authored content.
+  `migrate-vm-to-story.ts` and `backfill-slugs.ts` are one-off historical
+  migration scripts, already run against the live data; treat them as
+  reference, not as repeatable tooling. `create-search-indexes.ts` is
+  different in kind from those two — it's idempotent by design and must stay
+  re-runnable (see its header comment and the `db push` bullet above).
 
 ## Conventions
 

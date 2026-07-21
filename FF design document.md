@@ -27,7 +27,7 @@ A single small web application that is the canonical home for the Final Frontier
 
 #### In scope
 
-- Web-based read access to the campaign archive (seasons, episodes, transcripts, CYOA).
+- Web-based read access to the campaign archive (seasons, episodes, transcripts) and to standalone narrative works — prose stories and the CYOA chronicle — published outside that season/episode hierarchy.
 - Web-based authoring and management of the lore entities defined in §4: characters (biographical fields only), species, locations, items (descriptive only), quotes.
 - User accounts and a simple two-role permission model.
 - A single relational database; the existing `ff-server` Prisma schema is the baseline.
@@ -36,8 +36,8 @@ A single small web application that is the canonical home for the Final Frontier
 
 - **The live tabletop game.** Live combat, turn rotation, voice-channel integration, dice rolling at the table — these remain with whatever client runs live play.
 - **In-game character status.** HP, shield, resistances, damage-over-time, incorporeal state, status effects, damage events. The System stores who a character *is*, not their current combat state.
-- **Importing legacy data.** Migrating records from the `vortox-bot` MongoDB or from Discord is out of scope. The System starts empty (or seeded by hand). Authoring new content via the UI is the supported path.
-- **Admin dashboard.** No bulk-management UI, no import jobs UI, no operator console. Admins use the same UI as members, plus the elevated edit rights described in §2.2.
+- **Automated migration from legacy stores.** Migrating records directly from the `vortox-bot` MongoDB or from raw Discord exports is out of scope. Bulk narrative content (episode transcripts, standalone stories) is instead loaded through an admin-only import console (§3.14) that accepts JSON already produced by the external `archive-to-markdown` conversion pipeline; individual lore entities (characters, species, items, quotes) are hand-authored through the interactive UI/API.
+- **Admin dashboard.** Admins use the same UI as members, plus the elevated edit rights described in §2.2, plus the archive-import console (§3.14) for bulk-loading pipeline-converted episode and story JSON. No general operator console, analytics dashboard, or bulk-management UI beyond that one import tool.
 - **Discord bot replacement.** The System exposes an API (§3.10) so that an external client *could* be built against it, but the bot itself is not a deliverable.
 - **Real-time collaborative editing.**
 
@@ -53,7 +53,8 @@ A single small web application that is the canonical home for the Final Frontier
 | **Quote** | A `Message` of type `QUOTE`; requires a character speaker. Not a separate entity. |
 | **GUY** | The in-universe time unit used for characters' dates of birth and episode timestamps. |
 | **Transcript** | The ordered sequence of narrative blocks (narration, dialogue, action, embed) that make up an episode. |
-| **CYOA** | "Choose Your Own Adventure" — a transcript of a narrative format between a writer and readers. |
+| **CYOA** | "Choose Your Own Adventure" — a narrative format between a writer and readers, published as a Story (see below) whose lines alternate narration, dialogue, and reader/protagonist-choice ("action") blocks. |
+| **Story** | A standalone narrative work — prose short fiction or the CYOA chronicle — independent of the Season/Episode/Message hierarchy, composed of ordered chapters and lines. |
 | **Commentary** | A member-authored annotation attached to a specific transcript message. |
 
 ---
@@ -103,27 +104,35 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 - **FR-ARC-5** Each line/block of a transcript MUST be individually addressable via a URL anchor for deep-linking.
 - **FR-ARC-6** A visitor MUST be able to search within an episode's transcript.
 - **FR-ARC-7** Characters mentioned in a transcript MUST render with their associated avatar/color.
+- **FR-ARC-8** The System SHOULD provide a utility to convert between GUY calendar dates/times and Earth-standard dates/times, for reference when reading GUY-dated content.
 
-### 3.3 CYOA Reader
+### 3.3 Story Reader (Prose & CYOA)
 
 - **FR-CYOA-1** The System MUST support viewing a special narrative type, "CYOA", composed of narration, dialogue, and action blocks.
+- **FR-STORY-1** The System MUST support standalone narrative works ("Stories") outside the Season/Episode/Message hierarchy — prose short fiction as well as the CYOA chronicle — each composed of an ordered sequence of chapters, and each chapter of an ordered sequence of lines.
+- **FR-STORY-2** A Story line MUST be one of: `NARRATION`, `DIALOGUE`, `ACTION` (a reader/protagonist choice), `TRANSCRIPT` (an in-universe recording fragment), `BREAK` (a scene break), or `HEADING` (an in-chapter section heading).
+- **FR-STORY-3** A Story MUST declare a format governing how its lines render: `SCRIPT` (narration and dialogue alternate as whole paragraphs, as in the CYOA chronicle) or `PROSE` (dialogue embedded inside narration paragraphs, novel-style).
+- **FR-STORY-4** In `PROSE` format, a `NARRATION` line MAY carry sub-paragraph dialogue segments — voiced spans of text within one paragraph, each optionally attributed to a character — so an in-paragraph quote remains individually attributable without breaking the paragraph's flow or its full-text searchability.
+- **FR-STORY-5** A Story line MAY be attributed to a character, or to a plain-text speaker name when no character record exists for the speaker.
+- **FR-STORY-6** Each line within a chapter MUST be individually addressable via a URL anchor for deep-linking, consistent with FR-ARC-5.
+- **FR-STORY-7** A character's quotes subpage (FR-MSG-6) MUST include both transcript `QUOTE` messages and Story lines/segments attributed to that character.
 
 ### 3.4 Character Management
 
-- **FR-CHAR-1** A member MUST be able to create a character. Required field: name, species, sex. Optional fields drawn from the existing `Character` model in the `ff-server` schema: personas (see FR-CHAR-3), height, weight, hair color, eye color, place of birth, home planet, date of birth (in GUY), avatar image, theme color, blurb. A character's displayed avatar image and theme color MUST resolve per message on each field independently as `persona ?? character` (a persona that sets only one of image/color falls through to the character's value for the other); the transcript reader's full display fallback chain (name, avatar, color) is `persona ?? character ?? player` (see FR-CHAR-3).
+- **FR-CHAR-1** A member MUST be able to create a character. Required fields: name, species. Optional fields drawn from the existing `Character` model in the `ff-server` schema: personas (see FR-CHAR-3), avatar image, theme color, blurb. A character's displayed avatar image and theme color MUST resolve per message on each field independently as `persona ?? character` (a persona that sets only one of image/color falls through to the character's value for the other); the transcript reader's full display fallback chain (name, avatar, color) is `persona ?? character ?? player` (see FR-CHAR-3).
 - **FR-CHAR-2** A character MUST belong to exactly one user (its creator/owner).
 - **FR-CHAR-3** A character MUST be able to have zero or more **personas** (per the existing `Persona` model, renamed from the earlier name-only `Alias` model). A persona represents how a character is presented for some stretch of the archive — an alternate display name, an alternate avatar image, an alternate theme color, or any combination — and is the System's single presentation mechanism: attribution is per message (`Message.personaId`, optional), not a stored default consulted at render time. A persona MUST set at least one of `name`, `image`, or `color`; when `name` is not set (a "look-only" persona, e.g. a mid-archive appearance change with no name change) the persona MUST also carry a `label`, an admin-facing handle never rendered in transcripts, so it stays distinguishable in management UIs. A named persona MUST have a permanent, unique `slug` (derived `<character_slug>_<name_slug>`, same philosophy as Character/Item/Species) that resolves to the persona's owning character wherever a character slug is accepted; a name-less persona has no slug. A persona MUST belong to exactly one character, and a message's persona, if set, MUST belong to the same character the message is attributed to — the database itself MUST enforce this (a composite foreign key on `(personaId, characterId)` referencing `Persona(id, characterId)`), not only the application layer. To assign a persona across many messages at once, the System MUST provide write-time bulk-assignment ("stamp") operations scoped to all of a character's messages within one episode or within one season; stamping with `personaId: null` clears the affected messages back to canonical (character-only) attribution. Performing a stamp MUST be restricted to the character's owner or an admin (FR-CHAR-8).
-- **FR-CHAR-4** A character MUST be able to record interpersonal relationships to other characters (per the existing `Relationship` model).
+- **FR-CHAR-4** *Removed — interpersonal relationships between characters are out of scope.*
 - **FR-CHAR-5** *Removed — Location entity is out of scope.*
 - **FR-CHAR-6** *Removed — in-game status (HP, shield, resistances, status effects, DoT) is out of scope.*
-- **FR-CHAR-7** A character page MUST display the character's biographical data and known relationships.
+- **FR-CHAR-7** A character page MUST display the character's biographical data (species, blurb) and any recorded personas.
 - **FR-CHAR-8** Editing a character MUST be restricted to its owner or an admin.
 - **FR-CHAR-9** A character MUST be searchable by name and persona name.
 - **FR-CHAR-10** The System MUST list all characters with filter (by species, by owner, by season they appeared in).
 
 ### 3.5 Species
 
-- **FR-SPC-1** A member MUST be able to create a species, populating the fields already defined on the existing `Species` model: name, binomial name, description, sentience class, typical lifespan in GUY, natural diet, habitat, place of origin.
+- **FR-SPC-1** A member MUST be able to create a species, populating the fields already defined on the existing `Species` model: name, description, sentience class.
 - **FR-SPC-2** A species MUST be referencable from a character.
 - **FR-SPC-3** A species page MUST list every character belonging to it.
 
@@ -171,6 +180,20 @@ Messages are the core content unit of the System. Every message belongs to an ep
 
 - **FR-SR-1** The System MUST provide a search for each category such as characters, items, species, and episode titles.
 
+### 3.13 Magic 8-Ball
+
+A small, non-canonical community feature layered on top of the archive; answers carry no lore weight and are not part of §4's lore entities.
+
+- **FR-8B-1** A visitor MUST be able to draw a random, weighted answer ("shake") from a curated set of `YES`/`NO`/`MAYBE` answers.
+- **FR-8B-2** Any authenticated member MAY add a new answer, classified as `YES`, `NO`, or `MAYBE`.
+- **FR-8B-3** Removing an answer MUST be restricted to an admin.
+
+### 3.14 Archive Import (Admin)
+
+- **FR-IMP-1** An admin MUST be able to bulk-load an episode's messages, or a story's chapters and lines, by submitting JSON already produced by the external `archive-to-markdown` conversion pipeline, via an import console restricted to the admin role.
+- **FR-IMP-2** The import console MUST NOT be reachable by non-admin members or visitors.
+- **FR-IMP-3** Bulk-loaded content MUST be subject to the same data constraints (§4.5) as content authored interactively — e.g. unique `(season, episode_number)`, gap-tolerant unique `(episode, sequence_number)`.
+
 
 ---
 
@@ -183,7 +206,6 @@ This section captures the *entities* and *relationships* the System must represe
 - **User** — credentials, profile fields, role enum.
 - **Character** — biographical fields as currently defined; ownership via `creator`.
 - **Persona** (renamed from the earlier name-only `Alias`) — nullable name, label, nullable image, nullable color, nullable (name-less personas only) permanent slug, character reference.
-- **Relationship** — description, character reference.
 - **Species** — full taxonomic record as currently defined.
 - **Season** — grouping of episodes.
 - **Episode** — title, season, episode number, messages.
@@ -193,6 +215,10 @@ This section captures the *entities* and *relationships* the System must represe
 ### 4.2 New entities
 
 - **Commentary** — A member-authored annotation on a transcript message. Fields: `content` (text body), `creator` (User reference), `message` (Message reference).
+- **Story** — A standalone narrative work (prose fiction, or the CYOA chronicle), independent of the Season/Episode/Message hierarchy. Fields: `title`, `slug`, `blurb`, optional `author` (User reference), optional `publishedDate`, optional theme colors, and a `format` (`SCRIPT` or `PROSE`) governing how its content renders. Composed of ordered **StoryChapters**.
+- **StoryChapter** — An ordered chapter within a Story. Fields: `chapter_no`, optional `title`. Composed of ordered **StoryLines**.
+- **StoryLine** — A single line within a StoryChapter. Fields: `line_no` (a stable deep-link anchor within the chapter), a `type` (`NARRATION`, `DIALOGUE`, `ACTION`, `TRANSCRIPT`, `BREAK`, or `HEADING`), `text`, and optional attribution to a Character or a plain-text `speaker` name. A `NARRATION` line in a `PROSE`-format story MAY additionally carry sub-paragraph dialogue segments, so an in-paragraph quote remains individually attributable to a Character without breaking the paragraph.
+- **EightBallAnswer** — A canned response for the magic-8-ball feature (§3.13). Fields: `type` (`YES`, `NO`, or `MAYBE`) and `text`.
 
 ### 4.3 Fields to be added to existing entities
 
@@ -203,13 +229,16 @@ This section captures the *entities* and *relationships* the System must represe
 
 - A **User** owns many **Characters**; a Character has exactly one owner.
 - A **Character** belongs to at most one **Species**; a Species has many Characters.
-- A **Character** has many **Personas** and many **Relationships**.
+- A **Character** has many **Personas**.
 - A **Season** has many **Episodes**; an **Episode** has many **Messages** in a stable order.
 - A **Message** is authored by a **User** and optionally spoken by a **Character**; it MAY also carry an optional **Persona**, which MUST belong to that same Character (see FR-CHAR-3).
 - A **Message** MAY have many **Commentaries**; each Commentary is written by exactly one **User** on exactly one **Message**.
 - A **User** MAY author many **Commentaries**.
 - A **User** owns many **Items** as a creator/author.
 - An **Item** MAY be associated with at most one **Character**; a Character MAY have many associated Items.
+- A **Story** MAY have an author (**User**); a **User** MAY author many **Stories**.
+- A **Story** has many **StoryChapters** in a stable order; a **StoryChapter** has many **StoryLines** in a stable order.
+- A **StoryLine** MAY be attributed to a **Character**; a **Character** MAY have many attributed **StoryLines**.
 
 ### 4.5 Constraints
 
@@ -299,7 +328,7 @@ These are stack preferences for the Technical Design phase and do not change the
 The first release of the System is considered complete when:
 
 1. A visitor can read any episode at a stable URL, and legacy `ff-site` URLs redirect to the new ones.
-2. A registered member can create a character, edit it, give it personas and relationships, attach it to a species, attach quotes to it, and view it on a public character page.
+2. A registered member can create a character, edit it, give it personas, attach it to a species, attach quotes to it, and view it on a public character page.
 3. A registered member can create an item (with an item type), optionally associate it with a character, and view it on an item page.
 4. An external client authenticating with an API token can perform all of the above operations programmatically.
 5. The site passes the non-functional bars in §5.1–§5.4 on a representative dataset.
@@ -313,7 +342,7 @@ For traceability. Each row is a responsibility currently held by a legacy app an
 | Legacy responsibility | Legacy owner | New owner in this document |
 |---|---|---|
 | Render season/episode/transcript archives | `ff-site` | §3.2 Archive Browsing |
-| CYOA interactive reader | `ff-site` | §3.3 CYOA Reader |
+| CYOA interactive reader | `ff-site` | §3.3 Story Reader (Prose & CYOA) |
 | User registration / login | `ff-server` | §3.1 Accounts |
 | Character biographical CRUD | `ff-server` + `vortox-bot` (incompatible split) | §3.4 Character Management |
 | Species CRUD | `ff-server` (schema only) | §3.5 Species |
@@ -327,4 +356,5 @@ For traceability. Each row is a responsibility currently held by a legacy app an
 | Damage application history | `vortox-bot` (implicit) | **OUT OF SCOPE** |
 | Guild-scoped multi-tenancy | `vortox-bot` | **OUT OF SCOPE** (no multi-tenant model in the new System) |
 | Importing legacy data from MongoDB or Discord | n/a | **OUT OF SCOPE** |
-| Admin operator dashboard / bulk tooling | n/a | **OUT OF SCOPE** |
+| Admin operator dashboard | n/a | **OUT OF SCOPE** |
+| Bulk episode/story JSON import | n/a | §3.14 Archive Import (Admin) |

@@ -69,6 +69,24 @@ async function getQuotesByCharacter(characterId: number) {
     });
 }
 
+type MessageHit = { episodeTitle: string; messageNo: number; text: string };
+
+// Backs the unified /api/search endpoint. Full-text (not substring) match —
+// stemmed keyword search via to_tsvector/plainto_tsquery, ranked by ts_rank
+// and backed by the GIN expression index from prisma/create-search-indexes.ts
+// (Prisma's @@index can't express an expression index, so this can't live in
+// schema.prisma). The 'english' regconfig literal here must byte-match the
+// index's expression for Postgres to use it — don't parameterize it.
+async function searchMessages(query: string, limit: number): Promise<MessageHit[]> {
+    return prisma.$queryRaw<MessageHit[]>`
+        SELECT "episodeTitle", "messageNo", text
+        FROM messages
+        WHERE to_tsvector('english', text) @@ plainto_tsquery('english', ${query})
+        ORDER BY ts_rank(to_tsvector('english', text), plainto_tsquery('english', ${query})) DESC
+        LIMIT ${limit}
+    `;
+}
+
 async function getRandomQuote() {
     const count = await prisma.message.count({ where: { type: MessageType.QUOTE } });
     if (count === 0) return null;
@@ -256,6 +274,7 @@ export default {
     getMessageByNo,
     getQuotesByCharacter,
     getRandomQuote,
+    searchMessages,
     createMessage,
     createMessages,
     updateMessage,

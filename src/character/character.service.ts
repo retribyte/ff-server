@@ -19,16 +19,21 @@ type CharacterFilters = {
     speciesId?: number;
     ownerId?: number;
     season?: string;
+    // Below: additive, unified-/api/search-only. Omitted by every existing
+    // caller, so their query shape/result set is unchanged.
+    limit?: number;
+    lite?: boolean;
 };
 
 async function getAllCharacters(filters: CharacterFilters = {}) {
-    const { search, speciesId, ownerId, season } = filters;
+    const { search, speciesId, ownerId, season, limit, lite } = filters;
     const where: any = {};
 
     if (search) {
+        const mode = lite ? { mode: "insensitive" as const } : {};
         where.OR = [
-            { name: { contains: search } },
-            { personas: { some: { name: { contains: search } } } },
+            { name: { contains: search, ...mode } },
+            { personas: { some: { name: { contains: search, ...mode } } } },
         ];
     }
     if (speciesId !== undefined) where.speciesId = speciesId;
@@ -37,7 +42,11 @@ async function getAllCharacters(filters: CharacterFilters = {}) {
         where.messages = { some: { episode: { seasonTitle: season } } };
     }
 
-    return await prisma.character.findMany({ where });
+    return await prisma.character.findMany({
+        where,
+        ...(lite && { select: { id: true, name: true, slug: true, image: true } }),
+        ...(limit !== undefined && { take: limit }),
+    });
 }
 
 async function getCharacterById(id: number) {

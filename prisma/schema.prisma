@@ -93,17 +93,14 @@ model Character {
   @@map("characters")
 }
 
-// A way a character is presented for some stretch of the archive: a
-// different name, a different look, or both. Attached per message via
-// Message.personaId — the only presentation mechanism. Named-persona slugs
-// are permanent once created (same philosophy as Character/Item/Species).
+// How a character is presented for some stretch of the archive
 model Persona {
   id          Int       @id @unique @default(autoincrement())
-  name        String?   // null = no name opinion -> canonical name shows
-  label       String?   // admin-facing handle ("fungus era", "battle-scarred"); never rendered in transcripts
-  slug        String?   @unique // null for name-less personas (no URL identity)
-  image       String?   // era avatar; falls back to character.image
-  color       String?   // era theme color; falls back to character.color
+  name        String?   // null -> canonical name shows
+  label       String?   // admin-facing handle; never rendered in transcripts
+  slug        String?   @unique // null for unnamed personas
+  image       String?
+  color       String?
   character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
   characterId Int
   messages    Message[]
@@ -192,7 +189,7 @@ model Story {
   publishedDate DateTime?      // real-world publication; an in-universe date would be a GUY Int
   themeColor    String?
   themeColor2   String?
-  format        StoryFormat    @default(SCRIPT) // dialogue presentation: script vs novel-style prose
+  format        StoryFormat    @default(PROSE) // dialogue presentation: script vs novel-style prose
   chapters      StoryChapter[]
 
   @@map("stories")
