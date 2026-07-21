@@ -19,8 +19,9 @@ type CharacterFilters = {
     speciesId?: number;
     ownerId?: number;
     season?: string;
-    // Below: additive, unified-/api/search-only. Omitted by every existing
-    // caller, so their query shape/result set is unchanged.
+    // limit/lite: additive, unified-/api/search-only (a narrower select
+    // shape + a result cap). Omitted by every existing caller, so their
+    // result set is otherwise unchanged.
     limit?: number;
     lite?: boolean;
 };
@@ -30,10 +31,9 @@ async function getAllCharacters(filters: CharacterFilters = {}) {
     const where: any = {};
 
     if (search) {
-        const mode = lite ? { mode: "insensitive" as const } : {};
         where.OR = [
-            { name: { contains: search, ...mode } },
-            { personas: { some: { name: { contains: search, ...mode } } } },
+            { name: { contains: search, mode: "insensitive" } },
+            { personas: { some: { name: { contains: search, mode: "insensitive" } } } },
         ];
     }
     if (speciesId !== undefined) where.speciesId = speciesId;
