@@ -93,10 +93,12 @@ async function searchMessages(
     const skip = (page - 1) * limit;
     const [data, countResult] = await Promise.all([
         prisma.$queryRaw<MessageHit[]>`
-            SELECT "episodeTitle", "messageNo", text, type
+            SELECT "episodeTitle", 
+                (SELECT "episode_no" FROM episodes WHERE title LIKE "episodeTitle") AS "episodeNo", 
+                "messageNo", text, type
             FROM messages
             WHERE to_tsvector('english', text) @@ plainto_tsquery('english', ${query})
-            ORDER BY ts_rank(to_tsvector('english', text), plainto_tsquery('english', ${query})) DESC, "messageNo" ASC
+            ORDER BY ts_rank(to_tsvector('english', text), plainto_tsquery('english', ${query})) DESC, "episodeNo" ASC, "messageNo" ASC
             LIMIT ${limit} OFFSET ${skip}
         `,
         prisma.$queryRaw<{ count: bigint }[]>`
