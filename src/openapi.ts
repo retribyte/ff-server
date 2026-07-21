@@ -1196,13 +1196,25 @@ const spec = {
                     {
                         name: "limit",
                         in: "query",
-                        schema: { type: "integer", default: 5, minimum: 1, maximum: 20 },
-                        description: "Per-category result cap",
+                        schema: { type: "integer", default: 5, minimum: 1, maximum: 50 },
+                        description: "Per-category result cap in grouped mode (self-clamped to 20 there); page size in single-category mode (clamped to 50)",
+                    },
+                    {
+                        name: "category",
+                        in: "query",
+                        schema: { type: "string", enum: ["messages", "storyLines"] },
+                        description: "When set, switches to paginated single-category mode ({data,total,page,limit}) instead of the grouped response — backs the dedicated search-results page",
+                    },
+                    {
+                        name: "page",
+                        in: "query",
+                        schema: { type: "integer", default: 1, minimum: 1 },
+                        description: "Only used when category is set",
                     },
                 ],
                 responses: {
                     "200": {
-                        description: "Results grouped by category",
+                        description: "Results grouped by category, or a paginated single category when ?category is set",
                         content: {
                             "application/json": { schema: { $ref: "#/components/schemas/SearchResults" } },
                         },

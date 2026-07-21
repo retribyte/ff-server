@@ -82,14 +82,30 @@ type MessageHit = {
 // (Prisma's @@index can't express an expression index, so this can't live in
 // schema.prisma). The 'english' regconfig literal here must byte-match the
 // index's expression for Postgres to use it — don't parameterize it.
-async function searchMessages(query: string, limit: number): Promise<MessageHit[]> {
-    return prisma.$queryRaw<MessageHit[]>`
-        SELECT "episodeTitle", "messageNo", text, type
-        FROM messages
-        WHERE to_tsvector('english', text) @@ plainto_tsquery('english', ${query})
-        ORDER BY ts_rank(to_tsvector('english', text), plainto_tsquery('english', ${query})) DESC
-        LIMIT ${limit}
-    `;
+// ts_rank ties are otherwise Postgres-arbitrary, which would make OFFSET/
+// LIMIT paging duplicate or skip rows across pages — "messageNo" ASC breaks
+// ties deterministically.
+async function searchMessages(
+    query: string,
+    page = 1,
+    limit = 20
+): Promise<{ data: MessageHit[]; total: number; page: number; limit: number }> {
+    const skip = (page - 1) * limit;
+    const [data, countResult] = await Promise.all([
+        prisma.$queryRaw<MessageHit[]>`
+            SELECT "episodeTitle", "messageNo", text, type
+            FROM messages
+            WHERE to_tsvector('english', text) @@ plainto_tsquery('english', ${query})
+            ORDER BY ts_rank(to_tsvector('english', text), plainto_tsquery('english', ${query})) DESC, "messageNo" ASC
+            LIMIT ${limit} OFFSET ${skip}
+        `,
+        prisma.$queryRaw<{ count: bigint }[]>`
+            SELECT COUNT(*) AS count
+            FROM messages
+            WHERE to_tsvector('english', text) @@ plainto_tsquery('english', ${query})
+        `,
+    ]);
+    return { data, total: Number(countResult[0]?.count ?? 0), page, limit };
 }
 
 async function getRandomQuote() {
