@@ -18,7 +18,8 @@
         "seed:buzzcut-persona": "tsx prisma/seed-buzzcut-persona.ts",
         "seed:vortox-character-data": "tsx prisma/seed-vortox-character-data.ts",
         "migrate:vm": "tsx prisma/migrate-vm-to-story.ts",
-        "backfill:slugs": "tsx prisma/backfill-slugs.ts"
+        "backfill:slugs": "tsx prisma/backfill-slugs.ts",
+        "db:search-indexes": "tsx prisma/create-search-indexes.ts"
     },
     "prisma": {
         "seed": "tsx prisma/seed.ts"

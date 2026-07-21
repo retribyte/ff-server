@@ -20,6 +20,7 @@ const SEED_SCRIPTS = [
     "seed-vortox-character-data.ts",
     "seed-8ball.ts",
     "seed-galaxy.ts",
+    "create-search-indexes.ts",
 ];
 
 function runScript(script: string) {

@@ -214,6 +214,72 @@ const spec = {
                     text: { type: "string" },
                 },
             },
+            SearchResults: {
+                type: "object",
+                description: "Grouped by category — scores aren't comparable across categories, so results aren't merged into one ranked list.",
+                properties: {
+                    characters: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                id: { type: "integer" },
+                                name: { type: "string" },
+                                slug: { type: "string" },
+                                image: { type: "string", nullable: true },
+                            },
+                        },
+                    },
+                    species: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                id: { type: "integer" },
+                                name: { type: "string" },
+                                slug: { type: "string" },
+                            },
+                        },
+                    },
+                    items: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                id: { type: "integer" },
+                                name: { type: "string" },
+                                slug: { type: "string" },
+                                image: { type: "string", nullable: true },
+                            },
+                        },
+                    },
+                    messages: {
+                        type: "array",
+                        description: "Full-text (stemmed keyword) matches on Message.text.",
+                        items: {
+                            type: "object",
+                            properties: {
+                                episodeTitle: { type: "string" },
+                                messageNo: { type: "integer" },
+                                text: { type: "string" },
+                            },
+                        },
+                    },
+                    storyLines: {
+                        type: "array",
+                        description: "Full-text (stemmed keyword) matches on StoryLine.text.",
+                        items: {
+                            type: "object",
+                            properties: {
+                                storySlug: { type: "string" },
+                                chapterNo: { type: "integer" },
+                                lineNo: { type: "integer" },
+                                text: { type: "string" },
+                            },
+                        },
+                    },
+                },
+            },
         },
     },
     paths: {
@@ -1118,6 +1184,30 @@ const spec = {
                     "401": { description: "Unauthorized" },
                     "403": { description: "Forbidden — not an admin" },
                     "404": { description: "Not found" },
+                },
+            },
+        },
+        "/search": {
+            get: {
+                tags: ["Search"],
+                summary: "Unified keyword search across characters, species, items, transcript messages, and story lines, grouped by category",
+                parameters: [
+                    { name: "q", in: "query", required: true, schema: { type: "string" } },
+                    {
+                        name: "limit",
+                        in: "query",
+                        schema: { type: "integer", default: 5, minimum: 1, maximum: 20 },
+                        description: "Per-category result cap",
+                    },
+                ],
+                responses: {
+                    "200": {
+                        description: "Results grouped by category",
+                        content: {
+                            "application/json": { schema: { $ref: "#/components/schemas/SearchResults" } },
+                        },
+                    },
+                    "400": { description: "Missing q" },
                 },
             },
         },

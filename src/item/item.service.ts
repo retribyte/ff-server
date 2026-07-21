@@ -13,11 +13,18 @@ type ItemData = {
     creatorId: number;
 };
 
-async function getAllItems(search?: string) {
+// opts is additive, unified-/api/search-only. Existing callers pass no
+// second argument, so their query shape/result set is unchanged.
+async function getAllItems(search?: string, opts: { limit?: number; lite?: boolean } = {}) {
+    const { limit, lite } = opts;
     const where = search
-        ? { name: { contains: search } }
+        ? { name: { contains: search, ...(lite && { mode: "insensitive" as const }) } }
         : undefined;
-    return await prisma.item.findMany({ where });
+    return await prisma.item.findMany({
+        where,
+        ...(lite && { select: { id: true, name: true, slug: true, image: true } }),
+        ...(limit !== undefined && { take: limit }),
+    });
 }
 
 async function getItemById(id: number) {
