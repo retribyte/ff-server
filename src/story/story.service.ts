@@ -262,16 +262,32 @@ type StoryLineHit = { storySlug: string; chapterNo: number; lineNo: number; text
 // (Prisma's @@index can't express an expression index, so this can't live in
 // schema.prisma, unlike the segments GIN index above). The 'english' regconfig
 // literal here must byte-match the index's expression for Postgres to use it.
-async function searchStoryLines(query: string, limit: number): Promise<StoryLineHit[]> {
-    return prisma.$queryRaw<StoryLineHit[]>`
-        SELECT s.slug AS "storySlug", sc.chapter_no AS "chapterNo", sl.line_no AS "lineNo", sl.text
-        FROM story_lines sl
-        JOIN story_chapters sc ON sc.id = sl."chapterId"
-        JOIN stories s ON s.id = sc."storyId"
-        WHERE to_tsvector('english', sl.text) @@ plainto_tsquery('english', ${query})
-        ORDER BY ts_rank(to_tsvector('english', sl.text), plainto_tsquery('english', ${query})) DESC
-        LIMIT ${limit}
-    `;
+// ts_rank ties are otherwise Postgres-arbitrary, which would make OFFSET/
+// LIMIT paging duplicate or skip rows across pages — sl.id ASC breaks ties
+// deterministically.
+async function searchStoryLines(
+    query: string,
+    page = 1,
+    limit = 20
+): Promise<{ data: StoryLineHit[]; total: number; page: number; limit: number }> {
+    const skip = (page - 1) * limit;
+    const [data, countResult] = await Promise.all([
+        prisma.$queryRaw<StoryLineHit[]>`
+            SELECT s.slug AS "storySlug", sc.chapter_no AS "chapterNo", sl.line_no AS "lineNo", sl.text
+            FROM story_lines sl
+            JOIN story_chapters sc ON sc.id = sl."chapterId"
+            JOIN stories s ON s.id = sc."storyId"
+            WHERE to_tsvector('english', sl.text) @@ plainto_tsquery('english', ${query})
+            ORDER BY ts_rank(to_tsvector('english', sl.text), plainto_tsquery('english', ${query})) DESC, sl.id ASC
+            LIMIT ${limit} OFFSET ${skip}
+        `,
+        prisma.$queryRaw<{ count: bigint }[]>`
+            SELECT COUNT(*) AS count
+            FROM story_lines sl
+            WHERE to_tsvector('english', sl.text) @@ plainto_tsquery('english', ${query})
+        `,
+    ]);
+    return { data, total: Number(countResult[0]?.count ?? 0), page, limit };
 }
 
 /** True when a segment array is present (not null/undefined) on a line. */
