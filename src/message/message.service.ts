@@ -69,7 +69,12 @@ async function getQuotesByCharacter(characterId: number) {
     });
 }
 
-type MessageHit = { episodeTitle: string; messageNo: number; text: string };
+type MessageHit = {
+    episodeTitle: string; 
+    messageNo: number; 
+    text: string, 
+    type: MessageType
+};
 
 // Backs the unified /api/search endpoint. Full-text (not substring) match —
 // stemmed keyword search via to_tsvector/plainto_tsquery, ranked by ts_rank
@@ -79,7 +84,7 @@ type MessageHit = { episodeTitle: string; messageNo: number; text: string };
 // index's expression for Postgres to use it — don't parameterize it.
 async function searchMessages(query: string, limit: number): Promise<MessageHit[]> {
     return prisma.$queryRaw<MessageHit[]>`
-        SELECT "episodeTitle", "messageNo", text
+        SELECT "episodeTitle", "messageNo", text, type
         FROM messages
         WHERE to_tsvector('english', text) @@ plainto_tsquery('english', ${query})
         ORDER BY ts_rank(to_tsvector('english', text), plainto_tsquery('english', ${query})) DESC
