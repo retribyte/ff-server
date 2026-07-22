@@ -1,5 +1,15 @@
 # Backend Style Guide
 
+> ⚠️ **Inherited from an unrelated project — follow the *patterns*, not the
+> examples.** The code samples below (`song`, `playlist`, `mood`, Spotify OAuth
+> env vars, MongoDB) and some infrastructure claims (a shared `prisma.ts`
+> singleton, `*.spec.ts` test files) do **not** correspond to this codebase:
+> Final Frontier uses Postgres via Prisma, has no such modules, each service
+> instantiates its own `PrismaClient`, and there is no automated test suite
+> yet. The route-handler shape, status-code table, service-function naming, and
+> three-layer error-handling pattern are the parts that still apply. See
+> `CLAUDE.md` for what the code actually does.
+
 This guide documents the architectural patterns and conventions used throughout this Express/TypeScript backend. Follow these patterns when adding or modifying routes, services, and middleware.
 
 ---

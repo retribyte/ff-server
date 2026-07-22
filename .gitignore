@@ -37,6 +37,5 @@ $RECYCLE.BIN/
 *.code-workspace
 prisma/client/
 prisma/dev.db
-prisma/dev.db
 .claude/
 prisma/migrations/
