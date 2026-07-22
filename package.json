@@ -1,7 +1,7 @@
 {
     "name": "ff-server",
     "version": "1.0.0",
-    "description": "My name vortox",
+    "description": "Express/TypeScript/Prisma API for the Final Frontier lore archive and campaign reader.",
     "main": "server.ts",
     "type": "module",
     "scripts": {
@@ -15,7 +15,6 @@
         "docs": "npx @redocly/cli lint src/openapi.ts",
         "seed": "tsx prisma/seed.ts",
         "seed:legacy": "tsx prisma/seed-legacy.ts",
-        "seed:galaxy": "tsx prisma/seed-galaxy.ts",
         "seed:8ball": "tsx prisma/seed-8ball.ts",
         "migrate:vm": "tsx prisma/migrate-vm-to-story.ts",
         "backfill:slugs": "tsx prisma/backfill-slugs.ts"
@@ -32,7 +31,6 @@
         "dotenv": "^16.4.5",
         "express": "^4.21.0",
         "jsonwebtoken": "^9.0.2",
-        "morgan": "^1.10.0",
         "sanitize-html": "^2.17.4",
         "swagger-ui-express": "^5.0.1"
     },
@@ -42,7 +40,6 @@
         "@types/cors": "^2.8.17",
         "@types/express": "^4.17.21",
         "@types/jsonwebtoken": "^9.0.7",
-        "@types/morgan": "^1.9.9",
         "@types/node": "^22.19.19",
         "@types/sanitize-html": "^2.16.1",
         "@types/swagger-ui-express": "^4.1.8",
