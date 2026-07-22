@@ -1,6 +1,7 @@
 import { PrismaClient, User, UserRole } from "@prisma/client";
 export { UserRole };
 import { hashSync, compareSync } from "bcryptjs";
+import { ConflictError } from "../utils/errors.js";
 
 const prisma = new PrismaClient();
 
@@ -13,7 +14,7 @@ async function createUser(
 ): Promise<User> {
     const existingUser = await prisma.user.findUnique({ where: { username } });
     if (existingUser) {
-        throw new Error("User already exists");
+        throw new ConflictError("User already exists");
     }
     return await prisma.user.create({
         data: {

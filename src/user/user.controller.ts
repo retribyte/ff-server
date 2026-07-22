@@ -3,6 +3,7 @@ import userService from "./user.service.js";
 import tokenService from "../auth/token.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { UserRole } from "@prisma/client";
+import { sendSuccess, sendError, sendCaughtError } from "../utils/http.js";
 
 const initializeUserRoutes = (): Router => {
     const router: Router = Router();
@@ -11,21 +12,17 @@ const initializeUserRoutes = (): Router => {
     router.post("/register", async (req: Request, res: Response) => {
         const { username, email, password } = req.body;
         if (!username || !email || !password) {
-            return res
-                .status(400)
-                .json({ status: "error", message: "Missing required fields" });
+            return sendError(res, "Missing required fields", 400);
         }
 
         try {
             const user = await userService.createUser(username, email, password);
             const { password: _, ...userWithoutPassword } = user;
-            return res
-                .status(201)
-                .json({ status: "success", data: userWithoutPassword });
-        } catch (err: any) {
-            return res
-                .status(400)
-                .json({ status: "error", message: err.message });
+            return sendSuccess(res, userWithoutPassword, 201);
+        } catch (error) {
+            // createUser throws ConflictError (409) when the username is taken;
+            // a duplicate email surfaces as a Prisma P2002 (also 409).
+            return sendCaughtError(res, error);
         }
     });
 
@@ -33,31 +30,25 @@ const initializeUserRoutes = (): Router => {
     router.post("/login", async (req: Request, res: Response) => {
         const { username, password } = req.body;
         if (!username || !password) {
-            return res
-                .status(400)
-                .json({ status: "error", message: "Missing username or password" });
+            return sendError(res, "Missing username or password", 400);
         }
 
         try {
             const user = await userService.authenticateUser(username, password);
             if (!user) {
-                return res
-                    .status(400)
-                    .json({ status: "error", message: "Invalid credentials" });
+                return sendError(res, "Invalid credentials", 401);
             }
             const token = await tokenService.generateAccessToken(user);
-            return res.status(200).json({ status: "success", data: { token } });
+            return sendSuccess(res, { token });
         } catch (error) {
             console.error("Login error:", error);
-            return res
-                .status(500)
-                .json({ status: "error", message: "Internal server error" });
+            return sendError(res, "Internal server error", 500);
         }
     });
 
     // GET /api/user: Return the currently authenticated user
     router.get("/user", authenticate, async (req: Request, res: Response) => {
-        return res.status(200).json({ status: "success", data: req.user });
+        return sendSuccess(res, req.user);
     });
 
     // PUT /api/user: Update the authenticated user's profile (username, avatar, bio)
@@ -65,29 +56,30 @@ const initializeUserRoutes = (): Router => {
         const { username, icon, bio } = req.body;
         try {
             const updated = await userService.updateUser(req.user!.id, { username, icon, bio });
-            return res.status(200).json({ status: "success", data: updated });
-        } catch (err: any) {
-            return res.status(400).json({ status: "error", message: err.message });
+            return sendSuccess(res, updated);
+        } catch (error) {
+            // A username collision surfaces as a Prisma P2002 → 409.
+            return sendCaughtError(res, error);
         }
     });
 
     // GET /api/users: List all users (admin only)
     router.get("/users", authenticate, isAdmin, async (req: Request, res: Response) => {
         const users = await userService.getAllUsers();
-        return res.status(200).json({ status: "success", data: users });
+        return sendSuccess(res, users);
     });
 
     // GET /api/users/:id: Get a single user by ID
     router.get("/users/:id", authenticate, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
         if (isNaN(id)) {
-            return res.status(400).json({ status: "error", message: "Invalid user ID" });
+            return sendError(res, "Invalid user ID", 400);
         }
         const user = await userService.getUserById(id);
         if (!user) {
-            return res.status(404).json({ status: "error", message: "User not found" });
+            return sendError(res, "User not found", 404);
         }
-        return res.status(200).json({ status: "success", data: user });
+        return sendSuccess(res, user);
     });
 
     // PUT /api/users/:id/role: Change a user's role (admin only)
@@ -95,13 +87,14 @@ const initializeUserRoutes = (): Router => {
         const id = parseInt(req.params.id, 10);
         const { role } = req.body;
         if (!role || !Object.values(UserRole).includes(role)) {
-            return res.status(400).json({ status: "error", message: "Invalid role" });
+            return sendError(res, "Invalid role", 400);
         }
         try {
             const user = await userService.updateUserRole(id, role as UserRole);
-            return res.status(200).json({ status: "success", data: user });
-        } catch (err: any) {
-            return res.status(400).json({ status: "error", message: err.message });
+            return sendSuccess(res, user);
+        } catch (error) {
+            // Updating a nonexistent user surfaces as a Prisma P2025 → 404.
+            return sendCaughtError(res, error);
         }
     });
 

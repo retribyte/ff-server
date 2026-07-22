@@ -1,7 +1,8 @@
 import { Router, Request, Response } from "express";
 import itemService from "./item.service.js";
 import { authenticate } from "../auth/security.middleware.js";
-import { UserRole } from "@prisma/client";
+import { assertOwnerOrAdmin } from "../auth/ownership.js";
+import { sendSuccess, sendError, sendCaughtError } from "../utils/http.js";
 
 const initializeItemRoutes = (): Router => {
     const router: Router = Router();
@@ -10,10 +11,10 @@ const initializeItemRoutes = (): Router => {
     router.get("/items", async (req: Request, res: Response) => {
         try {
             const items = await itemService.getAllItems(req.query.search as string | undefined);
-            res.status(200).json({ status: "success", data: items });
+            sendSuccess(res, items);
         } catch (error) {
             console.error("Error fetching items:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch items" });
+            sendError(res, "Failed to fetch items", 500);
         }
     });
 
@@ -27,17 +28,16 @@ const initializeItemRoutes = (): Router => {
                 ? await itemService.getItemById(parseInt(param, 10))
                 : await itemService.getItemBySlug(param);
             if (!item) {
-                return res.status(404).json({
-                    status: "error",
-                    message: isId
-                        ? `Item with id '${param}' not found`
-                        : `Item with slug '${param}' not found`,
-                });
+                return sendError(
+                    res,
+                    isId ? `Item with id '${param}' not found` : `Item with slug '${param}' not found`,
+                    404
+                );
             }
-            res.status(200).json({ status: "success", data: item });
+            sendSuccess(res, item);
         } catch (error) {
             console.error("Error fetching item:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch item" });
+            sendError(res, "Failed to fetch item", 500);
         }
     });
 
@@ -45,9 +45,9 @@ const initializeItemRoutes = (): Router => {
     router.post("/items", authenticate, async (req: Request, res: Response) => {
         try {
             const item = await itemService.createItem({ ...req.body, creatorId: req.user!.id });
-            res.status(201).json({ status: "success", data: item });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, item, 201);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -57,15 +57,13 @@ const initializeItemRoutes = (): Router => {
         try {
             const item = await itemService.getItemById(id);
             if (!item) {
-                return res.status(404).json({ status: "error", message: `Item with id '${id}' not found` });
+                return sendError(res, `Item with id '${id}' not found`, 404);
             }
-            if (item.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
-            }
+            if (!assertOwnerOrAdmin(req, res, item.creatorId)) return;
             const updated = await itemService.updateItem(id, req.body);
-            res.status(200).json({ status: "success", data: updated });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, updated);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -75,15 +73,13 @@ const initializeItemRoutes = (): Router => {
         try {
             const item = await itemService.getItemById(id);
             if (!item) {
-                return res.status(404).json({ status: "error", message: `Item with id '${id}' not found` });
+                return sendError(res, `Item with id '${id}' not found`, 404);
             }
-            if (item.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
-            }
+            if (!assertOwnerOrAdmin(req, res, item.creatorId)) return;
             await itemService.deleteItem(id);
             res.status(204).send();
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 

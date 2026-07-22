@@ -39,15 +39,20 @@ class App {
     }
 
     private errorHandlers(): void {
+        // Last-resort fallback for anything a controller let bubble up.
+        // Controllers handle their own errors, so this mainly guards against
+        // programmer error: log the stack server-side, return the standard
+        // envelope (never the stack itself) per the response-envelope convention.
         this.app.use(
             (err: Error, req: Request, res: Response, next: NextFunction) => {
                 console.error(err.stack);
-                res.status(500).send("L, 500 server error");
+                res.status(500).json({ status: "error", message: "Internal server error" });
             }
         );
 
+        // Unmatched route — also uses the envelope so API clients get JSON.
         this.app.use((req: Request, res: Response) => {
-            res.status(404).send("Resource not found");
+            res.status(404).json({ status: "error", message: "Resource not found" });
         });
     }
 

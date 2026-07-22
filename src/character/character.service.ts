@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { sanitizeText } from "../utils/sanitize.js";
 import { normalizeSlug, slugify } from "../utils/slug.js";
+import { BadRequestError, NotFoundError } from "../utils/errors.js";
 
 const prisma = new PrismaClient();
 
@@ -145,13 +146,13 @@ async function getPersonaById(id: number) {
 async function createPersona(characterId: number, data: PersonaData) {
     const character = await prisma.character.findUnique({ where: { id: characterId } });
     if (!character) {
-        throw new Error(`Character with id '${characterId}' not found`);
+        throw new NotFoundError(`Character with id '${characterId}' not found`);
     }
     if (!data.name && !data.image && !data.color) {
-        throw new Error("A persona must set at least one of name, image, or color");
+        throw new BadRequestError("A persona must set at least one of name, image, or color");
     }
     if (!data.name && !data.label) {
-        throw new Error("label is required when name is not set");
+        throw new BadRequestError("label is required when name is not set");
     }
 
     return await prisma.persona.create({
@@ -169,7 +170,7 @@ async function createPersona(characterId: number, data: PersonaData) {
 async function updatePersona(id: number, data: Partial<PersonaData>) {
     const existing = await prisma.persona.findUnique({ where: { id } });
     if (!existing) {
-        throw new Error(`Persona with id '${id}' not found`);
+        throw new NotFoundError(`Persona with id '${id}' not found`);
     }
 
     const nextName = data.name !== undefined ? data.name : existing.name;
@@ -177,10 +178,10 @@ async function updatePersona(id: number, data: Partial<PersonaData>) {
     const nextColor = data.color !== undefined ? data.color : existing.color;
     const nextLabel = data.label !== undefined ? data.label : existing.label;
     if (!nextName && !nextImage && !nextColor) {
-        throw new Error("A persona must set at least one of name, image, or color");
+        throw new BadRequestError("A persona must set at least one of name, image, or color");
     }
     if (!nextName && !nextLabel) {
-        throw new Error("label is required when name is not set");
+        throw new BadRequestError("label is required when name is not set");
     }
 
     return await prisma.persona.update({

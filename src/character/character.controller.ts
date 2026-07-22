@@ -3,26 +3,31 @@ import { Prisma } from "@prisma/client";
 import characterService from "./character.service.js";
 import messageService from "../message/message.service.js";
 import storyService from "../story/story.service.js";
-import { authenticate, isAdmin } from "../auth/security.middleware.js";
-import { UserRole } from "@prisma/client";
+import { authenticate } from "../auth/security.middleware.js";
+import { assertOwnerOrAdmin } from "../auth/ownership.js";
+import { sendSuccess, sendError, sendCaughtError } from "../utils/http.js";
+import { ConflictError, NotFoundError } from "../utils/errors.js";
 
-// Maps a Prisma error to a friendly {status, message} for persona mutations.
-// P2002: unique constraint (duplicate name/slug for the character).
-// P2003/P2025: FK restrict on delete (messages still reference the persona)
-// or record already gone.
-function mapPersonaError(error: any): { status: number; message: string } {
+// Re-wraps persona-mutation Prisma errors as typed HttpErrors carrying
+// friendly, domain-specific messages, so sendCaughtError emits them with a
+// fitting code; anything else (typed service errors, unexpected faults) passes
+// straight through.
+//   P2002: duplicate name/slug for the character -> 409.
+//   P2003/P2014: FK restrict on delete, messages still reference it -> 409.
+//   P2025: record already gone -> 404.
+function personaError(error: unknown): unknown {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
-            return { status: 400, message: "A persona with that slug or name already exists for this character" };
+            return new ConflictError("A persona with that slug or name already exists for this character");
         }
         if (error.code === "P2025") {
-            return { status: 404, message: "Persona not found" };
+            return new NotFoundError("Persona not found");
         }
         if (error.code === "P2003" || error.code === "P2014") {
-            return { status: 400, message: "Cannot delete persona: messages still reference it" };
+            return new ConflictError("Cannot delete persona: messages still reference it");
         }
     }
-    return { status: 400, message: error.message ?? "Invalid persona data" };
+    return error;
 }
 
 const initializeCharacterRoutes = (): Router => {
@@ -38,10 +43,10 @@ const initializeCharacterRoutes = (): Router => {
                 ownerId: ownerId ? parseInt(ownerId as string, 10) : undefined,
                 season: season as string | undefined,
             });
-            res.status(200).json({ status: "success", data: characters });
+            sendSuccess(res, characters);
         } catch (error) {
             console.error("Error fetching characters:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch characters" });
+            sendError(res, "Failed to fetch characters", 500);
         }
     });
 
@@ -56,17 +61,16 @@ const initializeCharacterRoutes = (): Router => {
                 ? await characterService.getCharacterById(parseInt(param, 10))
                 : await characterService.getCharacterBySlug(param);
             if (!character) {
-                return res.status(404).json({
-                    status: "error",
-                    message: isId
-                        ? `Character with id '${param}' not found`
-                        : `Character with slug '${param}' not found`,
-                });
+                return sendError(
+                    res,
+                    isId ? `Character with id '${param}' not found` : `Character with slug '${param}' not found`,
+                    404
+                );
             }
-            res.status(200).json({ status: "success", data: character });
+            sendSuccess(res, character);
         } catch (error) {
             console.error("Error fetching character:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch character" });
+            sendError(res, "Failed to fetch character", 500);
         }
     });
 
@@ -81,10 +85,10 @@ const initializeCharacterRoutes = (): Router => {
                 messageService.getQuotesByCharacter(id),
                 storyService.getStoryQuotesByCharacter(id),
             ]);
-            res.status(200).json({ status: "success", data: { messages, storyQuotes } });
+            sendSuccess(res, { messages, storyQuotes });
         } catch (error) {
             console.error("Error fetching quotes:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch quotes" });
+            sendError(res, "Failed to fetch quotes", 500);
         }
     });
 
@@ -93,10 +97,10 @@ const initializeCharacterRoutes = (): Router => {
         const id = parseInt(req.params.id, 10);
         try {
             const personas = await characterService.getPersonasByCharacter(id);
-            res.status(200).json({ status: "success", data: personas });
+            sendSuccess(res, personas);
         } catch (error) {
             console.error("Error fetching personas:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch personas" });
+            sendError(res, "Failed to fetch personas", 500);
         }
     });
 
@@ -107,11 +111,9 @@ const initializeCharacterRoutes = (): Router => {
         try {
             const character = await characterService.getCharacterById(id);
             if (!character) {
-                return res.status(404).json({ status: "error", message: `Character with id '${id}' not found` });
+                return sendError(res, `Character with id '${id}' not found`, 404);
             }
-            if (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
-            }
+            if (!assertOwnerOrAdmin(req, res, character.creatorId)) return;
             const persona = await characterService.createPersona(id, {
                 name: typeof req.body?.name === "string" ? req.body.name.trim() : undefined,
                 label: req.body?.label,
@@ -119,10 +121,9 @@ const initializeCharacterRoutes = (): Router => {
                 image: req.body?.image,
                 color: req.body?.color,
             });
-            res.status(201).json({ status: "success", data: persona });
-        } catch (error: any) {
-            const { status, message } = mapPersonaError(error);
-            res.status(status).json({ status: "error", message });
+            sendSuccess(res, persona, 201);
+        } catch (error) {
+            sendCaughtError(res, personaError(error));
         }
     });
 
@@ -135,10 +136,10 @@ const initializeCharacterRoutes = (): Router => {
     router.get("/personas", async (req: Request, res: Response) => {
         try {
             const personas = await characterService.getAllPersonas(req.query.search as string | undefined);
-            res.status(200).json({ status: "success", data: personas });
+            sendSuccess(res, personas);
         } catch (error) {
             console.error("Error fetching personas:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch personas" });
+            sendError(res, "Failed to fetch personas", 500);
         }
     });
 
@@ -149,12 +150,13 @@ const initializeCharacterRoutes = (): Router => {
         try {
             const persona = await characterService.getPersonaById(id);
             if (!persona) {
-                return res.status(404).json({ status: "error", message: `Persona with id '${id}' not found` });
+                return sendError(res, `Persona with id '${id}' not found`, 404);
             }
             const character = await characterService.getCharacterById(persona.characterId);
-            if (!character || (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN)) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
+            if (!character) {
+                return sendError(res, "Forbidden", 403);
             }
+            if (!assertOwnerOrAdmin(req, res, character.creatorId)) return;
             const updated = await characterService.updatePersona(id, {
                 name: req.body?.name,
                 label: req.body?.label,
@@ -162,10 +164,9 @@ const initializeCharacterRoutes = (): Router => {
                 image: req.body?.image,
                 color: req.body?.color,
             });
-            res.status(200).json({ status: "success", data: updated });
-        } catch (error: any) {
-            const { status, message } = mapPersonaError(error);
-            res.status(status).json({ status: "error", message });
+            sendSuccess(res, updated);
+        } catch (error) {
+            sendCaughtError(res, personaError(error));
         }
     });
 
@@ -176,17 +177,17 @@ const initializeCharacterRoutes = (): Router => {
         try {
             const persona = await characterService.getPersonaById(id);
             if (!persona) {
-                return res.status(404).json({ status: "error", message: `Persona with id '${id}' not found` });
+                return sendError(res, `Persona with id '${id}' not found`, 404);
             }
             const character = await characterService.getCharacterById(persona.characterId);
-            if (!character || (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN)) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
+            if (!character) {
+                return sendError(res, "Forbidden", 403);
             }
+            if (!assertOwnerOrAdmin(req, res, character.creatorId)) return;
             await characterService.deletePersona(id);
             res.status(204).send();
-        } catch (error: any) {
-            const { status, message } = mapPersonaError(error);
-            res.status(status).json({ status: "error", message });
+        } catch (error) {
+            sendCaughtError(res, personaError(error));
         }
     });
 
@@ -194,9 +195,9 @@ const initializeCharacterRoutes = (): Router => {
     router.post("/characters", authenticate, async (req: Request, res: Response) => {
         try {
             const character = await characterService.createCharacter({ ...req.body, creatorId: req.user!.id });
-            res.status(201).json({ status: "success", data: character });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, character, 201);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -207,15 +208,13 @@ const initializeCharacterRoutes = (): Router => {
         try {
             const character = await characterService.getCharacterById(id);
             if (!character) {
-                return res.status(404).json({ status: "error", message: `Character with id '${id}' not found` });
+                return sendError(res, `Character with id '${id}' not found`, 404);
             }
-            if (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
-            }
+            if (!assertOwnerOrAdmin(req, res, character.creatorId)) return;
             const updated = await characterService.updateCharacter(id, req.body);
-            res.status(200).json({ status: "success", data: updated });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, updated);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -226,15 +225,13 @@ const initializeCharacterRoutes = (): Router => {
         try {
             const character = await characterService.getCharacterById(id);
             if (!character) {
-                return res.status(404).json({ status: "error", message: `Character with id '${id}' not found` });
+                return sendError(res, `Character with id '${id}' not found`, 404);
             }
-            if (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
-            }
+            if (!assertOwnerOrAdmin(req, res, character.creatorId)) return;
             await characterService.deleteCharacter(id);
             res.status(204).send();
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 

@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma, StoryLineType, StoryFormat } from "@prisma/client";
 import { SLUG_PATTERN } from "../utils/slug.js";
+import { BadRequestError, NotFoundError } from "../utils/errors.js";
 
 const prisma = new PrismaClient();
 
@@ -47,7 +48,7 @@ const CHAPTER_LIST = {
 
 async function requireStory(slug: string) {
     const story = await prisma.story.findUnique({ where: { slug } });
-    if (!story) throw new Error(`Story '${slug}' not found`);
+    if (!story) throw new NotFoundError(`Story '${slug}' not found`);
     return story;
 }
 
@@ -56,7 +57,7 @@ async function requireChapter(slug: string, chapterNo: number) {
     const chapter = await prisma.storyChapter.findUnique({
         where: { storyId_chapter_no: { storyId: story.id, chapter_no: chapterNo } },
     });
-    if (!chapter) throw new Error(`Chapter ${chapterNo} of story '${slug}' not found`);
+    if (!chapter) throw new NotFoundError(`Chapter ${chapterNo} of story '${slug}' not found`);
     return chapter;
 }
 
@@ -86,14 +87,14 @@ async function getStoryBySlug(slug: string) {
 function validateStoryData(data: StoryData, requireAll: boolean) {
     if (requireAll || data.slug !== undefined) {
         if (typeof data.slug !== "string" || !SLUG_PATTERN.test(data.slug)) {
-            throw new Error(`slug must match ${SLUG_PATTERN.source}`);
+            throw new BadRequestError(`slug must match ${SLUG_PATTERN.source}`);
         }
     }
     if (requireAll && (typeof data.title !== "string" || data.title.length === 0)) {
-        throw new Error("title is required");
+        throw new BadRequestError("title is required");
     }
     if (data.format !== undefined && !VALID_FORMATS.has(data.format)) {
-        throw new Error(`format must be one of ${[...VALID_FORMATS].join(", ")}`);
+        throw new BadRequestError(`format must be one of ${[...VALID_FORMATS].join(", ")}`);
     }
 }
 
@@ -266,41 +267,41 @@ function textFromSegments(segments: StorySegment[]): string {
 
 function validateSegments(segments: StorySegment[], label: string) {
     if (!Array.isArray(segments) || segments.length === 0) {
-        throw new Error(`${label}: segments must be a non-empty array`);
+        throw new BadRequestError(`${label}: segments must be a non-empty array`);
     }
     // Segments annotate a paragraph with dialogue spans and/or inline styling;
     // a plain array with no voice and no style should just be sent as text.
     let annotated = false;
     for (const [i, segment] of segments.entries()) {
         if (typeof segment.text !== "string") {
-            throw new Error(`${label}: segment ${i + 1} needs a string text`);
+            throw new BadRequestError(`${label}: segment ${i + 1} needs a string text`);
         }
         if (segment.characterId || segment.speaker || segment.italic || segment.bold) annotated = true;
     }
     if (!annotated) {
-        throw new Error(`${label}: segments need at least one dialogue or styled span; send plain text otherwise`);
+        throw new BadRequestError(`${label}: segments need at least one dialogue or styled span; send plain text otherwise`);
     }
 }
 
 function validateLine(line: LineData, label: string) {
     if (!VALID_LINE_TYPES.has(line.type)) {
-        throw new Error(`${label}: invalid type '${line.type}'`);
+        throw new BadRequestError(`${label}: invalid type '${line.type}'`);
     }
     if (typeof line.text !== "string") {
-        throw new Error(`${label}: text is required`);
+        throw new BadRequestError(`${label}: text is required`);
     }
     // Dialogue needs a speaking voice — a linked character or a display name
     if (line.type === StoryLineType.DIALOGUE && !line.characterId && !line.speaker) {
-        throw new Error(`${label}: DIALOGUE lines require characterId or speaker`);
+        throw new BadRequestError(`${label}: DIALOGUE lines require characterId or speaker`);
     }
     // Headings are a short block line — no voice, no segments
     if (line.type === StoryLineType.HEADING && line.text.trim().length === 0) {
-        throw new Error(`${label}: HEADING lines require non-empty text`);
+        throw new BadRequestError(`${label}: HEADING lines require non-empty text`);
     }
     // Segment annotations describe sub-paragraph spans — NARRATION only
     if (hasSegments(line)) {
         if (line.type !== StoryLineType.NARRATION) {
-            throw new Error(`${label}: segments are only allowed on NARRATION lines`);
+            throw new BadRequestError(`${label}: segments are only allowed on NARRATION lines`);
         }
         validateSegments(line.segments, label);
     }
@@ -346,7 +347,7 @@ async function updateLine(slug: string, chapterNo: number, lineNo: number, data:
     const existing = await prisma.storyLine.findUnique({
         where: { chapterId_line_no: { chapterId: chapter.id, line_no: lineNo } },
     });
-    if (!existing) throw new Error(`Line ${lineNo} of chapter ${chapterNo} in story '${slug}' not found`);
+    if (!existing) throw new NotFoundError(`Line ${lineNo} of chapter ${chapterNo} in story '${slug}' not found`);
 
     const existingSegments = (existing.segments as StorySegment[] | null) ?? null;
 
@@ -356,7 +357,7 @@ async function updateLine(slug: string, chapterNo: number, lineNo: number, data:
 
     // A text-only edit on a segmented line would silently desync text from spans
     if (data.text !== undefined && existingSegments && data.segments === undefined) {
-        throw new Error(`Line ${lineNo}: cannot edit text of a segmented line directly — update its segments, or send segments:null to clear them`);
+        throw new BadRequestError(`Line ${lineNo}: cannot edit text of a segmented line directly — update its segments, or send segments:null to clear them`);
     }
 
     // Segmented lines derive text from the spans; otherwise take the edit or keep existing

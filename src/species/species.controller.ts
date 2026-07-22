@@ -1,7 +1,8 @@
 import { Router, Request, Response } from "express";
 import speciesService from "./species.service.js";
 import { authenticate } from "../auth/security.middleware.js";
-import { UserRole } from "@prisma/client";
+import { assertOwnerOrAdmin } from "../auth/ownership.js";
+import { sendSuccess, sendError, sendCaughtError } from "../utils/http.js";
 
 const initializeSpeciesRoutes = (): Router => {
     const router: Router = Router();
@@ -10,10 +11,10 @@ const initializeSpeciesRoutes = (): Router => {
     router.get("/species", async (req: Request, res: Response) => {
         try {
             const species = await speciesService.getAllSpecies(req.query.search as string | undefined);
-            res.status(200).json({ status: "success", data: species });
+            sendSuccess(res, species);
         } catch (error) {
             console.error("Error fetching species:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch species" });
+            sendError(res, "Failed to fetch species", 500);
         }
     });
 
@@ -27,17 +28,16 @@ const initializeSpeciesRoutes = (): Router => {
                 ? await speciesService.getSpeciesById(parseInt(param, 10))
                 : await speciesService.getSpeciesBySlug(param);
             if (!species) {
-                return res.status(404).json({
-                    status: "error",
-                    message: isId
-                        ? `Species with id '${param}' not found`
-                        : `Species with slug '${param}' not found`,
-                });
+                return sendError(
+                    res,
+                    isId ? `Species with id '${param}' not found` : `Species with slug '${param}' not found`,
+                    404
+                );
             }
-            res.status(200).json({ status: "success", data: species });
+            sendSuccess(res, species);
         } catch (error) {
             console.error("Error fetching species:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch species" });
+            sendError(res, "Failed to fetch species", 500);
         }
     });
 
@@ -45,9 +45,9 @@ const initializeSpeciesRoutes = (): Router => {
     router.post("/species", authenticate, async (req: Request, res: Response) => {
         try {
             const species = await speciesService.createSpecies({ ...req.body, creatorId: req.user!.id });
-            res.status(201).json({ status: "success", data: species });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, species, 201);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -57,15 +57,13 @@ const initializeSpeciesRoutes = (): Router => {
         try {
             const species = await speciesService.getSpeciesById(id);
             if (!species) {
-                return res.status(404).json({ status: "error", message: `Species with id '${id}' not found` });
+                return sendError(res, `Species with id '${id}' not found`, 404);
             }
-            if (species.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
-            }
+            if (!assertOwnerOrAdmin(req, res, species.creatorId)) return;
             const updated = await speciesService.updateSpecies(id, req.body);
-            res.status(200).json({ status: "success", data: updated });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, updated);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -75,15 +73,13 @@ const initializeSpeciesRoutes = (): Router => {
         try {
             const species = await speciesService.getSpeciesById(id);
             if (!species) {
-                return res.status(404).json({ status: "error", message: `Species with id '${id}' not found` });
+                return sendError(res, `Species with id '${id}' not found`, 404);
             }
-            if (species.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
-            }
+            if (!assertOwnerOrAdmin(req, res, species.creatorId)) return;
             await speciesService.deleteSpecies(id);
             res.status(204).send();
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
