@@ -3,6 +3,7 @@ import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import userController from "./user/user.controller.js";
 import characterController from "./character/character.controller.js";
+import personaController from "./persona/persona.controller.js";
 import speciesController from "./species/species.controller.js";
 import seasonController from "./season/season.controller.js";
 import episodeController from "./episode/episode.controller.js";
@@ -28,6 +29,7 @@ class App {
         this.app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(apiSpec));
         this.app.use("/api", userController.initializeUserRoutes());
         this.app.use("/api", characterController.initializeCharacterRoutes());
+        this.app.use("/api", personaController.initializePersonaRoutes());
         this.app.use("/api", speciesController.initializeSpeciesRoutes());
         this.app.use("/api", seasonController.initializeSeasonRoutes());
         this.app.use("/api", episodeController.initializeEpisodeRoutes());
