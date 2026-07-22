@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import commentaryService from "./commentary.service.js";
 import { authenticate } from "../auth/security.middleware.js";
-import { UserRole } from "@prisma/client";
+import { assertOwnerOrAdmin } from "../auth/ownership.js";
 
 const initializeCommentaryRoutes = (): Router => {
     const router: Router = Router();
@@ -50,9 +50,7 @@ const initializeCommentaryRoutes = (): Router => {
             if (!commentary) {
                 return res.status(404).json({ status: "error", message: `Commentary with id '${id}' not found` });
             }
-            if (commentary.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
-            }
+            if (!assertOwnerOrAdmin(req, res, commentary.creatorId)) return;
             const updated = await commentaryService.updateCommentary(id, req.body.content.trim());
             res.status(200).json({ status: "success", data: updated });
         } catch (error) {
@@ -70,9 +68,7 @@ const initializeCommentaryRoutes = (): Router => {
             if (!commentary) {
                 return res.status(404).json({ status: "error", message: `Commentary with id '${id}' not found` });
             }
-            if (commentary.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
-            }
+            if (!assertOwnerOrAdmin(req, res, commentary.creatorId)) return;
             await commentaryService.deleteCommentary(id);
             res.status(204).send();
         } catch (error) {

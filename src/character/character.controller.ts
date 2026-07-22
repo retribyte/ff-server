@@ -4,6 +4,7 @@ import characterService from "./character.service.js";
 import messageService from "../message/message.service.js";
 import storyService from "../story/story.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
+import { assertOwnerOrAdmin } from "../auth/ownership.js";
 import { UserRole } from "@prisma/client";
 
 // Maps a Prisma error to a friendly {status, message} for persona mutations.
@@ -209,9 +210,7 @@ const initializeCharacterRoutes = (): Router => {
             if (!character) {
                 return res.status(404).json({ status: "error", message: `Character with id '${id}' not found` });
             }
-            if (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
-            }
+            if (!assertOwnerOrAdmin(req, res, character.creatorId)) return;
             const updated = await characterService.updateCharacter(id, req.body);
             res.status(200).json({ status: "success", data: updated });
         } catch (error: any) {
@@ -228,9 +227,7 @@ const initializeCharacterRoutes = (): Router => {
             if (!character) {
                 return res.status(404).json({ status: "error", message: `Character with id '${id}' not found` });
             }
-            if (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
-            }
+            if (!assertOwnerOrAdmin(req, res, character.creatorId)) return;
             await characterService.deleteCharacter(id);
             res.status(204).send();
         } catch (error: any) {

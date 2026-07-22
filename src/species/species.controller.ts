@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import speciesService from "./species.service.js";
 import { authenticate } from "../auth/security.middleware.js";
-import { UserRole } from "@prisma/client";
+import { assertOwnerOrAdmin } from "../auth/ownership.js";
 
 const initializeSpeciesRoutes = (): Router => {
     const router: Router = Router();
@@ -59,9 +59,7 @@ const initializeSpeciesRoutes = (): Router => {
             if (!species) {
                 return res.status(404).json({ status: "error", message: `Species with id '${id}' not found` });
             }
-            if (species.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
-            }
+            if (!assertOwnerOrAdmin(req, res, species.creatorId)) return;
             const updated = await speciesService.updateSpecies(id, req.body);
             res.status(200).json({ status: "success", data: updated });
         } catch (error: any) {
@@ -77,9 +75,7 @@ const initializeSpeciesRoutes = (): Router => {
             if (!species) {
                 return res.status(404).json({ status: "error", message: `Species with id '${id}' not found` });
             }
-            if (species.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-                return res.status(403).json({ status: "error", message: "Forbidden" });
-            }
+            if (!assertOwnerOrAdmin(req, res, species.creatorId)) return;
             await speciesService.deleteSpecies(id);
             res.status(204).send();
         } catch (error: any) {
