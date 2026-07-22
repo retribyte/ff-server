@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import eightballService from "./eightball.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { EightBallAnswerType } from "@prisma/client";
+import { sendSuccess, sendError, sendCaughtError } from "../utils/http.js";
 
 const initializeEightballRoutes = (): Router => {
     const router: Router = Router();
@@ -11,15 +12,12 @@ const initializeEightballRoutes = (): Router => {
         try {
             const answer = await eightballService.shake();
             if (!answer) {
-                return res.status(404).json({
-                    status: "error",
-                    message: "The 8-ball is empty. Ask again after someone adds some answers.",
-                });
+                return sendError(res, "The 8-ball is empty. Ask again after someone adds some answers.", 404);
             }
-            res.status(200).json({ status: "success", data: answer });
+            sendSuccess(res, answer);
         } catch (error) {
             console.error("Error shaking the 8-ball:", error);
-            res.status(500).json({ status: "error", message: "Failed to shake the 8-ball" });
+            sendError(res, "Failed to shake the 8-ball", 500);
         }
     });
 
@@ -27,10 +25,10 @@ const initializeEightballRoutes = (): Router => {
     router.get("/8ball/answers", async (req: Request, res: Response) => {
         try {
             const answers = await eightballService.getAllAnswers();
-            res.status(200).json({ status: "success", data: answers });
+            sendSuccess(res, answers);
         } catch (error) {
             console.error("Error fetching 8-ball answers:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch 8-ball answers" });
+            sendError(res, "Failed to fetch 8-ball answers", 500);
         }
     });
 
@@ -38,17 +36,17 @@ const initializeEightballRoutes = (): Router => {
     router.post("/8ball/answers", authenticate, async (req: Request, res: Response) => {
         const { type, text } = req.body;
         if (!type || !Object.values(EightBallAnswerType).includes(type)) {
-            return res.status(400).json({ status: "error", message: "Invalid type: must be one of YES, NO, MAYBE" });
+            return sendError(res, "Invalid type: must be one of YES, NO, MAYBE", 400);
         }
         const trimmedText = typeof text === "string" ? text.trim() : "";
         if (!trimmedText) {
-            return res.status(400).json({ status: "error", message: "text is required" });
+            return sendError(res, "text is required", 400);
         }
         try {
             const answer = await eightballService.createAnswer(type as EightBallAnswerType, trimmedText);
-            res.status(201).json({ status: "success", data: answer });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, answer, 201);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -58,12 +56,12 @@ const initializeEightballRoutes = (): Router => {
         try {
             const answer = await eightballService.getAnswerById(id);
             if (!answer) {
-                return res.status(404).json({ status: "error", message: `Answer with id '${id}' not found` });
+                return sendError(res, `Answer with id '${id}' not found`, 404);
             }
             await eightballService.deleteAnswer(id);
             res.status(204).send();
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 

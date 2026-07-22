@@ -3,8 +3,9 @@ import { Prisma } from "@prisma/client";
 import characterService from "./character.service.js";
 import messageService from "../message/message.service.js";
 import storyService from "../story/story.service.js";
-import { authenticate, isAdmin } from "../auth/security.middleware.js";
+import { authenticate } from "../auth/security.middleware.js";
 import { assertOwnerOrAdmin } from "../auth/ownership.js";
+import { sendSuccess, sendError, sendCaughtError } from "../utils/http.js";
 import { UserRole } from "@prisma/client";
 
 // Maps a Prisma error to a friendly {status, message} for persona mutations.
@@ -39,10 +40,10 @@ const initializeCharacterRoutes = (): Router => {
                 ownerId: ownerId ? parseInt(ownerId as string, 10) : undefined,
                 season: season as string | undefined,
             });
-            res.status(200).json({ status: "success", data: characters });
+            sendSuccess(res, characters);
         } catch (error) {
             console.error("Error fetching characters:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch characters" });
+            sendError(res, "Failed to fetch characters", 500);
         }
     });
 
@@ -57,17 +58,16 @@ const initializeCharacterRoutes = (): Router => {
                 ? await characterService.getCharacterById(parseInt(param, 10))
                 : await characterService.getCharacterBySlug(param);
             if (!character) {
-                return res.status(404).json({
-                    status: "error",
-                    message: isId
-                        ? `Character with id '${param}' not found`
-                        : `Character with slug '${param}' not found`,
-                });
+                return sendError(
+                    res,
+                    isId ? `Character with id '${param}' not found` : `Character with slug '${param}' not found`,
+                    404
+                );
             }
-            res.status(200).json({ status: "success", data: character });
+            sendSuccess(res, character);
         } catch (error) {
             console.error("Error fetching character:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch character" });
+            sendError(res, "Failed to fetch character", 500);
         }
     });
 
@@ -82,10 +82,10 @@ const initializeCharacterRoutes = (): Router => {
                 messageService.getQuotesByCharacter(id),
                 storyService.getStoryQuotesByCharacter(id),
             ]);
-            res.status(200).json({ status: "success", data: { messages, storyQuotes } });
+            sendSuccess(res, { messages, storyQuotes });
         } catch (error) {
             console.error("Error fetching quotes:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch quotes" });
+            sendError(res, "Failed to fetch quotes", 500);
         }
     });
 
@@ -195,9 +195,9 @@ const initializeCharacterRoutes = (): Router => {
     router.post("/characters", authenticate, async (req: Request, res: Response) => {
         try {
             const character = await characterService.createCharacter({ ...req.body, creatorId: req.user!.id });
-            res.status(201).json({ status: "success", data: character });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, character, 201);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -208,13 +208,13 @@ const initializeCharacterRoutes = (): Router => {
         try {
             const character = await characterService.getCharacterById(id);
             if (!character) {
-                return res.status(404).json({ status: "error", message: `Character with id '${id}' not found` });
+                return sendError(res, `Character with id '${id}' not found`, 404);
             }
             if (!assertOwnerOrAdmin(req, res, character.creatorId)) return;
             const updated = await characterService.updateCharacter(id, req.body);
-            res.status(200).json({ status: "success", data: updated });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, updated);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -225,13 +225,13 @@ const initializeCharacterRoutes = (): Router => {
         try {
             const character = await characterService.getCharacterById(id);
             if (!character) {
-                return res.status(404).json({ status: "error", message: `Character with id '${id}' not found` });
+                return sendError(res, `Character with id '${id}' not found`, 404);
             }
             if (!assertOwnerOrAdmin(req, res, character.creatorId)) return;
             await characterService.deleteCharacter(id);
             res.status(204).send();
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 

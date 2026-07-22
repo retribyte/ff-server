@@ -1,4 +1,5 @@
 import { PrismaClient, MessageType } from "@prisma/client";
+import { BadRequestError, NotFoundError } from "../utils/errors.js";
 
 const prisma = new PrismaClient();
 
@@ -26,14 +27,14 @@ async function assertPersonaMatchesCharacter(
 ): Promise<void> {
     if (personaId === undefined || personaId === null) return;
     if (!characterId) {
-        throw new Error(`${prefix}characterId is required when personaId is set`);
+        throw new BadRequestError(`${prefix}characterId is required when personaId is set`);
     }
     const persona = await prisma.persona.findUnique({ where: { id: personaId } });
     if (!persona) {
-        throw new Error(`${prefix}Persona with id '${personaId}' not found`);
+        throw new NotFoundError(`${prefix}Persona with id '${personaId}' not found`);
     }
     if (persona.characterId !== characterId) {
-        throw new Error(`${prefix}Persona with id '${personaId}' does not belong to character '${characterId}'`);
+        throw new BadRequestError(`${prefix}Persona with id '${personaId}' does not belong to character '${characterId}'`);
     }
 }
 
@@ -92,23 +93,23 @@ const VALID_TYPES = new Set<string>(Object.values(MessageType));
 async function createMessages(episodeTitle: string, messages: MessageData[]) {
     for (const [index, msg] of messages.entries()) {
         if (!VALID_TYPES.has(msg.type)) {
-            throw new Error(`Message ${index + 1}: invalid type '${msg.type}'`);
+            throw new BadRequestError(`Message ${index + 1}: invalid type '${msg.type}'`);
         }
         if (typeof msg.playerId !== "number") {
-            throw new Error(`Message ${index + 1}: playerId is required`);
+            throw new BadRequestError(`Message ${index + 1}: playerId is required`);
         }
         if (typeof msg.text !== "string") {
-            throw new Error(`Message ${index + 1}: text is required`);
+            throw new BadRequestError(`Message ${index + 1}: text is required`);
         }
         if (msg.type === MessageType.QUOTE && !msg.characterId) {
-            throw new Error(`Message ${index + 1}: characterId is required for QUOTE messages`);
+            throw new BadRequestError(`Message ${index + 1}: characterId is required for QUOTE messages`);
         }
         await assertPersonaMatchesCharacter(msg.personaId, msg.characterId, `Message ${index + 1}: `);
     }
 
     return await prisma.$transaction(async (tx) => {
         const episode = await tx.episode.findUnique({ where: { title: episodeTitle } });
-        if (!episode) throw new Error(`Episode '${episodeTitle}' not found`);
+        if (!episode) throw new NotFoundError(`Episode '${episodeTitle}' not found`);
 
         const last = await tx.message.findFirst({
             where: { episodeTitle },
@@ -135,7 +136,7 @@ async function createMessages(episodeTitle: string, messages: MessageData[]) {
 
 async function createMessage(episodeTitle: string, data: MessageData) {
     if (data.type === MessageType.QUOTE && !data.characterId) {
-        throw new Error("characterId is required for QUOTE messages");
+        throw new BadRequestError("characterId is required for QUOTE messages");
     }
     await assertPersonaMatchesCharacter(data.personaId, data.characterId);
 
@@ -162,7 +163,7 @@ async function createMessage(episodeTitle: string, data: MessageData) {
 
 async function updateMessage(episodeTitle: string, messageNo: number, data: Partial<MessageData>) {
     if (data.type === MessageType.QUOTE && !data.characterId) {
-        throw new Error("characterId is required for QUOTE messages");
+        throw new BadRequestError("characterId is required for QUOTE messages");
     }
 
     if (data.personaId !== undefined && data.personaId !== null) {
@@ -214,11 +215,11 @@ async function applyPersonaToEpisode(
 ): Promise<number> {
     const episode = await prisma.episode.findUnique({ where: { title: episodeTitle } });
     if (!episode) {
-        throw new Error(`Episode '${episodeTitle}' not found`);
+        throw new NotFoundError(`Episode '${episodeTitle}' not found`);
     }
     const character = await prisma.character.findUnique({ where: { id: characterId } });
     if (!character) {
-        throw new Error(`Character with id '${characterId}' not found`);
+        throw new NotFoundError(`Character with id '${characterId}' not found`);
     }
     await assertPersonaMatchesCharacter(personaId, characterId);
 
@@ -236,11 +237,11 @@ async function applyPersonaToSeason(
 ): Promise<number> {
     const season = await prisma.season.findUnique({ where: { title: seasonTitle } });
     if (!season) {
-        throw new Error(`Season '${seasonTitle}' not found`);
+        throw new NotFoundError(`Season '${seasonTitle}' not found`);
     }
     const character = await prisma.character.findUnique({ where: { id: characterId } });
     if (!character) {
-        throw new Error(`Character with id '${characterId}' not found`);
+        throw new NotFoundError(`Character with id '${characterId}' not found`);
     }
     await assertPersonaMatchesCharacter(personaId, characterId);
 

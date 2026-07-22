@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import episodeService from "./episode.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
+import { sendSuccess, sendError, sendCaughtError } from "../utils/http.js";
 
 const initializeEpisodeRoutes = (): Router => {
     const router: Router = Router();
@@ -9,10 +10,10 @@ const initializeEpisodeRoutes = (): Router => {
     router.get("/episodes", async (req: Request, res: Response) => {
         try {
             const episodes = await episodeService.getAllEpisodes(req.query.search as string | undefined);
-            res.status(200).json({ status: "success", data: episodes });
+            sendSuccess(res, episodes);
         } catch (error) {
             console.error("Error fetching episodes:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch episodes" });
+            sendError(res, "Failed to fetch episodes", 500);
         }
     });
 
@@ -22,15 +23,12 @@ const initializeEpisodeRoutes = (): Router => {
         try {
             const episode = await episodeService.getEpisodeByTitle(title);
             if (!episode) {
-                return res.status(404).json({
-                    status: "error",
-                    message: `Episode '${title}' not found`,
-                });
+                return sendError(res, `Episode '${title}' not found`, 404);
             }
-            res.status(200).json({ status: "success", data: episode });
+            sendSuccess(res, episode);
         } catch (error) {
             console.error("Error fetching episode:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch episode" });
+            sendError(res, "Failed to fetch episode", 500);
         }
     });
 
@@ -38,9 +36,9 @@ const initializeEpisodeRoutes = (): Router => {
     router.post("/episodes", authenticate, async (req: Request, res: Response) => {
         try {
             const episode = await episodeService.createEpisode(req.body);
-            res.status(201).json({ status: "success", data: episode });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, episode, 201);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -49,9 +47,9 @@ const initializeEpisodeRoutes = (): Router => {
         const { title } = req.params;
         try {
             const episode = await episodeService.updateEpisode(title, req.body);
-            res.status(200).json({ status: "success", data: episode });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, episode);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -61,8 +59,8 @@ const initializeEpisodeRoutes = (): Router => {
         try {
             await episodeService.deleteEpisode(title);
             res.status(204).send();
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 

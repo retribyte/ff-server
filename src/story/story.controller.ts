@@ -1,6 +1,8 @@
 import { Router, Request, Response } from "express";
 import storyService from "./story.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
+import { sendSuccess, sendResult, sendError, sendCaughtError } from "../utils/http.js";
+import { NotFoundError } from "../utils/errors.js";
 
 const initializeStoryRoutes = (): Router => {
     const router: Router = Router();
@@ -9,10 +11,10 @@ const initializeStoryRoutes = (): Router => {
     router.get("/stories", async (req: Request, res: Response) => {
         try {
             const stories = await storyService.getAllStories(req.query.search as string | undefined);
-            res.status(200).json({ status: "success", data: stories });
+            sendSuccess(res, stories);
         } catch (error) {
             console.error("Error fetching stories:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch stories" });
+            sendError(res, "Failed to fetch stories", 500);
         }
     });
 
@@ -22,12 +24,12 @@ const initializeStoryRoutes = (): Router => {
         try {
             const story = await storyService.getStoryBySlug(slug);
             if (!story) {
-                return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
+                return sendError(res, `Story '${slug}' not found`, 404);
             }
-            res.status(200).json({ status: "success", data: story });
+            sendSuccess(res, story);
         } catch (error) {
             console.error("Error fetching story:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch story" });
+            sendError(res, "Failed to fetch story", 500);
         }
     });
 
@@ -35,9 +37,9 @@ const initializeStoryRoutes = (): Router => {
     router.post("/stories", authenticate, async (req: Request, res: Response) => {
         try {
             const story = await storyService.createStory(req.body);
-            res.status(201).json({ status: "success", data: story });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, story, 201);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -46,9 +48,9 @@ const initializeStoryRoutes = (): Router => {
         const { slug } = req.params;
         try {
             const story = await storyService.updateStory(slug, req.body);
-            res.status(200).json({ status: "success", data: story });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, story);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -58,8 +60,8 @@ const initializeStoryRoutes = (): Router => {
         try {
             await storyService.deleteStory(slug);
             res.status(204).send();
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -68,9 +70,9 @@ const initializeStoryRoutes = (): Router => {
         const { slug } = req.params;
         try {
             const chapter = await storyService.createChapter(slug, req.body ?? {});
-            res.status(201).json({ status: "success", data: chapter });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, chapter, 201);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -80,9 +82,9 @@ const initializeStoryRoutes = (): Router => {
         const chapterNo = parseInt(req.params.chapterNo, 10);
         try {
             const chapter = await storyService.updateChapter(slug, chapterNo, req.body);
-            res.status(200).json({ status: "success", data: chapter });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, chapter);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -93,8 +95,8 @@ const initializeStoryRoutes = (): Router => {
         try {
             await storyService.deleteChapter(slug, chapterNo);
             res.status(204).send();
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -107,13 +109,13 @@ const initializeStoryRoutes = (): Router => {
         const search = req.query.search as string | undefined;
         try {
             const result = await storyService.getLinesByChapter(slug, chapterNo, page, limit, search);
-            res.status(200).json({ status: "success", ...result });
-        } catch (error: any) {
-            if (/not found/.test(error.message ?? "")) {
-                return res.status(404).json({ status: "error", message: error.message });
+            sendResult(res, result);
+        } catch (error) {
+            if (error instanceof NotFoundError) {
+                return sendError(res, error.message, 404);
             }
             console.error("Error fetching story lines:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch story lines" });
+            sendError(res, "Failed to fetch story lines", 500);
         }
     });
 
@@ -122,13 +124,13 @@ const initializeStoryRoutes = (): Router => {
         const { slug } = req.params;
         const chapterNo = parseInt(req.params.chapterNo, 10);
         if (!Array.isArray(req.body?.lines)) {
-            return res.status(400).json({ status: "error", message: "body must be { lines: [...] }" });
+            return sendError(res, "body must be { lines: [...] }", 400);
         }
         try {
             const result = await storyService.createLines(slug, chapterNo, req.body.lines);
-            res.status(201).json({ status: "success", data: result });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, result, 201);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -139,9 +141,9 @@ const initializeStoryRoutes = (): Router => {
         const lineNo = parseInt(req.params.lineNo, 10);
         try {
             const line = await storyService.updateLine(slug, chapterNo, lineNo, req.body);
-            res.status(200).json({ status: "success", data: line });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, line);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 

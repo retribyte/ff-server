@@ -1,8 +1,9 @@
 import { Router, Request, Response } from "express";
-import { UserRole } from "@prisma/client";
 import messageService from "./message.service.js";
 import characterService from "../character/character.service.js";
 import { authenticate } from "../auth/security.middleware.js";
+import { assertOwnerOrAdmin } from "../auth/ownership.js";
+import { sendSuccess, sendResult, sendError, sendCaughtError } from "../utils/http.js";
 
 // Shared body validation + ownership check for the two bulk persona-stamp
 // routes below. Returns the resolved character on success, or writes an
@@ -11,21 +12,20 @@ async function resolveStampAuthorization(req: Request, res: Response): Promise<{
     const { characterId, personaId } = req.body ?? {};
 
     if (typeof characterId !== "number") {
-        res.status(400).json({ status: "error", message: "characterId is required and must be a number" });
+        sendError(res, "characterId is required and must be a number", 400);
         return null;
     }
     if (personaId !== null && typeof personaId !== "number") {
-        res.status(400).json({ status: "error", message: "personaId is required (a number, or null to clear)" });
+        sendError(res, "personaId is required (a number, or null to clear)", 400);
         return null;
     }
 
     const character = await characterService.getCharacterById(characterId);
     if (!character) {
-        res.status(404).json({ status: "error", message: `Character with id '${characterId}' not found` });
+        sendError(res, `Character with id '${characterId}' not found`, 404);
         return null;
     }
-    if (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN) {
-        res.status(403).json({ status: "error", message: "Forbidden" });
+    if (!assertOwnerOrAdmin(req, res, character.creatorId)) {
         return null;
     }
 
@@ -40,12 +40,12 @@ const initializeMessageRoutes = (): Router => {
         try {
             const quote = await messageService.getRandomQuote();
             if (!quote) {
-                return res.status(404).json({ status: "error", message: "No quotes found" });
+                return sendError(res, "No quotes found", 404);
             }
-            res.status(200).json({ status: "success", data: quote });
+            sendSuccess(res, quote);
         } catch (error) {
             console.error("Error fetching random quote:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch quote" });
+            sendError(res, "Failed to fetch quote", 500);
         }
     });
 
@@ -58,10 +58,10 @@ const initializeMessageRoutes = (): Router => {
         const search = req.query.search as string | undefined;
         try {
             const result = await messageService.getMessagesByEpisode(episodeTitle, page, limit, search);
-            res.status(200).json({ status: "success", ...result });
+            sendResult(res, result);
         } catch (error) {
             console.error("Error fetching messages:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch messages" });
+            sendError(res, "Failed to fetch messages", 500);
         }
     });
 
@@ -72,15 +72,12 @@ const initializeMessageRoutes = (): Router => {
         try {
             const message = await messageService.getMessageByNo(episodeTitle, messageNo);
             if (!message) {
-                return res.status(404).json({
-                    status: "error",
-                    message: `Message ${messageNo} in episode '${episodeTitle}' not found`,
-                });
+                return sendError(res, `Message ${messageNo} in episode '${episodeTitle}' not found`, 404);
             }
-            res.status(200).json({ status: "success", data: message });
+            sendSuccess(res, message);
         } catch (error) {
             console.error("Error fetching message:", error);
-            res.status(500).json({ status: "error", message: "Failed to fetch message" });
+            sendError(res, "Failed to fetch message", 500);
         }
     });
 
@@ -91,12 +88,12 @@ const initializeMessageRoutes = (): Router => {
         try {
             if (Array.isArray(req.body?.messages)) {
                 const result = await messageService.createMessages(episodeTitle, req.body.messages);
-                return res.status(201).json({ status: "success", data: result });
+                return sendSuccess(res, result, 201);
             }
             const message = await messageService.createMessage(episodeTitle, req.body);
-            res.status(201).json({ status: "success", data: message });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, message, 201);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -106,9 +103,9 @@ const initializeMessageRoutes = (): Router => {
         const messageNo = parseInt(req.params.messageNo, 10);
         try {
             const message = await messageService.updateMessage(episodeTitle, messageNo, req.body);
-            res.status(200).json({ status: "success", data: message });
-        } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            sendSuccess(res, message);
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -122,10 +119,9 @@ const initializeMessageRoutes = (): Router => {
             const resolved = await resolveStampAuthorization(req, res);
             if (!resolved) return;
             const count = await messageService.applyPersonaToEpisode(episodeTitle, resolved.characterId, resolved.personaId);
-            res.status(200).json({ status: "success", data: { count } });
-        } catch (error: any) {
-            const status = /not found/i.test(error.message ?? "") ? 404 : 400;
-            res.status(status).json({ status: "error", message: error.message });
+            sendSuccess(res, { count });
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 
@@ -139,10 +135,9 @@ const initializeMessageRoutes = (): Router => {
             const resolved = await resolveStampAuthorization(req, res);
             if (!resolved) return;
             const count = await messageService.applyPersonaToSeason(seasonTitle, resolved.characterId, resolved.personaId);
-            res.status(200).json({ status: "success", data: { count } });
-        } catch (error: any) {
-            const status = /not found/i.test(error.message ?? "") ? 404 : 400;
-            res.status(status).json({ status: "error", message: error.message });
+            sendSuccess(res, { count });
+        } catch (error) {
+            sendCaughtError(res, error);
         }
     });
 

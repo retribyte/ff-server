@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import commentaryService from "./commentary.service.js";
 import { authenticate } from "../auth/security.middleware.js";
 import { assertOwnerOrAdmin } from "../auth/ownership.js";
+import { sendSuccess, sendError } from "../utils/http.js";
 
 const initializeCommentaryRoutes = (): Router => {
     const router: Router = Router();
@@ -14,7 +15,7 @@ const initializeCommentaryRoutes = (): Router => {
             const { episodeTitle } = req.params;
             const messageNo = parseInt(req.params.messageNo, 10);
             if (!req.body?.content || typeof req.body.content !== "string" || !req.body.content.trim()) {
-                return res.status(400).json({ status: "error", message: "Missing commentary content" });
+                return sendError(res, "Missing commentary content", 400);
             }
 
             try {
@@ -25,15 +26,12 @@ const initializeCommentaryRoutes = (): Router => {
                     req.body.content.trim()
                 );
                 if (!commentary) {
-                    return res.status(404).json({
-                        status: "error",
-                        message: `Message ${messageNo} in episode '${episodeTitle}' not found`,
-                    });
+                    return sendError(res, `Message ${messageNo} in episode '${episodeTitle}' not found`, 404);
                 }
-                res.status(201).json({ status: "success", data: commentary });
+                sendSuccess(res, commentary, 201);
             } catch (error) {
                 console.error("Error creating commentary:", error);
-                res.status(500).json({ status: "error", message: "Failed to create commentary" });
+                sendError(res, "Failed to create commentary", 500);
             }
         }
     );
@@ -42,20 +40,20 @@ const initializeCommentaryRoutes = (): Router => {
     router.put("/commentaries/:id", authenticate, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
         if (!req.body?.content || typeof req.body.content !== "string" || !req.body.content.trim()) {
-            return res.status(400).json({ status: "error", message: "Missing commentary content" });
+            return sendError(res, "Missing commentary content", 400);
         }
 
         try {
             const commentary = await commentaryService.getCommentaryById(id);
             if (!commentary) {
-                return res.status(404).json({ status: "error", message: `Commentary with id '${id}' not found` });
+                return sendError(res, `Commentary with id '${id}' not found`, 404);
             }
             if (!assertOwnerOrAdmin(req, res, commentary.creatorId)) return;
             const updated = await commentaryService.updateCommentary(id, req.body.content.trim());
-            res.status(200).json({ status: "success", data: updated });
+            sendSuccess(res, updated);
         } catch (error) {
             console.error("Error updating commentary:", error);
-            res.status(500).json({ status: "error", message: "Failed to update commentary" });
+            sendError(res, "Failed to update commentary", 500);
         }
     });
 
@@ -66,14 +64,14 @@ const initializeCommentaryRoutes = (): Router => {
         try {
             const commentary = await commentaryService.getCommentaryById(id);
             if (!commentary) {
-                return res.status(404).json({ status: "error", message: `Commentary with id '${id}' not found` });
+                return sendError(res, `Commentary with id '${id}' not found`, 404);
             }
             if (!assertOwnerOrAdmin(req, res, commentary.creatorId)) return;
             await commentaryService.deleteCommentary(id);
             res.status(204).send();
         } catch (error) {
             console.error("Error deleting commentary:", error);
-            res.status(500).json({ status: "error", message: "Failed to delete commentary" });
+            sendError(res, "Failed to delete commentary", 500);
         }
     });
 
