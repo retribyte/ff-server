@@ -32,7 +32,7 @@ const initializeStoryRoutes = (): Router => {
     });
 
     // POST /api/stories: Create a new story
-    router.post("/stories", authenticate, async (req: Request, res: Response) => {
+    router.post("/stories", authenticate, isAdmin, async (req: Request, res: Response) => {
         try {
             const story = await storyService.createStory(req.body);
             res.status(201).json({ status: "success", data: story });
@@ -64,7 +64,7 @@ const initializeStoryRoutes = (): Router => {
     });
 
     // POST /api/stories/:slug/chapters: Add a chapter (auto-numbered when chapter_no omitted)
-    router.post("/stories/:slug/chapters", authenticate, async (req: Request, res: Response) => {
+    router.post("/stories/:slug/chapters", authenticate, isAdmin, async (req: Request, res: Response) => {
         const { slug } = req.params;
         try {
             const chapter = await storyService.createChapter(slug, req.body ?? {});
@@ -75,7 +75,7 @@ const initializeStoryRoutes = (): Router => {
     });
 
     // PUT /api/stories/:slug/chapters/:chapterNo: Retitle a chapter
-    router.put("/stories/:slug/chapters/:chapterNo", authenticate, async (req: Request, res: Response) => {
+    router.put("/stories/:slug/chapters/:chapterNo", authenticate, isAdmin, async (req: Request, res: Response) => {
         const { slug } = req.params;
         const chapterNo = parseInt(req.params.chapterNo, 10);
         try {
@@ -118,7 +118,7 @@ const initializeStoryRoutes = (): Router => {
     });
 
     // POST /api/stories/:slug/chapters/:chapterNo/lines: Bulk-append lines { lines: [...] }
-    router.post("/stories/:slug/chapters/:chapterNo/lines", authenticate, async (req: Request, res: Response) => {
+    router.post("/stories/:slug/chapters/:chapterNo/lines", authenticate, isAdmin, async (req: Request, res: Response) => {
         const { slug } = req.params;
         const chapterNo = parseInt(req.params.chapterNo, 10);
         if (!Array.isArray(req.body?.lines)) {
@@ -133,7 +133,7 @@ const initializeStoryRoutes = (): Router => {
     });
 
     // PUT /api/stories/:slug/chapters/:chapterNo/lines/:lineNo: Edit one line
-    router.put("/stories/:slug/chapters/:chapterNo/lines/:lineNo", authenticate, async (req: Request, res: Response) => {
+    router.put("/stories/:slug/chapters/:chapterNo/lines/:lineNo", authenticate, isAdmin, async (req: Request, res: Response) => {
         const { slug } = req.params;
         const chapterNo = parseInt(req.params.chapterNo, 10);
         const lineNo = parseInt(req.params.lineNo, 10);
