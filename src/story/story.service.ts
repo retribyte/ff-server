@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma, StoryLineType, StoryFormat } from "@prisma/client";
 import { SLUG_PATTERN } from "../utils/slug.js";
+import { sanitizeText } from "../utils/sanitize.js";
 
 const prisma = new PrismaClient();
 
@@ -103,7 +104,7 @@ async function createStory(data: StoryData) {
         data: {
             slug: data.slug,
             title: data.title,
-            blurb: data.blurb ?? null,
+            blurb: data.blurb != null ? sanitizeText(data.blurb) : null,
             authorId: data.authorId ?? null,
             publishedDate: data.publishedDate ? new Date(data.publishedDate) : null,
             themeColor: data.themeColor ?? null,
@@ -122,7 +123,7 @@ async function updateStory(slug: string, data: Partial<StoryData>) {
         data: {
             slug: data.slug,
             title: data.title,
-            blurb: data.blurb,
+            blurb: data.blurb != null ? sanitizeText(data.blurb) : data.blurb,
             authorId: data.authorId,
             publishedDate: data.publishedDate !== undefined
                 ? (data.publishedDate ? new Date(data.publishedDate) : null)
