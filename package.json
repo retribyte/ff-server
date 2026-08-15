@@ -14,6 +14,7 @@
         "seed:legacy": "tsx prisma/seed-legacy.ts",
         "seed:galaxy": "tsx prisma/seed-galaxy.ts",
         "seed:8ball": "tsx prisma/seed-8ball.ts",
+        "seed:vec-personas": "tsx prisma/seed-vec-personas.ts",
         "migrate:vm": "tsx prisma/migrate-vm-to-story.ts",
         "backfill:slugs": "tsx prisma/backfill-slugs.ts"
     },

@@ -80,6 +80,35 @@ function avatarShorthand(name: string): string {
     return name.toLowerCase().replaceAll(/\s/g, "");
 }
 
+// A handful of characters were renamed to their full names in the FF2/FF4
+// archive-to-markdown sources (short-name fragments folded into one
+// identity, see archive-to-markdown git history), but ff-site-old's
+// characterColors.json and avatar files -- read-only legacy assets, not
+// reconverted -- still key off the old short names. Without this, the
+// renamed characters silently lose their color/avatar on reseed, AND the
+// old short name gets recreated as an empty zero-message orphan character
+// (colors.dark's keys feed into the character-name set below regardless of
+// whether any message uses them). Map current name -> legacy lookup key so
+// both the character-set membership and the color/avatar lookups use the
+// same identity.
+const LEGACY_NAME_ALIASES: Record<string, string> = {
+    "Emmett Tawfeek": "Emmett",
+    "Seth Im'Kin'ki": "Seth",
+    "Victor Chomsky": "Chomsky",
+    "Sanya Dreadflower": "Sanya",
+};
+const LEGACY_ALIASED_AWAY = new Set(Object.values(LEGACY_NAME_ALIASES));
+// Reverse direction -- cyoa.json (also an unconverted ff-site-old asset)
+// still names these speakers by their old short name, same as the color
+// table. Canonicalize any legacy short name seen in CYOA data up front so
+// it never independently enters the character-name set.
+const CANONICAL_FOR_LEGACY: Record<string, string> = Object.fromEntries(
+    Object.entries(LEGACY_NAME_ALIASES).map(([canonical, legacy]) => [legacy, canonical])
+);
+function canonicalize(name: string): string {
+    return CANONICAL_FOR_LEGACY[name] ?? name;
+}
+
 // Slugs are globally unique per table; dedup collisions (distinct names that
 // slugify to the same string) by appending _2, _3, ... to later occurrences.
 function uniqueSlug(base: string, used: Set<string>): string {
@@ -210,8 +239,8 @@ async function main() {
 
     const characterNames = new Set<string>([
         ...blockCounts.keys(),
-        ...cyoaLines.filter((l) => l.character).map((l) => l.character as string),
-        ...Object.keys(colors.dark),
+        ...cyoaLines.filter((l) => l.character).map((l) => canonicalize(l.character as string)),
+        ...Object.keys(colors.dark).filter((name) => !LEGACY_ALIASED_AWAY.has(name)),
     ]);
 
     const characterIds = new Map<string, number>();
@@ -219,13 +248,14 @@ async function main() {
     for (const name of [...characterNames].sort()) {
         const byPlayer = blockCounts.get(name);
         const mainPlayer = byPlayer ? [...byPlayer.entries()].sort((a, b) => b[1] - a[1])[0][0] : null;
-        const shorthand = avatarShorthand(name);
+        const legacyName = LEGACY_NAME_ALIASES[name];
+        const shorthand = avatarShorthand(legacyName ?? name);
         const character = await prisma.character.create({
             data: {
                 name,
                 speciesId: unclassified.id,
                 creatorId: mainPlayer ? userIds.get(mainPlayer)! : archivist.id,
-                color: colors.dark[name] ?? null,
+                color: colors.dark[name] ?? (legacyName ? colors.dark[legacyName] : undefined) ?? null,
                 image: avatarFiles.has(`${shorthand}.png`) ? `/avatars/${shorthand}.png` : null,
                 slug: uniqueSlug(slugify(name), usedCharacterSlugs),
             },
@@ -295,7 +325,7 @@ async function main() {
         });
 
         const cyoaRows: Prisma.StoryLineCreateManyInput[] = cyoaLines.map((line, index) => {
-            const characterId = line.character ? (characterIds.get(line.character) ?? null) : null;
+            const characterId = line.character ? (characterIds.get(canonicalize(line.character)) ?? null) : null;
             let type: StoryLineType;
             switch (line.type) {
                 case "dialogue":
