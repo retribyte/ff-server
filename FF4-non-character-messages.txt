@@ -1,0 +1,1943 @@
+# Episode 0 — Pilot
+[1] Zander: Changed the channel name: Final Frontier 3 Oneshot
+[2] Trey: Changed the channel name: Final Frontier 4 Test One-shot
+[12] Trey: Mateo
+[88] Trey: Kummdoem
+[90] Michael: kumdome
+[136] Trey: (Switching from Garrick to Dr. Jorpa Scouloneus now)
+[168] Trey: I love you
+[169] Trey: I miss you
+[224] Trey: Deecolun
+[225] Trey: d:
+[289] Trey: Kahreen
+[301] Silas: Dutch barges in the waiting room doors.
+[314] Silas: Dutch shuffles towards the receptionist, clearly hiding something in his coat.
+[316] Silas: Doc pats Emmett on the head for
+[318] Silas: too long before showing him to the table.
+[336] Silas: Dutch ignores the receptionist and shuffles over to Chomsky, almost falling over before plopping down right next to him.
+[361] Silas: Dutch busts out laughing and pats Chomsky on the back a couple times.
+[370] Silas: Dutch looks to Matteo.
+[381] Silas: Dutch grabs at the air, trying to retrieve his newly stolen Strauss.
+[405] Michael: BLAXWELL
+[457] Jonas: crab
+[553] Trey: @Zander
+[606] Trey: .
+[637] Trey: Emmett's cushioned
+[692] Trey: Dr. Jorpa Scouloneus
+[743] Trey: @Michael you attack jorpa
+[759] Brody: https://tenor.com/view/gmod-ragdoll-video-game-video-game-gif-20573521
+[760] Brody: https://tenor.com/view/gmod-ragdoll-reverse-gmod-ragdoll-reverse-ragdoll-gmod-reverse-gif-21218351
+[761] Jonas: https://tenor.com/view/fat-guy-falling-off-chair-fast-chair-pissed-off-fast-nole-fast-falling-fast-gif-25168440
+[763] Maxwell: Kinda sussy
+[770] Trey: roll d6
+[811] Trey: Stop lying
+[815] Maxwell: What's a seeion?
+[854] Brody: Space Rule 553: Beware the Cum.
+[855] Zander: .
+
+# Episode 1 — Welcome, New Recruits
+[29] Trey: The date is 35-7, 3024 GUY. It’s been about two semesters since you sent your application to a new position in the Llamanian Armada, not really expecting anything to come of it. They didn’t even bother to interview you in person, right? It must not be that important.
+[30] Trey: …
+[31] Trey: Well, it’s finally Eflo and you’re on the Llamanian Mothership. You received a call this morning, bright and early, informing you that the Armada was ready to debrief you. It all gets hazy from there…
+[32] Trey: You are currently in what looks like a briefing room, surrounded by a bunch of strangers. Are these the other recruits…? Whatever the case, you’re relieved not to have that bag over your head anymore.
+[33] Trey: You look around and see 5, no, 6 others besides the commander. Seems like he walked in while you were distracted. He greets you all…
+[34] Trey: https://docs.google.com/spreadsheets/d/1tUbD9YHUc15eV1BzEz7UggHx9Ior06GwtGyPfuwagkQ
+[39] Trey: (Context, if you didn't read Final Pummel—the Llamanians are at war with the GU)
+[187] Trey: Attention HORIZONERS. The REPUBLIC is thankful for your cooperation. You will be administered a minimum of 50 DUCKETTS worth of Llamanian TICKETS each week to sustain your crew. You must use this ship for travel and you may not make any customization to the vessel outside of basic repairs. You are permitted to veer from the mission path only if necessary. Every day the ARMADA will request a STATUS REPORT, and will give the crew a new TASK. All must be completed within a timely manner, but do not forget what the MISSION is. Retrieve the ARTIFACT. For now, get your bearings and head towards these coordinates:
+[188] Trey: 959 X — 667 Y — 43 Z
+[189] Trey: Sector N-15
+[286] Michael: shit of piece*
+[311] Zander: (Bellow said the action message above)
+[323] Trey: (a Labrador)
+[336] Trey: bals
+[352] Trey: *obliterating the asteroid
+[368] Trey: why does zion talk like an anime character
+[395] Trey: jLabumba
+[424] Trey: f-word
+[425] Jonas: fork
+[426] Trey: finger
+[427] Maxwell: foop
+[428] Silas: french
+[510] Trey: it's German
+[562] Trey: https://docs.google.com/spreadsheets/d/18r_WwDMUmfq7IK07xGxqPILIPvC4DeaqYGjePFHUJLs/edit#gid=0
+[563] Trey: {"title": "Weapon List - FF4", "description": ["Weapons (To be added to)", "Gun,Type,Damage,Description,Rate of Fire", "Phaser,Pistol,1d6+1,A weapon for a more civilized age, has a stun mode, but not a sex or sad mode. Not really made for murder.,Semi", "ADE-65,Pistol,2d6(Semi only),A laser pistol once used by the American Dad Empire in a long ago war..."]}
+[578] Trey: (The aquarium is no longer visible)
+[582] Trey: Dutch cries
+[584] Maxwell: Dutch is coping and seething and malding
+[586] Trey: Dutch dies instantaneously
+[587] Maxwell: Dutch has a nerf war with Zion
+[589] Silas: Dutch falls to the ground, knocking over the aquarium and causing the sharks to hit him in the head comically one by one
+[654] Trey: Find out next time, on... FINAL FRONTIER 4‼️
+[655] Silas: I FARDED
+[657] Jonas: PIN THAT
+[658] Maxwell: Space Rule 227: Sprint aggressively into conversations.
+[659] Zander: Doodorb
+
+# Episode 2 — Fun Guy
+[1] Trey: Last episode, the recruits of Operation EVENT HORIZON gathered for the first time and were briefed on their mission. With a strange captain and an inimical pilot, the crew had an uneasy start to their adventure. After a bizarre few hours on the departing flight, involving massive turbulence and a surprise aquarium, the team landed on a space station in sector N-15.
+[2] Trey: The crew has been there for a few hours, winding down, loosening up, and getting to know each other. Meanwhile, it seems Captain Llafay and Edmin have had some disagreement. I wonder where it will lead…?
+[3] Trey: MISSION CONTROL has only given the crew coordinates for now, so it seems a follow-up task will be coming soon. In the meantime, there’s always the weekly salary to burn away, or perhaps even use on useful things. Fortunately, this SPACE STATION doesn’t seem to be in GU space, so the LLAMANIAN TICKETS will likely be an acceptable currency.
+[4] Trey: All in all, the directive was very vague… What—or who—could the crew possibly need to find here?
+[184] Trey: Instead, Edmin throws the Cephalopean across the room, crashing into Dutch.
+[302] Zander: Zion,
+[303] Zander: I want you to know things aren't as they seem. I've been with the Llamanians for much of my life. Too long to still have the loyalty of my youth, too short to not give a damn. You need to understand that what I did was not against you, but as a sign of rebellion against those who sent us to die a gruesome death. I've been dead inside for a while now. In my mind, you're the best for this operation.
+[304] Zander: Farwell,
+[305] Zander: Captain Llafay
+[361] Sean: \
+[594] Sean: https://tenor.com/view/poo-b-banana-gif-7576472
+[633] Michael: wait why am I gaY?)
+[636] Michael: uhh
+[640] Trey: It's Seth's ship
+[645] Maxwell: Put him in a jar
+[649] Michael: i did
+[650] Michael: cursed
+[657] Sean: https://cdn.discordapp.com/attachments/927472205623865374/928481280813826058/d1dzp5c-c0f9d21e-067a-4de9-b99c-34c95f186473.png
+[665] Michael: @Silas wrong squoat
+[666] Michael: I'm Llawdon
+[667] Trey: "squoat"
+[669] Michael: NO
+[670] Michael: SILAS EDITED
+[671] Maxwell: Squoat
+[672] Trey: Allowed cry about it
+[673] Michael: PUT IT BACK U GOOBER
+[674] Michael: @Silas
+[676] Michael: no
+[683] Michael: @Zander will huffing the spores give me space madness?
+[691] Michael: have to go for a bit
+[694] Michael: uhh @Trey is in charge of my turn
+[696] Trey: Ok
+[710] Trey: Seth's ship is near the plains, adjacent to the jungle edge
+[829] Trey: ;;skip
+[883] Trey: one sec
+[897] Jonas: some carnage v5
+[906] Trey: ...
+[907] Trey: Attention HORIZONERS. If you have not noticed, the prior coordinates are to the KYL TRADE CENTER. There have been numerous reports of a recent ATTACK on the station by an UNKNOWN GROUP a few weeks ago. You will investigate this and report back to the Republic. Take caution.
+[920] Maxwell: https://tenor.com/view/oh-the-misery-eggcat-gif-25127046
+[922] Maxwell: https://tenor.com/view/everybody-wants-to-be-my-gif-25137901
+[954] Jonas: fungus jumpscare (the corpse sits bolt upright and scares dutch)
+[962] Silas: I DON'T WANT IT!!!!!!
+[963] Maxwell: https://tenor.com/view/psychedelic-shrooms-dancing-mushrooms-gif-14682521
+[964] Trey: You do
+[965] Silas: nooooo
+[966] Brody: :bruh:
+[967] Jonas: https://tenor.com/view/risk-of-rain2-gif-23126349
+[994] Trey: Who's firing at our beloved Morra??
+[995] Trey: Find out next time, on... FINAL FRONTIER 4‼️
+[996] Silas: Space Rule 8009 - Always trust a fun guy.
+
+# Episode 3 — Ambush
+[1] Sean: Bigga
+[2] Jonas: https://tenor.com/view/when-the-gif-22365584
+[3] Trey: Last episode, the HORIZONERS gathered at a space station to mingle and set out on their first task—retrieve two strange recruits, SETH, a vulgar elf, and MORRA, a curious golem. Boarding the ship, the group was shocked to discover that their CAPTAIN was dead! While Zion grieved over his supposed suicide, the others followed a trail all the way to… a small fungus?
+[4] Trey: With Dutch suddenly falling ill, Morra enamored by the fungal specimen, and Zion angered by their loss, the crew took off towards their assigned coordinates. Upon reaching orbit, they picked up a disoriented Seth on the planet below, and flew off towards its moon, their real destination.
+[5] Trey: They found the artificial moon—the KYL TRADE CENTER—pillaged and littered with corpses. An unfamiliar ship was parked nearby, and before the crew knew it, they were being shot at! Where could this lead?
+[6] Trey: Doesn’t seem like this enemy will relent… but who could the mysterious assailants be?
+[9] Brody: https://tenor.com/view/dead-gif-22882514
+[12] Sean: https://tenor.com/view/cry-about-it-cry-blender-fluid-simulation-rigidbody-gif-24063872
+[14] Sean: /kill u
+[48] Trey: enemy_a
+[49] Trey: enemy_b
+[50] Trey: enemy_c
+[51] Trey: enemy_d
+[95] Zander: C
+[126] Trey: @Jonas
+[267] Maxwell: seth cum
+[354] Jonas: @Trey @Zander
+[429] Trey: *The trio tries to get a good look at the figures...
+[430] Trey: They are each towering, covered in what looks like thick mech-style suits made of metal. Like the Space Marine from 40k, yeah.*
+[463] Trey: Marv. Take care of them.
+[491] Brody: The Squoatling claims you are not, in fact, a "power ranger". Apologies.
+[539] Sean: /info Seth
+[554] Trey: finger
+[555] Trey: finger
+[574] Silas: https://tenor.com/view/melee-amongus-amongustn-teampudd-gif-19316845 Edmin moment
+[583] Trey: The weapon has so many modifications, the Suchan can barely understand it.
+[637] Jonas: (Bellow has a sort of thermal vision, helping him in situations like this.)
+[662] Trey: Hazmat suits / Spacesuits
+[725] Maxwell: Nes.
+[731] Maxwell: https://tenor.com/view/har-har-har-har-har-har-har-har-freddy-fazbear-big-near-bigger-lmao-fnaf-gif-24294169
+[735] Sean: https://tenor.com/view/die-just-die-gif-23172530
+[770] Jonas: I've got him in a temporary cast, but I'm sure there's something better here...
+[786] Jonas: (About 100 bucks from what i understand. might be able to get some quality medicine, but not a lot else.)
+[814] Trey: Brodingus
+[817] Trey: He has 5 tickets left
+[831] Silas: non on onono ono noo no non oo non on ono
+[839] Zander: " | "
+[849] Silas: when Bellow remembers February
+[857] Trey: "Bellow is the kind of guy to point in the middle of the theater and say, 'MIXED RACE COUPLE SPOTTED!'" - @Brody
+[863] Brody: Space Rule 34805: Always bring a Condom for protection. Cum is far more dangerous than you think.
+
+# Episode 4 — Blackjack
+[1] Trey: Last episode, the HORIZONERS had their first violent encounter. After breaking through security to the KYL FACTORY, the crew entered the massacred site, noticing a few living workers. While snooping upstairs, the crew was discovered by the RAVENS, a group of terrifying villains suited in giant armored mechs. The crew narrowly escaped their grasp, with Dutch suffering shattered ribs.
+[2] Trey: After their escapade, the HORIZONERS traveled to the other side of the ARTIFICIAL MOON, needing to repair the ship. Bellow went shopping and operated on Dutch’s injuries. Zion and Edmin looked for repairs, meeting with a Llamanian agent who gave them their next task. All the while, Seth, Morra, and the strange fungus hung out alone.
+[3] Trey: Later, once everyone had finished their business, the crew regrouped back at their newly-repaired ship. With the new coordinates sent in, they took off towards their new destination—BARBONA, the ocean planet.
+[4] Trey: The travel took a long time, and with the nonstop action tiring the crew out, everyone soon went to sleep. The autopilot landed the ship safely in the water, and it’s now floating perfectly on the planet’s ocean.
+[5] Trey: It’s been a few days since the crew first touched down. With their ship not great for sailing, all they can do is roam around the empty oceans… but maybe today will be different! As a matter of fact, it looks like everyone’s waking up now…
+[7] Brody: https://tenor.com/view/crying-emoji-gif-spam-gif-23391371
+[9] Trey: https://media.discordapp.net/attachments/654343382482812938/674230198304243741/image0.gif
+[10] Silas: thanos line
+[11] Jonas: https://tenor.com/view/meme-cartoon-sponge-bob-spongebob-gif-18148807
+[12] Zander: https://media.discordapp.net/attachments/880060699487899681/974255879136378880/image0-140-2.gif
+[13] Trey: https://tenor.com/view/jerma-jerma-sus-frog-yummy-eat-gif-22909460
+[14] Silas: https://tenor.com/view/caught-in-sussy4k-omgomg-gif-21922925
+[72] Silas: it was gozilla hopin aroud
+[73] Jonas: TRUE
+[74] Trey: Ol' Dreadflower was hoppin around
+[75] Trey: Squoatopia city, like a big playground
+[86] Trey: https://vortox.fandom.com/wiki/Torrid
+[87] Trey: {"title": "Torrid", "description": ["Torrid are a strange race of underwater-dwelling beings who consist of a water and jell-like composure who have a multitude of abilities that might come from their even stranger origin. They are in a tolerable pact with the Blazekids. They appear to be made of a gelatinous substance most closely compared to as gel. Males tend to be identified by..."]}
+[225] Trey: NATURAL 1
+[226] Trey: LETS GOOOO
+[254] Trey: LOWERCASE
+[255] Trey: LOWERCASE
+[256] Trey: LOWERCASE
+[257] Trey: LOWERCASE
+[258] Trey: LOWERCASE
+[259] Trey: LOWERCASE
+[350] Zander: fungo
+[351] Trey: HES DEAD
+[352] Trey: NOOO
+[353] Trey: NO
+[354] Trey: NON
+[355] Trey: NONO
+[428] Trey: Balls
+[501] Silas: wink
+[504] Jonas: (whispering)
+[588] Trey: WHAT
+[592] Jonas: (He can't read it.)
+[607] Trey: FDINGALODI
+[608] Trey: Sorry I was speaking in tongues
+[621] Zander: https://media.giphy.com/media/JiISVT7n55OUw/giphy.gif
+[622] Trey: butt
+[636] Jonas: (to dutch)
+[640] Trey: ^ true
+[653] Jonas: https://media.discordapp.net/attachments/880060699487899681/974255879136378880/image0-140-2.gif
+[662] Jonas: The caveat is that Dutch does the most accurate sexy twerk of all time to taunt them
+[663] Hunt520: "
+[665] Zander: Fungo takes a crayon and draws on Morra's eyeball
+[671] Jonas: not true
+[675] Trey: Cry about it
+[676] Trey: @Brody
+[709] Silas: FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO FUNGO
+[710] Trey: https://media.discordapp.net/attachments/221822879254315008/955553987988443156/redditsave.com_laeghais00o81.gif
+[729] Trey: Ow.
+[730] Trey: Ow.
+[731] Trey: Ow.
+[732] Trey: Ow.
+[764] Trey: Related
+[765] Silas: where does the triangle go?
+[766] Silas: that's right! in the square hole!
+[770] Jonas: garricks sheer willpower prevented the bong from breaking
+[778] Trey: BUTTT!!!!!!!!!!
+[779] Silas: FART??!!!?!?!??!!??!?!??
+[806] Trey: It's advanced or something
+[807] Trey: It's quantum-powered
+[828] Jonas: choice 1 | choice 2
+[829] Trey: Emmett and Sanya's baby's theme
+[834] Trey: Zack & Xander, dream team
+[837] Zander: Fungo sits on Trey's head menacingly
+[842] Jonas: Fungo's new name is "Zander with an X"
+[847] Trey: Fingy
+[848] Trey: 'uajs
+[849] Trey: idpf a
+[872] Trey: Silas J.
+[873] Trey: Hurry up you fingerchild
+[874] Trey: :):):)
+[895] Jonas: (reluctantly)
+[910] Silas: What the Fung!??!?!?
+[911] Trey: Erm... what the fungus?
+[912] Zander: READ
+[919] Trey: @Zander
+[920] Jonas: bruh
+[937] Zander: Morra's Note:
+[938] Zander: Pick me up
+[971] Trey: Cock
+[972] Trey: Penis
+[998] Jonas: https://media.discordapp.net/attachments/880060699487899681/974255879136378880/image0-140-2.gif
+[1003] Brody: https://media.discordapp.net/attachments/880060699487899681/974255879136378880/image0-140-2.gif
+[1010] Trey: tooped
+[1013] Trey: Bugnuignhf diulgh fedryuwvik jt5h4ewrdhsgkujera ghkjjAAAAAAAAAAAAAAAAAAAAAA
+[1030] Jonas: bellow
+[1075] Jonas: wheres dee nu ??? 🙄 🙄 🙄 🙄
+[1106] Trey: Space rule #1: always die a fun death.
+[1107] Jonas: Space Rule #499: Never play blackjack with a rock. They're big cheaters.
+[1108] Jonas: Space Rule #36: For every crew member, there is a huge dumptruck version of them in existence.
+
+# Episode 5 — Diplomacy
+[1] Trey: Last episode, the HORIZONERS marked their fourth day stranded on the ocean planet, BARBONA. After moping around for a while, the crew was ambushed by an angry tribe of Torrid, with a silent human named Zach accompanying them. After a quite annoying battle with no synergy whatsoever, the hangar was flooded, and Dutch was, of course, knocked out.
+[2] Trey: Soon enough, the crew received a call from MISSION CONTROL. Apparently, the site they’d sailed to was the location of the crashed Llamanian ship! However, before they could search, they were attacked by a giant hand made of Torrid. The crew narrowly escaped by flying high above the sea.
+[3] Trey: Using the newly-received radio frequencies, Morra, the fungus, and Zach went underwater to search for the weapon schematics. Eventually, they discovered two cannons and a data storage device, and Zion tractor-beamed them back up. While no one was looking, the fungus jumped back down to look for a new host, and Morra scrambled to retrieve him, beaming a soaked, rotten, fungus-controlled Llamanian back up. Meanwhile, the others played Blackjack on the ship.
+[4] Trey: Now, the crew is finally back on course. There are no new orders yet, but surely they will come soon…
+[7] Trey: @Hunt520 you are you are you are you are deafened btw
+[8] Trey: Torringus
+[9] Silas: HE IS HE IS HE IS HE IS DEAFENED BTW
+[11] Trey: Fortnite Fingies
+[12] Trey: Is that over comms?
+[13] Sean: sure
+[30] Michael: can u guys hear me?
+[31] Silas: he's calling his parents
+[32] Trey: no
+[33] Sean: no
+[34] Silas: no
+[36] Michael: hmm
+[38] Michael: someone speaketh
+[39] Trey: We are
+[40] Michael: who's turn is it?
+[41] Trey: Yours
+[42] Silas: but
+[43] Sean: yo mamas
+[44] Michael: okay
+[45] Michael: im gonna do my turn
+[47] Silas: we're trying to loop
+[48] Michael: then restart my pc
+[49] Trey: Oh
+[50] Trey: Nvm
+[51] Trey: Lol
+[52] Silas: nvm
+[60] Michael: i know it's a joke, but no
+[61] Michael: @Trey am I currently awake in the episode?
+[64] Trey: I don't know, ask 8ball
+[66] Michael: bruh
+[68] Trey: @Zander Vote to override that
+[70] Michael: restarting my PC brb
+[74] Zander: oVERRIDEN
+[98] Sean: Btw Im on my phone rn
+[123] Michael: bruhio
+[125] Michael: y'all speakin?
+[127] Trey: Ok
+[128] Trey: Yes
+[129] Trey: Fix your audio settings
+[130] Michael: i am
+[131] Silas: check your devices in discord
+[138] Trey: Finger's turn
+[170] Trey: @Michael do an 8ball other than "wake up"
+[181] Michael: what's currently happening
+[182] Michael: I can't hear
+[183] Silas: FIX
+[184] Silas: COMPUTER
+[185] Trey: It is your turn
+[186] Michael: and right now, I'm trying to tackle a server issue with a server I bought
+[187] Silas: fix the dumb ark server later
+[188] Trey: Everyone's hanging around
+[190] Michael: fuck
+[191] Trey: ATTENTION, HORIZONERS. Your destination for today's task is the planet MOLDARR in the Zudieter system. There is a Llamanian task force there who will give you further orders. Set course there immediately. Your weekly funds will be received shortly. Thank you for your cooperation.
+[236] Trey: 🤏:fungo:
+[237] Brody: https://tenor.com/view/k%C3%B6ksal-baba-koksal-gif-tiny-turkish-too-small-gif-14347212
+[243] Zander: @Sean
+[249] Sean: ]
+[262] Michael: (Can I just wake up? Do I
+[264] Michael: to 8ball?)
+[266] Trey: You're uyp
+[268] Trey: That 8ball was overridden
+[270] Michael: Oh
+[271] Zander: Fix your sound
+[273] Michael: I’m eating
+[274] Michael: It’s fixed
+[275] Trey: New rule: anyone who uses their turn to wake up now has their balls forcibly shrugged
+[285] Trey: Space Rule 836: Wake up or shrug up.
+[289] Michael: Pinned a message.
+[290] Zander: (Llafay is dead, but the fungus is a Llamanian researcher)
+[291] Trey: Llafay's dead, but Zander's currently playing another Llamanian
+[292] Michael: Oh
+[293] Michael: Well
+[294] Trey: So maybe Llawdon is drowsy and doesn't recognize
+[295] Michael: My character doesn’t know that yet
+[296] Silas: your character saw his corpse from what I remember
+[298] Trey: no
+[299] Trey: he did not
+[300] Silas: oh ok
+[326] Michael: Bruh
+[330] Michael: NO
+[331] Michael: Silas
+[332] Michael: Dutch actually said that
+[347] Michael: (What is Dutch again?)
+[353] Zander: (Wolverine)
+[355] Michael: (Kk
+[364] Silas: Dutch is a verinian, a bipedal wolverine-like race of mammals
+[367] Michael: Kk thx man
+[368] Michael: Almost done eating
+[378] Trey: Instead, they head off towards a nearby outpost which is NOT visibly smoking.
+[379] Michael: (Who’s the captain now that Llafay is dead? Is it Seth)
+[382] Zander: (No official captain, we're assuming Zion)
+[383] Michael: Ok
+[384] Trey: (Since Llawdon was asleep, everyone defaulted to Zion, but that's not official)
+[385] Trey: (Llawdon could dispute that now that he's up)
+[390] Michael: (I’m not going to because I’m trying to fulfill a certain character arc)
+[477] Michael: https://tenor.com/view/bomb-boom-explode-gif-8160440
+[539] Trey: Finger OST
+[643] Silas: bru | uuh
+[661] Silas: it was super effective
+[745] Trey: Grenklep Dinbip
+[757] Trey: Neljis Boplily
+[840] Sean: :/
+[845] Sean: Let me make one final attack?
+[846] Zander: Yes
+[848] Sean: Can I 8ball it or do you want me to just use dmg
+[849] Zander: Just 8ball
+[850] Sean: Alright
+[851] Sean: Im having to watch my niece lol
+[852] Sean: I'll wait till its my turn
+[853] Sean: For what?
+[864] Zander: (@Sean just do the attack so you can have a better turn afterwards)
+[870] Sean: Cant do it yet
+[872] Sean: Not my turn lol
+[873] Zander: (I said so)
+[875] Sean: No I know lol
+[876] Sean: Bot wont let me
+[877] Zander: (It will)
+[885] Zander: ?
+[886] Sean: Its not letting me :/
+[889] Sean: Hm
+[891] Sean: Weird
+[892] Trey: @Michael Are you playing?
+[900] Trey: Dee nuh
+[903] Trey: Neljis Boplily
+[906] Sean: Epic
+[916] Zander: (Lol same idea)
+[918] Sean: Epic inflation moment
+[924] Sean: Eww
+[925] Trey: Sean, you're after Jonas
+[926] Trey: You decide the caveat
+[927] Sean: Ok
+[930] Sean: Dutch becomes a human sized marble with a mouth
+[931] Sean: No eyes
+[1000] Sean: Epic
+[1029] Sean: Brb
+[1055] Jonas: Kahbruh
+[1056] Jonas: bruh
+[1057] Jonas: bruhle
+[1058] Jonas: kabruh
+[1059] Trey: Your
+[1060] Trey: Yourself
+[1061] Trey: Killyourself
+[1070] Jonas: doesnt rain glass, it rains acid
+[1088] Zander: Rule 2392: Do not try diplomacy with a minyac on the loose.
+[1089] Trey: Minyac
+[1090] Trey: Space Rule #239: Never try diplomacy with a minyiac on the loose.
+[1091] Jonas: F
+
+# Episode 6 — Obligatory Shopping Episode
+[1] Jonas: https://discord.com/channels/324621181640638464/994006533161615440/994006541986443315
+[2] Trey: Last episode, the HORIZONERS had a surprise diplomatic mission on the volcanic planet of MOLDARR. Initially hanging around prone on the ship, the crew landed and met at a Llamanian outpost near the capital Moldak city of Dinbip. The plan: get the MOLDAK CONFEDERATION to ally with the Horizoners, giving the REPUBLIC control over the surrounding population.
+[3] Trey: The ambassadorial meeting went well, with Dutch using his surprise acting prowess to win over the MOLDAK COUNCIL. Meanwhile, Seth’s bizarre clone, Miny Seth, terrorized the surrounding city by growing into a kaiju monster.
+[4] Trey: Much of the city was left in ruins, but the treaty was secured, so, mission complete!
+[5] Trey: It’s been a few days since the crew left Moldarr. The crew is currently docked at a SPACE STATION, refueling and relaxing after their long week.
+[9] Trey: The quality content I love
+[29] Trey: Zingle, tingle
+[47] Trey: Come back to hingl
+[64] Zander: @Jonas @Hunt520
+[78] Sean: Did it skip me?
+[81] Trey: Yeah I think, go ahead and do your turnn
+[83] Zander: You weren't in chat whenever it started
+[90] Zander: Fixed it, go
+[92] Trey: THANK GOD
+[93] Silas: WHEW
+[108] Zander: Does it look pretty Sean? :)
+[110] Sean: yes
+[111] Sean: Its very purple
+[113] Trey: Attention HORIZONERS. This is the LLAMANIAN REPUBLIC Mission Control. Your destination for today’s task is the planet FLEEX in the Eflah system. There is a smith there with a specialization that will be of use for this mission. Prepare the DESIGN SCHEMATICS that you retrieved on a prior mission. The smith will prepare the device using the schematics. Thank you for your cooperation.
+[131] Zander: lol
+[150] Hunt520: screw off
+[154] Trey: Dinkleburg?
+[166] Trey: 🤏:fungo:
+[175] Sean: One sec
+[223] Trey: He's in the cinglepingle
+[233] Trey: @Zander Dungle mungle's turn
+[258] Trey: MingleChug
+[262] Trey: Orb
+[263] Trey: Orbit
+[287] Jonas: NOT TRUE
+[288] Trey: TINGLE
+[289] Trey: INGLE
+[290] Trey: INGLE
+[296] Jonas: jerma
+[297] Jonas: is the movie character
+[304] Jonas: DUDE HAS NO DUMPY
+[325] Trey: Description: A race of incestuous alien birds with light sensitive spots all over their bodies and pale skin. They squirt ink when threatened. A state lottery reduces population growth by killing those who win. The lottery is entered by drawing free money from a lottery cash machine. The more money they take, the higher the probability that they will be killed. Their home-world experiences extremes of temperature due to a highly elliptical orbit. They grow thick coats of fur in the winter months but shed them in the spring.
+[334] Sean: Sorry guys eating dinner
+[336] Trey: Np
+[338] Silas: You're fine
+[345] Trey: RICK! RICK! RICK! RICK! RICK! RICK! RICK! RICK! RICK! RICK! RICK! RICK!
+[346] Trey: Rick Nye the science guy!
+[348] Hunt520: Zach doesn't have the badge
+[351] Trey: AAAH! he says, afraid of Dutch's little body
+[352] Trey: 4'6
+[353] Trey: 4'2
+[354] Trey: 3'1
+[355] Trey: 1'7
+[356] Trey: 0'1
+[358] Trey: 1 millimeter
+[359] Trey: Marbled
+[362] Zander: (I'm overriding it fuck you 8ball)
+[381] Zander: https://www.youtube.com/watch?v=IFOvTWSYCbc
+[382] Zander: {"title": "Loud Nigra Scream (Reuploaded)", "description": ["This scream was used in some memeish videos."]}
+[389] Trey: Balls
+[390] Trey: respond pls
+[405] Zander: @Trey
+[429] Trey: You will answer my riddles three, or I get a metalworking commission for free.
+[451] Jonas: SELL THE FUNGUS
+[475] Jonas: lego figures
+[476] Trey: Fingers
+[477] Jonas: FINGER
+[478] Jonas: INGER
+[480] Jonas: INGER
+[481] Trey: Fingle
+[502] Trey: Dutch is 2 feet tall
+[530] Trey: 994006533161615440-994034835729420298
+[534] Jonas: teeth monster says
+[541] Silas: oh my goth! you ficthed me up! thith ith a miracle!
+[558] Trey: kills:
+[573] Jonas: YO MOM !!!
+[609] Jonas: zander's undertale text noise
+[616] Jonas: lois
+[617] Jonas: griffin
+[686] Trey: "Obama"
+[691] Sean: https://www.youtube.com/watch?v=KaT0nqyOfK4
+[692] Sean: {"title": "Watch: Georgia sheriff and city sergeant threaten to arrest each other", "description": ["The Towns County Sheriff intervened in the middle of a Hiawassee sergeant’s traffic stop as part of an heated dispute between the police agencies."]}
+[810] Trey: Ok ok ok ok ok
+[818] Jonas: morra
+[821] Jonas: D:
+[822] Jonas: :D
+[823] Jonas: D:
+[824] Jonas: :D
+[826] Trey: D:
+[847] Trey: Wingaloid
+[900] Jonas: BUDDER
+[901] Jonas: BUDDER
+[902] Jonas: BUDDER
+[904] Silas: SQUID
+[906] Trey: https://tenor.com/view/sky-does-minecraft-minecraft-gif-3520780
+[907] Trey: {"title": "Intro"}
+[908] Sean: https://media.discordapp.net/attachments/991475839571075083/991489199796662272/tenor_6.gif
+[912] Jonas: https://tenor.com/view/minecraft-gif-22236039
+[913] Jonas: zion
+[935] Trey: Space Rule #721: Barter carefully.
+
+# Episode 7 — Marv Attacks!
+[1] Trey: Last episode, the HORIZONERS took a trip to FLEEX, a planet of black-market trade. Mission Control tasked the crew with commissioning a special DEVICE using schematics they recovered on Barbona. After dodging drug dealers and prostitutes, they made it to the blacksmith’s shop. Dutch succeeded in haggling away the smith’s extortionate down payment, and they played the waiting game. Soon, they were confronted by a group of hoodlums! However, after Dutch shot one point-blank in the teeth, they left.
+[2] Trey: Before they knew it, the DEVICE was completed. Meanwhile, an eccentric Llamanian officer named LOS appeared to check up, and gave everyone gifts and mail addressed to them. However, the party was short-lived, as out of nowhere, the GALACTIC UNION tractor-beamed the Horizoners’ ship away!
+[3] Trey: It has been about 17 periods (hours) since the crew’s ship was taken.
+[4] Trey: BELLOW, DUTCH, ZION, SETH, ZACHARIAS, and the FUNGUS are currently on Los’s ship, parked on a moon somewhere. Everyone else was on their ship when it was towed, so who knows where they could be…
+[15] Silas: Miny****
+[16] Jonas: buggeee
+[17] Michael: hi
+[19] Trey: What is fortnight
+[22] Jonas: snitch from harry potter
+[30] Jonas: one ball from monkey with golden balls statue
+[31] Trey: Instead, he can create wormholes as many times as he wants per session
+[42] Trey: Does Zion kill Bellow this episode?
+[44] Zander: Yes
+[45] Jonas: dollalalaa
+[46] Trey: Yigga.
+[48] Trey: Y-word.
+[51] Michael: /8ball does Llawdon get any answers from the GU on why their ship is being towed?
+[100] Silas: just skip me if you need to
+[106] Jonas: the
+[120] Zander: @Trey
+[125] Jonas: emmett x labringer
+[126] Trey: Docking distance of the towing station
+[140] Trey: *from the Wal
+[150] Sean: '
+[204] Trey: [Verse 1]
+[205] Trey: We built this city!
+[206] Trey: We built this city on poopy fart!
+[257] Trey: Marbles...?
+[258] Trey: Oh no.
+[266] Trey: Bingus
+[267] Trey: Bignsu
+[268] Trey: Bgujns
+[290] Trey: It's a zombie
+[308] Trey: Instead, they teleport into another ship housed in the warehouse
+[327] Zander: Joker:
+[328] Trey: Petty w/ a prior
+[388] Jonas: @Trey
+[402] Michael: (eating)
+[421] Trey: Instead, the door is open right in front of them.
+[423] Trey: They have to leave manually, sadly.
+[429] Jonas: BLACK!
+[442] Jonas: BLACK IS REAL!
+[444] Jonas: CAMOFLAUGE
+[458] Jonas: sans
+[466] Jonas: to marv
+[479] Zander: Marv barricades most of the entrances. (One is open, but Marv is guarding it.)
+[482] Jonas: JOKER NOOOOO
+[495] Trey: ravens_marv
+[515] Brody: Jyent Seth
+[520] Jonas: dutch goes berserk
+[528] Trey: Ok, hang on
+[544] Zander: @Trey dm
+[551] Jonas: chomsky flame
+[553] Trey: ravens_marv
+[572] Trey: Morra fingers Marv
+[579] Jonas: biggie seth
+[650] Jonas: RACIST AGAINST BELLOW
+[730] Trey: Instead, he wakes up in Elf Heaven.
+[735] Jonas: seth had sex with the air
+[736] Trey: Seth has had sex with random women on Barbona, though
+[737] Jonas: airussy
+[739] Silas: gotta get me some of that oxyjussy
+[741] Jonas: bruhlinger
+[742] Jonas: !!
+[743] Jonas: !
+[744] Jonas: !
+[748] Jonas: @Silas
+[757] Jonas: HE TOUCHY EYBALL OWCH
+[763] Zander: Zion also finds the ship's keys at the convenience store for some reason.
+[772] Zander: @Brody
+[804] Trey: Thank god
+[805] Jonas: hallucinatory dreams
+[814] Trey: Zander was Bellow's baby sister's name, who's now fossilized in amber
+[911] Trey: sex?
+[914] Jonas: https://tenor.com/view/cope-mald-ratio-gif-24944390
+[916] Zander: https://media.discordapp.net/attachments/324621629462151168/658478497840234517/45a.gif
+[947] Trey: I'm so happy! I"m your #1 fan!
+[948] Trey: I could cream
+[975] Trey: His hand is covered in fluid
+[1001] Trey: Episode's over now
+[1003] Silas: Space Rule #888: Never give a space pirate a reason for revenge.
+
+# Episode 8 — Don't Be A Shitty Dad
+[2] Sean: apoapa
+[4] Silas: I AM IN HERE
+[5] Trey: Last episode, the HORIZONERS had their second encounter with the villainous group, the RAVENS. After having their ship towed away, the crew teamed up with a Llamanian operative named LOS, who escorted them in his own ship. Hours passed with no ship in sight, but eventually, they arrived at a GALACTIC UNION towing warehouse, where their ship was supposedly stored. They searched and searched, and found nothing, but before they knew it, the crew was attacked by the hot-headed Raven, MARV.
+[6] Trey: The crew took a beating, with many crewmates being incapacitated, but after a great deal of brutality, the HORIZONERS were victorious. Fatally wounded, MARV was snuffed out when DUTCH ripped out his rib, just as the Raven had done to him before.
+[7] Trey: Following the battle, the crew recovered their ship. SETH ended up dying, and ascending to ELF HEAVEN, and was greeted by someone he didn’t expect, before being sent back to his body. Out of nowhere, Seth swapped places with the former Last Squoatling, EMMETT TAWFEEK. How strange…
+[44] Sean: Emmett show me ur cock?
+[50] Trey: L
+[51] Trey: That's Bellow
+[52] Zander: Pinned a message.
+[55] Silas: :Trep:
+[65] Trey: Brody awakened to his stand
+[67] Trey: And by Brody I mean Morra
+[73] Silas: DIE
+[131] Silas: .
+[135] Sean: https://i1.sndcdn.com/artworks-G48Im5YEGKkRBzqm-yo7VKA-t500x500.jpg Seth's pose
+[139] Silas: https://tenor.com/view/jojo-pose-jjba-pose-jojo-bizarre-adbenture-meme-pointing-finger-hair-blowing-in-the-wind-gif-26199746
+[151] Trey: Ok
+[162] Jonas: fungy
+[163] Jonas: fungingo
+[170] Jonas: jack luh luh'
+[180] Hunt520: "
+[223] Trey: +
+[249] Trey: Seth did 1/6
+[250] Jonas: seth did 9/11
+[252] Jonas: seth did 12/7
+[254] Trey: Seth did 12/6
+[255] Trey: (He's Jonas's dad)
+[256] Jonas: you cant have sex with a date
+[257] Trey: I have sex with every Friday
+[265] Silas: The ship crashes into the crowd, crushing them all to death
+[281] Jonas: Dutch
+[282] Jonas: https://tenor.com/view/skillissue-skill-issue-gif-22125481
+[297] Trey: Instead, it's just Zion, and Los receives a scam email instead
+[299] Trey: He has to check his email, though
+[300] Jonas: its an email from garrick
+[303] Trey: Good
+[309] Trey: Not like Among Us
+[311] Silas: Exactly like among us
+[313] Jonas: emmett
+[348] Trey: Quarterfette
+[411] Trey: /8ball does The Fungaloid eat Dutch's fingers?
+[433] Jonas: ZION KILLS YOUR MOOOOOOOOOOOOOOOOOOOOOOM
+[502] Trey: Ok
+[505] Jonas: dutch ripped out his ribs
+[518] Trey: Vicussy
+[519] Trey: I don't know why I typed that
+[520] Sean: Chompussy
+[522] Jonas: vi luh ee
+[524] Silas: Chomskussy
+[530] Trey: Zach keeps them and puts them in his drawer
+[531] Jonas: does dutch wear undies
+[538] Trey: Timeskip. Roll to decide how many hours:
+[593] Trey: Silas moment
+[602] Trey: Yes, but the same happens to Marv
+[605] Hunt520: "
+[636] Trey: COOL!
+[643] Jonas: no HP?
+[656] Jonas: https://tenor.com/view/bill-nye-point-bill-nye-the-science-guy-you-gif-10427520
+[661] Zander: :jimcarey_smile:
+[662] Trey: Linger of the ringers
+[663] Sean: :bruh:
+[665] Sean: :image0140:
+[689] Trey: Olag's grandson
+[694] Trey: It's Olag III
+[701] Trey: OK
+[703] Trey: Someone stays behind
+[705] Trey: It's Edmin
+[721] Trey: Ok
+[726] Brody: https://tenor.com/view/donkey-kong-monkey-gif-5072717
+[727] Zander: Space Rule 4789: Don't be a shitty dad.
+[728] Hunt520: Space Rule 4790: Believe that Dads absolutely suck
+[729] Brody: https://media.discordapp.net/attachments/324621629462151168/658478497840234517/45a.gif
+
+# Episode 9 — Are You Not Entertained?!
+[1] Trey: Last episode, the HORIZONERS settled from their previous mission and cleaned up some strange situations. Following the defeat of the Ravens brute MARV, the crew was injured and desperately needed a pick-me-up. This need was not met, and instead of getting their bearings, a crew member disappeared and a stranger took his place. This stranger was confused, needy, and frustrated, and the group quickly drew a crowd.
+[2] Trey: Meanwhile, SETH was busy shaking off two irritated goat-wives, who promptly had their ship stolen and crashed by the elf into the aforementioned crowd. The crew was relieved of their orders to kill the witnesses, but unfortunately, they were still stuck with the SQUOATLING.
+[3] Trey: Emmett and Seth argued and argued, while the Horizoners tried to reconcile in their damaged ship. The body of MARV was taken over by the fungus, who struck a bizarre truce with Dutch, to the horror of everyone else.
+[4] Trey: Receiving new orders from the REPUBLIC, the crew headed to a planet named GELFI-2, and crash-landed somewhere barren and deserted. Despite the circumstances of their arrival, this seems to be the place where they need to be, but their environment is not particularly inviting…
+[11] Silas: what's brown and sticky? Seth's brown fedora and brown bomber jacket
+[99] Trey: COOL!
+[152] Trey: Phew
+[264] Trey: This woman was actually a goblin in disguise, so Space Rule #50 comes into effect.
+[270] Zander: https://tenor.com/view/omniman-invincible-break-through-wall-gangstalkers-gif-21360556
+[275] Jonas: splashes chlorophyll on seth
+[288] Trey: I didn't specify, so it happens after the episode in secret
+[290] Trey: No one sees
+[293] Trey: Instead, he's dragged to near-unconsciousness, with three out of four of his brains being clocked out
+[299] Jonas: WHAT
+[300] Jonas: HOW
+[301] Jonas: https://media.discordapp.net/attachments/976653881801080852/976686839803047936/image0-7_2.gif
+[302] Jonas: the crew after being knocked out
+[314] Silas: no
+[317] Sean: Miny Seth in a very soft whisper:
+[345] Jonas: marv should look into getting a keeps sponsorship
+[350] Trey: Finally, Bellow doesn't see color.
+[426] Silas: POOP
+[434] Sean: brb
+[446] Silas: suddenly, the casino owner suddenly rises onto the stage.
+[467] Sean: https://tenor.com/view/spongebob-stink-bad-breath-stank-face-smelly-gif-16392254
+[486] Jonas: YES HE IS
+[490] Silas: "The casino owner is... ...Zombie Joker." -Trey 2022
+[519] Silas: no
+[520] Silas: fuck you trey
+[521] Silas: you are not allowed to ever win an 8ball
+[616] Jonas: rolled for flight efficiency
+[617] Zander: @Sean
+[650] Zander: https://youtu.be/ZpWj2vOEBmA
+[651] Zander: {"title": "KITTY HELICOPTER | Better looped & extended", "description": ["OG video was stolen from a telegram meme page, and then edited by me", "Song: Intense - Only You"]}
+[685] Jonas: fungo
+[686] Jonas: https://tenor.com/view/spongebob-beat-up-patrick-gif-15354876
+[712] Jonas: that nasty
+[715] Jonas: /kill Trey (Zion)
+[718] Jonas: gross
+[724] Silas: https://tenor.com/view/judd-juddgarde-sex-red-ape-family-jdud-gif-24509591
+[730] Sean: https://tenor.com/view/mujahid-salam-islam-rahmah-gif-14573914
+[731] Sean: https://tenor.com/view/rogue-lineage-gotta-go-bye-im-out-gif-15673693
+[791] Trey: THIEF
+[792] Trey: DIE
+[794] Trey: INSTANTLY
+[802] Zander: Caused by the crash, of course
+[803] Trey: <3
+[825] Silas: https://tenor.com/view/futurama-future-stock-boneitis-fry-shock-gif-11576248
+[830] Silas: https://futurama.fandom.com/wiki/Boneitis#:~:text=Boneitis%20is%20a%20deadly%20disease,bone%20breaking%20and%20bone%20loss.
+[831] Silas: {"title": "Boneitis", "description": ["Boneitis is a deadly disease that cripples the bones, ultimately resulting in death. Steve Castle, who was from the 20th century, was stricken with the disease. Symptoms include bone twisting, bone breaking and bone loss. Assuming the same terminology exists in the 31st century, Boneitis means 'inflamed bones'; 'itis' meaning 'inflammation' and ..."]}
+[839] Jonas: https://tenor.com/view/adam-savage-boston-dynamics-spot-robot-dance-gif-16860960
+[841] Jonas: dutch and bellow dancing
+[844] Sean: https://tenor.com/view/ksweazy-gif-24785214
+[875] Trey: https://tenor.com/view/boring-fun-door-stopper-gif-5908317
+[905] Zander: Event on the ship, also Zach was a marble, but that's less important.
+[908] Zander: Space Rule #1984: A bad gambler is a good slave.
+
+# Episode 10 — High Roll On D100
+[1] Trey: Last episode, the HORIZONERS explored catacombs and ended up gambling with their lives. Upon entering, they found a hidden CASINO deep inside the caves, bustling with patrons and bettors. Dutch swiped the crew’s money card and went all-in, Seth tried to toy with the owner, and all the while, Zion was inadvertently getting everyone kidnapped.
+[2] Trey: After blacking out, the crew awoke to find themselves chained in a gross, miserable village. Peasants crawled out of their houses, fixated on a distant AMPHITHEATER. On entry, the crew discovered that the night’s event was a gladiator battle between champions and slaves. The crew watched as villagers were pounded mercilessly, but before they knew it, the floor fell beneath Zion’s feet!
+[3] Trey: As the owner-king announced the “blitz round,” other crewmates entered the ring, and Zion rose from the ground as the special challenger! The four fought a little, until Dutch targeted the owner and brought the games to an end. Zion and Bellow interrogated the diseased owner about his VACCINES that the Republic wanted. They retrieved them, but not before someone crashed the SERAPHINE into the backstage, killing the owner.
+[4] Trey: Currently, the crew is in deep space, awaiting orders and dodging boredom.
+[6] Trey: @deleted-role
+[7] Jonas: zion's finger is gone
+[20] Jonas: OH MY GOD BELLOW CAN COOK
+[24] Trey: Awful, Morra turned Zach into a marble.
+[42] Silas: Ziongus
+[45] Silas: .
+[63] Jonas: https://tenor.com/view/juggernuts-warzone-cod-deeznuts-teabag-gif-19341870
+[64] Jonas: dutch
+[66] Jonas: SILAS DO TURN
+[67] Silas: HWOOWO
+[68] Trey: @Silas
+[69] Silas: I AM WAITING FOR MISSION
+[70] Trey: No
+[80] Silas: Wingatoes
+[87] Silas: The fungus makes a really stinky fart before walking in a circle 4 times, then curling up on Zion's lap and promptly falling asleep
+[90] Jonas: ok fine i pick up
+[92] Silas: day he drop
+[93] Jonas: dutch is playing fotenight
+[94] Silas: BASICALLY!!!!!!!!!!
+[97] Silas: Like I've been a lot of things before, but I've never been a giant cracker
+[112] Silas: "We need to make sure there are no leaks so we're going to call you on a line that could be traced and heard instead of sending encrypted instructions to your device"
+[114] Trey: "I'm Silas and I poop on the ground outside"
+[119] Trey: Jonas is a nickname for Fungo
+[136] Silas: https://tenor.com/view/nier-automata-2b-yoko-taro-gif-25748077
+[137] Trey: THAT'S SANYA
+[138] Jonas: SANYA DUMPY
+[139] Jonas: YEEEESSSS
+[192] Trey: Alright, Bellow makes it into there carrying Morra, but he trips and Morra's pieces scatter
+[196] Jonas: https://tenor.com/view/man-builds-chair-in-less-than-a-second-gif-18258437
+[197] Silas: https://tenor.com/view/storm-stormtrooper-star-wars-trooper-clone-gif-20123220
+[204] Trey: This is disgusting & I hate it
+[206] Silas: me when I look at Zion G. Daybreaker
+[209] Brody: Zion Garrick Daybreaker
+[211] Silas: Zion Femurbreaker
+[213] Trey: Morra doesn't poop, meaning she's female
+[214] Silas: https://tenor.com/view/jay-garrick-flash-running-injustice2-intro-gif-17935021
+[219] Trey: Kcirrag vs Garrick
+[228] Trey: This plasma rushes into the hallway, burns Zion, and then dissipates.
+[231] Silas: Zion is now permanently scarred from his burns
+[232] Silas: @Jonas
+[233] Silas: @Jonas
+[234] Silas: @Jonas
+[235] Silas: @Jonas
+[236] Silas: @Jonas
+[237] Silas: @Jonas
+[238] Silas: @Jonas
+[239] Silas: @Jonas
+[240] Silas: @Jonas
+[241] Silas: @Jonas
+[242] Trey: NOOOOO
+[243] Jonas: PLASMA PERSON
+[244] Jonas: JONAS IS REAL
+[247] Jonas: chomsky
+[248] Silas: Me when I see Zion G. Daybreaker
+[249] Jonas: me when i see sanya lettuce cheeks
+[251] Zander: Pinned a message.
+[260] Jonas: Dutch is a master bean eater
+[262] Silas: Professional bean licker
+[263] Silas: Professional bean flicker
+[275] Jonas: https://tenor.com/view/smart-hello-minion-gif-13825937
+[279] Jonas: YES
+[280] Jonas: YEEESSS
+[281] Silas: BANANA~!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[286] Zander: Emote sent to Morra:
+[290] Trey: Boom
+[294] Zander: @Silas
+[297] Jonas: WHAT
+[298] Jonas: NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+[316] Jonas: morra mom house
+[339] Jonas: garrick
+[342] Zander: garrick
+[361] Silas: he has a speech impediment
+[363] Silas: do not insult him or he will notice a gun in your glovebox
+[365] Jonas: https://tenor.com/view/dentedhead-speech-bubble-hldmbrnet-gif-25216740
+[369] Jonas: gogurt
+[372] Trey: L
+[400] Silas: drag on
+[401] Trey: deez
+[402] Jonas: nuts
+[403] Silas: spawning ten dragons
+[405] Trey: /summon minecraft:ender_dragon
+[412] Jonas: dutch ^
+[444] Zander: Pinned a message.
+[461] Silas: Ghillie
+[465] Jonas: fungus plays the role of chomsky
+[492] Trey: (Like a snail.)
+[495] Jonas: his nose like he is Pinocchio
+[509] Trey: There is a figure down the hallway not obscured by the flames
+[531] Silas: uh oh.
+[532] Jonas: https://tenor.com/view/city-on-fire-gif-11037863
+[538] Trey: Pinned a message.
+[545] Silas: NONONONONONONONONONONONO
+[550] Jonas: undertale
+[551] Silas: nssas
+[557] Jonas: SANYA MAID
+[558] Jonas: SOMEONE MAKE THAT
+[561] Zander: Sanya puts Emmett in a maid outfit and checks out dat ass, though in an ass-loving way, not romantically
+[564] Zander: @Trey
+[569] Jonas: its like when you are 6 and the chair too tall at mc donald
+[577] Trey: Instead, Fungo slides away onto Dutch's head, trying to puppet his body for more strength.
+[581] Jonas: its not good
+[584] Jonas: BOTTOM LEFT
+[597] Silas: YELLOW GUY FNF
+[598] Silas: A
+[603] Silas: Dutch just rips apart the bodysuit and fires once.
+[604] Jonas: us to hunter^
+[621] Jonas: NO
+[623] Jonas: PLEASE
+[624] Brody: NO
+[648] Jonas: uh oh
+[683] Jonas: Fungo help
+[725] Jonas: pepsis room
+[727] Jonas: ow
+[728] Jonas: ow
+[730] Jonas: ow
+[731] Jonas: ow
+[732] Jonas: WHAT
+[733] Jonas: HOW
+[739] Trey: "I want Sascha to step on me" ~ Zander
+[740] Zander: Pinned a message.
+[744] Jonas: AND MAKE YOU EAT YOUR UNERWEAR
+[756] Silas: https://tenor.com/view/bottles-bottled-airbottle-air-gif-18804396
+[758] Jonas: canned air from percy jackson movie
+[759] Jonas: o'hare industries from the lorax movie
+[760] Silas: bag of winds from spongebob movie
+[761] Zander: @Trey
+[762] Silas: https://tenor.com/view/bag-air-hugs-gif-18823246
+[765] Jonas: dutch sniffing the body suit
+[767] Silas: https://tenor.com/view/darkseid-new-god-apokolips-dc-comics-omega-beam-gif-17353655
+[768] Silas: morra when
+[771] Jonas: https://tenor.com/view/cope-mald-ratio-gif-24944390
+[772] Jonas: Bellow^
+[777] Trey: Sascha muscle gf
+[778] Jonas: Pinned a message.
+[791] Trey: This is disgusting and I hate it.
+[800] Zander: @Trey
+[822] Silas: https://tenor.com/view/futurama-nixon-aroo-gif-21274038
+[823] Brody: https://tenor.com/view/donkey-kong-monkey-gif-5072717
+[826] Brody: https://tenor.com/view/dance-nightcap-fung-fu-funk-gif-25177408
+[827] Silas: :bruh:
+[830] Jonas: https://tenor.com/view/cherry-wood-mushy-green-fungal-bogbag-mireable-gif-23919644
+[834] Jonas: "MR ELECTRIC, REMOVE HIS BALLS"
+[836] Silas: https://tenor.com/view/skyrim-margin-awake-marginskyrim-gif-20155428
+[849] Jonas: Sascha: "foogungolully."
+[856] Jonas: https://tenor.com/view/man-builds-chair-in-less-than-a-second-gif-18258437
+[857] Silas: https://tenor.com/view/block-lego-lego-chair-falling-down-broken-seat-gif-14725708
+[862] Jonas: this is like the thing from stranger things
+[863] Trey: (Zander told me to d100, I have to)
+[872] Trey: Nice
+[875] Jonas: 69
+[876] Jonas: 69
+[877] Jonas: SEX NUMBER
+[881] Brody: this
+[926] Brody: Emmett, what is that.
+[927] Brody: Help
+[942] Jonas: instead he carries ALL PIECES
+[943] Jonas: WITH A NEWFOUND STRENGTH
+[945] Jonas: he does have a lot of hands, after all
+[959] Zander: [I AM GOING TO KILL YOU DUTCH!]
+[985] Trey: Zion obtained the Sascha muscle gf
+[994] Trey: Morra is still conscious while he's being pieced back together
+[1000] Zander: 2/3s of Morra made starting next episode
+[1008] Trey: Lasting damage
+[1009] Trey: To both
+[1010] Trey: (Morra's is psychological I guess)
+[1013] Silas: BUH HUBBHUB
+[1014] Trey: Kill yourself
+[1020] Silas: Will Ziongus be healed successfully by the combined efforts of Fungha and Bellow? Find out next time on Final Ball Horizon!
+[1021] Jonas: Space Rule 187: Never trust a hot muscle gf unless they are taken over by a sentient fungus.
+
+# Episode 11 — Wrong Answer
+[1] Trey: Last episode, the HORIZONERS staged an assassination, and yet again encountered the RAVENS. Following their previous errand in the catacombs, Zion started the morning off with an angry call from the commander. The rest of the crew had their own shenanigans, with Dutch playing video games, and Morra having a fashion show. Nonetheless, they all jumped at the opportunity provided in their mission: assassinate a GU MILITARY OFFICIAL!
+[2] Trey: The flight to the military base was quick, but not painless, as the fungus repeatedly made everyone’s lives miserable. The crew began trying on costumes and having fun, but their joy was quickly stomped on, as during their infiltration, they encountered SASCHA, the Ravens tactician, amidst the flames!
+[3] Trey: The crew was beaten mercilessly, and they barely made it out alive — but they defeated the adversary, as Fungo dealt the killing blow. As Morra wormholed everyone outside to safety, the building exploded from the inside, killing the GU official. The Horizoners all stumbled back to their ship, tending to each others’ wounds. Reporters swarmed the scene, while the crew left, trying not to make themselves known.
+[4] Trey: It has been a few days since this encounter. The crew has been on their way back to ADE space, as their detour took them across the galaxy.
+[36] Sean: https://media.discordapp.net/attachments/313985990765182986/968656462530355200/ezgif.com-gif-maker.gif
+[58] Zander: @Trey
+[101] Trey: (I just decided that Sascha is a lioness)
+[111] Trey: WHAT
+[114] Silas: D: D: D: D: D: D: D: D: D: D: D: D: D: D: D:
+[152] Trey: 1 sec
+[153] Jonas: BALLS
+[155] Zander: (yes, die)
+[157] Silas: Rule 1: diee
+[158] Silas: rool 2: DOIE
+[159] Silas: Rul THRE!:: Durrr
+[161] Silas: rol 4; Euuuh
+[162] Jonas: WAKE UP
+[163] Jonas: WAKE UP
+[164] Silas: RULE FIFE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: Bbbuh?
+[199] Silas: It's Sascha
+[224] Jonas: https://tenor.com/view/dead-cells-fight-powers-gif-12367248
+[225] Jonas: morra
+[268] Sean: *Seth
+[271] Silas: what!!!
+[295] Silas: HE IS NOT TINY!!!!!!!!!!!!!
+[296] Jonas: No
+[330] Trey: (for everyones info: chomskys public info is basically his VP time back, nothing recent)
+[333] Jonas: https://tenor.com/view/god-god-star-trek-star-trek-god-kirk-god-kirk-gif-24119282
+[334] Jonas: morra
+[336] Brody: https://media.discordapp.net/attachments/880060699487899681/974255879136378880/image0-140-2.gif
+[391] Zander: Yeah, but he quickly removed it. Emmett sees it for like half a second.
+[392] Jonas: thats called a squutt
+[413] Silas: fungo pop
+[454] Jonas: patrick
+[455] Trey: Melted fungoid
+[460] Jonas: WHAT
+[518] Jonas: https://tenor.com/view/bingus-hater-bingus-hater-pov-gif-20757052
+[519] Jonas: *fungo hater
+[580] Jonas: VOTE
+[581] Jonas: PLEASE
+[582] Trey: He's not done yet
+[583] Jonas: WE VOTE WHILE HES DISTRACTED WITH NINJAGO
+[586] Trey: Sonichu is sex
+[595] Jonas: no
+[596] Trey: Don't torture me.
+[600] Jonas: Why is he duplicating?
+[642] Brody: https://tenor.com/view/har-har-har-har-har-har-har-har-freddy-fazbear-big-near-bigger-lmao-fnaf-gif-24294169
+[644] Sean: https://tenor.com/view/fnaf-fnaf-lore-fnaf-memes-gif-24853990
+[653] Silas: https://tenor.com/view/fat-horse-walking-gif-gif-21589296
+[656] Zander: Pinned a message.
+[658] Sean: https://tenor.com/view/holls-holls-the-amazon-thang-pocket-gif-14114110
+[671] Jonas: Did you....talk?
+[690] Silas: /roll 10
+[722] Jonas: https://media.discordapp.net/attachments/174273806347534338/850998579258589184/image0.gif
+[764] Trey: (Bellow also had no idea how to help Zion anyways)
+[785] Trey: Dutch blows off Sascha?
+[856] Trey: Purrple
+[859] Trey: Yes, but it starts slithering around
+[880] Jonas: https://tenor.com/view/woody-cheeky-hat-tip-finger-gun-toy-story-gif-14758475
+[881] Jonas: dutch
+[883] Brody: ==> Zion, dance
+[905] Silas: Final Frontier: Civil War?!??!?!?!??!??!?
+[906] Zander: Does he know???
+[951] Trey: rip lion gf
+[955] Zander: (Btw Bellow is too emotional to realize that he'd be hunted by the LR if he quit, and they wouldn't be lenient like they were the VP...)
+[1029] Jonas: But promise me, even if you leave, that the LR won't find you.
+[1036] Jonas: I just want you to be safe. I've lost too many good people already...
+[1043] Silas: fungo
+[1044] Silas: NO
+[1045] Silas: NO VEC
+[1046] Silas: ONLY FUNGO
+[1092] Zander: Space Rule 27000: DURRR
+[1093] Silas: no
+[1094] Jonas: Space Rule 387: Getting lung cancer is a perfectly reasonable solution for fighting with your crewmates.
+[1095] Silas: it's rule 3000000000
+[1096] Brody: Space Rule 94934: Learn all of the major common languages in case of emergency.
+[1097] Sean: https://tenor.com/view/gamer-game-design-middleton-gaming-fathers-day-gif-18585483
+
+# Episode 12 — Goblinators
+[1] Brody: https://cdn.discordapp.com/attachments/279739316618395648/1004183267077017650/MOSHED-2022-8-2-20-8-42.gif
+[3] Zander: @Silas
+[4] Trey: Last episode, the HORIZONERS had their first major internal conflict. After they barely scraped by in the battle with Sascha, the crew was beaten and injured greatly. Days after the attack, with many members finally recovering to a functional state, Zion gathered everyone to lay down some ground rules. However, things did not go as planned, as Sascha took control of her body away from the fungus and started a fight.
+[5] Trey: The waters settled when the fungus regained control, but the ship’s navigational systems were hijacked, taking them to VEGA-5, landing on a beach resort. The crew took some time to relax, with Bellow and Zion enjoying the ocean view, and the latter falling into a trance. Meanwhile, the rest of the crew broke out in a fight—with the FUNGUS instigating an argument, which lead to a struggle among the crew.
+[6] Trey: Though the captain broke out of his daze, the fighting continued. DUTCH and BELLOW wanted the fungus gone for good—as a danger to the team, it simply couldn’t be trusted, could it? However, the captain felt differently. No one could agree, and things culminated in a fight between Zion and Dutch.
+[7] Trey: That was yesterday, and the two have not spoken since then. The ship is currently parked at a remote solar system, taking advantage of free solar energy. Tensions are high, but where will this all lead?
+[35] Trey: What's in the box?
+[36] Trey: Labumba~!
+[38] Silas: IT WAS HIM!!! HE WAS IN THE BOX!!!!!!
+[52] Silas: emmettalia
+[62] Silas: seth proceeds to cum into the room
+[82] Silas: Vec when he takes over the Raven Boss
+[111] Silas: sascha when she beat up zion
+[113] Silas: https://tenor.com/view/fat-horse-walking-gif-gif-21589296
+[115] Silas: https://tenor.com/view/valentinesweekend-true-advertising-ad-cleaner-gif-20367236
+[116] Trey: Epicloid
+[117] Sean: https://tenor.com/view/bayden-baydenstar-baydenstar20-fat-obese-gif-16726207
+[174] Silas: https://tenor.com/view/problem-troll-gif-22733867
+[197] Trey: Bug sex
+[212] Trey: ok
+[220] Trey: https://tenor.com/view/steve-harvey-family-feud-kill-steve-harvey-kill-family-feud-kill-gif-21764693
+[224] Silas: https://tenor.com/view/glutencord-spongebob-spunchbob-kill-him-kill-gif-19894397
+[233] Brody: https://tenor.com/view/goblin-goblins-goblin-hour-goblin-hours-meme-gif-25009151
+[234] Silas: https://tenor.com/view/disco-party-club-shut-the-door-happy-gif-15597829
+[235] Silas: The crew's engine room right now ^
+[237] Brody: https://tenor.com/view/goblin-walk-gif-20377967
+[279] Silas: https://tenor.com/view/shomp-scary-goblin-running-gif-13908288
+[310] Trey: https://discord.com/channels/324621181640638464/1009224073366212658/1009234406826835968
+[314] Silas: GUSCP 0050 - Endless Goblin Horde
+[315] Silas: An infinite horde of goblins. They pile into rooms sequentially by size, each one bigger than the last. They ransack everything in sight with dart guns.
+[327] Zander: Pinned a message.
+[442] Brody: https://tenor.com/view/seth-hand-seth-when-talking-seth-gif-26384319
+[444] Sean: https://media.discordapp.net/attachments/571021895017955329/677575076870225930/ee53072.gif
+[446] Sean: https://tenor.com/view/atf-roblox-ridgeway-atf-group-gif-21623323
+[470] Silas: Yorb
+[475] Zander: (The ship detected lifeforms in the room and reacted accordingly.)
+[498] Silas: Through a process known as Vaccuumial Aeration, the gills produce oxygen through random bullshit, allowing the goblin to breathe in space.
+[508] Silas: https://tenor.com/view/sigh-halloween-goblin-nekrogoblikon-gif-4790763
+[509] Silas: {"title": "Goblin sigh"}
+[521] Sean: https://tenor.com/view/t%C3%B4nem-a%C3%AD-nem-ligo-t%C3%B4nem-ai-gif-19407832
+[522] Sean: https://tenor.com/view/baby-carrier-backpack-baby-backpack-gif-19513336
+[542] Silas: D:
+[557] Sean: :(
+[569] Silas: It's so heinous of a crime it's unlisted in the rulebook, and is only referred to as "Negative One."
+[570] Silas: ^
+[755] Trey: Space Rule #444: LOWERCASE.
+[760] Silas: https://tenor.com/view/captured-small-baldi-poor-baldi-monster-in-danger-gif-15335361 Seth to Bee Emmett
+[764] Trey: https://discord.com/channels/324621181640638464/1009224073366212658/1009250353398681640
+[765] Trey: MONKEY'S PAW SAYS IT HAPPENS. ZANDER GIVES CAVEAT
+[773] Zander: (Monkey's Paw):
+[780] Silas: https://media.discordapp.net/attachments/880060699487899681/974255879136378880/image0-140-2.gif
+[821] Sean: https://tenor.com/view/hot-make-out-kiss-gif-14075289
+[822] Brody: https://tenor.com/view/sonic-and-mario-kiss-gay-make-out-gif-17269497
+[823] Silas: https://tenor.com/view/kissing-travis-denning-dirt-road-down-song-smooching-making-out-gif-25270409
+[856] Silas: SRE Control, through communicator:
+[887] Silas: similair
+[889] Trey: Zach cries like a widdle baby boy
+[890] Trey: Awwww
+[903] Silas: https://tenor.com/view/feliz-pops-maellard-regular-show-dance-move-silly-move-gif-16417165
+[904] Silas: Morra
+[939] Trey: (From Sean) As soon as they arrive on site, Seth launches
+[1015] Silas: https://tenor.com/view/itisaspookymonth-gif-22998902
+[1016] Silas: https://tenor.com/view/pelo-spooky-month-spooky-month-ghost-gif-15018642
+[1027] Silas: Zander with an X
+[1028] Trey: X-ander
+[1105] Trey: Space Rule #50: No goblins.
+[1106] Zander: Space Rule #51 Goblins Don't Like Cock.
+[1107] Brody: https://tenor.com/view/sonic-and-mario-kiss-gay-make-out-gif-17269497
+
+# Episode 13 — Tawfeek Residence
+[1] Zander: In the ending of the last story, MORRA took the new Goblinators leader, SETH, aside and told him he had to apologize to EMMETT to maintain leadership. SETH, full of himself, obliged. Meanwhile, a dazed DUTCH decided to jump into the wormhole as the two left, needing to get some fresh air from the onslaught of ENDLESS GOBLINS.
+[19] Zander: Changed the channel name: Final Frontier 4 Side Episode 1
+[30] Sean: https://tenor.com/view/sonic-and-mario-kiss-gay-make-out-gif-17269497
+[31] Sean: Seth and Morra rn
+[90] Sean: Squemder
+[93] Sean: Sqouder
+[99] Zander: "Yeah."
+[101] Zander: "I brought some drinks, despite this buffoon crashing our ship who knows where."
+[103] Zander: "Thanks Squi."
+[119] Zander: "Rrright. And about the garden, we have a garden, but not enough to completely feed five."
+[143] Zander: "... Take care of himself."
+
+# Episode 14 — Lights Out
+[1] Zander: Changed the channel name: Final Frontier Side Episode 2
+[2] Jonas: doo
+[3] Jonas: https://tenor.com/view/cave-dive-darkness-leap-gif-5803442
+[4] Zander: Bellow and Dutch
+[5] Jonas: whos the bald one
+[6] Trey: In the ending of the last story, MORRA took SETH aside and wormholed him away to apologize to EMMETT, in order to maintain leadership. SETH, full of himself, obliged. The rest of the crew has been stuck adrift on the SERAPHINE, in the middle of DEEP SPACE.
+[8] Trey: I love tawfeek
+[9] Jonas: tawfringor
+[10] Trey: Kys
+[11] Trey: pls
+[12] Trey: I hate you
+[24] Jonas: mmm
+[25] Trey: NO NO NO NO NO NO
+[27] Zander: "WE DON'T HAVE POULTRY."
+[32] Jonas: bellow has night vision loser
+[33] Trey: I'm killing oyu
+[34] Jonas: OYU ISNT REAL
+[35] Trey: Ouya
+[48] Jonas: not
+[49] Jonas: no
+[50] Jonas: no
+[51] Jonas: prani
+[67] Trey: This also applies to his entire life
+[93] Trey: Ok
+[95] Jonas: does ZANDIS appear?!?!??!?
+[99] Jonas: EVERYONE DEAF
+[120] Jonas: MINION FROM GRU
+[125] Jonas: i saw your mother on the ship
+[126] Trey: IU'm
+[137] Trey: Ok
+[151] Trey: 1
+[163] Jonas: just like edmin used to do 😔
+[164] Trey: R.I.P.
+[165] Trey: 🪦
+[182] Hunt520: Seth really turned it into a Cock Pit
+[184] Jonas: https://tenor.com/view/pixar-wall-e-b-mc-crea-axiom-spaceship-gif-25483580
+[185] Jonas: zion^
+[188] Jonas: it cant tell you because dutch doesnt know
+[198] Jonas: no he doesnt
+[199] Jonas: no he doesnt
+[200] Jonas: @Trey er
+[201] Jonas: pinger
+[212] Trey: Xach
+[213] Jonas: xack
+[214] Zander: xack
+[221] Jonas: zach has to roll d10 for performance to do a handstand while he is telling it. If he rolls below a 5, he falls over partway through and cannot finish his explanation
+[237] Trey: Bellow
+[238] Jonas: SO TRUE
+[247] Jonas: he cried about him
+[248] Trey: L
+[249] Trey: L
+[250] Trey: L
+[251] Trey: L
+[252] Trey: L
+[253] Jonas: zion rn
+[299] Jonas: Zach goes AWOOGA HUMUNA HUMUNA
+[319] Jonas: beat 12 minutes 5 seconds
+[325] Trey: WHAT
+[326] Trey: WHAT
+[327] Trey: WHAT
+[328] Trey: WHAT
+[329] Trey: WHTAA
+[342] Jonas: https://tenor.com/view/handstand-people-are-awesome-treadmill-workout-walking-gif-18029379
+[343] Jonas: zion^
+[345] Jonas: https://tenor.com/view/lil-mac-super-smash-bros-ultimate-super-smash-bros-minecraft-handshake-gif-24126641
+[347] Trey: @Final Frontier
+[348] Jonas: NICE ONE
+[349] Hunt520: LOOOOLLL
+[350] Trey: The ship is heading towards:
+[352] Trey: The episode ends.
+[355] Trey: Changed the channel name: Final Frontier 4 Side Episode 2
+
+# Episode 15 — Sir, This Is A Chilzor's
+[1] Trey: Changed the channel name: Final Frontier 4 Episode 13
+[3] Trey: Last episode, the HORIZONERS fought off an ambush and fell into chaos. The morning was silent following the crew’s fight the day prior, no one really up for conversation. Their ship was parked on an orbital charging station, leeching off of solar energy, since the crew had not been paid yet. Zion, stocking the kitchen shelves, discovered a package addressed to Seth—a cloned former crewmate of the elf’s, it turned out. Meanwhile, while the crew squabbled at each other, they heard a noise coming from the engine room. Out of nowhere, hordes of goblins started pouring into the ship from underneath the planet!
+[4] Trey: Frantically fighting off the swarm, the crew was quickly overrun, and had to flee upstairs. While everyone was distracted, Seth (and his new old friend) hijacked the ship’s navigation system and launched into nowhere, locking himself in the cockpit. Morra managed to wormhole Seth outside with the group, but he quickly took off and hid in the bathroom, declaring himself the new captain! However, before they could settle this, the crew reached an ADE “Space Rule Enforcement” checkpoint, where officers quickly entered the scene, inciting SPACE RULE #50: No goblins.
+[5] Trey: Now fighting off two external forces at once, the crew was outnumbered. Morra screamed expletives and wormholed away, reaching the underground GOBLIN PIT, Pit of the Goblins. While Morra negotiated with the Goblin King, the others fought off the SRE officers. With quick thinking and teamwork, Dutch and Zion managed to take out the officers.
+[6] Trey: Following the chaos, the crew took off once again into deep space, but soon enough, the ship lost power. Morra wormholed themself and Seth away to calm the waters, while the others got busy getting the ship back in operation. The Horizoners are currently back together, stranded in the middle of nowhere without fuel.
+[8] Sean: /poop
+[9] Silas: DOODOO
+[12] Jonas: HE CANT SILENCE US FOREVER
+[13] Sean: penis
+[14] Sean: penis
+[15] Sean: penis
+[16] Brody: I defy this silence
+[17] Trey: orb
+[18] Sean: p3nis
+[19] Sean: haha
+[20] Trey: why is brody deafened
+[21] Brody: If i cant talk, you cant talk
+[22] Brody: exclusivley to me
+[23] Jonas: undeafen brody
+[24] Trey: LOL
+[25] Brody: NEVER
+[26] Jonas: hahaha
+[27] Trey: pls
+[28] Jonas: QUIET MODE IS OVER
+[29] Silas: poop
+[30] Silas: poop
+[31] Silas: poop
+[32] Silas: poop
+[33] Silas: poop
+[34] Silas: poop
+[35] Silas: poop
+[36] Silas: poop
+[37] Jonas: ow
+[38] Jonas: ow
+[39] Jonas: ow
+[40] Jonas: Space Rule #51: No Silas.
+[41] Brody: ow
+[42] Brody: https://cdn.discordapp.com/attachments/279739316618395648/1004183267077017650/MOSHED-2022-8-2-20-8-42.gif
+[43] Jonas: silas ^
+[52] Zander: https://tenor.com/view/oh-yeah-vector-despicable-me-dance-gif-16621015
+[82] Trey: Seraphine
+[101] Brody: YEAH
+[102] Jonas: NOOOO
+[103] Silas: YEAAAAAHHH
+[136] Jonas: HOW DID HE LEARN CHINESE
+[138] Silas: Dead language
+[141] Jonas: duo lingo
+[170] Silas: ear teeth
+[226] Trey: https://tenor.com/view/toby-fox-hey-guys-whats-up-undertale-deltarune-skuntle-bingoid-gif-25561838
+[236] Trey: Pardon forwardslash
+[237] Trey: The worst slur
+[247] Silas: ZAHCK
+[251] Jonas: https://tenor.com/view/ema-skye-ace-attorney-bluewastaken0-gif-24612482
+[252] Jonas: Morra^
+[331] Jonas: TERRIBLE GARBAGE BURGER FROM MCGUIRES
+[338] Trey: Seth's order from FF3:
+[339] Trey: 200 chicken nuggets, a burger the size of my dick, extra cheddar, put a squeeze on it, twist it, spit on Emmett, and then let it dry, 5 milkshakes all Extra-large, with extra shots of Dwarven Beer, a Mcflurry deluxe, give me a Hershey Chocolate bar, the cook's left big toenail, a piece of food, nuclear waste, a large glass of grease mixed with pepsi, 2 fried tacos, a fried spitball, 9 salads with extra craisens and with Balsamic Vinaigrette, 2 starved dogs picked apart by crows and vultures, fried vulva, a fried scab to go
+[354] Hunt520: "So... she seems nice I guess..."
+[390] Hunt520: "Hey sweetie, I brought what you asked fo- AH!"
+[392] Jonas: :bruhdy:
+[412] Jonas: bean dip bellow made 2 major episodes ago
+[439] Jonas: stole it from a karen
+[484] Trey: @Brody can you do
+[516] Silas: paid
+[556] Trey: Chilzor:
+[561] Zander: Pinned a message.
+[562] Zander: Pinned a message.
+[567] Zander: Pinned a message.
+[569] Silas: Chilzor:
+[585] Jonas: origami garrick
+[656] Sean: fart sounds like this: https://www.youtube.com/watch?v=RgeH1wFZAmc
+[657] Sean: {"title": "Wet fart noise (brap)", "description": ["diarrhea"]}
+[666] Silas: tendy one
+[668] Silas: 10 + 1
+[670] Silas: tendy
+[671] Trey: tendy one
+[672] Trey: onety ton
+[675] Silas: onety ton
+[683] Jonas: Zach will never know :)
+[687] Silas: ew
+[688] Silas: ewe
+[689] Silas: wew
+[690] Silas: ew
+[691] Silas: ew
+[692] Silas: ew
+[693] Silas: ew
+[708] Trey: Not pride month
+[715] Jonas: NOT TRUE
+[717] Trey: Bellow's flat
+[718] Jonas: :bruhdy:
+[719] Trey: No butt
+[720] Trey: Dutch, on the other hand
+[721] Jonas: no cuts
+[722] Jonas: no coconuts
+[723] Trey: No pillows
+[724] Trey: Just two balls and a bong.
+[725] Zander: https://tenor.com/view/she-hulk-she-hulk-clap-clap-loud-gif-26577985
+[727] Trey: https://media.discordapp.net/attachments/794617246172446749/1012066101078802612/speed-1.gif
+[728] Zander: https://tenor.com/view/she-hulk-megan-thee-stallion-tatiana-maslany-marvel-marvel-studios-gif-26616563
+[729] Jonas: Trey blasting lubumba in the box in vc
+[745] Silas: Kid named finger:
+[766] Jonas: https://tenor.com/view/super-mario-super-mario-in-real-life-meme-mario-meme-kid-gif-15737061
+[777] Trey: Yes, and the Dildus starts to throb, and the emergency evac system starts to eject everything out from the engine up. The crew must reach their ship in time before they're ejected into space.
+[783] Hunt520: (
+[785] Hunt520: )
+[800] Silas: https://tenor.com/view/nostalgia-critic-toilet-transformation-morph-morphing-gif-21717938
+[801] Jonas: we're already in the cockpit :approval:
+[803] Jonas: get it
+[804] Jonas: get it
+[805] Jonas: get it
+[806] Jonas: get it
+[811] Jonas: space rule
+[853] Silas: https://tenor.com/view/parse-callum-liverpool-morph-baldy-gif-18825631
+[864] Jonas: gross
+[868] Jonas: not true
+[869] Trey: Bellow poopaloid
+[876] Jonas: MORRAS BALL
+[879] Trey: https://media.discordapp.net/attachments/324621629462151168/972586849371562105/Spore_GIF_2020-12-03_18-12-18.gif
+[882] Trey: :JonasPressure:
+[904] Jonas: THE LIVING BLOCK IS THE COUNTERPART TO THE BIGGEST ORB
+[925] Jonas: bellow is in zachs room
+[930] Silas: https://tenor.com/view/spongebob-waiter-patrick-star-drunk-sugar-rush-gif-9319818
+[937] Sean: https://tenor.com/view/pool-party-poop-gif-24535164
+[943] Silas: :catyes:
+[945] Jonas: space rule
+[946] Trey: Space Rule #NUM: wieuryhse.
+[947] Sean: Space Rule #NUM: wieuryhse.
+[949] Sean: Space Rule #850: Gas is Gas.
+
+# Episode 16 — Crashlanded
+[1] Trey: Last episode, the HORIZONERS reached their first sign of civilization after drifting in deep space. After about a day without power, the ship finally coasted towards an unexpected space station. Despite the station’s strange architecture, they had no choice but to land, dock, and relax while waiting to refuel.
+[2] Trey: The crew split up, with Seth and Buzzcut going in search of fuel, and everyone else going in search of food and entertainment. Seth and co. entered into a brothel, meeting with one of Seth’s old consorts, who refused to accept their currency. They were not able to purchase any fuel, but Seth did receive a pick-me-up before leaving.
+[3] Trey: Meanwhile, everyone else went to a diner, looking for a decent meal after being stranded. It didn’t take long for trouble to arrive, however. Vec began switching everyone’s meals around, causing Dutch to riot and scarf the meal down in record time. He was so fast, in fact, that the restaurant’s owner began attacking Dutch for breaking his record—although Zion and Bellow were each able to one-hit-KO the owner before anyone got hurt.
+[4] Trey: Before long, the crew found themselves back in space after the station exploded. Still with no power, the crew is drifting yet again, although this time within a solar system. They may be able to land safely, although without fuel, who can say?
+[5] Trey: Changed the channel name: FF4 Episode 14
+[6] Jonas: https://tenor.com/view/char-aznable-quattro-bagina-zeta-gundam-i-came-to-laugh-at-you-gundam-gif-24795600
+[7] Trey: Changed the channel name: Final Frontier 4 Episode 14
+[10] Jonas: not a real show 🙄
+[19] Trey: Yes
+[20] Sean: /fornite
+[34] Trey: Morra sex
+[53] Trey: Asstro Lancers
+[62] Trey: FUNGJOB
+[63] Trey: SPOREJOB
+[64] Sean: porejob
+[69] Jonas: me talking to my parents friends
+[70] Hunt520: lol
+[72] Jonas: welcome how are you im fine how are you
+[89] Hunt520: @Jonas
+[113] Jonas: yes
+[128] Jonas: next episode
+[135] Zander: Brelldow
+[139] Jonas: NOOOOOOOOOOO
+[151] Sean: /poop
+[152] Trey: Dutch hits his butt really hard
+[153] Jonas: he hit it so hard, it put a crack in it
+[158] Trey: https://tenor.com/view/kirby-kiss-kirby-kiss-kirby-super-star-kirby-super-star-kiss-gif-25332268
+[165] Jonas: ow
+[166] Jonas: ow
+[167] Jonas: ow
+[168] Jonas: ow
+[171] Hunt520: ow
+[172] Hunt520: ow
+[173] Hunt520: ow
+[181] Jonas: south park episode
+[184] Trey: sex
+[185] Sean: time for graphic detail smut
+[186] Sean: Seth x Morra
+[188] Sean: ;)
+[191] Jonas: samus
+[193] Jonas: PERMANENT POWER
+[194] Jonas: YEEESSS
+[195] Jonas: NEW MORRA POWER
+[196] Brody: https://media.discordapp.net/attachments/962271039755272222/1022866691606184026/spamdance.gif
+[198] Brody: New Morra power les go
+[207] Brody: Ow
+[208] Brody: ow
+[209] Brody: ow
+[217] Hunt520: But he has to take his blindfold off... making his eyes vulnerable to being shown
+[219] Sean: https://tenor.com/view/tom-fawkes-tomfawkes-gif-9944365
+[229] Jonas: /tts finger
+[239] Trey: sex
+[254] Jonas: flowey
+[271] Jonas: :)
+[272] Hunt520: 🙂
+[279] Jonas: the finger is sentient
+[284] Jonas: bellow is not close enough to hear
+[354] Jonas: uh oh
+[357] Brody: HES GONNA LAY AN EGG
+[372] Trey: since Emmett would do that, Buzzcut also shoots out
+[405] Sean: Sonic(From the background):
+[407] Jonas: phillip
+[433] Trey: https://tenor.com/view/christian-weston-chandler-christine-weston-chandler-chris-chan-cwc-sonichu-gif-18816453
+[435] Brody: https://tenor.com/view/sonichu-render-animation-weird-sonic-gif-16002394
+[474] Jonas: AMONG US AAOAMAMNGUSA AMANOGUS
+[475] Jonas: SUS
+[476] Jonas: SUS
+[478] Jonas: SUS
+[481] Hunt520: ihateyouihateyouihateyouihateyou
+[490] Zander: Big:
+[521] Jonas: AND FOREVER AGAIN FOR THE REST OF THE EPISODE
+[522] Jonas: HE CANT STOP
+[529] Zander: LCM:
+[541] Jonas: https://tenor.com/view/cat-dance-game-breakdance-song-gif-25547500
+[542] Jonas: bellow^
+[548] Jonas: pikmin reference
+[570] Jonas: mario when he step in lava
+[571] Jonas: YAHAHAHAAAAA
+[577] Brody: NPC#3:
+[620] Jonas: bingslam
+[632] Jonas: on behalf of chris chan
+[643] Jonas: they cant compete with bellows dancing
+[644] Jonas: theyre jealous
+[667] Jonas: super sonic reference
+[716] Jonas: https://tenor.com/view/thanos-i-dont-even-know-who-you-are-marvel-gif-15769006
+[717] Jonas: bellow ^
+[806] Trey: "I voted!"
+[816] Jonas: https://tenor.com/view/deltarune-wario-land_4-fall-undertale-falling-gif-23144697
+[817] Jonas: the crew ^
+[823] Jonas: POO
+[839] Jonas: https://tenor.com/view/loss-loser-lost-trending-gif-15170921
+[874] Jonas: bellow hands
+[887] Jonas: shoot*
+[890] Trey: Johnas
+[909] Jonas: kick my finger*
+[915] Trey: Hunter is John's favorite child, unknown to all
+[918] Jonas: @Trey
+[919] Jonas: hi :)
+[920] Trey: hi
+[921] Trey: loveu
+[922] Trey: not u
+[923] Trey: sorrry
+[924] Jonas: :(
+[931] Jonas: HE SAID IT
+[932] Jonas: HE SAID IT
+[954] Hunt520: "Glad you still think of me as my status, but I still think of you as a disappointment!"
+[965] Trey: Bellow is the most racist person alive
+[966] Jonas: NOT TRUE
+[991] Hunt520: "You brat!"
+[1011] Jonas: Space Rule #3903: DO NOT ENGAGE WITH THE SONIC FANS
+[1012] Trey: Space Rule #723: Bring your best when breaking the ice.
+
+# Episode 17 — Don't Weld Yourself
+[1] Trey: Changed the channel name: Final Frontier 4 Episode 15
+[3] Trey: Last episode, the HORIZONERS crashed and were left stranded in an icy wasteland. Following their escapade on the space station DILDUS-A5, the crew’s ship was rocketed away, headed towards a terrestrial planet. Upon reaching orbit, and attempting to stick a safe landing, the ship suddenly lost control and began hurdling down! The ship nose-dived straight into the ice, slicing through it and being buried underground.
+[4] Trey: While the crew managed to escape from the back, the ship was lodged in the ice—unpilotable. The crew headed out in search of shelter, along with a new rodent friend of Seth’s looking to help them. The landscape was desolate and freezing, with little to help them keep warm. However, just as they were embarking on their trek, they were greeted by a group of other rodent-like sprites…
+[5] Trey: Concerned and somewhat hopeful, the crew approached. The rodents made threatening remarks, and revealed themselves to be sent by the RAVENS. Before the crew could prepare to battle, the mercenaries showed their trump card—they had a PLANET-BUSTER aimed at BELLOW’S HOMEWORLD. Threatening the extinction of his race, and loved ones, the crew backed down, and the ground cracked beneath them, leaving them stuck in a sinkhole.
+[6] Trey: Dazed, the Horizoners explored the sinkhole, finding an uncovered outpost used by the mercenaries. Suddenly, ZACH’S FATHER exited a cryopod, demanding an explanation. Before things could get heated, the mercs added insult to injury, kidnapping Zach and his father and lifting them away.
+[7] Trey: The crew has been stuck on the planet for one week. They have constructed a small base using the outpost, and have barely scraped by, harvesting materials from everywhere they can. Things are looking bleak, but who knows? Their saving grace might be right around the corner…
+[8] Jonas: orb
+[9] Brody: https://media.discordapp.net/attachments/917611849141329970/1014048721891250216/New_Piskel_1.gif
+[10] Zander: Pinned a message.
+[31] Jonas: minecraft reference
+[32] Trey: I guess
+[64] Trey: Feudal attempt
+[151] Zander: My favorite knight from Shovel Knight is King Knight
+[162] Jonas: i restart you mom
+[164] Zander: 🪳
+[167] Jonas: zifing
+[168] Jonas: or
+[195] Trey: Morra sex
+[199] Jonas: he finds one :)
+[311] Jonas: @Trey @Trey @Trey @Trey
+[383] Trey: warm wamr heat heat love love
+[391] Jonas: bello
+[407] Trey: Zach's end has been irreparably damaged after meeting with Jack
+[416] Trey: Finger hole
+[417] Trey: Finger hole
+[418] Trey: Finger hole
+[419] Trey: Finger hole
+[420] Trey: Finger hole
+[422] Jonas: wolverine reference
+[431] Hunt520: You idiots
+[440] Brody: Weird.
+[452] Jonas: I'll be fine though, just will take a little while.
+[454] Trey: Saul Goodman is the name of the Argonian
+[456] Jonas: https://tenor.com/view/dance-skeleton-puppet-gif-6114807
+[457] Jonas: morra
+[468] Brody: And being crippled. And a LOT of log stacking.
+[472] Trey: Jack's alias is Huckleberry Finn
+[490] Trey: Dutch's dad to ask for permission to marry his son like a courteous person
+[505] Trey: Morra, you're the line leader!
+[506] Brody: Huzzah!
+[510] Jonas: center of room in everyones way
+[514] Jonas: @Hunt520
+[559] Jonas: https://tenor.com/view/t-rex-front-flip-like-a-boss-happy-gif-11274209
+[571] Jonas: no
+[572] Jonas: nono
+[573] Jonas: no
+[574] Jonas: no
+[575] Jonas: no
+[576] Jonas: yes
+[577] Jonas: yes
+[578] Jonas: yes
+[580] Jonas: yes
+[582] Trey: Bellow's ears cute
+[600] Zander: Caveat one: Trey gets the next three actions
+[601] Zander: Caveat two: Trey gets the next three actions
+[602] Zander: Caveat three: Trey gets the next three actions
+[607] Jonas: cliff hanger ending
+[609] Trey: The reason is that Vec puppets his body out of boredom
+[616] Jonas: :bungo:
+[635] Trey: Space Rule #78: Don't weld yourself.
+
+# Episode 18 — Mutiny
+[1] Trey: Changed the channel name: Final Frontier 4 Episode 16
+[2] Brody: https://media.discordapp.net/attachments/962271039755272222/1022866691606184026/spamdance.gif
+[3] Trey: Last episode, the HORIZONERS were rescued from a frozen wasteland and set back on track for their mission. Initially, the crew piddled around, doing their new daily routine to gather food and materials. An Argonian huddled its way to base, towing a yeti’s corpse and revealing itself to be Vec with a new body. Zion got to work on the game while the others squabbled, bored and annoyed as they had been for the whole week.
+[4] Trey: After nine cold, dark days of fighting to survive, and with all hope lost, a Llamanian RESCUE FLEET touched down near their camp. Commander Llashii exited along with Zach, reuniting with the crew after spending days trying to rescue them.
+[5] Trey: The crew hurriedly boarded the ship, which sped off with the busted SERAPHINE in tow. Bellow hobbled to the medbay, needing to tend to his wings, while everyone else enjoyed the heated air conditioning. Before long, though, the Commander gathered them all for a meeting, introducing them to a new Llamanian physicist and reminding them of their mission.
+[6] Trey: Now, the Horizoners are back on track, and on their way to sector O-19. It may be a while until they arrive, but if all goes smoothly, they will reach their DESTINATION in a day or two.
+[7] Sean: 👍
+[8] Zander: @Sean
+[10] Zander: , may have to leave the thread before doing this because of broken code
+[11] Zander: @Silas
+[49] Jonas: God, who rubbed onion on themselves?
+[61] Jonas: DUTCH IS ALIVE
+[63] Trey: Dutch is Wario
+[82] Trey: onion
+[92] Trey: Captingus
+[100] Trey: Pushes Bellow, is distracted
+[112] Silas: (mockingly)
+[115] Trey: FIngflodi
+[155] Silas: i am going to spray you with raid
+[160] Silas: h20deleirriokdspo
+[209] Jonas: same
+[254] Trey: is Hanzi scrambling about with papers all over the walls in the tactics room?
+[325] Silas: AAAA
+[351] Zander: @Sean
+[354] Sean: Vec puts Seth in the captain's Chair
+[369] Zander: @Silas
+[374] Trey: *Zion eats Vec.8
+[378] Trey: https://media.discordapp.net/attachments/795351839385059379/819776279276290059/image0.gif
+[384] Zander: @Silas
+[385] Silas: dutch wearing his spacesuit dummy
+[386] Silas: like everyone
+[407] Trey: Hot
+[408] Trey: Sexy
+[416] Silas: Edmin edmin edmin
+[436] Trey: Purple vomit
+[439] Jonas: vomited lean
+[448] Jonas: DUTCH SUFFOCATES
+[452] Trey: Overriding the "forever again" because Zander didn't remove that one
+[477] Brody: I saved you!
+[602] Trey: Hanzi, staring at the Vec cloud:
+[686] Jonas: pru is 4 billion billion billion billion feet behind bellow
+[707] Hunt520: Jack
+[770] Jonas: https://tenor.com/view/hollow-knight-mushroom-dance-help-help-me-gif-20244177
+[771] Jonas: tiny vec
+[774] Jonas: ZION IS DEAD
+[775] Jonas: NOOOO
+[781] Sean: https://tenor.com/view/police-roblox-bad-police-bad-gif-21393412
+[879] Jonas: I can't allow you to do anything to Zach.
+[943] Sean: \
+[1048] Trey: Morra sexy
+[1173] Trey: Sanya
+[1200] Sean: https://tenor.com/view/fry-about-it-fry-cry-about-it-cry-crying-gif-23004146
+[1203] Zander: Space Rule #39: Don't trust the government.
+[1204] Silas: https://tenor.com/view/gravity-falls-books-grunkle-stan-gif-20607279
+
+# Episode 19 — Rumble Baby
+[1] Trey: Last episode, the HORIZONERS faced a moral dilemma and became divided. Finally getting reaccustomed to civilization, the crew was lounging comfortably around the ship. Well, except for Bellow, who had come down with a cold. There was little time for that, though, as Commander Llashii tuned into the video comms to check in with the crew. He made the announcement that he is restoring Zion’s position as captain—however, Seth retained his captainship as well.
+[2] Trey: Without missing a beat, Zion escorted Zach and Bellow to the tactics room to get them up to speed on the mission. There, the two discovered a disheveled Llamanian PHYSICIST named Hanzi Mankait, scribbling erratically on the board. While the group was watching Mankait shuffle about, Vec was busy enjoying a gift sent to him by the COMMANDER—its remaining SPORES kept by the Republic. Enthusiastically, the fungus broke open the jar and completed its full transformation.
+[3] Trey: Overwhelmed with its new strength, Vec jumped at the opportunity and started taking over DUTCH’s body. Quickly, the other crew members rushed to vacuum it up, disposing of the bag in the airlock chamber. This did not contain it for long, as the fungus bursted out, trapping Zach inside as well! The crew deliberated over what to do, while Vec wrote a grim warning to Zach using spores. Bellow was the only one to take notice, and he quickly warned the crew… according to Vec, the REPUBLIC was planning to betray them!
+[4] Trey: The crew broke out into a huge fight, some threatening to quit, and eventually, each of them stormed off, throwing Zach downstairs. It has been nearly a day since then, and the Horizoners have not seen much of each other. Vec has retaken the Argonian body and locked itself in the engine room.
+[27] Trey: Changed the channel name: Final Frontier 4 Episode 17
+[92] Trey: https://tenor.com/view/the-batman-riddler-no-no-no-no-noooo-riddler-no-no-no-no-gif-25498499
+[107] Trey: Is Yigga alright?
+[157] Zander: Vec
+[165] Jonas: friendship
+[191] Trey: Femur breaker
+[234] Silas: Bellow is then zombified by the hat of horrors and mario possesses his body
+[235] Trey: Morrioh
+[240] Jonas: CUZ HES A PSYCHOOO
+[258] Trey: Instead, Zion goes back upstairs to see Hanzi
+[282] Silas: Dutch kisses the lipless rock man on the lips
+[291] Silas: https://tenor.com/view/fat-horse-walking-gif-gif-21589296
+[292] Jonas: https://tenor.com/view/horse-what-creepy-gif-6105087
+[294] Brody: https://tenor.com/view/honse-1st-delaware-war-of-rights-1st-de-gif-18969268
+[296] Silas: https://tenor.com/view/fat-horse-walking-gif-gif-21589296
+[297] Jonas: HONSE
+[300] Trey: Honse Olo
+[360] Sean: https://tenor.com/view/toulet-toilet-gif-24765276
+[364] Silas: https://tenor.com/view/congratulations-roses-toilet-rose-happybirthday-gif-26428683
+[376] Silas: u o alert
+[377] Trey: uh oh !
+[379] Silas: stimgjiryyy
+[380] Silas: stinkybadinky!!!!!
+[383] Zander: @Jonas
+[394] Jonas: bellow was referring to zach
+[438] Jonas: https://tenor.com/view/monke-gif-25930643
+[460] Sean: **
+[462] Trey: Morra's rock hard.
+[471] Sean: :bruh:
+[472] Sean: ^vec when he doesn't get his way
+[476] Brody: :bruh:
+[495] Jonas: https://tenor.com/view/char-aznable-quattro-bagina-zeta-gundam-i-came-to-laugh-at-you-gundam-gif-24795600
+[496] Jonas: dutch to zach
+[497] Brody: https://tenor.com/view/fell-over-splat-catbug-bravest-warriors-i-fell-over-gif-11992752
+[499] Silas: https://tenor.com/view/chainsaw-man-denji-chainsaw-chainsaw-throttle-anime-gif-22127858
+[508] Jonas: Trey does a little dance
+[513] Silas: he would never ever
+[516] Trey: Zion
+[523] Zander: The dwarves shrink over time, and eventually phase out of existence.
+[524] Sean: They'll all around Seth
+[525] Zander: They exist for an hour and swarm Seth.
+[526] Trey: https://tenor.com/view/animal-crossing-animal-crossing-new-horizons-new-horizons-acnh-nintendo-switch-gif-16548929
+[527] Zander: Do the dwarves have wings?
+[531] Hunt520: "STAR VECIUM!!!"
+[533] Hunt520: "ORAAAAA!"
+[553] Trey: YES YES YE YSE YES YSEY YASR RY SEA YRY SED
+[554] Trey: YES YE YSYE
+[555] Trey: 6SE
+[556] Trey: Y
+[557] Trey: SE
+[558] Trey: YS
+[559] Trey: E
+[588] Brody: https://tenor.com/view/community-donald-glover-pizza-shocked-disaster-gif-4891734
+[589] Brody: {"title": "community pizza fire scene"}
+[591] Brody: ^Morra
+[609] Zander: @Hunt520 @Silas
+[624] Sean: "OI SOMEONE OPEN DIS HER' DOOR!"
+[692] Jonas: why do i hear boss music
+[694] Jonas: https://tenor.com/view/boss-gif-19023332
+[702] Jonas: https://tenor.com/view/grage-gragf-fabiosimoninisimonini-morramorrachef-morrachef-gif-20951860
+[706] Zander: Dutch, go with Vec
+[707] Silas: Dutch, go to the bathroom
+[708] Sean: Dutch, you're shitting yourself
+[709] Silas: not yet
+[769] Jonas: it tickled him! hes laughing!
+[770] Jonas: plinkor
+[771] Jonas: funny
+[793] Jonas: VEC EVERY DAY TO US
+[807] Jonas: https://tenor.com/view/boss-gif-19023332
+[820] Jonas: laid more like
+[830] Trey: https://tenor.com/view/frank-castle-wait-please-stop-please-no-please-gif-21133188
+[835] Jonas: GOD
+[855] Silas: :squoggers:
+[865] Jonas: https://tenor.com/view/punk-megamind-animation-metro-man-megamind-nemesis-gif-17788637
+[866] Jonas: this is what seths balls do
+[867] Sean: https://tenor.com/view/technoblade-persona-persona6-meme-jschlatt-gif-18695828
+[906] Trey: YESYEYYYEYSESEYSEEES
+[908] Zander: @Trey
+[919] Trey: odran
+[997] Trey: ow
+[1017] Trey: /dmg roll target_id:emmett expression:d0
+[1044] Jonas: *Bellow steels his resolve, and draws out the sword he gathered from his friends back home after learning how to wield a blade with Zach.
+[1045] Jonas: It is a intricately decorated longsword made of pure white metal, and it makes a clean sound when coming out of the sheath*
+[1109] Trey: Pinned a message.
+[1129] Trey: Our balls... rumble as one...!
+[1133] Zander: Squina
+[1136] Brody: S: Ow my dreadballs
+[1139] Zander: Yeah, Emmett's a tad busy for dialog.
+[1156] Zander: @Trey
+[1171] Zander: Space Rule #5753: Once a fungi, always a fun guy
+[1172] Trey: Space Rule #919: Don't ignore the rumble, baby.
+
+# Episode 20 — Event Horizon
+[3] Zander: @Hunt520
+[4] Zander: @Trey
+[5] Trey: Changed the channel name: Final Frontier 4 Episode 18
+[6] Trey: Last episode, the HORIZONERS reconciled and fought off a Ravens assault. Following the crew’s argument over Vec and their mission, the ship was quiet and dormant. The captains sat in the cockpit, discussing the mission and trying to make amends.
+[7] Trey: Down in the deep, dark depths of the brig, Zach laid in a cell guarded by Morra, who was guarded by Dutch. Bellow quickly joined them, hoping to see Zach in good condition. The two shared tears before the entomae left to pursue a solution. He intercepted Zion in the hallway, pleading with the captain to let Zach go, to no avail. Although Zion was concerned about his well-being, he was unsure if it was safe to let him free.
+[8] Trey: Suddenly, the power went out across the ship, and Bellow rushed down to fix it, finding Vec (in the argonian body) meddling about. The fungus explained how it was sorry about how it’d acted, and requested that apology to be reported directly to Zion. Before everyone could make up, however, there was a rumbling coming from the ship’s hangar.
+[9] Trey: Right on time, the Ravens member ODRAN bursted through with a group of mercenaries, who quickly apprehended the crew with various machines and weapons. Odran explained the purpose of the Ravens’ mission, and why they were on the Horizoners’ tail, even offering a compromise. This was shot down when Vec proudly swooped in to save them, the crewmates each recovering from their paralysis just in time.
+[10] Trey: The battle was gruesome, with Seth the sharpshooter easily taking down the mercenaries, while the others were beaten mercilessly by the armored Raven. In the end, though, the Horizoners were victorious, damaging their enemy’s armor and blasting him out into space.
+[11] Trey: Since then, the crew has been able to reunite peacefully, even with Vec. The trouble doesn’t end, though, because today’s the day the Event Horizoners complete their final mission, following their rescue mission straight into a BLACK HOLE...
+[19] Jonas: where
+[20] Brody: where
+[21] Jonas: where is he showering
+[22] Trey: Bathroom
+[23] Jonas: wheres the shower
+[24] Silas: bathroom
+[25] Brody: where
+[26] Silas: bathroom
+[27] Brody: where bathroom
+[28] Trey: Ship
+[29] Silas: ship
+[30] Trey: 👍
+[50] Trey: Earthican
+[114] Silas: I will kill you
+[118] Trey: Dutch
+[131] Trey: Morra cute
+[132] Trey: + sexy
+[133] Silas: + rock
+[134] Trey: + funny
+[135] Silas: + ratio
+[163] Zander: @deleted-role
+[171] Hunt520: it explodes
+[203] Silas: Zion accidentally scrapes the metal incredibly bad with his metal hands and permanently ruins the pod
+[207] Trey: Do Zion's balls rumble?
+[225] Silas: https://www.youtube.com/watch?v=I8KSAtos-dk
+[226] Silas: {"title": "British National Anthem - \"God Save The Queen\" (EN)", "description": ["National Anthem of the United Kingdom of Great Britain and Northern Ireland - \"God Save The Queen\"", "Includes lyrics in English.", "For the instrumental version: https://www.youtube.com/watch?v=Rd1YiAM_7Pg"]}
+[227] Brody: https://youtu.be/ao8U6D_F3dE
+[228] Brody: {"title": "C418 - Haunt Muskie (Minecraft Volume Beta)", "description": ["C418 - Minecraft Volume Beta - 10 Haunt Muskie", "I do not own this song, nor the image. I am fully complacent with any requests made by C418 to remove this video, and I do not condone the download of this video, which YouTube has prohibited.", "Please support C418 by visiting his site and purchasing his music:", "http://c418.bandcamp.com/", "Feel free t..."]}
+[230] Silas: https://www.youtube.com/watch?v=XZGRxn9eCxU
+[231] Silas: {"title": "National Anthem of the United Kingdom (new): God Save the King", "description": ["God Save the King is the national anthem of the United Kingdom since 1745. It is also the royal anthem of the 14 other Commonwealth realms, such as Canada, Australia, and New Zealand. ", "From 1952 to 2022, the anthem was known as God Save the Queen, during the reign of Her Majesty Queen Elizabeth II.", "FRANÇAIS: God Save the King (Dieu sauve le Ro..."]}
+[238] Brody: HAHAH
+[239] Trey: Pinned a message.
+[242] Brody: 10 second clones!
+[263] Trey: HE'S DUPLICATING
+[266] Trey: Bellow's a fairly decent size
+[267] Trey: All 4 of them
+[282] Trey: *Zion closes the lid of the pod.
+[320] Jonas: HES SAYING THAT TO ZION
+[328] Jonas: give him a dress
+[353] Silas: IT'S BIG FOR HIS SPECIES IT'S BIG FOR HIS SPECIES IT'S BIG FOR HIS SPECIES IT'S BIG FOR HIS SPECIES
+[401] Zander: Roll to see if Pauline goes off accidentally
+[418] Jonas: erm
+[421] Jonas: https://tenor.com/view/spelling-mistake-minor-spelling-mistake-meme-gif-23650588
+[422] Sean: https://tenor.com/view/pro-player-roblox-audio-maker-doomshop-roblox-roblox-bypassed-audios-gif-18240558
+[425] Sean: https://tenor.com/view/trevor-moment-discord-swag-meme-gif-20463477
+[430] Hunt520: typical
+[434] Silas: https://tenor.com/view/futurama-nixon-agnew-stamp-of-approval-gif-23998011 this is vec now official official official
+[453] Jonas: died
+[457] Trey: Zacharoneus
+[476] Trey: Die instant
+[478] Silas: NO NOON ONO NOO NO NONOO
+[492] Trey: Bellow Zach sex pls
+[493] Trey: Bellow Zach Dutch polygamy
+[496] Silas: he so homosexuallie
+[505] Brody: BITCH
+[522] Silas: his ring being his cockring
+[523] Silas: not his finger ring
+[536] Zander: Emmett:
+[576] Hunt520: Yes, but unfortunately determination only gets you so far... so one of his blasters is now jammed
+[578] Jonas: OH NO
+[607] Silas: Verinian Ale is 37% Alcohol Content, by the way.
+[612] Zander: Similar to Squis mind you
+[638] Silas: https://tenor.com/view/spiderman-tas-90s-cartoon-spiderman-cg-gif-23849719
+[660] Trey: Jonas reading a one-page short story v.s. Jonas playing the same video game for 12 hours at a time:
+[664] Jonas: SO TRUE PIN THAT
+[695] Jonas: if you had a tiny clone of morra, would you torture it?
+[697] Trey: NO
+[698] Trey: THEYRE SO CUTE
+[699] Trey: NEVER
+[732] Trey: Pinned a message.
+[733] Jonas: AMONGUUUUUUUUUUUUUUS
+[746] Trey: Time to hole
+[761] Jonas: https://tenor.com/view/jarvis-jarvis-skill-issue-skill-issue-gif-24471438
+[779] Zander: @Trey
+[798] Trey: The cum monster appears
+[801] Trey: The cum monster is Seth
+[804] Silas: https://tenor.com/view/cum-gif-19843715
+[818] Silas: https://tenor.com/view/i-dont-i-dont-think-they-dont-exist-wesley-and-buttercup-the-princess-bride-gif-13835808
+[824] Brody: https://tenor.com/view/cliffsofinsanity-vizzini-princess-bride-the-gif-18471366
+[825] Jonas: https://media.discordapp.net/attachments/421800263167246341/1047894211850162306/blinky.gif
+[828] Trey: /8ball Does the cat appear?
+[832] Hunt520: OH HE SAID IT!!! ROLL CREDITS!!!!!
+[859] Brody: https://tenor.com/view/princess-bride-bow-cary-elwes-gif-22918306
+[872] Silas: @Trey
+[882] Jonas: squorb
+[947] Silas: you've got this, 'Ello
+[972] Trey: https://tenor.com/view/canterbury-death-explosion-spaceship-freighter-gif-8889771
+[976] Zander: @Trey
+[978] Trey: Bellow femboy
+[979] Trey: sry wasnt googel
+[997] Jonas: https://tenor.com/view/kid-named-finger-mike-ehrmantraut-better-call-saul-gif-26304264
+[1002] Zander: when pee emmett
+[1004] Silas: https://tenor.com/view/spongebob-unicorn-claw-machine-fail-gif-9320552
+[1014] Trey: Erm... what the hotdog?
+[1058] Sean: '
+[1107] Hunt520: Uh... Dutch?!
+[1239] Silas: "Holy crap, Seth Im'Kin'Ki?"
+[1240] Silas: "Hello, Morra. Welcome to Elf Heaven."
+[1241] Brody: Pinned a message.
+[1249] Trey: "Aw crap. This is almost as bad as the time I was in the Vortox Pummelers."
+[1251] Trey: Sanya: "Emmett, I have no idea how this meatsack got here, but I think I'm going to kill him and drink his blood"
+[1252] Trey: Emmett: "Sanya, have some sympathy, he looks scared."
+[1253] Trey: Peter: "Uhh, hey fellas, which way is the bathroom?"
+[1263] Sean: Space Rule #591: Never trust an elf.
+[1264] Jonas: KILL THE DMS
+
+# Episode 21 — Welcome To Elf Heaven
+[1] Zander: @Trey leave
+[2] Zander: Changed the channel name: Freezy Burger Side Episode 2
+[3] Zander: Changed the channel name: Final Frontier Side Episode 3
+[4] Zander: In the ending of the last story, SETH hijacked the crew's RETRIEVAL POD and caused it to nosedive into a hexed BLACK HOLE. SETH, VEC, and a bodyless MORRA traveled through, and they've awoken in ELF HEAVEN. The trio still has the ARTIFACT in tow, but each adventurer might have different goals in mind.
+[8] Trey: Changed the channel name: Final Frontier 4 Side Episode 3
+[9] Zander: @Trey leave
+[10] Zander: the episode
+[11] Zander: please
+[30] Zander: @Trey
+[32] Trey: That makes sense
+[101] Trey: Nosedive moment
+[126] Trey: So rude
+[186] Sean: https://tenor.com/view/oh-yes-oh-yeah-despicable-me-victor-gif-11782173
+[191] Zander: @Brody
+[192] Trey: So cute
+[238] Trey: Vec was the artifact all along </3
+[285] Trey: https://tenor.com/view/scratch-wound-injury-knight-monty-python-and-the-holy-grail-gif-11190303
+[290] Zander: @Sean
+[330] Trey: @Music play playlist FF_Battle
+[344] Zander: @Brody
+[416] Zander: The undead summon, sounding like Emmett:
+[473] Zander: https://www.youtube.com/watch?v=TEYQmqQRAnk
+[474] Zander: {"title": "Rick and Jerry transformation ( Sailor Moon parody)", "description": ["Rick and Jerry transformation ( Sailor Moon parody)", "6x05", "Eye ofThundara, give me suits beyond suits", "#AndriiNo!  #RickAndMorty #Season6"]}
+
+# Episode 22 — Usurper
+[1] Trey: Changed the channel name: Final Frontier 4 Side Episode 4
+[2] Trey: In the ending of the last story, SETH hijacked the crew's RETRIEVAL POD and caused it to nosedive into a hexed BLACK HOLE. The pod crew and MORRA are nowhere to be seen, and everyone else is left to pick up the pieces. The Captain and three crewmates may be left HOPELESS and ALONE, but that won't stop them from trying.
+[22] Hunt520: he angy
+[23] Trey: Kinda risque
+[24] Silas: https://tenor.com/view/fiery-rage-castle-crashers-white-cat-alternating-gif-16840002
+[25] Silas: Bellow rn
+[51] Silas: the tome was "The Bible 2"
+[54] Trey: It was the Super-Quran
+[58] Trey: Yes, but they have to use Morra's phone
+[71] Trey: L
+[74] Jonas: :(
+[82] Jonas: morfinger
+[120] Jonas: mr dutchaloid 🤓
+[140] Jonas: :horror:
+[141] Silas: :emet:
+[142] Silas: @Jonas
+[148] Trey: poop
+[155] Silas: paper
+[156] Trey: paper
+[157] Trey: rock
+[158] Silas: paper
+[159] Jonas: STOP
+[195] Jonas: read emmett line
+[201] Silas: Emmett bagungs.
+[207] Silas: .
+[215] Jonas: take off your finger
+[219] Jonas: little starry guy :)
+[260] Zander: Klek'li'more
+[264] Jonas: https://tenor.com/view/frisk-l-undertale-l-l-undertale-l-frisk-chara-l-gif-24700186
+[267] Trey: Sixteen hours later:
+[287] Trey: Yes and he loves the elf ears
+[306] Jonas: get it dutch
+[315] Trey: Emutergezietiskotrunatutrillonbahiripugawadrudiboszidutersade
+[335] Jonas: professional sleep driver
+[344] Zander: get it because Dutch small and Giant tall
+[345] Silas: i kil yo
+[359] Jonas: yo dada
+[362] Hunt520: nonononononononnonono
+[366] Trey: https://tenor.com/view/saul-saul-goodman-saul-jmm-gif-26111294
+[406] Jonas: https://tenor.com/view/dance-skeleton-puppet-gif-6114807
+[410] Jonas: bellow for 0.00054 picoseconds
+[426] Zander: :Dead:
+[431] Trey: https://tenor.com/view/he-did-it-gif-25741033
+[441] Trey: NOOOOOO
+[450] Silas: https://tenor.com/view/%C3%A6ae-ae-ninja-dancing-ninja-fortnite-irony-gif-19576446
+[451] Silas: seth right now
+
+# Episode 23 — Finale
+[1] Trey: Changed the channel name: Final Frontier 4 Episode 19
+[3] Trey: ORB ORB ORB ORB OR ORB squoat
+[4] Silas: squoarbt
+[6] Trey: Last episode, the HORIZONERS geared up to complete their final mission, plunging into a BLACK HOLE to retrieve a legendary artifact. The crew began their morning lively and energized, with each mate doing their thing throughout the ship. Soon, the time came to prepare for the task at hand, and Captain Zion assigned everyone's roles for the mission. Operating the RETRIEVAL POD would be Seth, who happily volunteered. The others were delegated small tasks to ensure everything went smoothly.
+[7] Trey: The crew shared sentimental moments and fond memories with each other, after which Dutch made a celebratory toast to their achievements. As the crew convened, Seth secretly called EMMETT to confirm their plot to hijack the pod. Emmett stressed the importance of the artifact, but Seth blew him off and hung up. Afterwards, everyone went to their places and got their things in order — it was time to begin.
+[8] Trey: The mission began smoothly, with Seth and Vec manning the pod together as Dutch controlled it remotely from the ship. The pod shot off, spiraling inwards past the black hole's EVENT HORIZON. After many tries, Seth managed to grab the floating ARTIFACT using a claw. Before they knew it, though, the pod's controls were taken over — by none other than Emmett himself! As agreed, Seth jettisoned a small package out of the pod and towards the ship, and while Seth chanted in an ancient Elven tongue, Emmett plunged the pod straight downwards.
+[9] Trey: As the crew retrieved the package, they realized they had been duped. Instead of a powerful artifact, Seth sent them an empty WINE BOTTLE, keeping the spoils to himself! Morra quickly took the initiative and wormholed themselves to the pod, but it was too late — the pod had reached the singularity, never to return, and all that poor Bellow could tractor-beam back was Morra's headless body.
+[10] Trey: Since then, the crew has been split between worlds.
+[11] Trey: After what felt like an eternal sleep, Seth, Vec, and a bodiless Morra awoke together in the pod. They had arrived in ELF HEAVEN, just like the tomes said. Seth made his way through the slums and the city, making his mark along the way by forgiving the Elven sinners. Upon reaching the castle, Seth stormed to the room of the Elven GODDESS OF DEATH, shooting her and taking her crown. Meanwhile, Morra and Vec worked together to return the pod back through the black hole…
+[12] Trey: On the other side, the remaining crew panicked after what seemed like total failure. With three crewmates missing and no artifact in tow, they couldn't simply return to the REPUBLIC. Dutch contacted a tired Squoatling, who explained the elf’s dastardly plot — so, the crew's now-sole-Captain Zion ordered them to go to LAMA'ENTRIA, planet of the ELVES. They tried to squeeze information out of the goddess’s messenger, but were escorted away when tremors began across the monastery. Realizing what Seth had done, they headed to the ship and returned to the black hole…
+[13] Trey: But now, the crew has reached their final impasse. With the artifact secured, what will they do? Will they return to the LLAMANIANS and collect their reward? Will they keep it to themselves? Or will they make an uneasy alliance…? Only time will tell…
+[14] Jonas: rumbling
+[15] Jonas: morra's earthquake 😳
+[16] Zander: Tummyache
+[30] Silas: to where?
+[33] Jonas: bing!
+[35] Jonas: a!
+[37] Jonas: loid!
+[47] Trey: https://tenor.com/view/super-mario-galaxy2-super-mario-galaxy-mario-galaxy-super-mario-mario-gif-19799426
+[137] Jonas: did you know that if the llamanian mission control doesnt respond for at least 15 minutes, youre legally allowed to keep the artifact for yourself?
+[171] Jonas: give it to vec
+[174] Trey: GUice
+[237] Jonas: https://tenor.com/view/magic-school-bus-seatbelts-everyone-cartoon-ms-frizzle-school-bus-gif-14737835
+[238] Jonas: dutch
+[248] Silas: https://tenor.com/view/mel-brooks-spaceballs-ludicrous-speed-warning-gif-16368521
+[277] Zander: https://discord.com/channels/324621181640638464/936693343776297061/1051231247734689872
+[278] Brody: :art:
+[279] Jonas: :chomsky:
+[312] Zander: @Hunt520
+[334] Jonas: goblin behavior
+[348] Silas: that did not happen!!!!!!!!!!!!!!!!!!!!!!
+[365] Trey: https://tenor.com/view/family-guy-quagmire-glen-jaw-gif-22600043
+[402] Trey: @Music skip
+[414] Silas: 🆗
+[433] Jonas: can we get much higherrrrr
+[443] Trey: (Taking a pee break, one secaloid)
+[447] Jonas: we hovering today
+[449] Jonas: bellow creates a massive windstorm in the room
+[453] Jonas: Pinned a message.
+[488] Jonas: kratos reference
+[513] Silas: remember jack exploded off screen in a family guy cutaway gag
+[575] Hunt520: ...
+[589] Jonas: https://tenor.com/view/let-me-be-clear-uhhh-meme-gif-25693361
+[594] Silas: https://tenor.com/view/homer-simpson-whoo-hoo-yes-yay-gif-17375289
+[608] Zander: @Sean
+[619] Sean: https://tenor.com/view/skill-issue-roblox-obby-lag-exploiter-gif-21619635
+[645] Trey: That's not what it says to do
+[646] Trey: @Hunt520 That's not what it says to do
+[647] Trey: @Hunt520 Call his phone
+[655] Hunt520: ...
+[657] Hunt520: ....
+[678] Zander: Rise of Skywalker
+[686] Silas: D: sorry that was involuntary
+[687] Trey: I'M SCARED FLORAN DOMMY MOMMY PLS
+[698] Jonas: Pinned a message.
+[699] Sean: Wont be in vc, getting a bad headache
+[700] Jonas: u good
+[701] Brody: understood!
+[702] Hunt520: take the break you need
+[703] Trey: You're good
+[705] Silas: 👍
+[722] Hunt520: ...
+[732] Silas: :chomsky:
+[736] Silas: is the death ship a dreadnaught?
+[737] Silas: or what
+[740] Sean: I imagine it to be a rather large ship, I mean it is made by the gods.
+[741] Silas: https://tenor.com/view/doom-eternal-knife-video-game-gif-12317717
+[751] Sean: Can I roll for how many ships he takes out?
+[752] Trey: By the way, Sean, you're welcome to join the fight directly if you want. It'll be in a couple turns
+[753] Sean: Alright, have zion like call seth and I'll just portal him
+[757] Hunt520: NIce!
+[758] Trey: Nice nat 20
+[759] Brody: ooo\
+[760] Sean: Ballin
+[762] Zander: @Sean There's 10,000 ships, so with a nat 20, how many is that?
+[763] Silas: all of them
+[765] Sean: Lmao, if the dms are ok with that
+[766] Sean: Idk you decide zander
+[767] Zander: 60% of them, over the course of the battle.
+[768] Sean: Alright bet.
+[769] Zander: How about that
+[772] Zander: That's 6,000 ships from the God of Death himself
+[782] Trey: Llashii
+[788] Trey: Odran, over a loudspeaker, from a central warship:
+[824] Silas: Pinned a message.
+[833] Zander: @Sean
+[834] Trey: cum cum cum cum cum cum
+[848] Silas: https://docs.google.com/document/d/1P85LgsG-67MVVa7eANvYOprvAY6i1omYFD4XXiAFijg/edit
+[849] Silas: {"title": "Everything Was Okay.", "description": ["Everything was okay.  The assembly line was running normally, the next generation of KYL Units being manufactured. Gary, the factory manager, was in for his weekly inspection. Tracks were running smoothly. Workers were efficient enough, for how few there were. Only two accidents since the last in..."]}
+[866] Zander: A
+[868] Zander: B
+[870] Zander: C
+[872] Zander: D
+[874] Zander: Raven Leader
+[877] Jonas: yes but only for 10 seconds
+[884] Zander: true but unfortunately, gray seer
+[886] Zander: @Sean
+[887] Silas: sean turn
+[888] Zander: Attacking?
+[889] Zander: It's fine if not
+[890] Zander: We can skip
+[891] Trey: He's away
+[929] Jonas: dorb
+[938] Jonas: hunter does a little
+[946] Jonas: brrrrrrrrrr
+[961] Hunt520: trrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrriiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiippppppppppppppppppppppppppllllllllllllllllllllllllllliiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiccccccccccccccccccccccaaaaaaaaaaaaaaaaaaaaaaaaaaattttttttttttttttttttttttttttteeeeeeeeeeeeeeeeeeee!!!!!!!!!!!!!!!!!!!!
+[969] Trey: LOLOLOL
+[971] Zander: I'm going to cock you.
+[973] Zander: @Jonas Gets two turns!
+[991] Zander: Get wrecked, kid.
+[1023] Jonas: (DM make him attack the leader)
+[1052] Zander: QUADRUPLE CANNON POWER RANGER ATTACK!
+[1096] Silas: https://tenor.com/view/this-is-fine-gif-24177057
+[1103] Jonas: (use the grenade)
+[1111] Trey: Sexy
+[1134] Trey: Quadruple
+[1139] Trey: Bellow so helpful
+[1144] Hunt520: Dual wielding time bitches!
+[1147] Trey: Seth's ship flies by quickly, and sharpshooter Seth fires his desert eagle straight through the hull!
+[1151] Trey: Seth unloads every bullet into the back of the Raven's armor!
+[1164] Hunt520: (don't worry, he won't show up till the end of combat)
+[1195] Hunt520: YES
+[1197] Trey: Zach's arm is sliced clean off!
+[1211] Silas: https://tenor.com/view/battle-beast-brutal-blood-invincible-monster-girl-gif-25706216
+[1222] Jonas: dang
+[1238] Jonas: "
+[1239] Jonas: (Toss another grenade! or, whatever feels appropriate)
+[1282] Hunt520: are you going to shoot the wounds?!
+[1285] Jonas: shoot next to the arm wound, using the heat from the blast
+[1286] Jonas: like pointing towards the ground
+[1287] Hunt520: oh ok
+[1295] Jonas: chomsky
+[1317] Zander: 🧊
+[1318] Hunt520: MOTHERFUCKER
+[1344] Zander: @Trey
+[1360] Jonas: about the fear thing
+[1381] Zander: @Silas
+[1393] Trey: MINE ME FIRST I SAW IT FIRST
+[1436] Trey: Timeskip, 3 hours. Everyone is feeling better and will depart soon.
+[1437] Trey: (don't worry, DM's will put together a
+[1439] Trey: epilogue, so feel free to have dialogue)
+[1450] Trey: I'm glad I was chosen to work with — and lead — you all.
+[1465] Hunt520: Oh... so that's what the song was for...
+[1466] Hunt520: Black Eyed Peas: Black Hole Sun
+[1467] Hunt520: My bad...
+[1468] Trey: https://www.youtube.com/watch?v=3mbBbFH9fAg
+[1469] Trey: {"title": "Soundgarden - Black Hole Sun", "description": ["REMASTERED IN HD!", "Soundgarden's official music video for 'Black Hole Sun'. ", "Revisit more 90's music videos: https://www.youtube.com/watch?v=xGytDsqkQY8&list=PLjF50Dlp9iembnFdfoZaqIoYZ0zBm7utR", "Watch more remastered videos! https://www.youtube.com/watch?v=hTWKbfoikeg&list=PLDNtAuXIhbEPLcw6HLBLkVJl_MUd0DFW2", "Follow Soundgarden:", "https://twitter.co..."]}
+[1525] Silas: dutch KILLS ZACH IN RETALIATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[1529] Hunt520: Tbh, I see Zach and Dutch have each other's nicknames be Fleshball and Fleabag respectfully
+[1546] Trey: Space Rule #82: Keep yourself out of hot (dog) water.
+[1547] Silas: Space Rule #11: Friends are important. And the weak are vile creatures.
+[1548] Hunt520: Space Rule #520: Throw yourself headfirst in danger! You never know who you fall in love with!
+[1549] Jonas: Space Rule #89: Don't stare into the unknown too long; IT STARES BACK.
+[1550] Zander: Vec Rule #2: Friends are important... And the weak are vile.
+[1551] Brody: Space rule #82419: Bravery isn't the absence of fear, but the strength to fight through it.
