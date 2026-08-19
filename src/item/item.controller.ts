@@ -24,8 +24,8 @@ const initializeItemRoutes = (): Router => {
         const isId = /^\d+$/.test(param);
         try {
             const item = isId
-                ? await itemService.getItemById(parseInt(param, 10))
-                : await itemService.getItemBySlug(param);
+                ? await itemService.getItemById(parseInt(param, 10), { withWiki: true })
+                : await itemService.getItemBySlug(param, { withWiki: true });
             if (!item) {
                 return res.status(404).json({
                     status: "error",

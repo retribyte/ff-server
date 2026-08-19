@@ -53,8 +53,8 @@ const initializeCharacterRoutes = (): Router => {
 
         try {
             const character = isId
-                ? await characterService.getCharacterById(parseInt(param, 10))
-                : await characterService.getCharacterBySlug(param);
+                ? await characterService.getCharacterById(parseInt(param, 10), { withWiki: true })
+                : await characterService.getCharacterBySlug(param, { withWiki: true });
             if (!character) {
                 return res.status(404).json({
                     status: "error",

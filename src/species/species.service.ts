@@ -1,6 +1,7 @@
 import { PrismaClient, Class } from "@prisma/client";
 import { sanitizeText } from "../utils/sanitize.js";
 import { normalizeSlug, slugify } from "../utils/slug.js";
+import { getWikiData } from "../wiki/wiki.service.js";
 
 const prisma = new PrismaClient();
 
@@ -22,16 +23,32 @@ async function getAllSpecies(search?: string) {
     });
 }
 
-async function getSpeciesById(id: number) {
-    return await prisma.species.findUnique({
+// Attaches wiki-sourced fields under a nullable `wiki` key. Opt-in: callers
+// that only need the record to check ownership (the mutation routes in
+// species.controller.ts) skip this so a wiki cache miss never blocks a write.
+async function attachWikiData<T extends { slug: string }>(species: T): Promise<T & { wiki: Record<string, unknown> | null }> {
+    const wiki = await getWikiData("species", species.slug);
+    return { ...species, wiki };
+}
+
+async function getSpeciesById(id: number, options: { withWiki?: boolean } = {}) {
+    const species = await prisma.species.findUnique({
         where: { id },
         include: { Character: true },
     });
+    if (!species) return null;
+    return options.withWiki ? await attachWikiData(species) : species;
 }
 
 // Falls back to a normalized (hyphen -> underscore) lookup so old
 // hyphenated bookmarks from before the slug convention settled still resolve.
-async function getSpeciesBySlug(slug: string) {
+async function getSpeciesBySlug(slug: string, options: { withWiki?: boolean } = {}) {
+    const species = await resolveSpeciesBySlug(slug);
+    if (!species) return null;
+    return options.withWiki ? await attachWikiData(species) : species;
+}
+
+async function resolveSpeciesBySlug(slug: string) {
     const species = await prisma.species.findUnique({ where: { slug }, include: { Character: true } });
     if (species) return species;
     const normalized = normalizeSlug(slug);

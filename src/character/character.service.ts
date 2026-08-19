@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { sanitizeText } from "../utils/sanitize.js";
 import { normalizeSlug, slugify } from "../utils/slug.js";
+import { getWikiData } from "../wiki/wiki.service.js";
 
 const prisma = new PrismaClient();
 
@@ -40,8 +41,21 @@ async function getAllCharacters(filters: CharacterFilters = {}) {
     return await prisma.character.findMany({ where });
 }
 
-async function getCharacterById(id: number) {
-    return await prisma.character.findUnique({ where: { id }, include: { personas: true } });
+// Attaches wiki-sourced fields under a nullable `wiki` key, keyed off the
+// character's own canonical slug — never the raw request param, which may
+// be a hyphenated or persona alias (see getCharacterBySlug below). Opt-in:
+// callers that only need the record to check ownership (the mutation
+// routes in character.controller.ts) skip this so a wiki cache miss never
+// blocks a write.
+async function attachWikiData<T extends { slug: string }>(character: T): Promise<T & { wiki: Record<string, unknown> | null }> {
+    const wiki = await getWikiData("characters", character.slug);
+    return { ...character, wiki };
+}
+
+async function getCharacterById(id: number, options: { withWiki?: boolean } = {}) {
+    const character = await prisma.character.findUnique({ where: { id }, include: { personas: true } });
+    if (!character) return null;
+    return options.withWiki ? await attachWikiData(character) : character;
 }
 
 // Falls back to a normalized (hyphen -> underscore) lookup so old
@@ -50,7 +64,13 @@ async function getCharacterById(id: number) {
 // order), returning the persona's character — e.g. "/characters/vec_fungus"
 // resolves to Vec. Only named personas have a slug (name-less look-only
 // personas have no URL identity), so this naturally only ever matches those.
-async function getCharacterBySlug(slug: string) {
+async function getCharacterBySlug(slug: string, options: { withWiki?: boolean } = {}) {
+    const character = await resolveCharacterBySlug(slug);
+    if (!character) return null;
+    return options.withWiki ? await attachWikiData(character) : character;
+}
+
+async function resolveCharacterBySlug(slug: string) {
     const character = await prisma.character.findUnique({ where: { slug }, include: { personas: true } });
     if (character) return character;
     const normalized = normalizeSlug(slug);

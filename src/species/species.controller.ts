@@ -24,8 +24,8 @@ const initializeSpeciesRoutes = (): Router => {
         const isId = /^\d+$/.test(param);
         try {
             const species = isId
-                ? await speciesService.getSpeciesById(parseInt(param, 10))
-                : await speciesService.getSpeciesBySlug(param);
+                ? await speciesService.getSpeciesById(parseInt(param, 10), { withWiki: true })
+                : await speciesService.getSpeciesBySlug(param, { withWiki: true });
             if (!species) {
                 return res.status(404).json({
                     status: "error",

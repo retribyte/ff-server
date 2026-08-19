@@ -219,6 +219,10 @@ This section captures the *entities* and *relationships* the System must represe
 - Message `(episode, sequence_number)` MUST be unique and gap-tolerant (reordering is permitted).
 - Deleting a User MUST NOT cascade-destroy their content; ownership SHOULD be reassignable or preserved as "orphaned".
 
+### 4.6 Wiki cache layer
+
+A subset of quick-reference fields (birthdate, birthplace, sex, height/weight, hair/eyes, home planet, aliases, relationships on Character; binomial name, lifespan, diet, habitat, origin on Species) live on the wiki, not in Postgres, and are read at request time through a `WikiCache` table backed by the wiki's Bucket extension — not modeled here as first-class fields. See `PLAN-wiki-cache.md` and `src/wiki/` for the read path.
+
 ---
 
 ## 5. Non-Functional Requirements
