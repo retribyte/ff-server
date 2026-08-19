@@ -16,6 +16,7 @@
         "seed:8ball": "tsx prisma/seed-8ball.ts",
         "seed:vec-personas": "tsx prisma/seed-vec-personas.ts",
         "seed:buzzcut-persona": "tsx prisma/seed-buzzcut-persona.ts",
+        "seed:vortox-character-data": "tsx prisma/seed-vortox-character-data.ts",
         "migrate:vm": "tsx prisma/migrate-vm-to-story.ts",
         "backfill:slugs": "tsx prisma/backfill-slugs.ts"
     },
