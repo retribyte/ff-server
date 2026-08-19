@@ -40,3 +40,6 @@ prisma/dev.db
 prisma/dev.db
 .claude/
 prisma/migrations/
+
+# Python bytecode cache (ff4_score_editor.py etc., kept untracked)
+__pycache__/
