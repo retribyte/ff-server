@@ -70,10 +70,11 @@ async function getQuotesByCharacter(characterId: number) {
 }
 
 type MessageHit = {
-    episodeTitle: string; 
-    messageNo: number; 
-    text: string, 
-    type: MessageType
+    episodeTitle: string;
+    episodeNo: number;
+    messageNo: number;
+    text: string;
+    type: MessageType;
 };
 
 // Backs the unified /api/search endpoint. Full-text (not substring) match —
@@ -93,8 +94,8 @@ async function searchMessages(
     const skip = (page - 1) * limit;
     const [data, countResult] = await Promise.all([
         prisma.$queryRaw<MessageHit[]>`
-            SELECT "episodeTitle", 
-                (SELECT "episode_no" FROM episodes WHERE title LIKE "episodeTitle") AS "episodeNo", 
+            SELECT "episodeTitle",
+                (SELECT "episode_no" FROM episodes WHERE title = messages."episodeTitle") AS "episodeNo",
                 "messageNo", text, type
             FROM messages
             WHERE to_tsvector('english', text) @@ plainto_tsquery('english', ${query})

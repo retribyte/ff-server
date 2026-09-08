@@ -88,6 +88,9 @@ async function main() {
             authorId: archivist.id,
             themeColor: "#e8b23b",
             themeColor2: "#d3612c",
+            // Explicit, not relying on the schema default (which is PROSE) —
+            // VM alternates narration/dialogue as whole paragraphs, SCRIPT-style.
+            format: "SCRIPT",
         },
     });
     const chapter = await prisma.storyChapter.create({ data: { storyId: story.id, chapter_no: 1 } });
