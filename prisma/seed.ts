@@ -13,7 +13,15 @@ import { PrismaClient } from "@prisma/client";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const prisma = new PrismaClient();
 
-const SEED_SCRIPTS = ["seed-legacy.ts", "seed-vec-personas.ts", "seed-buzzcut-persona.ts", "seed-8ball.ts", "seed-galaxy.ts"];
+const SEED_SCRIPTS = [
+    "seed-legacy.ts",
+    "seed-vec-personas.ts",
+    "seed-buzzcut-persona.ts",
+    "seed-vortox-character-data.ts",
+    "seed-8ball.ts",
+    "seed-galaxy.ts",
+    "create-search-indexes.ts",
+];
 
 function runScript(script: string) {
     const scriptPath = path.join(__dirname, script);

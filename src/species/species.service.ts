@@ -12,13 +12,25 @@ type SpeciesData = {
     creatorId: number;
 };
 
-async function getAllSpecies(search?: string) {
+// opts is additive, unified-/api/search-only (a narrower select shape + a
+// result cap). Existing callers pass no second argument, so their result
+// set is otherwise unchanged.
+async function getAllSpecies(search?: string, opts: { limit?: number; lite?: boolean } = {}) {
+    const { limit, lite } = opts;
     const where = search
-        ? { name: { contains: search } }
+        ? { name: { contains: search, mode: "insensitive" as const } }
         : undefined;
+    if (lite) {
+        return await prisma.species.findMany({
+            where,
+            select: { id: true, name: true, slug: true },
+            ...(limit !== undefined && { take: limit }),
+        });
+    }
     return await prisma.species.findMany({
         where,
         include: { Character: true },
+        ...(limit !== undefined && { take: limit }),
     });
 }
 

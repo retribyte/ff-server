@@ -96,6 +96,8 @@ const LEGACY_NAME_ALIASES: Record<string, string> = {
     "Seth Im'Kin'ki": "Seth",
     "Victor Chomsky": "Chomsky",
     "Sanya Dreadflower": "Sanya",
+    "Iris Bellatoria": "Iris",
+    "Mateo Krovak": "Mateo",
 };
 const LEGACY_ALIASED_AWAY = new Set(Object.values(LEGACY_NAME_ALIASES));
 // Reverse direction -- cyoa.json (also an unconverted ff-site-old asset)
@@ -232,9 +234,10 @@ async function main() {
     const blockCounts = new Map<string, Map<string, number>>();
     for (const m of allMessages) {
         if (!m.character) continue;
-        const byPlayer = blockCounts.get(m.character) ?? new Map<string, number>();
+        const character = canonicalize(m.character);
+        const byPlayer = blockCounts.get(character) ?? new Map<string, number>();
         byPlayer.set(m.player, (byPlayer.get(m.player) ?? 0) + 1);
-        blockCounts.set(m.character, byPlayer);
+        blockCounts.set(character, byPlayer);
     }
 
     const characterNames = new Set<string>([
@@ -282,7 +285,7 @@ async function main() {
             });
 
             const rows: Prisma.MessageCreateManyInput[] = payload.messages.map((msg, index) => {
-                const characterId = msg.character ? (characterIds.get(msg.character) ?? null) : null;
+                const characterId = msg.character ? (characterIds.get(canonicalize(msg.character)) ?? null) : null;
                 let type = MESSAGE_TYPES.has(msg.type as MessageType) ? (msg.type as MessageType) : MessageType.OTHER;
                 // FR-MSG-4: QUOTE requires a character speaker (md-to-api.py
                 // already applies this at conversion time; kept here as a

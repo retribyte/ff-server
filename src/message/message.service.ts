@@ -69,6 +69,48 @@ async function getQuotesByCharacter(characterId: number) {
     });
 }
 
+type MessageHit = {
+    episodeTitle: string;
+    episodeNo: number;
+    messageNo: number;
+    text: string;
+    type: MessageType;
+};
+
+// Backs the unified /api/search endpoint. Full-text (not substring) match —
+// stemmed keyword search via to_tsvector/plainto_tsquery, ranked by ts_rank
+// and backed by the GIN expression index from prisma/create-search-indexes.ts
+// (Prisma's @@index can't express an expression index, so this can't live in
+// schema.prisma). The 'english' regconfig literal here must byte-match the
+// index's expression for Postgres to use it — don't parameterize it.
+// ts_rank ties are otherwise Postgres-arbitrary, which would make OFFSET/
+// LIMIT paging duplicate or skip rows across pages — "messageNo" ASC breaks
+// ties deterministically.
+async function searchMessages(
+    query: string,
+    page = 1,
+    limit = 20
+): Promise<{ data: MessageHit[]; total: number; page: number; limit: number }> {
+    const skip = (page - 1) * limit;
+    const [data, countResult] = await Promise.all([
+        prisma.$queryRaw<MessageHit[]>`
+            SELECT "episodeTitle",
+                (SELECT "episode_no" FROM episodes WHERE title = messages."episodeTitle") AS "episodeNo",
+                "messageNo", text, type
+            FROM messages
+            WHERE to_tsvector('english', text) @@ plainto_tsquery('english', ${query})
+            ORDER BY ts_rank(to_tsvector('english', text), plainto_tsquery('english', ${query})) DESC, "episodeNo" ASC, "messageNo" ASC
+            LIMIT ${limit} OFFSET ${skip}
+        `,
+        prisma.$queryRaw<{ count: bigint }[]>`
+            SELECT COUNT(*) AS count
+            FROM messages
+            WHERE to_tsvector('english', text) @@ plainto_tsquery('english', ${query})
+        `,
+    ]);
+    return { data, total: Number(countResult[0]?.count ?? 0), page, limit };
+}
+
 async function getRandomQuote() {
     const count = await prisma.message.count({ where: { type: MessageType.QUOTE } });
     if (count === 0) return null;
@@ -256,6 +298,7 @@ export default {
     getMessageByNo,
     getQuotesByCharacter,
     getRandomQuote,
+    searchMessages,
     createMessage,
     createMessages,
     updateMessage,
