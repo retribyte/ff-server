@@ -98,6 +98,18 @@ const LEGACY_NAME_ALIASES: Record<string, string> = {
     "Sanya Dreadflower": "Sanya",
     "Iris Bellatoria": "Iris",
     "Mateo Krovak": "Mateo",
+    "Bail Starlight": "Bail",
+    "Jim Johnson": "Jim",
+    "Matthias Lewkey": "Matthias",
+    "Lucian Blackwater": "Lucian",
+    "Zion Daybreaker": "Zion",
+    "Bellow Brightlight": "Bellow",
+    "Dutch Elkins": "Dutch",
+    // Not a rename like the others above -- "Edwin" is a misspelling of
+    // "Edmin" that appears in the raw archive messages themselves, splitting
+    // his identity in two. Canonicalizing it here folds it back into one
+    // character the same way the mechanism handles genuine renames.
+    "Edmin Kalvanzas": "Edwin",
 };
 const LEGACY_ALIASED_AWAY = new Set(Object.values(LEGACY_NAME_ALIASES));
 // Reverse direction -- cyoa.json (also an unconverted ff-site-old asset)
