@@ -62,6 +62,7 @@ model User {
   password      String      // hashed using bcrypt?
   role          UserRole
   icon          String?     // If null, use identicon?
+  color         String?     // dark-mode display color for characterless messages (e.g. the Vortox bot); hex
   bio           String?
   wikiUser      String?
   characters    Character[]

@@ -47,7 +47,7 @@ async function getMessagesByEpisode(episodeTitle: string, page = 1, limit = 100,
             orderBy: { messageNo: "asc" },
             skip,
             take: limit,
-            include: { player: { select: { id: true, username: true, icon: true } }, character: true, persona: PERSONA_SELECT, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
+            include: { player: { select: { id: true, username: true, icon: true, color: true } }, character: true, persona: PERSONA_SELECT, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
         }),
         prisma.message.count({ where }),
     ]);
@@ -57,7 +57,7 @@ async function getMessagesByEpisode(episodeTitle: string, page = 1, limit = 100,
 async function getMessageByNo(episodeTitle: string, messageNo: number) {
     return await prisma.message.findUnique({
         where: { episodeTitle_messageNo: { episodeTitle, messageNo } },
-        include: { player: { select: { id: true, username: true, icon: true } }, character: true, persona: PERSONA_SELECT, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
+        include: { player: { select: { id: true, username: true, icon: true, color: true } }, character: true, persona: PERSONA_SELECT, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
     });
 }
 
@@ -198,7 +198,7 @@ async function createMessage(episodeTitle: string, data: MessageData) {
             type: data.type,
             text: data.text,
         },
-        include: { player: { select: { id: true, username: true, icon: true } }, character: true, persona: PERSONA_SELECT, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
+        include: { player: { select: { id: true, username: true, icon: true, color: true } }, character: true, persona: PERSONA_SELECT, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
     });
 }
 
@@ -232,7 +232,7 @@ async function updateMessage(episodeTitle: string, messageNo: number, data: Part
             type: data.type,
             text: data.text,
         },
-        include: { player: { select: { id: true, username: true, icon: true } }, character: true, persona: PERSONA_SELECT, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
+        include: { player: { select: { id: true, username: true, icon: true, color: true } }, character: true, persona: PERSONA_SELECT, commentaries: { include: { creator: { select: { id: true, username: true, icon: true } } } } },
     });
 }
 

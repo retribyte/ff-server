@@ -60,11 +60,14 @@ const initializeUserRoutes = (): Router => {
         return res.status(200).json({ status: "success", data: req.user });
     });
 
-    // PUT /api/user: Update the authenticated user's profile (username, avatar, bio)
+    // PUT /api/user: Update the authenticated user's profile (username, avatar, color, bio)
     router.put("/user", authenticate, async (req: Request, res: Response) => {
-        const { username, icon, bio } = req.body;
+        const { username, icon, color, bio } = req.body;
+        if (color !== undefined && color !== null && !/^#[0-9a-fA-F]{6}$/.test(color)) {
+            return res.status(400).json({ status: "error", message: "color must be a #rrggbb hex string" });
+        }
         try {
-            const updated = await userService.updateUser(req.user!.id, { username, icon, bio });
+            const updated = await userService.updateUser(req.user!.id, { username, icon, color, bio });
             return res.status(200).json({ status: "success", data: updated });
         } catch (err: any) {
             return res.status(400).json({ status: "error", message: err.message });

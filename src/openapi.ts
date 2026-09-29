@@ -40,6 +40,7 @@ const spec = {
                     email: { type: "string", nullable: true },
                     role: { $ref: "#/components/schemas/UserRole" },
                     icon: { type: "string", nullable: true },
+                    color: { type: "string", nullable: true, description: "Dark-mode hex color for characterless messages (e.g. the Vortox bot)" },
                     bio: { type: "string", nullable: true },
                     createdAt: { type: "string", format: "date-time" },
                     updatedAt: { type: "string", format: "date-time" },

@@ -46,6 +46,7 @@ async function authenticateUser(
 type ProfileUpdate = {
     username?: string;
     icon?: string;
+    color?: string;
     bio?: string;
 };
 
@@ -67,6 +68,7 @@ async function updateUser(id: number, data: ProfileUpdate): Promise<Omit<User, "
         data: {
             username: data.username,
             icon: data.icon,
+            color: data.color,
             bio: data.bio,
         },
     });
