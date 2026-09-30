@@ -68,13 +68,13 @@ async function main() {
         if (count) console.log(`Reclaimed ${count} message(s) from Llafay Terrels onto Vec.`);
     }
 
-    // Reset to canonical "Vec" first so reruns are self-correcting, then
-    // layer the era-specific persona stamps on top.
-    await prisma.message.updateMany({ where: { characterId: vec.id }, data: { personaId: null } });
-
+    // Only fills gaps: seed-legacy.ts already stamps every episode that went
+    // through md-to-api.py (personaTimeline / `Vec as X` tags), and those stamps
+    // are authoritative. The messageNo boundaries below are for episodes still
+    // imported straight from the Discord JSON (FF4 7+), and go stale on any edit.
     const stamp = (episodeTitle: string, personaId: number, messageNo?: { lt?: number; gte?: number }) =>
         prisma.message.updateMany({
-            where: { characterId: vec.id, episodeTitle, ...(messageNo ? { messageNo } : {}) },
+            where: { characterId: vec.id, personaId: null, episodeTitle, ...(messageNo ? { messageNo } : {}) },
             data: { personaId },
         });
 

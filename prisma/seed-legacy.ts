@@ -25,7 +25,7 @@
  */
 import { PrismaClient, UserRole, Class, MessageType, StoryLineType, Prisma } from "@prisma/client";
 import { hashSync } from "bcryptjs";
-import { existsSync, readdirSync, readFileSync } from "fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "fs";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 import { slugify } from "../src/utils/slug.js";
@@ -52,6 +52,7 @@ const ARCHIVE_API_DIR = join(resolveFfSiteDir(), "archive-to-markdown/api");
 interface ImportMessage {
     player: string;
     character: string | null;
+    persona?: string | null;
     timestamp: string | null;
     type: string;
     text: string;
@@ -113,12 +114,24 @@ const LEGACY_NAME_ALIASES: Record<string, string> = {
     "Edmin Kalvanzas": "Edwin",
 };
 const LEGACY_ALIASED_AWAY = new Set(Object.values(LEGACY_NAME_ALIASES));
+// "Edwin" is the Edmin misspelling only in FF4's Discord-JSON conversions.
+// FF2 ep 19 has a real, separate character of that name (a knight from
+// Camelot), so the fold is applied per season at load time (loadSeasons), not
+// globally in canonicalize(), and he must not inherit Edmin's legacy color.
+const FF4_ONLY_ALIASES: Record<string, string> = { Edwin: "Edmin Kalvanzas" };
+const DISTINCT_FROM_LEGACY_KEY = new Set(["Edwin"]);
+// The Vortox bot and FF 8 Ball are one account (Vortox was merged into it).
+// md-to-api.py maps the name at conversion, but FF4 episodes still converted
+// straight from the Discord JSON name "Vortox" as the player.
+const PLAYER_ALIASES: Record<string, string> = { Vortox: "FF 8 Ball" };
 // Reverse direction -- cyoa.json (also an unconverted ff-site-old asset)
 // still names these speakers by their old short name, same as the color
 // table. Canonicalize any legacy short name seen in CYOA data up front so
 // it never independently enters the character-name set.
 const CANONICAL_FOR_LEGACY: Record<string, string> = Object.fromEntries(
-    Object.entries(LEGACY_NAME_ALIASES).map(([canonical, legacy]) => [legacy, canonical])
+    Object.entries(LEGACY_NAME_ALIASES)
+        .filter(([, legacy]) => !DISTINCT_FROM_LEGACY_KEY.has(legacy))
+        .map(([canonical, legacy]) => [legacy, canonical])
 );
 function canonicalize(name: string): string {
     return CANONICAL_FOR_LEGACY[name] ?? name;
@@ -159,6 +172,10 @@ function loadSeasons(): LoadedSeason[] {
         throw new Error(`archive-to-markdown/api not found at ${ARCHIVE_API_DIR} — set FF_SITE_DIR`);
     }
     const seasons = new Map<string, LoadedSeason>();
+    // Episode titles are unique, but api/ can hold two files for one title: the
+    // markdown-derived one (md-to-api.py) and an older direct-from-Discord-JSON
+    // conversion left behind. The most recently written file wins.
+    const byTitle = new Map<string, { file: string; mtime: number; payload: ImportPayload }>();
     for (const dirName of readdirSync(ARCHIVE_API_DIR).sort()) {
         // archive-to-markdown/api/stories/ holds Story-shaped payloads
         // ({story, author, chapters}), not season/episode payloads — the
@@ -169,14 +186,36 @@ function loadSeasons(): LoadedSeason[] {
         const seasonDir = join(ARCHIVE_API_DIR, dirName);
         const files = readdirSync(seasonDir).filter((f) => f.endsWith(".json"));
         for (const file of files) {
-            const payload = JSON.parse(readFileSync(join(seasonDir, file), "utf8")) as ImportPayload;
-            let season = seasons.get(payload.seasonTitle);
-            if (!season) {
-                season = { seasonTitle: payload.seasonTitle, slug: slugify(payload.seasonTitle), episodes: [] };
-                seasons.set(payload.seasonTitle, season);
+            const path = join(seasonDir, file);
+            const payload = JSON.parse(readFileSync(path, "utf8")) as ImportPayload;
+            for (const msg of payload.messages) {
+                msg.player = PLAYER_ALIASES[msg.player] ?? msg.player;
+                if (payload.seasonTitle === "FF4" && msg.character) {
+                    msg.character = FF4_ONLY_ALIASES[msg.character] ?? msg.character;
+                }
+                // Vec is "Fungus" only until Silas names it in FF4 ep 2; JSONs converted
+                // before meta/ff4.json encoded that still say Fungus for later episodes.
+                if (payload.seasonTitle === "FF4" && payload.episode.episode_no > 2 && msg.persona === "Fungus") {
+                    msg.persona = "Fungo";
+                }
             }
-            season.episodes.push(payload);
+            const mtime = statSync(path).mtimeMs;
+            const prior = byTitle.get(payload.episode.title);
+            if (prior) {
+                const [keep, drop] = mtime > prior.mtime ? [path, prior.file] : [prior.file, path];
+                console.warn(`  duplicate episode "${payload.episode.title}": using ${keep}, ignoring ${drop}`);
+                if (mtime <= prior.mtime) continue;
+            }
+            byTitle.set(payload.episode.title, { file: path, mtime, payload });
         }
+    }
+    for (const { payload } of byTitle.values()) {
+        let season = seasons.get(payload.seasonTitle);
+        if (!season) {
+            season = { seasonTitle: payload.seasonTitle, slug: slugify(payload.seasonTitle), episodes: [] };
+            seasons.set(payload.seasonTitle, season);
+        }
+        season.episodes.push(payload);
     }
     for (const season of seasons.values()) {
         season.episodes.sort((a, b) => a.episode.episode_no - b.episode.episode_no);
@@ -273,12 +312,30 @@ async function main() {
                 name,
                 speciesId: unclassified.id,
                 creatorId: mainPlayer ? userIds.get(mainPlayer)! : archivist.id,
-                color: colors.dark[name] ?? (legacyName ? colors.dark[legacyName] : undefined) ?? null,
+                color:
+                    (DISTINCT_FROM_LEGACY_KEY.has(name) ? undefined : colors.dark[name]) ??
+                    (legacyName ? colors.dark[legacyName] : undefined) ??
+                    null,
                 image: avatarFiles.has(`${shorthand}.png`) ? `/avatars/${shorthand}.png` : null,
                 slug: uniqueSlug(slugify(name), usedCharacterSlugs),
             },
         });
         characterIds.set(name, character.id);
+    }
+
+    // -- Personas: every (character, persona) pair the markdown pipeline stamped --
+    // md-to-api.py emits `persona` (meta personaTimeline or a `Vec as Suchan` tag);
+    // creating the rows here keeps the stamps reproducible from markdown + meta.
+    const personaIds = new Map<string, number>();
+    for (const m of allMessages) {
+        if (!m.character || !m.persona) continue;
+        const name = canonicalize(m.character);
+        const key = `${name}\u0000${m.persona}`;
+        if (personaIds.has(key) || !characterIds.has(name)) continue;
+        const persona = await prisma.persona.create({
+            data: { characterId: characterIds.get(name)!, name: m.persona, slug: `${slugify(name)}_${slugify(m.persona)}` },
+        });
+        personaIds.set(key, persona.id);
     }
 
     // -- Seasons + episodes -------------------------------------------------
@@ -306,11 +363,16 @@ async function main() {
                 // already applies this at conversion time; kept here as a
                 // cheap defense against payloads from other producers).
                 if (type === MessageType.QUOTE && characterId === null) type = MessageType.OTHER;
+                const personaId =
+                    characterId !== null && msg.character && msg.persona
+                        ? (personaIds.get(`${canonicalize(msg.character)}\u0000${msg.persona}`) ?? null)
+                        : null;
                 return {
                     episodeTitle: payload.episode.title,
                     messageNo: index + 1,
                     playerId: userIds.get(msg.player)!,
                     characterId,
+                    personaId,
                     timestamp: msg.timestamp ? new Date(msg.timestamp) : null,
                     type,
                     text: msg.text,

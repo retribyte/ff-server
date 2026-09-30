@@ -71,13 +71,17 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   rich text (character blurbs, species descriptions, item descriptions,
   commentary) goes through `sanitizeText()` before storage.
 - `prisma/seed.ts` is the orchestrator: wipes all data, then runs
-  `SEED_SCRIPTS` (`seed-legacy.ts`, `seed-8ball.ts`, `seed-galaxy.ts`,
-  `create-search-indexes.ts`) as child processes, skipping (not aborting) any
+  `SEED_SCRIPTS` (`seed-legacy.ts`, persona/character-data scripts,
+  `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `create-search-indexes.ts`) as child processes, skipping (not aborting) any
   that fail or don't exist on disk — `seed-galaxy.ts` is currently in that
   list but not present in the repo, and is expected to just be skipped.
   `seed:legacy` replays the real archive from `ff-site-old`'s bundled JSON
   (`FF_SITE_DIR`, default `../ff-site-old`) — **only safe against an empty
   DB**, don't rerun against a live dev database with user-authored content.
+  Character colors/avatars/blurbs/species and user color/icon/bio that have no
+  other source live in `prisma/seed-data/{characters,users}.json`, applied by
+  `seed-overlay.ts`; after editing records in the site, `npm run export:overlay`
+  rewrites those files from the dev DB so the change can be committed.
   `migrate-vm-to-story.ts` and `backfill-slugs.ts` are one-off historical
   migration scripts, already run against the live data; treat them as
   reference, not as repeatable tooling. `create-search-indexes.ts` is

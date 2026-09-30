@@ -19,6 +19,8 @@
         "seed:sanya-persona": "tsx prisma/seed-sanya-persona.ts",
         "seed:vortox-character-data": "tsx prisma/seed-vortox-character-data.ts",
         "seed:character-colors": "tsx prisma/seed-character-colors.ts",
+        "seed:overlay": "tsx prisma/seed-overlay.ts",
+        "export:overlay": "tsx prisma/export-overlay.ts",
         "migrate:vm": "tsx prisma/migrate-vm-to-story.ts",
         "backfill:slugs": "tsx prisma/backfill-slugs.ts",
         "db:search-indexes": "tsx prisma/create-search-indexes.ts"
