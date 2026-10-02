@@ -126,6 +126,7 @@ model Species {
 model Season {
   title    String         @id @unique
   episodes Episode[]
+  stories  Story[]
   slug     String         @unique
 
   @@map("seasons")
@@ -190,6 +191,10 @@ model Story {
   themeColor    String?
   themeColor2   String?
   format        StoryFormat    @default(PROSE) // dialogue presentation: script vs novel-style prose
+  // Campaign this story belongs to, if any (FF3 short stories etc.). Same
+  // title FK as Episode.seasonTitle; a season can hold stories but no episodes.
+  season        Season?        @relation(fields: [seasonTitle], references: [title], onDelete: SetNull)
+  seasonTitle   String?
   chapters      StoryChapter[]
 
   @@map("stories")

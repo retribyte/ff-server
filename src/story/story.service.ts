@@ -20,6 +20,7 @@ type StoryData = {
     themeColor?: string | null;
     themeColor2?: string | null;
     format?: StoryFormat;
+    season?: string | null; // season title or slug; null clears it
 };
 
 type LineData = {
@@ -34,6 +35,7 @@ const VALID_LINE_TYPES = new Set<string>(Object.values(StoryLineType));
 const VALID_FORMATS = new Set<string>(Object.values(StoryFormat));
 
 const AUTHOR_SELECT = { select: { id: true, username: true, icon: true } };
+const SEASON_SELECT = { select: { title: true, slug: true } };
 const CHAPTER_LIST = {
     orderBy: { chapter_no: "asc" as const },
     select: {
@@ -60,26 +62,28 @@ async function requireChapter(slug: string, chapterNo: number) {
     return chapter;
 }
 
-async function getAllStories(search?: string) {
-    const where = search
-        ? {
-              OR: [
-                  { title: { contains: search, mode: "insensitive" as const } },
-                  { blurb: { contains: search, mode: "insensitive" as const } },
-              ],
-          }
-        : undefined;
+async function getAllStories(search?: string, season?: string) {
+    const where: Prisma.StoryWhereInput = {};
+    if (search) {
+        where.OR = [
+            { title: { contains: search, mode: "insensitive" } },
+            { blurb: { contains: search, mode: "insensitive" } },
+        ];
+    }
+    if (season) {
+        where.season = { OR: [{ title: season }, { slug: season }] };
+    }
     return await prisma.story.findMany({
         where,
         orderBy: { title: "asc" },
-        include: { author: AUTHOR_SELECT, chapters: CHAPTER_LIST },
+        include: { author: AUTHOR_SELECT, season: SEASON_SELECT, chapters: CHAPTER_LIST },
     });
 }
 
 async function getStoryBySlug(slug: string) {
     return await prisma.story.findUnique({
         where: { slug },
-        include: { author: AUTHOR_SELECT, chapters: CHAPTER_LIST },
+        include: { author: AUTHOR_SELECT, season: SEASON_SELECT, chapters: CHAPTER_LIST },
     });
 }
 
@@ -97,8 +101,20 @@ function validateStoryData(data: StoryData, requireAll: boolean) {
     }
 }
 
+/** Season title or slug -> title. undefined passes through (no change), null clears. */
+async function resolveSeasonTitle(season: string | null | undefined): Promise<string | null | undefined> {
+    if (season === undefined || season === null) return season;
+    const found = await prisma.season.findFirst({
+        where: { OR: [{ title: season }, { slug: season }] },
+        select: { title: true },
+    });
+    if (!found) throw new Error(`Season '${season}' not found`);
+    return found.title;
+}
+
 async function createStory(data: StoryData) {
     validateStoryData(data, true);
+    const seasonTitle = await resolveSeasonTitle(data.season);
     return await prisma.story.create({
         data: {
             slug: data.slug,
@@ -109,14 +125,16 @@ async function createStory(data: StoryData) {
             themeColor: data.themeColor ?? null,
             themeColor2: data.themeColor2 ?? null,
             format: data.format ?? undefined,
+            seasonTitle: seasonTitle ?? null,
         },
-        include: { author: AUTHOR_SELECT, chapters: CHAPTER_LIST },
+        include: { author: AUTHOR_SELECT, season: SEASON_SELECT, chapters: CHAPTER_LIST },
     });
 }
 
 async function updateStory(slug: string, data: Partial<StoryData>) {
     validateStoryData(data as StoryData, false);
     const story = await requireStory(slug);
+    const seasonTitle = await resolveSeasonTitle(data.season);
     return await prisma.story.update({
         where: { id: story.id },
         data: {
@@ -130,8 +148,9 @@ async function updateStory(slug: string, data: Partial<StoryData>) {
             themeColor: data.themeColor,
             themeColor2: data.themeColor2,
             format: data.format,
+            seasonTitle,
         },
-        include: { author: AUTHOR_SELECT, chapters: CHAPTER_LIST },
+        include: { author: AUTHOR_SELECT, season: SEASON_SELECT, chapters: CHAPTER_LIST },
     });
 }
 

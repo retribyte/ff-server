@@ -8,7 +8,7 @@ const initializeStoryRoutes = (): Router => {
     // GET /api/stories: Return all stories with chapter summaries (public)
     router.get("/stories", async (req: Request, res: Response) => {
         try {
-            const stories = await storyService.getAllStories(req.query.search as string | undefined);
+            const stories = await storyService.getAllStories(req.query.search as string | undefined, req.query.season as string | undefined);
             res.status(200).json({ status: "success", data: stories });
         } catch (error) {
             console.error("Error fetching stories:", error);

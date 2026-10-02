@@ -162,6 +162,12 @@ const spec = {
                     themeColor: { type: "string", nullable: true },
                     themeColor2: { type: "string", nullable: true },
                     format: { $ref: "#/components/schemas/StoryFormat" },
+                    seasonTitle: { type: "string", nullable: true },
+                    season: {
+                        type: "object",
+                        nullable: true,
+                        properties: { title: { type: "string" }, slug: { type: "string" } },
+                    },
                     chapters: { type: "array", items: { $ref: "#/components/schemas/StoryChapter" } },
                 },
             },
@@ -909,7 +915,10 @@ const spec = {
             get: {
                 tags: ["Stories"],
                 summary: "List all stories with chapter summaries",
-                parameters: [{ name: "search", in: "query", schema: { type: "string" }, description: "Search title and blurb" }],
+                parameters: [
+                    { name: "search", in: "query", schema: { type: "string" }, description: "Search title and blurb" },
+                    { name: "season", in: "query", schema: { type: "string" }, description: "Only stories in this season (title or slug)" },
+                ],
                 responses: { "200": { description: "Array of stories" } },
             },
             post: {
@@ -931,6 +940,7 @@ const spec = {
                                     publishedDate: { type: "string", format: "date-time" },
                                     themeColor: { type: "string" },
                                     themeColor2: { type: "string" },
+                                    season: { type: "string", nullable: true, description: "Season title or slug; null clears" },
                                     format: { $ref: "#/components/schemas/StoryFormat" },
                                 },
                             },
