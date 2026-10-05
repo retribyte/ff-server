@@ -29,6 +29,7 @@ import { existsSync, readdirSync, readFileSync } from "fs";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 import { slugify } from "../src/utils/slug.js";
+import { isUnknownSpeaker, resolveVmSpeaker } from "./vm-speakers.js";
 
 const prisma = new PrismaClient();
 
@@ -254,7 +255,9 @@ async function main() {
 
     const characterNames = new Set<string>([
         ...blockCounts.keys(),
-        ...cyoaLines.filter((l) => l.character).map((l) => canonicalize(l.character as string)),
+        ...cyoaLines
+            .filter((l) => l.character && !isUnknownSpeaker(l.character))
+            .map((l) => canonicalize(l.character as string)),
         ...Object.keys(colors.dark).filter((name) => !LEGACY_ALIASED_AWAY.has(name)),
     ]);
 
@@ -340,7 +343,16 @@ async function main() {
         });
 
         const cyoaRows: Prisma.StoryLineCreateManyInput[] = cyoaLines.map((line, index) => {
-            const characterId = line.character ? (characterIds.get(canonicalize(line.character)) ?? null) : null;
+            // Unidentified voices ("?") and ambiguous "I:" lines: see vm-speakers.ts
+            const resolved = line.character ? resolveVmSpeaker(index + 1, line.character) : null;
+            const characterName = resolved
+                ? "character" in resolved
+                    ? resolved.character
+                    : null
+                : line.character
+                  ? canonicalize(line.character)
+                  : null;
+            const characterId = characterName ? (characterIds.get(characterName) ?? null) : null;
             let type: StoryLineType;
             switch (line.type) {
                 case "dialogue":
@@ -362,7 +374,12 @@ async function main() {
                 text: line.text,
                 characterId,
                 // Uncatalogued voices still render as dialogue via the name fallback
-                speaker: line.character && characterId === null ? line.character : null,
+                speaker:
+                    resolved && "speaker" in resolved
+                        ? resolved.speaker
+                        : line.character && characterId === null
+                          ? line.character
+                          : null,
             };
         });
         const CHUNK = 2000;
