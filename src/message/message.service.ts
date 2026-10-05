@@ -218,19 +218,18 @@ async function updateMessage(episodeTitle: string, messageNo: number, data: Part
         throw new Error("characterId is required for QUOTE messages");
     }
 
-    if (data.personaId !== undefined && data.personaId !== null) {
-        // characterId may not be part of this partial update — fall back to
-        // the message's existing characterId so the persona check still sees
-        // the character the message is actually attributed to.
-        const effectiveCharacterId =
-            data.characterId !== undefined
-                ? data.characterId
-                : (
-                      await prisma.message.findUnique({
-                          where: { episodeTitle_messageNo: { episodeTitle, messageNo } },
-                      })
-                  )?.characterId;
-        await assertPersonaMatchesCharacter(data.personaId, effectiveCharacterId);
+    if (data.personaId !== undefined || data.characterId !== undefined) {
+        // Either field changing can break the persona/character agreement
+        // (e.g. clearing characterId under a character-backed persona — which
+        // the composite FK wouldn't catch, since NULL skips it). Validate the
+        // effective pair: whatever the update leaves unset comes from the
+        // message's existing row.
+        const existing = await prisma.message.findUnique({
+            where: { episodeTitle_messageNo: { episodeTitle, messageNo } },
+        });
+        const effectiveCharacterId = data.characterId !== undefined ? data.characterId : existing?.characterId;
+        const effectivePersonaId = data.personaId !== undefined ? data.personaId : existing?.personaId;
+        await assertPersonaMatchesCharacter(effectivePersonaId, effectiveCharacterId);
     }
 
     return await prisma.message.update({

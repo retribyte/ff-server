@@ -598,7 +598,7 @@ const spec = {
         "/personas/{id}": {
             put: {
                 tags: ["Personas"],
-                summary: "Update a persona (owner of the parent character, or admin)",
+                summary: "Update a persona (owner of the parent character, or admin; admin only for a standalone persona)",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 requestBody: {
@@ -626,7 +626,7 @@ const spec = {
             },
             delete: {
                 tags: ["Personas"],
-                summary: "Delete a persona (owner of the parent character, or admin)",
+                summary: "Delete a persona (owner of the parent character, or admin; admin only for a standalone persona)",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 responses: {
