@@ -98,7 +98,7 @@ const spec = {
                     personaId: {
                         type: "integer",
                         nullable: true,
-                        description: "If set, characterId must also be set and the persona must belong to that character",
+                        description: "If set, the persona must agree with characterId: a character-backed persona needs that same character, a standalone persona (characterId null) needs characterId unset (it reads as a one-off NPC voice)",
                     },
                     persona: {
                         type: "object",
@@ -126,7 +126,7 @@ const spec = {
                     slug: { type: "string", nullable: true, description: "null for name-less personas (no URL identity)" },
                     image: { type: "string", nullable: true, description: "Era avatar; falls back to character.image" },
                     color: { type: "string", nullable: true, description: "Era theme color; falls back to character.color" },
-                    characterId: { type: "integer" },
+                    characterId: { type: "integer", nullable: true, description: "null = standalone persona: a named voice with no Character behind it (a one-off NPC). Requires a name; admin-managed; its messages have characterId null and render grey unless it sets a color." },
                 },
             },
             StoryLineType: {
@@ -560,6 +560,34 @@ const spec = {
             },
         },
         "/personas": {
+            post: {
+                tags: ["Personas"],
+                summary: "Create a standalone persona (admin only) — a named voice with no Character, e.g. a one-off NPC",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["name"],
+                                properties: {
+                                    name: { type: "string" },
+                                    label: { type: "string" },
+                                    slug: { type: "string", description: "Defaults to the slugified name" },
+                                    image: { type: "string" },
+                                    color: { type: "string" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "201": { description: "Persona created" },
+                    "400": { description: "Validation error (missing name, duplicate standalone name or slug)" },
+                    "403": { description: "Not an admin" },
+                },
+            },
             get: {
                 tags: ["Personas"],
                 summary: "Full persona index, optionally filtered by name — no pagination. Intended for bulk speaker-name matching (e.g. the transcript importer) without N+1-ing over /characters/:id/personas",

@@ -151,16 +151,30 @@ async function getPersonaById(id: number) {
 // Slug defaults to `<character_slug>_<name_slug>` and, once set, never
 // changes on its own — renaming the character or the persona never cascades.
 // Name-less personas (look-only eras) get no slug: no URL identity.
-async function createPersona(characterId: number, data: PersonaData) {
-    const character = await prisma.character.findUnique({ where: { id: characterId } });
-    if (!character) {
+async function createPersona(characterId: number | null, data: PersonaData) {
+    // characterId null -> standalone persona: a named voice with no Character
+    // behind it (a one-off NPC). It has no parent to borrow an identity from,
+    // so a name is required, and the slug is just the name's.
+    const character =
+        characterId === null ? null : await prisma.character.findUnique({ where: { id: characterId } });
+    if (characterId !== null && !character) {
         throw new Error(`Character with id '${characterId}' not found`);
+    }
+    if (!character && !data.name) {
+        throw new Error("A standalone persona (no character) must have a name");
     }
     if (!data.name && !data.image && !data.color) {
         throw new Error("A persona must set at least one of name, image, or color");
     }
     if (!data.name && !data.label) {
         throw new Error("label is required when name is not set");
+    }
+    if (!character) {
+        // @@unique([characterId, name]) can't catch this — NULL characterIds are distinct.
+        const dup = await prisma.persona.findFirst({
+            where: { characterId: null, name: { equals: data.name, mode: "insensitive" } },
+        });
+        if (dup) throw new Error(`A standalone persona named '${data.name}' already exists`);
     }
 
     return await prisma.persona.create({
@@ -169,7 +183,9 @@ async function createPersona(characterId: number, data: PersonaData) {
             label: data.label,
             image: data.image,
             color: data.color,
-            slug: data.name ? data.slug ?? `${slugify(character.name)}_${slugify(data.name)}` : undefined,
+            slug: data.name
+                ? data.slug ?? (character ? `${slugify(character.name)}_${slugify(data.name)}` : slugify(data.name))
+                : undefined,
             characterId,
         },
     });
@@ -190,6 +206,15 @@ async function updatePersona(id: number, data: Partial<PersonaData>) {
     }
     if (!nextName && !nextLabel) {
         throw new Error("label is required when name is not set");
+    }
+    if (existing.characterId === null) {
+        if (!nextName) throw new Error("A standalone persona (no character) must have a name");
+        if (data.name !== undefined) {
+            const dup = await prisma.persona.findFirst({
+                where: { characterId: null, id: { not: id }, name: { equals: nextName, mode: "insensitive" } },
+            });
+            if (dup) throw new Error(`A standalone persona named '${nextName}' already exists`);
+        }
     }
 
     return await prisma.persona.update({

@@ -6,6 +6,18 @@ import storyService from "../story/story.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { UserRole } from "@prisma/client";
 
+// Owner of the parent character, or admin. A standalone persona has no parent
+// character, so only an admin can manage it.
+async function canManagePersona(
+    persona: { characterId: number | null },
+    user: Record<string, any>
+): Promise<boolean> {
+    if (user.role === UserRole.ADMIN) return true;
+    if (persona.characterId === null) return false;
+    const character = await characterService.getCharacterById(persona.characterId);
+    return !!character && character.creatorId === user.id;
+}
+
 // Maps a Prisma error to a friendly {status, message} for persona mutations.
 // P2002: unique constraint (duplicate name/slug for the character).
 // P2003/P2025: FK restrict on delete (messages still reference the persona)
@@ -126,6 +138,27 @@ const initializeCharacterRoutes = (): Router => {
         }
     });
 
+    // POST /api/personas: Create a standalone persona (admin only) — a named
+    // voice with no Character behind it, e.g. a one-off NPC. Name is required.
+    router.post("/personas", authenticate, async (req: Request, res: Response) => {
+        if (req.user!.role !== UserRole.ADMIN) {
+            return res.status(403).json({ status: "error", message: "Forbidden" });
+        }
+        try {
+            const persona = await characterService.createPersona(null, {
+                name: typeof req.body?.name === "string" ? req.body.name.trim() : undefined,
+                label: req.body?.label,
+                slug: req.body?.slug,
+                image: req.body?.image,
+                color: req.body?.color,
+            });
+            res.status(201).json({ status: "success", data: persona });
+        } catch (error: any) {
+            const { status, message } = mapPersonaError(error);
+            res.status(status).json({ status: "error", message });
+        }
+    });
+
     // GET /api/personas: Full persona index (public), optionally filtered by
     // ?search= on the persona name. No pagination — used by the transcript
     // importer to match speaker names against every character in one call
@@ -142,7 +175,7 @@ const initializeCharacterRoutes = (): Router => {
         }
     });
 
-    // PUT /api/personas/:id: Update a persona (owner-of-character or admin)
+    // PUT /api/personas/:id: Update a persona (owner-of-character or admin; admin only if standalone)
     router.put("/personas/:id", authenticate, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
 
@@ -151,8 +184,7 @@ const initializeCharacterRoutes = (): Router => {
             if (!persona) {
                 return res.status(404).json({ status: "error", message: `Persona with id '${id}' not found` });
             }
-            const character = await characterService.getCharacterById(persona.characterId);
-            if (!character || (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN)) {
+            if (!(await canManagePersona(persona, req.user!))) {
                 return res.status(403).json({ status: "error", message: "Forbidden" });
             }
             const updated = await characterService.updatePersona(id, {
@@ -169,7 +201,7 @@ const initializeCharacterRoutes = (): Router => {
         }
     });
 
-    // DELETE /api/personas/:id: Delete a persona (owner-of-character or admin)
+    // DELETE /api/personas/:id: Delete a persona (owner-of-character or admin; admin only if standalone)
     router.delete("/personas/:id", authenticate, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);
 
@@ -178,8 +210,7 @@ const initializeCharacterRoutes = (): Router => {
             if (!persona) {
                 return res.status(404).json({ status: "error", message: `Persona with id '${id}' not found` });
             }
-            const character = await characterService.getCharacterById(persona.characterId);
-            if (!character || (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN)) {
+            if (!(await canManagePersona(persona, req.user!))) {
                 return res.status(403).json({ status: "error", message: "Forbidden" });
             }
             await characterService.deletePersona(id);

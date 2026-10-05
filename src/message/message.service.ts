@@ -13,24 +13,35 @@ type MessageData = {
     text: string;
 };
 
-// A message's personaId, if set, must belong to the same characterId the
-// message is (or is being) attributed to. `prefix` lets bulk import include
-// the message index in the thrown error, matching the existing QUOTE check.
+// A message's personaId, if set, must agree with the message's characterId:
+// a character-backed persona needs that same character, a standalone persona
+// (characterId null, e.g. a one-off NPC) needs no character at all. `prefix`
+// lets bulk import include the message index in the thrown error, matching
+// the existing QUOTE check.
 // The composite FK (Message.personaId+characterId -> Persona.id+characterId,
-// see schema.prisma) makes this unrepresentable at the DB level too — this
-// stays for a friendly error message instead of a raw Prisma FK violation.
+// see schema.prisma) makes a character mismatch unrepresentable at the DB
+// level for character-backed personas, but Postgres skips it when
+// characterId is null — so the standalone case (and the friendly error
+// message for the rest) lives here. The plain personaId FK still guarantees
+// the persona exists.
 async function assertPersonaMatchesCharacter(
     personaId: number | null | undefined,
     characterId: number | null | undefined,
     prefix = ""
 ): Promise<void> {
     if (personaId === undefined || personaId === null) return;
-    if (!characterId) {
-        throw new Error(`${prefix}characterId is required when personaId is set`);
-    }
     const persona = await prisma.persona.findUnique({ where: { id: personaId } });
     if (!persona) {
         throw new Error(`${prefix}Persona with id '${personaId}' not found`);
+    }
+    if (persona.characterId === null) {
+        if (characterId) {
+            throw new Error(`${prefix}Persona with id '${personaId}' is standalone; characterId must not be set`);
+        }
+        return;
+    }
+    if (!characterId) {
+        throw new Error(`${prefix}characterId is required when personaId is set (persona belongs to a character)`);
     }
     if (persona.characterId !== characterId) {
         throw new Error(`${prefix}Persona with id '${personaId}' does not belong to character '${characterId}'`);

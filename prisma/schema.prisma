@@ -101,12 +101,19 @@ model Persona {
   slug        String?   @unique // null for unnamed personas
   image       String?
   color       String?
-  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  characterId Int
-  messages    Message[]
+  // null -> standalone persona: a named voice with no Character behind it (a
+  // one-off NPC like "Raven A"). Its messages carry personaId with a null
+  // characterId, and read in neutral grey unless the persona sets a color.
+  character   Character? @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  characterId Int?
+  // Messages via the plain personaId FK — what keeps a standalone persona's
+  // messages from outliving it (the composite FK below is skipped by Postgres
+  // when Message.characterId is null).
+  messages    Message[] @relation("MessagePersona")
+  matchedMessages Message[] @relation("MessagePersonaComposite")
 
-  @@unique([characterId, name]) // Postgres: NULLs distinct -> many name-less personas allowed
-  @@unique([id, characterId])   // composite FK target for Message.persona (retires assertPersonaMatchesCharacter as load-bearing)
+  @@unique([characterId, name]) // Postgres: NULLs distinct -> many name-less personas allowed (and, for standalone personas, duplicate names: createPersona checks)
+  @@unique([id, characterId])   // composite FK target for Message.personaMatch: for character-backed personas the DB guarantees persona and character agree. Standalone ones can't be (a NULL skips the check) — assertPersonaMatchesCharacter covers that case
   @@map("personas")
 }
 
@@ -154,7 +161,12 @@ model Message {
   playerId      Int
   character     Character? @relation(fields: [characterId], references: [id])
   characterId   Int?
-  persona       Persona?   @relation(fields: [personaId, characterId], references: [id, characterId], onDelete: Restrict)
+  // `persona` is the plain personaId relation (what includes/reads use — the
+  // composite one below can't resolve when characterId is null, i.e. for
+  // standalone personas). `personaMatch` exists only to emit the composite FK
+  // that keeps persona and character in agreement for character-backed personas.
+  persona       Persona?   @relation("MessagePersona", fields: [personaId], references: [id], onDelete: Restrict)
+  personaMatch  Persona?   @relation("MessagePersonaComposite", fields: [personaId, characterId], references: [id, characterId], onDelete: Restrict)
   personaId     Int?
   timestamp     DateTime?
   type          MessageType
