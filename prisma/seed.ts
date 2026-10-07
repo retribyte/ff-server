@@ -17,6 +17,7 @@ const SEED_SCRIPTS = [
     "seed-legacy.ts",
     "seed-vec-personas.ts",
     "seed-buzzcut-persona.ts",
+    "seed-sanya-persona.ts",
     "seed-vortox-character-data.ts",
     "seed-8ball.ts",
     "seed-galaxy.ts",
