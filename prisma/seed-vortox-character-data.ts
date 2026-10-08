@@ -72,10 +72,10 @@ const BLURBS_BY_SLUG: Record<string, string> = {
 };
 
 // Only the two characters with no color anywhere in the legacy data — see
-// the file-header comment for why Garrick/Emmett/Seth aren't here.
+// the file-header comment for why Garrick/Emmett/Seth aren't here. (Dutch's
+// vortox-bot color #1B006A was superseded by seed-character-colors.ts.)
 const COLORS_BY_SLUG: Record<string, string> = {
     vec: "#6A2087",
-    dutch_elkins: "#1B006A",
 };
 
 async function backfillField(
