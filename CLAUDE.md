@@ -54,6 +54,25 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   each controller by comparing `req.user.id` to the record's `creatorId` —
   there's no shared ownership-middleware helper. The frontend never sees this
   token directly; `ff-site` wraps it in an httpOnly cookie itself.
+  - The JWT carries only `{id, username, role}`; `authenticate` reloads the
+    user from the DB on every request (so `req.user` is never stale) and
+    rejects tokens issued before `passwordChangedAt` and accounts with
+    `loginDisabled`. While `mustChangePassword` is set, `authenticate` refuses
+    every non-GET request — only `PUT /api/user/password` (behind
+    `authenticateAllowingPasswordChange`) gets through.
+  - Usernames are fixed: the archive import maps transcript players to
+    accounts by username. Rename players in the archive's
+    `meta/<season>.json` `usernames` map before seeding, not in the app.
+  - Seeded player accounts get `mustChangePassword`; the Archivist gets
+    `loginDisabled`. `npm run golive:flag-accounts` applies the same flags to
+    an existing DB (idempotent — skips anyone who already changed their
+    password). In dev, clear the flag with SQL if you don't want the forced
+    change: `UPDATE "User" SET "mustChangePassword" = false;`
+  - Avatars come from booru.vortox.space (Shimmie2): users pick a post ID
+    (`iconBooruId`), and `src/utils/booru.ts` resolves it to an image URL via
+    the Danbooru-compatible API, stored in `icon`. `BOORU_URL` /
+    `BOORU_API_KEY` configure it; the live booru sits behind a bot challenge,
+    so lookups fail (502) until its API path is exempted.
 - **Response envelope**, every JSON response: `{ status: "success", data }` or
   `{ status: "error", message }`. Never leak raw Prisma objects or stack
   traces.

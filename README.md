@@ -20,6 +20,11 @@ PORT=3000
 JWT_SECRET="change-me-in-production"
 JWT_EXPIRATION=86400
 SALT_ROUNDS=12
+
+# Optional
+PASSWORD_MIN_LENGTH=8
+BOORU_URL="https://booru.vortox.space"
+BOORU_API_KEY=
 ```
 
 3. Start the Postgres container (requires Docker):

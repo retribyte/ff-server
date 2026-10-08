@@ -61,9 +61,13 @@ model User {
   email         String?     @unique
   password      String      // hashed using bcrypt?
   role          UserRole
-  icon          String?     // If null, use identicon?
+  icon          String?     // Resolved booru image URL; if null, use identicon?
+  iconBooruId   Int?        // booru.vortox.space post the icon was taken from
   bio           String?
   wikiUser      String?
+  passwordChangedAt  DateTime? // Tokens issued before this are rejected
+  mustChangePassword Boolean   @default(false) // Seeded/reset accounts pick their own password
+  loginDisabled      Boolean   @default(false) // System accounts, suspended users
   characters    Character[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt

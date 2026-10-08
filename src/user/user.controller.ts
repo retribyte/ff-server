@@ -1,7 +1,8 @@
 import { Router, Request, Response } from "express";
 import userService from "./user.service.js";
 import tokenService from "../auth/token.service.js";
-import { authenticate, isAdmin } from "../auth/security.middleware.js";
+import { authenticate, authenticateAllowingPasswordChange, isAdmin } from "../auth/security.middleware.js";
+import booru, { BooruUnavailableError } from "../utils/booru.js";
 import { UserRole } from "@prisma/client";
 
 const initializeUserRoutes = (): Router => {
@@ -45,6 +46,11 @@ const initializeUserRoutes = (): Router => {
                     .status(400)
                     .json({ status: "error", message: "Invalid credentials" });
             }
+            if (user.loginDisabled) {
+                return res
+                    .status(403)
+                    .json({ status: "error", message: "This account can't log in" });
+            }
             const token = await tokenService.generateAccessToken(user);
             return res.status(200).json({ status: "success", data: { token } });
         } catch (error) {
@@ -55,19 +61,60 @@ const initializeUserRoutes = (): Router => {
         }
     });
 
-    // GET /api/user: Return the currently authenticated user
-    router.get("/user", authenticate, async (req: Request, res: Response) => {
+    // GET /api/user: Return the currently authenticated user (fresh from the
+    // database, not the token snapshot). Allowed while a password change is
+    // pending, so the client can see mustChangePassword.
+    router.get("/user", authenticateAllowingPasswordChange, async (req: Request, res: Response) => {
         return res.status(200).json({ status: "success", data: req.user });
     });
 
-    // PUT /api/user: Update the authenticated user's profile (username, avatar, bio)
+    // PUT /api/user: Update the authenticated user's profile (bio, wiki
+    // username, booru avatar). Usernames are fixed — they key the archive
+    // import — so `username` is ignored here.
     router.put("/user", authenticate, async (req: Request, res: Response) => {
-        const { username, icon, bio } = req.body;
+        const { bio, wikiUser, iconBooruId } = req.body;
         try {
-            const updated = await userService.updateUser(req.user!.id, { username, icon, bio });
+            const updated = await userService.updateUser(req.user!.id, { bio, wikiUser, iconBooruId });
             return res.status(200).json({ status: "success", data: updated });
         } catch (err: any) {
+            const status = err instanceof BooruUnavailableError ? 502 : 400;
+            return res.status(status).json({ status: "error", message: err.message });
+        }
+    });
+
+    // PUT /api/user/password: Change the authenticated user's password. Every
+    // token issued before the change stops working, so a fresh one comes back.
+    router.put("/user/password", authenticateAllowingPasswordChange, async (req: Request, res: Response) => {
+        const { currentPassword, newPassword } = req.body;
+        if (typeof currentPassword !== "string" || typeof newPassword !== "string") {
+            return res
+                .status(400)
+                .json({ status: "error", message: "Missing current or new password" });
+        }
+        try {
+            const user = await userService.changePassword(req.user!.id, currentPassword, newPassword);
+            const token = await tokenService.generateAccessToken(user);
+            return res.status(200).json({ status: "success", data: { token } });
+        } catch (err: any) {
             return res.status(400).json({ status: "error", message: err.message });
+        }
+    });
+
+    // GET /api/booru/:id: Look up a booru post's image (avatar picker preview)
+    router.get("/booru/:id", authenticate, async (req: Request, res: Response) => {
+        if (!/^\d+$/.test(req.params.id)) {
+            return res.status(400).json({ status: "error", message: "Invalid booru ID" });
+        }
+        const id = parseInt(req.params.id, 10);
+        try {
+            const post = await booru.getBooruPost(id);
+            if (!post) {
+                return res.status(404).json({ status: "error", message: `No booru post with ID ${id}` });
+            }
+            return res.status(200).json({ status: "success", data: post });
+        } catch (err: any) {
+            const status = err instanceof BooruUnavailableError ? 502 : 400;
+            return res.status(status).json({ status: "error", message: err.message });
         }
     });
 
@@ -77,17 +124,21 @@ const initializeUserRoutes = (): Router => {
         return res.status(200).json({ status: "success", data: users });
     });
 
-    // GET /api/users/:id: Get a single user by ID
-    router.get("/users/:id", authenticate, async (req: Request, res: Response) => {
-        const id = parseInt(req.params.id, 10);
-        if (isNaN(id)) {
-            return res.status(400).json({ status: "error", message: "Invalid user ID" });
+    // GET /api/users/:id: Get a user's public profile by numeric id, or by
+    // username when the param isn't a bare integer (public)
+    router.get("/users/:id", async (req: Request, res: Response) => {
+        const { id: param } = req.params;
+        const isId = /^\d+$/.test(param);
+        try {
+            const user = await userService.getPublicProfile(isId ? parseInt(param, 10) : param);
+            if (!user) {
+                return res.status(404).json({ status: "error", message: "User not found" });
+            }
+            return res.status(200).json({ status: "success", data: user });
+        } catch (error) {
+            console.error("Error fetching user:", error);
+            return res.status(500).json({ status: "error", message: "Failed to fetch user" });
         }
-        const user = await userService.getUserById(id);
-        if (!user) {
-            return res.status(404).json({ status: "error", message: "User not found" });
-        }
-        return res.status(200).json({ status: "success", data: user });
     });
 
     // PUT /api/users/:id/role: Change a user's role (admin only)

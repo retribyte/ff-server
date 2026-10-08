@@ -39,10 +39,57 @@ const spec = {
                     username: { type: "string" },
                     email: { type: "string", nullable: true },
                     role: { $ref: "#/components/schemas/UserRole" },
-                    icon: { type: "string", nullable: true },
+                    icon: { type: "string", nullable: true, description: "Avatar image URL, resolved from iconBooruId" },
+                    iconBooruId: { type: "integer", nullable: true, description: "booru.vortox.space post the avatar comes from" },
                     bio: { type: "string", nullable: true },
+                    wikiUser: { type: "string", nullable: true },
+                    passwordChangedAt: { type: "string", format: "date-time", nullable: true },
+                    mustChangePassword: { type: "boolean", description: "Writes other than PUT /user/password are refused until the user changes their password" },
+                    loginDisabled: { type: "boolean" },
                     createdAt: { type: "string", format: "date-time" },
                     updatedAt: { type: "string", format: "date-time" },
+                },
+            },
+            PublicUser: {
+                type: "object",
+                properties: {
+                    id: { type: "integer" },
+                    username: { type: "string" },
+                    role: { $ref: "#/components/schemas/UserRole" },
+                    icon: { type: "string", nullable: true },
+                    iconBooruId: { type: "integer", nullable: true },
+                    bio: { type: "string", nullable: true },
+                    wikiUser: { type: "string", nullable: true },
+                    createdAt: { type: "string", format: "date-time" },
+                    characters: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                id: { type: "integer" },
+                                name: { type: "string" },
+                                slug: { type: "string" },
+                                image: { type: "string", nullable: true },
+                                color: { type: "string", nullable: true },
+                            },
+                        },
+                    },
+                    stories: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                id: { type: "integer" },
+                                slug: { type: "string" },
+                                title: { type: "string" },
+                                publishedDate: { type: "string", format: "date-time", nullable: true },
+                            },
+                        },
+                    },
+                    _count: {
+                        type: "object",
+                        properties: { messages: { type: "integer" }, commentaries: { type: "integer" } },
+                    },
                 },
             },
             Character: {
@@ -337,6 +384,7 @@ const spec = {
                 responses: {
                     "200": { description: "JWT token returned" },
                     "400": { description: "Invalid credentials" },
+                    "403": { description: "Account can't log in (system or disabled account)" },
                 },
             },
         },
@@ -344,15 +392,20 @@ const spec = {
             get: {
                 tags: ["Auth"],
                 summary: "Get the authenticated user's profile",
+                description: "Read fresh from the database on every call. Still allowed while a password change is pending.",
                 security: [{ bearerAuth: [] }],
                 responses: {
-                    "200": { description: "User profile" },
+                    "200": {
+                        description: "User profile",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/User" } } },
+                    },
                     "401": { description: "Unauthorized" },
                 },
             },
             put: {
                 tags: ["Auth"],
                 summary: "Update the authenticated user's profile",
+                description: "Usernames can't be changed (they key the archive import). Omitted fields are left as they are; null clears a field. Setting iconBooruId looks the post up on the booru and stores its image URL as icon.",
                 security: [{ bearerAuth: [] }],
                 requestBody: {
                     content: {
@@ -360,9 +413,9 @@ const spec = {
                             schema: {
                                 type: "object",
                                 properties: {
-                                    username: { type: "string" },
-                                    icon: { type: "string" },
-                                    bio: { type: "string" },
+                                    bio: { type: "string", nullable: true, maxLength: 2000 },
+                                    wikiUser: { type: "string", nullable: true, maxLength: 100 },
+                                    iconBooruId: { type: "integer", nullable: true },
                                 },
                             },
                         },
@@ -370,7 +423,53 @@ const spec = {
                 },
                 responses: {
                     "200": { description: "Updated profile" },
+                    "400": { description: "Validation error, or no such booru post / not an image" },
                     "401": { description: "Unauthorized" },
+                    "403": { description: "Password change required first" },
+                    "502": { description: "The booru couldn't be reached" },
+                },
+            },
+        },
+        "/user/password": {
+            put: {
+                tags: ["Auth"],
+                summary: "Change the authenticated user's password",
+                description: "Invalidates every token issued before the change and clears mustChangePassword; returns a fresh token. Minimum length is PASSWORD_MIN_LENGTH (default 8); at most 72 bytes.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["currentPassword", "newPassword"],
+                                properties: {
+                                    currentPassword: { type: "string" },
+                                    newPassword: { type: "string" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "Password changed; data.token is the new access token" },
+                    "400": { description: "Wrong current password, or new password breaks the rules" },
+                    "401": { description: "Unauthorized" },
+                },
+            },
+        },
+        "/booru/{id}": {
+            get: {
+                tags: ["Auth"],
+                summary: "Look up a booru post's image URLs (avatar preview)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: {
+                    "200": { description: "{ id, imageUrl, previewUrl }" },
+                    "400": { description: "Invalid ID, or the post isn't an image" },
+                    "401": { description: "Unauthorized" },
+                    "404": { description: "No such post" },
+                    "502": { description: "The booru couldn't be reached" },
                 },
             },
         },
@@ -389,13 +488,13 @@ const spec = {
         "/users/{id}": {
             get: {
                 tags: ["Auth"],
-                summary: "Get a user's public profile by ID",
-                security: [{ bearerAuth: [] }],
-                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                summary: "Get a user's public profile by ID or username (public)",
+                parameters: [{ name: "id", in: "path", required: true, description: "Numeric id, or username", schema: { type: "string" } }],
                 responses: {
-                    "200": { description: "User profile" },
-                    "400": { description: "Invalid user ID" },
-                    "401": { description: "Unauthorized" },
+                    "200": {
+                        description: "Public profile with the user's characters and stories",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/PublicUser" } } },
+                    },
                     "404": { description: "User not found" },
                 },
             },

@@ -216,6 +216,8 @@ async function main() {
                 // Dev-only placeholder credentials, matching the demo seed's convention
                 password: hashSync(`${avatarShorthand(name)}123`, 10),
                 role: name === "Trey" ? UserRole.ADMIN : UserRole.USER,
+                // Seeded passwords are placeholders — players pick their own on first login
+                mustChangePassword: true,
                 icon: avatarFiles.has(`${avatarShorthand(name)}.png`) ? `/avatars/${avatarShorthand(name)}.png` : null,
             },
         });
@@ -227,6 +229,7 @@ async function main() {
             password: hashSync("archivist123", 10),
             role: UserRole.USER,
             bio: "System account that authored the imported Vortox Machina chronicle.",
+            loginDisabled: true,
         },
     });
 

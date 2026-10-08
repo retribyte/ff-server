@@ -21,7 +21,8 @@
         "seed:character-colors": "tsx prisma/seed-character-colors.ts",
         "migrate:vm": "tsx prisma/migrate-vm-to-story.ts",
         "backfill:slugs": "tsx prisma/backfill-slugs.ts",
-        "db:search-indexes": "tsx prisma/create-search-indexes.ts"
+        "db:search-indexes": "tsx prisma/create-search-indexes.ts",
+        "golive:flag-accounts": "tsx prisma/flag-accounts-golive.ts"
     },
     "prisma": {
         "seed": "tsx prisma/seed.ts"
