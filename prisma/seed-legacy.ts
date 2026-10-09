@@ -30,6 +30,7 @@ import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 import { slugify } from "../src/utils/slug.js";
 import { isUnknownSpeaker, resolveVmSpeaker } from "./vm-speakers.js";
+import { SYSTEM_ACCOUNTS } from "./system-accounts.js";
 
 const prisma = new PrismaClient();
 
@@ -210,14 +211,17 @@ async function main() {
 
     const userIds = new Map<string, number>();
     for (const name of [...playerNames].sort()) {
+        const isSystem = SYSTEM_ACCOUNTS.includes(name);
         const user = await prisma.user.create({
             data: {
                 username: name,
                 // Dev-only placeholder credentials, matching the demo seed's convention
                 password: hashSync(`${avatarShorthand(name)}123`, 10),
                 role: name === "Trey" ? UserRole.ADMIN : UserRole.USER,
-                // Seeded passwords are placeholders — players pick their own on first login
-                mustChangePassword: true,
+                // Seeded passwords are placeholders — players pick their own on
+                // first login; system accounts (the bot) never log in
+                mustChangePassword: !isSystem,
+                loginDisabled: isSystem,
                 icon: avatarFiles.has(`${avatarShorthand(name)}.png`) ? `/avatars/${avatarShorthand(name)}.png` : null,
             },
         });
