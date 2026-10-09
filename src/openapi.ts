@@ -340,6 +340,7 @@ const spec = {
             post: {
                 tags: ["Auth"],
                 summary: "Register a new user",
+                security: [], // public — no token needed
                 requestBody: {
                     required: true,
                     content: {
@@ -366,6 +367,7 @@ const spec = {
             post: {
                 tags: ["Auth"],
                 summary: "Log in and receive a JWT",
+                security: [], // public — no token needed
                 requestBody: {
                     required: true,
                     content: {
@@ -489,6 +491,7 @@ const spec = {
             get: {
                 tags: ["Auth"],
                 summary: "Get a user's public profile by ID or username (public)",
+                security: [], // public — no token needed
                 parameters: [{ name: "id", in: "path", required: true, description: "Numeric id, or username", schema: { type: "string" } }],
                 responses: {
                     "200": {
@@ -528,6 +531,7 @@ const spec = {
             get: {
                 tags: ["Characters"],
                 summary: "List all characters",
+                security: [], // public — no token needed
                 parameters: [
                     { name: "search", in: "query", schema: { type: "string" }, description: "Search by name" },
                     { name: "speciesId", in: "query", schema: { type: "integer" } },
@@ -574,6 +578,7 @@ const spec = {
             get: {
                 tags: ["Characters"],
                 summary: "Get a character by id, or by slug when the param isn't a bare integer",
+                security: [], // public — no token needed
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" }, description: "Numeric id or slug" }],
                 responses: { "200": { description: "Character" }, "404": { description: "Not found" } },
             },
@@ -607,6 +612,7 @@ const spec = {
             get: {
                 tags: ["Characters", "Messages", "Stories"],
                 summary: "Get quotes attributed to a character: transcript QUOTE messages and story-embedded dialogue",
+                security: [], // public — no token needed
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 responses: {
                     "200": {
@@ -619,6 +625,7 @@ const spec = {
             get: {
                 tags: ["Characters", "Personas"],
                 summary: "List a character's personas",
+                security: [], // public — no token needed
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 responses: { "200": { description: "Array of personas" } },
             },
@@ -662,6 +669,7 @@ const spec = {
             get: {
                 tags: ["Personas"],
                 summary: "Full persona index, optionally filtered by name — no pagination. Intended for bulk speaker-name matching (e.g. the transcript importer) without N+1-ing over /characters/:id/personas",
+                security: [], // public — no token needed
                 parameters: [{ name: "search", in: "query", schema: { type: "string" }, description: "Search by persona name" }],
                 responses: { "200": { description: "Array of every persona" } },
             },
@@ -712,6 +720,7 @@ const spec = {
             get: {
                 tags: ["Species"],
                 summary: "List all species",
+                security: [], // public — no token needed
                 parameters: [{ name: "search", in: "query", schema: { type: "string" } }],
                 responses: { "200": { description: "Array of species" } },
             },
@@ -747,6 +756,7 @@ const spec = {
             get: {
                 tags: ["Species"],
                 summary: "Get a species by id or slug, including its characters",
+                security: [], // public — no token needed
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" }, description: "Numeric id or slug" }],
                 responses: { "200": { description: "Species" }, "404": { description: "Not found" } },
             },
@@ -772,6 +782,7 @@ const spec = {
             get: {
                 tags: ["Seasons"],
                 summary: "List all seasons",
+                security: [], // public — no token needed
                 parameters: [{ name: "search", in: "query", schema: { type: "string" } }],
                 responses: { "200": { description: "Array of seasons with episodes" } },
             },
@@ -805,6 +816,7 @@ const spec = {
             get: {
                 tags: ["Seasons"],
                 summary: "Get a season by title with its episodes",
+                security: [], // public — no token needed
                 parameters: [{ name: "title", in: "path", required: true, schema: { type: "string" } }],
                 responses: { "200": { description: "Season" }, "404": { description: "Not found" } },
             },
@@ -846,6 +858,7 @@ const spec = {
             get: {
                 tags: ["Episodes"],
                 summary: "List all episodes",
+                security: [], // public — no token needed
                 parameters: [{ name: "search", in: "query", schema: { type: "string" } }],
                 responses: { "200": { description: "Array of episodes" } },
             },
@@ -883,6 +896,7 @@ const spec = {
             get: {
                 tags: ["Episodes"],
                 summary: "Get an episode by title",
+                security: [], // public — no token needed
                 parameters: [{ name: "title", in: "path", required: true, schema: { type: "string" } }],
                 responses: { "200": { description: "Episode" }, "404": { description: "Not found" } },
             },
@@ -908,6 +922,7 @@ const spec = {
             get: {
                 tags: ["Messages"],
                 summary: "Get paginated messages in an episode",
+                security: [], // public — no token needed
                 parameters: [
                     { name: "episodeTitle", in: "path", required: true, schema: { type: "string" } },
                     { name: "page", in: "query", schema: { type: "integer", default: 1 } },
@@ -921,6 +936,7 @@ const spec = {
             get: {
                 tags: ["Messages"],
                 summary: "Get a single message by episode and sequence number",
+                security: [], // public — no token needed
                 parameters: [
                     { name: "episodeTitle", in: "path", required: true, schema: { type: "string" } },
                     { name: "messageNo", in: "path", required: true, schema: { type: "integer" } },
@@ -1007,6 +1023,7 @@ const spec = {
             get: {
                 tags: ["Messages"],
                 summary: "Get a random QUOTE message",
+                security: [], // public — no token needed
                 responses: { "200": { description: "A random quote" }, "404": { description: "No quotes found" } },
             },
         },
@@ -1014,6 +1031,7 @@ const spec = {
             get: {
                 tags: ["Stories"],
                 summary: "List all stories with chapter summaries",
+                security: [], // public — no token needed
                 parameters: [
                     { name: "search", in: "query", schema: { type: "string" }, description: "Search title and blurb" },
                     { name: "season", in: "query", schema: { type: "string" }, description: "Only stories in this season (title or slug)" },
@@ -1053,6 +1071,7 @@ const spec = {
             get: {
                 tags: ["Stories"],
                 summary: "Get a story by slug with chapter summaries",
+                security: [], // public — no token needed
                 parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
                 responses: { "200": { description: "Story" }, "404": { description: "Not found" } },
             },
@@ -1129,6 +1148,7 @@ const spec = {
             get: {
                 tags: ["Stories"],
                 summary: "Get paginated lines in a chapter",
+                security: [], // public — no token needed
                 parameters: [
                     { name: "slug", in: "path", required: true, schema: { type: "string" } },
                     { name: "chapterNo", in: "path", required: true, schema: { type: "integer" } },
@@ -1183,6 +1203,7 @@ const spec = {
             get: {
                 tags: ["Items"],
                 summary: "List all items",
+                security: [], // public — no token needed
                 parameters: [{ name: "search", in: "query", schema: { type: "string" } }],
                 responses: { "200": { description: "Array of items" } },
             },
@@ -1219,6 +1240,7 @@ const spec = {
             get: {
                 tags: ["Items"],
                 summary: "Get an item by id, or by slug when the param isn't a bare integer",
+                security: [], // public — no token needed
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" }, description: "Numeric id or slug" }],
                 responses: { "200": { description: "Item" }, "404": { description: "Not found" } },
             },
@@ -1244,6 +1266,7 @@ const spec = {
             get: {
                 tags: ["8-Ball"],
                 summary: "Shake the 8-ball for a weighted-random answer (YES:NO:MAYBE = 2:1:1, renormalized over non-empty types)",
+                security: [], // public — no token needed
                 responses: {
                     "200": { description: "A random answer" },
                     "404": { description: "No answers configured" },
@@ -1254,6 +1277,7 @@ const spec = {
             get: {
                 tags: ["8-Ball"],
                 summary: "List all 8-ball answers, ordered by type then id",
+                security: [], // public — no token needed
                 responses: { "200": { description: "Array of answers" } },
             },
             post: {
@@ -1300,6 +1324,7 @@ const spec = {
             get: {
                 tags: ["Search"],
                 summary: "Unified keyword search across characters, species, items, transcript messages, and story lines, grouped by category",
+                security: [], // public — no token needed
                 parameters: [
                     { name: "q", in: "query", required: true, schema: { type: "string" } },
                     {
