@@ -63,16 +63,22 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   - Usernames are fixed: the archive import maps transcript players to
     accounts by username. Rename players in the archive's
     `meta/<season>.json` `usernames` map before seeding, not in the app.
-  - Seeded player accounts get `mustChangePassword`; the Archivist gets
+  - Seeded player accounts get `mustChangePassword`; system accounts get
     `loginDisabled`. `npm run golive:flag-accounts` applies the same flags to
     an existing DB (idempotent — skips anyone who already changed their
     password). In dev, clear the flag with SQL if you don't want the forced
     change: `UPDATE "User" SET "mustChangePassword" = false;`
   - Avatars come from booru.vortox.space (Shimmie2): users pick a post ID
     (`iconBooruId`), and `src/utils/booru.ts` resolves it to an image URL via
-    the Danbooru-compatible API, stored in `icon`. `BOORU_URL` /
-    `BOORU_API_KEY` configure it; the live booru sits behind a bot challenge,
-    so lookups fail (502) until its API path is exempted.
+    the Danbooru-compatible API, stored in `icon`. `BOORU_URL` configures it
+    (optional `BOORU_USER`/`BOORU_PASSWORD` go along as Basic auth — Shimmie
+    has no API keys). The live booru sits behind a Cloudflare bot challenge,
+    so lookups fail (502) until ff-server's requests are let through.
+  - System accounts (`prisma/system-accounts.ts`: the Archivist, the FF 8 Ball
+    bot) are `loginDisabled` in the seed and the go-live script.
+  - `npm run docs` lints the OpenAPI spec (`scripts/lint-openapi.ts` dumps
+    `src/openapi.ts` to JSON for Redocly). Public operations declare
+    `security: []` explicitly.
 - **Response envelope**, every JSON response: `{ status: "success", data }` or
   `{ status: "error", message }`. Never leak raw Prisma objects or stack
   traces.

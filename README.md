@@ -24,7 +24,9 @@ SALT_ROUNDS=12
 # Optional
 PASSWORD_MIN_LENGTH=8
 BOORU_URL="https://booru.vortox.space"
-BOORU_API_KEY=
+# Only if the booru stops serving posts anonymously (HTTP Basic auth)
+BOORU_USER=
+BOORU_PASSWORD=
 ```
 
 3. Start the Postgres container (requires Docker):

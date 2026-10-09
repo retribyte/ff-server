@@ -46,6 +46,7 @@
  * Run with: npm run seed:vortox-character-data
  */
 import { PrismaClient } from "@prisma/client";
+import { sanitizeText } from "../src/utils/sanitize.js";
 
 const prisma = new PrismaClient();
 
@@ -86,7 +87,9 @@ async function backfillField(
     let skippedExisting = 0;
     let missing = 0;
 
-    for (const [slug, value] of Object.entries(fieldsBySlug)) {
+    for (const [slug, raw] of Object.entries(fieldsBySlug)) {
+        // Blurbs are rendered as HTML, so they get the same sanitizing as API writes
+        const value = field === "blurb" ? sanitizeText(raw) : raw;
         const character = await prisma.character.findUnique({ where: { slug } });
         if (!character) {
             console.log(`No character with slug '${slug}' — skipping.`);
