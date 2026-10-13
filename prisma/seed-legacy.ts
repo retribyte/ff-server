@@ -23,7 +23,7 @@
  *   FF_SITE_DIR       — the Next.js rebuild (archive-to-markdown/api/*).
  *                       Default: ../ff-site, falling back to ../ff-site-new.
  */
-import { PrismaClient, UserRole, Class, MessageType, StoryLineType, Prisma } from "@prisma/client";
+import { PrismaClient, UserRole, Class, MessageType, StoryLineType, Prisma, SeasonKind } from "@prisma/client";
 import { hashSync } from "bcryptjs";
 import { existsSync, readdirSync, readFileSync, statSync } from "fs";
 import { dirname, join, resolve } from "path";
@@ -342,7 +342,7 @@ async function main() {
     let totalMessageCount = 0;
     const usedEpisodeSlugs = new Set<string>();
     for (const season of seasons) {
-        await prisma.season.create({ data: { title: season.seasonTitle, slug: season.slug } });
+        await prisma.season.create({ data: { title: season.seasonTitle, slug: season.slug, kind: /^FF\d+$/.test(season.seasonTitle) ? SeasonKind.MAINLINE : SeasonKind.SIDE } });
 
         for (const payload of season.episodes) {
             await prisma.episode.create({

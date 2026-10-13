@@ -76,6 +76,7 @@ const spec = {
                     title: { type: "string" },
                     episodes: { type: "array", items: { $ref: "#/components/schemas/Episode" } },
                     slug: { type: "string" },
+                    kind: { type: "string", enum: ["MAINLINE", "SIDE", "PLANNED"] },
                 },
             },
             Episode: {
@@ -695,6 +696,11 @@ const spec = {
                                         pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
                                         description: "Defaults to a slugified title",
                                     },
+                                    kind: {
+                                        type: "string",
+                                        enum: ["MAINLINE", "SIDE", "PLANNED"],
+                                        description: "Campaign role; defaults to SIDE. Only MAINLINE seasons are on the front-page roster.",
+                                    },
                                 },
                             },
                         },
@@ -712,7 +718,7 @@ const spec = {
             },
             put: {
                 tags: ["Seasons"],
-                summary: "Rename a season (admin only)",
+                summary: "Rename a season and/or change its kind (admin only)",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "title", in: "path", required: true, schema: { type: "string" } }],
                 requestBody: {
@@ -728,6 +734,11 @@ const spec = {
                                         type: "string",
                                         pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
                                         description: "Explicit only — not re-derived from the new title",
+                                    },
+                                    kind: {
+                                        type: "string",
+                                        enum: ["MAINLINE", "SIDE", "PLANNED"],
+                                        description: "Omit to leave unchanged",
                                     },
                                 },
                             },

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, SeasonKind } from "@prisma/client";
 import { slugify } from "../utils/slug.js";
 
 const prisma = new PrismaClient();
@@ -19,6 +19,7 @@ async function getAllSeasons(search?: string) {
     return await prisma.season.findMany({
         where,
         include: SEASON_INCLUDE,
+        orderBy: { slug: "asc" },
     });
 }
 
@@ -29,17 +30,17 @@ async function getSeasonByTitle(title: string) {
     });
 }
 
-async function createSeason(title: string, slug?: string) {
+async function createSeason(title: string, slug?: string, kind?: SeasonKind) {
     return await prisma.season.create({
-        data: { title, slug: slug ?? slugify(title) },
+        data: { title, slug: slug ?? slugify(title), kind },
         include: SEASON_INCLUDE,
     });
 }
 
-async function updateSeason(title: string, newTitle: string, slug?: string) {
+async function updateSeason(title: string, newTitle: string, slug?: string, kind?: SeasonKind) {
     return await prisma.season.update({
         where: { title },
-        data: { title: newTitle, slug },
+        data: { title: newTitle, slug, kind },
         include: SEASON_INCLUDE,
     });
 }

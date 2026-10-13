@@ -207,7 +207,7 @@ This section captures the *entities* and *relationships* the System must represe
 - **Character** — biographical fields as currently defined; ownership via `creator`.
 - **Persona** (renamed from the earlier name-only `Alias`) — nullable name, label, nullable image, nullable color, nullable (name-less personas only) permanent slug, character reference.
 - **Species** — full taxonomic record as currently defined.
-- **Season** — grouping of episodes.
+- **Season** — grouping of episodes. Carries a `kind` enum (`MAINLINE`, `SIDE`, `PLANNED`; default `SIDE`) marking its role in the campaign: mainline campaigns (FF1–FF4) form the front-page/archives roster, side content (T&L, Vortox Machina, Wish Hunt) stays off it, and planned seasons (FF5) exist as placeholders for stories and not-yet-played content. Seasons are listed alphabetically by slug, so no separate order field exists.
 - **Episode** — title, season, episode number, messages.
 - **Message** — sequence number, timestamps, author, optional character, type enum, text body.
 - **Item** — `name`, `itemType` (enum, required), `description`, `image` (optional). Optional association to a **Character**.
