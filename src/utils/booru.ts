@@ -16,6 +16,8 @@ const BOORU_USER = process.env.BOORU_USER;
 const BOORU_PASSWORD = process.env.BOORU_PASSWORD;
 const IMAGE_KEY = process.env.IMAGE_KEY;
 const TIMEOUT_MS = 8000;
+const ATTEMPTS = 2;
+const RETRY_DELAY_MS = 500;
 
 const IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif", "webp", "avif"]);
 
@@ -74,17 +76,26 @@ async function getBooruPost(id: number): Promise<BooruPost | null> {
         headers.Authorization = `Basic ${Buffer.from(`${BOORU_USER}:${BOORU_PASSWORD}`).toString("base64")}`;
     }
 
-    let response: Response;
-    try {
-        response = await fetch(url, { headers, signal: AbortSignal.timeout(TIMEOUT_MS) });
-    } catch {
-        throw new BooruUnavailableError();
-    }
-    const body = await response.text();
-    // Anything that isn't the API's XML (a bot challenge, an error page) means
-    // we never reached Shimmie.
-    if (!response.ok || !body.includes("<posts")) {
-        throw new BooruUnavailableError();
+    // The booru intermittently stalls or errors and then answers fine on the
+    // next try, so give it one retry before reporting it unavailable.
+    let body = "";
+    for (let attempt = 1; ; attempt++) {
+        try {
+            const response = await fetch(url, { headers, signal: AbortSignal.timeout(TIMEOUT_MS) });
+            body = await response.text();
+            // Anything that isn't the API's XML (a bot challenge, an error
+            // page) means we never reached Shimmie.
+            if (response.ok && body.includes("<posts")) break;
+            console.warn(`booru: post ${id} attempt ${attempt} got HTTP ${response.status}: ${body.slice(0, 200).replace(/\s+/g, " ")}`);
+        } catch (err) {
+            // fetch's own message is just "fetch failed"; the reason (DNS,
+            // refused, reset, TLS) is on its cause.
+            const detail = err instanceof Error && err.cause instanceof Error ? ` <- ${err.cause.message}` : "";
+            const cause = err instanceof Error ? `${err.name}: ${err.message}${detail}` : String(err);
+            console.warn(`booru: post ${id} attempt ${attempt} failed (${cause})`);
+        }
+        if (attempt >= ATTEMPTS) throw new BooruUnavailableError();
+        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
     }
 
     const tag = /<(?:post|tag)\s[^>]*>/.exec(body)?.[0];
