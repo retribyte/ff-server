@@ -72,8 +72,9 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
     (`iconBooruId`), and `src/utils/booru.ts` resolves it to an image URL via
     the Danbooru-compatible API, stored in `icon`. `BOORU_URL` configures it
     (optional `BOORU_USER`/`BOORU_PASSWORD` go along as Basic auth — Shimmie
-    has no API keys). The live booru sits behind a Cloudflare bot challenge,
-    so lookups fail (502) until ff-server's requests are let through.
+    has no API keys). The live booru sits behind a Cloudflare bot challenge;
+    `IMAGE_KEY` is sent as the `x-image-key` header, which Cloudflare lets
+    through. Without it, lookups fail (502).
   - System accounts (`prisma/system-accounts.ts`: the Archivist, the FF 8 Ball
     bot) are `loginDisabled` in the seed and the go-live script.
   - `npm run docs` lints the OpenAPI spec (`scripts/lint-openapi.ts` dumps

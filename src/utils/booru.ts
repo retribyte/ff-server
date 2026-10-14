@@ -2,14 +2,19 @@
 //
 // The booru runs Shimmie2; we use its Danbooru-compatible API
 // (`/api/danbooru/find_posts?id=N`), which answers with XML like
-//   <posts count="1" offset="0"><post id="12" file_url="..." preview_url="..." file_name="..." .../></posts>
+//   <posts count='1' offset='0'><tag id='12' file_url='...' preview_url='...' file_name='...' ...></tag></posts>
+// (Shimmie names each post element `tag` and single-quotes its attributes;
+// both are accepted here, along with Danbooru's own `<post id="...">`.)
 // BOORU_URL overrides the base URL. Shimmie has no API keys; if the booru
 // ever stops serving posts anonymously, set BOORU_USER / BOORU_PASSWORD and
 // they go along as HTTP Basic auth, which its Danbooru API accepts.
+// The booru sits behind a Cloudflare bot challenge; IMAGE_KEY, sent as the
+// `x-image-key` header, is what Cloudflare lets through.
 
 const BOORU_URL = (process.env.BOORU_URL ?? "https://booru.vortox.space").replace(/\/+$/, "");
 const BOORU_USER = process.env.BOORU_USER;
 const BOORU_PASSWORD = process.env.BOORU_PASSWORD;
+const IMAGE_KEY = process.env.IMAGE_KEY;
 const TIMEOUT_MS = 8000;
 
 const IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif", "webp", "avif"]);
@@ -39,8 +44,8 @@ function decodeEntities(value: string): string {
 
 function parseAttributes(tag: string): Record<string, string> {
     const attributes: Record<string, string> = {};
-    for (const match of tag.matchAll(/([\w:-]+)="([^"]*)"/g)) {
-        attributes[match[1]] = decodeEntities(match[2]);
+    for (const match of tag.matchAll(/([\w:-]+)=(?:"([^"]*)"|'([^']*)')/g)) {
+        attributes[match[1]] = decodeEntities(match[2] ?? match[3]);
     }
     return attributes;
 }
@@ -64,6 +69,7 @@ async function getBooruPost(id: number): Promise<BooruPost | null> {
     const url = new URL(`${BOORU_URL}/api/danbooru/find_posts`);
     url.searchParams.set("id", String(id));
     const headers: Record<string, string> = {};
+    if (IMAGE_KEY) headers["x-image-key"] = IMAGE_KEY;
     if (BOORU_USER && BOORU_PASSWORD) {
         headers.Authorization = `Basic ${Buffer.from(`${BOORU_USER}:${BOORU_PASSWORD}`).toString("base64")}`;
     }
@@ -81,7 +87,7 @@ async function getBooruPost(id: number): Promise<BooruPost | null> {
         throw new BooruUnavailableError();
     }
 
-    const tag = /<post\s[^>]*>/.exec(body)?.[0];
+    const tag = /<(?:post|tag)\s[^>]*>/.exec(body)?.[0];
     if (!tag) return null;
     const attributes = parseAttributes(tag);
     if (parseInt(attributes.id, 10) !== id || !attributes.file_url) return null;
