@@ -8,31 +8,87 @@ const FETCH_TIMEOUT_MS = 4000;
 
 export type WikiBucket = "characters" | "species" | "items";
 
-// Every non-reserved field the EntityStore vocab declares for each bucket
-// (Module_EntityStore_vocab.json in the wiki/ project), confirmed live via
-// curl. Selecting an undeclared field throws on the wiki side, so this list
-// must track the vocab — re-check against it if the wiki schema changes.
-// "page_name" is a reserved column, always selected, not in the vocab.
-const BUCKET_FIELDS: Record<WikiBucket, string[]> = {
-    characters: [
-        "page_name", "slug", "fullname", "image", "imagecaption", "aliases",
-        "occupation", "faction", "birthdate", "birthplace", "deathdate",
-        "deathcause", "relationship", "planet", "species", "class",
-        "alignment", "sexuality", "sex", "height", "weight", "skin", "hair",
-        "eyes", "creator", "author", "season",
-    ],
-    species: [
-        "page_name", "slug", "image1", "caption1", "union_name", "faction",
-        "class", "lifespan", "diet", "procreation_method", "habitat",
-        "homeworld", "religion", "government", "technology_progression",
-        "season",
-    ],
-    items: [
-        "page_name", "slug", "image", "imagecaption", "value",
-        "market_value_free", "faction", "rarity", "type", "use", "damage",
-        "armor", "character", "age", "location", "season",
-    ],
-};
+// Which fields to pull comes from the wiki itself: each bucket's schema is a
+// public JSON page, Bucket:<name> ({field: {type, repeated?, ...}}), which
+// is exactly what Bucket validates a query's .select() against. Adding,
+// removing, or renaming a wiki field needs no change here.
+//
+// Fields never cached, whatever bucket they turn up in — the site has its
+// own images for every record. Everything else is pulled.
+const EXCLUDED_FIELDS = new Set(["image", "image1", "imagecaption", "caption1"]);
+
+// Schemas change rarely; re-read at most this often
+const SCHEMA_TTL_MS = 60 * 60 * 1000;
+// Field names get interpolated into a Lua query run on the wiki
+const FIELD_NAME = /^[a-z0-9_]+$/i;
+
+const schemaCache = new Map<WikiBucket, { fields: string[]; fetchedAt: number }>();
+const schemaFetches = new Map<WikiBucket, Promise<string[]>>();
+
+async function fetchSchemaFields(bucket: WikiBucket): Promise<string[]> {
+    const url = new URL(WIKI_API_URL);
+    url.search = new URLSearchParams({
+        action: "query",
+        prop: "revisions",
+        rvprop: "content",
+        rvslots: "main",
+        formatversion: "2",
+        format: "json",
+        titles: `Bucket:${bucket}`,
+    }).toString();
+
+    let content: string | undefined;
+    try {
+        const response = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+        if (!response.ok) throw new WikiFetchError(`Bucket schema request failed: HTTP ${response.status}`);
+        const data: any = await response.json();
+        content = data?.query?.pages?.[0]?.revisions?.[0]?.slots?.main?.content;
+    } catch (err: any) {
+        if (err instanceof WikiFetchError) throw err;
+        throw new WikiFetchError(`Bucket schema request failed: ${err.message}`);
+    }
+    if (typeof content !== "string") throw new WikiFetchError(`No schema page for bucket '${bucket}'`);
+
+    let schema: Record<string, unknown>;
+    try {
+        schema = JSON.parse(content);
+    } catch {
+        throw new WikiFetchError(`Bucket '${bucket}' schema isn't valid JSON`);
+    }
+    // slug is how every row is matched to a DB record
+    if (!("slug" in schema)) throw new WikiFetchError(`Bucket '${bucket}' has no slug field`);
+
+    const fields = Object.keys(schema).filter((field) => FIELD_NAME.test(field) && !EXCLUDED_FIELDS.has(field));
+    // page_name is a reserved column on every bucket, not in the schema page
+    return ["page_name", ...fields];
+}
+
+/**
+ * The fields to select from a bucket, from its schema page (cached for an
+ * hour). If the wiki can't be asked, the last list read is reused; with
+ * none yet, this throws WikiFetchError like any other wiki outage.
+ */
+async function getBucketFields(bucket: WikiBucket): Promise<string[]> {
+    const cached = schemaCache.get(bucket);
+    if (cached && Date.now() - cached.fetchedAt < SCHEMA_TTL_MS) return cached.fields;
+
+    let pending = schemaFetches.get(bucket);
+    if (!pending) {
+        pending = fetchSchemaFields(bucket).finally(() => schemaFetches.delete(bucket));
+        schemaFetches.set(bucket, pending);
+    }
+    try {
+        const fields = await pending;
+        schemaCache.set(bucket, { fields, fetchedAt: Date.now() });
+        return fields;
+    } catch (err) {
+        if (cached) {
+            console.warn(`Using last known fields for bucket '${bucket}': ${(err as Error).message}`);
+            return cached.fields;
+        }
+        throw err;
+    }
+}
 
 // Bucket sizes (58/43/9 rows as of 2026-10) are all well under this — a whole-bucket pull
 // is always a single request, no pagination needed.
@@ -45,8 +101,8 @@ type WikiRow = Record<string, unknown>;
 // mistake a transient outage for a confirmed absence.
 export class WikiFetchError extends Error {}
 
-function buildQuery(bucket: WikiBucket, whereSlug: string | undefined, limit: number): string {
-    const fields = BUCKET_FIELDS[bucket].map((f) => `"${f}"`).join(",");
+function buildQuery(bucket: WikiBucket, fieldNames: string[], whereSlug: string | undefined, limit: number): string {
+    const fields = fieldNames.map((f) => `"${f}"`).join(",");
     const where = whereSlug !== undefined ? `.where("slug","=","${whereSlug}")` : "";
     // Dots, not colons — the shipped query-builder's __index metamethod
     // double-binds `self` under colon syntax. See PLAN-wiki-cache.md.
@@ -54,7 +110,7 @@ function buildQuery(bucket: WikiBucket, whereSlug: string | undefined, limit: nu
 }
 
 async function runQuery(bucket: WikiBucket, whereSlug: string | undefined, limit: number): Promise<WikiRow[]> {
-    const query = buildQuery(bucket, whereSlug, limit);
+    const query = buildQuery(bucket, await getBucketFields(bucket), whereSlug, limit);
     const url = `${WIKI_API_URL}?action=bucket&format=json&query=${encodeURIComponent(query)}`;
 
     // The whole request, including body parsing, is guarded: a stalled body
