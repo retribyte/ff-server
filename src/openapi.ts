@@ -463,6 +463,21 @@ const spec = {
                 },
             },
         },
+        "/booru/image": {
+            get: {
+                tags: ["Auth"],
+                summary: "Proxy an image from the booru (public)",
+                description: "Fetches a booru.vortox.space /_images/ or /_thumbs/ URL server-side (past the booru's Cloudflare challenge) so browsers get it same-origin. Any other URL is refused. Cached; responses are immutable.",
+                security: [],
+                parameters: [{ name: "url", in: "query", required: true, schema: { type: "string", format: "uri" } }],
+                responses: {
+                    "200": { description: "The image bytes", content: { "image/*": { schema: { type: "string", format: "binary" } } } },
+                    "400": { description: "Missing url" },
+                    "404": { description: "Not a booru image URL, or no such image" },
+                    "502": { description: "The booru couldn't be reached" },
+                },
+            },
+        },
         "/booru/{id}": {
             get: {
                 tags: ["Auth"],

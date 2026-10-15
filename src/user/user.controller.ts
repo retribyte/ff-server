@@ -103,6 +103,31 @@ const initializeUserRoutes = (): Router => {
         }
     });
 
+    // GET /api/booru/image?url=...: Proxy an image from the booru. Public —
+    // avatars render for logged-out readers too. Registered before
+    // /booru/:id so "image" isn't taken for an ID.
+    router.get("/booru/image", async (req: Request, res: Response) => {
+        const { url } = req.query;
+        if (typeof url !== "string") {
+            return res.status(400).json({ status: "error", message: "url is required" });
+        }
+        try {
+            const image = await booru.getBooruImage(url);
+            if (!image) {
+                return res.status(404).json({ status: "error", message: "Not a booru image" });
+            }
+            res.set({
+                "Content-Type": image.contentType,
+                "Cache-Control": "public, max-age=31536000, immutable",
+                "X-Content-Type-Options": "nosniff",
+            });
+            return res.status(200).send(image.body);
+        } catch (err: any) {
+            const status = err instanceof BooruUnavailableError ? 502 : 500;
+            return res.status(status).json({ status: "error", message: err.message });
+        }
+    });
+
     // GET /api/booru/:id: Look up a booru post's image (avatar picker preview)
     router.get("/booru/:id", authenticate, async (req: Request, res: Response) => {
         if (!/^\d+$/.test(req.params.id)) {
