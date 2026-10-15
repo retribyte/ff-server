@@ -108,6 +108,7 @@ const LEGACY_NAME_ALIASES: Record<string, string> = {
     "Zion Daybreaker": "Zion",
     "Bellow Brightlight": "Bellow",
     "Dutch Elkins": "Dutch",
+    "Wes Romaw": "Wes",
     // Not a rename like the others above -- "Edwin" is a misspelling of
     // "Edmin" that appears in the raw archive messages themselves, splitting
     // his identity in two. Canonicalizing it here folds it back into one
@@ -317,7 +318,7 @@ async function main() {
         const character = await prisma.character.create({
             data: {
                 name,
-                speciesId: unclassified.id,
+                species: { connect: { id: unclassified.id } },
                 creatorId: mainPlayer ? userIds.get(mainPlayer)! : archivist.id,
                 color:
                     (DISTINCT_FROM_LEGACY_KEY.has(name) ? undefined : colors.dark[name]) ??

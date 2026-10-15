@@ -38,6 +38,19 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   `/api/search`'s full-text search (Prisma has no syntax for expression
   indexes) — run `npm run db:search-indexes` after every `db push` too; it's
   idempotent and safe to re-run.
+- **Schema changes `db push` would lose data on** ship as a one-shot SQL
+  script in `prisma/`, run against an *existing* DB **before** `db push`
+  (fresh DBs just `db push` + seed). Check for unapplied ones whenever you
+  pull onto another machine:
+  - `species-to-many.sql` (2026-10): `Character.speciesId` →
+    `Character.species` many-to-many (`_CharacterToSpecies`). Needed if
+    `characters` still has a `speciesId` column; a bare `db push` would drop
+    every species assignment.
+  - `rename-alias-to-persona.sql`: Alias → Persona. Needed if an `aliases`
+    table still exists.
+
+  Run with `docker exec -i ff-server-db-1 psql -U <user> <db> < prisma/<script>.sql`,
+  then `db push`, `prisma generate`, `npm run db:search-indexes`.
 
 ## Architecture
 
@@ -98,7 +111,7 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   commentary) goes through `sanitizeText()` before storage.
 - `prisma/seed.ts` is the orchestrator: wipes all data, then runs
   `SEED_SCRIPTS` (`seed-legacy.ts`, persona/character-data scripts,
-  `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `create-search-indexes.ts`) as child processes, skipping (not aborting) any
+  `seed-species.ts`, `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `create-search-indexes.ts`) as child processes, skipping (not aborting) any
   that fail or don't exist on disk — `seed-galaxy.ts` is currently in that
   list but not present in the repo, and is expected to just be skipped.
   `seed:legacy` replays the real archive from `ff-site-old`'s bundled JSON

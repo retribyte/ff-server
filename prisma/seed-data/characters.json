@@ -1,22 +1,35 @@
 {
     "asier": {
         "color": "#A69C66",
-        "image": "/avatars/asier.png"
+        "image": "/avatars/asier.png",
+        "species": [
+            "shade_walker"
+        ]
     },
     "bail_starlight": {
         "color": "#FFF8B5",
-        "image": "/avatars/bail.png"
+        "image": "/avatars/bail.png",
+        "species": [
+            "novakid"
+        ]
     },
     "bellow_brightlight": {
         "color": "#2D377A",
-        "image": "/avatars/bellow.png"
+        "image": "/avatars/bellow.png",
+        "species": [
+            "entomae"
+        ]
     },
     "dakari": {
         "color": "#d1734b",
         "blurb": "A ninja hedgehog pokemon."
     },
     "danny": {
-        "image": "/avatars/danny.png"
+        "image": "/avatars/danny.png",
+        "species": [
+            "human",
+            "poyo"
+        ]
     },
     "dr_jorpa": {
         "blurb": "Emmett's nice doctor."
@@ -24,7 +37,10 @@
     "dutch_elkins": {
         "color": "#0000FF",
         "image": "/avatars/dutch.png",
-        "blurb": "A country bumpkin bouncing baby bandit."
+        "blurb": "A country bumpkin bouncing baby bandit.",
+        "species": [
+            "verinian"
+        ]
     },
     "edmin_kalvanzas": {
         "color": "#A9BA5A"
@@ -32,7 +48,10 @@
     "emmett_tawfeek": {
         "color": "#62DE2C",
         "image": "/avatars/emmett.png",
-        "blurb": "The galaxy's scapesquoat."
+        "blurb": "The galaxy's scapesquoat.",
+        "species": [
+            "squoatling"
+        ]
     },
     "ff_8_ball": {
         "color": "#ce78ff",
@@ -41,7 +60,10 @@
     "garrick": {
         "color": "#5269FF",
         "image": "/avatars/garrick.png",
-        "blurb": "A kleptomanic poltergeist."
+        "blurb": "A kleptomanic poltergeist.",
+        "species": [
+            "poltergeist"
+        ]
     },
     "ibraxas": {
         "color": "#CC7D00",
@@ -50,21 +72,31 @@
     "iris_bellatoria": {
         "color": "#20A0FF",
         "image": "/avatars/iris.png",
-        "blurb": "The hybrid queen of the light elves."
+        "blurb": "The hybrid queen of the light elves.",
+        "species": [
+            "demonus",
+            "elf"
+        ]
     },
     "jess": {
         "blurb": "An ottori stowaway."
     },
     "jim_johnson": {
         "color": "#4B8BBE",
-        "image": "/avatars/jim.png"
+        "image": "/avatars/jim.png",
+        "species": [
+            "human"
+        ]
     },
     "kyl300": {
         "color": "#a66ade",
         "image": "/avatars/kyl300.png"
     },
     "lucian_blackwater": {
-        "image": "/avatars/lucian.png"
+        "image": "/avatars/lucian.png",
+        "species": [
+            "tiefling"
+        ]
     },
     "marv": {
         "blurb": "The street-smart dynamo of the Ravens."
@@ -75,11 +107,17 @@
     },
     "matthias_lewkey": {
         "color": "#50DDFF",
-        "image": "/avatars/matthias.png"
+        "image": "/avatars/matthias.png",
+        "species": [
+            "avian"
+        ]
     },
     "morra": {
         "color": "#FF00FF",
-        "image": "/avatars/morra.png"
+        "image": "/avatars/morra.png",
+        "species": [
+            "matrin"
+        ]
     },
     "odran": {
         "blurb": "The prim-and-proper mediator of the Ravens."
@@ -92,23 +130,35 @@
     },
     "rawley": {
         "color": "#CACA00",
-        "image": "/avatars/rawley.png"
+        "image": "/avatars/rawley.png",
+        "species": [
+            "shade_walker"
+        ]
     },
     "sanya_dreadflower": {
         "color": "#C82020",
         "image": "/avatars/sanya.png",
-        "blurb": "An edgy plant person with a demigod on her head."
+        "blurb": "An edgy plant person with a demigod on her head.",
+        "species": [
+            "floran"
+        ]
     },
     "sascha": {
         "blurb": "The pragmatic tactician of the Ravens."
     },
     "serpile": {
-        "image": "/avatars/serpile.png"
+        "image": "/avatars/serpile.png",
+        "species": [
+            "argonian"
+        ]
     },
     "seth_imkinki": {
         "color": "#FF5050",
         "image": "/avatars/seth.png",
-        "blurb": "A forever lustful, insane elf."
+        "blurb": "A forever lustful, insane elf.",
+        "species": [
+            "elf"
+        ]
     },
     "valentina": {
         "color": "#FFD080"
@@ -123,16 +173,26 @@
     "victor_chomsky": {
         "color": "#ff9900",
         "image": "/avatars/chomsky.png",
-        "blurb": "A pink-haired arsonist with righteous intentions."
+        "blurb": "A pink-haired arsonist with righteous intentions.",
+        "species": [
+            "human"
+        ]
     },
-    "wes": {
+    "wes_romaw": {
         "color": "#BB54FF",
         "image": "/avatars/wes.png",
-        "blurb": "A lizard racer with celebrity fame."
+        "blurb": "A lizard racer with celebrity fame.",
+        "species": [
+            "anole"
+        ]
     },
     "zion_daybreaker": {
         "color": "#00D2F4",
         "image": "/avatars/zion.png",
-        "blurb": "A robotic angel with a chip on his shoulder."
+        "blurb": "A robotic angel with a chip on his shoulder.",
+        "species": [
+            "angelus",
+            "hexgot"
+        ]
     }
 }

@@ -30,7 +30,7 @@ interface CharacterOverlay {
     color?: string;
     image?: string;
     blurb?: string;
-    species?: string; // species slug
+    species?: string[]; // species slugs (hybrids have several)
 }
 
 interface UserOverlay {
@@ -46,13 +46,22 @@ async function main() {
     const missing: string[] = [];
     for (const [slug, entry] of Object.entries(load<CharacterOverlay>("characters.json"))) {
         const { species, color, image, blurb } = entry;
-        const speciesId = species === undefined ? undefined : speciesIds.get(species);
-        if (species !== undefined && speciesId === undefined) {
-            console.log(`Character '${slug}': species '${species}' not found — leaving species alone.`);
+        const unknown = (species ?? []).filter((s) => !speciesIds.has(s));
+        if (unknown.length) {
+            console.log(`Character '${slug}': species ${unknown.map((s) => `'${s}'`).join(", ")} not found — leaving species alone.`);
         }
-        const { count } = await prisma.character.updateMany({ where: { slug }, data: { color, image, blurb, speciesId } });
-        if (count) applied++;
-        else missing.push(slug);
+        const speciesSet = species?.length && !unknown.length ? species.map((s) => ({ id: speciesIds.get(s)! })) : undefined;
+        // updateMany can't touch relations, hence update-by-slug
+        const exists = await prisma.character.findUnique({ where: { slug }, select: { id: true } });
+        if (!exists) {
+            missing.push(slug);
+            continue;
+        }
+        await prisma.character.update({
+            where: { slug },
+            data: { color, image, blurb, species: speciesSet && { set: speciesSet } },
+        });
+        applied++;
     }
     console.log(`Overlay: ${applied} character(s) updated${missing.length ? `, ${missing.length} not in DB: ${missing.join(", ")}` : ""}.`);
 

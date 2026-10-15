@@ -95,7 +95,11 @@ async function updateSpecies(id: number, data: Partial<SpeciesData>) {
     });
 }
 
+// The join table cascades, so without this check deleting a species would
+// silently strip it from its characters (and could leave one with none).
 async function deleteSpecies(id: number): Promise<void> {
+    const members = await prisma.character.count({ where: { species: { some: { id } } } });
+    if (members) throw new Error(`Cannot delete species: ${members} character(s) still belong to it`);
     await prisma.species.delete({ where: { id } });
 }
 

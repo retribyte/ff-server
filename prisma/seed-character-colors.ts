@@ -18,23 +18,23 @@ const prisma = new PrismaClient();
 const COLORS_BY_SLUG: Record<string, string> = {
     // Snapshot of the dev DB's colors, so they survive a reseed
     asier: "#A69C66",
-    bail: "#FFF8B5",
+    bail_starlight: "#FFF8B5",
     dakari: "#d1734b",
     emmett_tawfeek: "#62DE2C",
     ff_8_ball: "#ce78ff",
     garrick: "#5269FF",
     ibraxas: "#CC7D00",
-    iris: "#20A0FF",
-    jim: "#4B8BBE",
+    iris_bellatoria: "#20A0FF",
+    jim_johnson: "#4B8BBE",
     kyl300: "#a66ade",
     mateo_krovak: "#50DDFF",
-    matthias: "#50DDFF",
+    matthias_lewkey: "#50DDFF",
     rawley: "#CACA00",
     sanya_dreadflower: "#C82020",
     seth_imkinki: "#FF5050",
     vargas: "#FFFFFF",
     victor_chomsky: "#ff9900",
-    wes: "#BB54FF",
+    wes_romaw: "#BB54FF",
     // "Still Waters" ink colors. These are the dark-mode colors (Character.color);
     // the doc ink for Dutch (#0000ff) and Bellow (#134f5c) is too dark on a dark
     // background, so they are lightened here and live as the light-mode values in

@@ -98,7 +98,21 @@ const spec = {
                 properties: {
                     id: { type: "integer" },
                     name: { type: "string" },
-                    speciesId: { type: "integer" },
+                    species: {
+                        type: "array",
+                        description: "Every species the character belongs to (hybrids have several)",
+                        items: {
+                            type: "object",
+                            properties: { id: { type: "integer" }, name: { type: "string" }, slug: { type: "string" } },
+                        },
+                    },
+                    speciesIds: {
+                        type: "array",
+                        items: { type: "integer" },
+                        minItems: 1,
+                        writeOnly: true,
+                        description: "On update: replaces the character's species",
+                    },
                     image: { type: "string", nullable: true },
                     color: { type: "string", nullable: true },
                     blurb: { type: "string", nullable: true },
@@ -552,7 +566,7 @@ const spec = {
                 security: [], // public — no token needed
                 parameters: [
                     { name: "search", in: "query", schema: { type: "string" }, description: "Search by name" },
-                    { name: "speciesId", in: "query", schema: { type: "integer" } },
+                    { name: "speciesId", in: "query", schema: { type: "integer" }, description: "Characters belonging to this species (among others)" },
                     { name: "ownerId", in: "query", schema: { type: "integer" } },
                     { name: "season", in: "query", schema: { type: "string" } },
                 ],
@@ -568,10 +582,10 @@ const spec = {
                         "application/json": {
                             schema: {
                                 type: "object",
-                                required: ["name", "speciesId"],
+                                required: ["name", "speciesIds"],
                                 properties: {
                                     name: { type: "string" },
-                                    speciesId: { type: "integer" },
+                                    speciesIds: { type: "array", items: { type: "integer" }, minItems: 1 },
                                     image: { type: "string" },
                                     color: { type: "string" },
                                     blurb: { type: "string" },

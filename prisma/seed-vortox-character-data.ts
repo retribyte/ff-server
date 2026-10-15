@@ -58,7 +58,7 @@ const BLURBS_BY_SLUG: Record<string, string> = {
     zion_daybreaker: "A robotic angel with a chip on his shoulder.",
     victor_chomsky: "A pink-haired arsonist with righteous intentions.",
     iris_bellatoria: "The hybrid queen of the light elves.",
-    wes: "A lizard racer with celebrity fame.",
+    wes_romaw: "A lizard racer with celebrity fame.",
     sascha: "The pragmatic tactician of the Ravens.",
     dutch_elkins: "A country bumpkin bouncing baby bandit.",
     mateo_krovak: "A steel shapeshifter.",

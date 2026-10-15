@@ -44,6 +44,13 @@ npx prisma generate
 npx prisma migrate dev --name init
 ```
 
+**Updating an existing database** (e.g. after pulling onto another machine):
+some schema changes need a one-shot SQL script in `prisma/` run *before*
+`npx prisma db push`, or `db push` drops data. Currently:
+`prisma/species-to-many.sql` (run it if the `characters` table still has a
+`speciesId` column). See "Schema changes" in `CLAUDE.md` for the list and the
+run command.
+
 5. (Optional) Seed the database with sample data:
 
 ```bash
