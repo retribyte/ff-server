@@ -20,6 +20,15 @@ PORT=3000
 JWT_SECRET="change-me-in-production"
 JWT_EXPIRATION=86400
 SALT_ROUNDS=12
+
+# Optional
+PASSWORD_MIN_LENGTH=8
+BOORU_URL="https://booru.vortox.space"
+# Sent as the x-image-key header to get past the booru's Cloudflare bot challenge
+IMAGE_KEY=
+# Only if the booru stops serving posts anonymously (HTTP Basic auth)
+BOORU_USER=
+BOORU_PASSWORD=
 ```
 
 3. Start the Postgres container (requires Docker):
