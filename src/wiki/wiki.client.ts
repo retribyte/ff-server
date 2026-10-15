@@ -14,8 +14,9 @@ export type WikiBucket = "characters" | "species" | "items";
 // removing, or renaming a wiki field needs no change here.
 //
 // Fields never cached, whatever bucket they turn up in — the site has its
-// own images for every record. Everything else is pulled.
-const EXCLUDED_FIELDS = new Set(["image", "image1", "imagecaption", "caption1"]);
+// own images for every record, and its own season/episode structure.
+// Everything else is pulled.
+const EXCLUDED_FIELDS = new Set(["image", "image1", "imagecaption", "caption1", "season"]);
 
 // Schemas change rarely; re-read at most this often
 const SCHEMA_TTL_MS = 60 * 60 * 1000;
