@@ -128,11 +128,18 @@ model Species {
   @@map("species")
 }
 
+enum SeasonKind {
+  MAINLINE
+  SIDE
+  PLANNED
+}
+
 model Season {
   title    String         @id @unique
   episodes Episode[]
   stories  Story[]
   slug     String         @unique
+  kind     SeasonKind     @default(SIDE)
 
   @@map("seasons")
 }
