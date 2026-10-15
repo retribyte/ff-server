@@ -61,9 +61,14 @@ model User {
   email         String?     @unique
   password      String      // hashed using bcrypt?
   role          UserRole
-  icon          String?     // If null, use identicon?
+  icon          String?     // Resolved booru image URL; if null, use identicon?
+  iconBooruId   Int?        // booru.vortox.space post the icon was taken from
+  color         String?     // dark-mode display color for characterless messages (e.g. the Vortox bot); hex
   bio           String?
   wikiUser      String?
+  passwordChangedAt  DateTime? // Tokens issued before this are rejected
+  mustChangePassword Boolean   @default(false) // Seeded/reset accounts pick their own password
+  loginDisabled      Boolean   @default(false) // System accounts, suspended users
   characters    Character[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -93,17 +98,14 @@ model Character {
   @@map("characters")
 }
 
-// A way a character is presented for some stretch of the archive: a
-// different name, a different look, or both. Attached per message via
-// Message.personaId — the only presentation mechanism. Named-persona slugs
-// are permanent once created (same philosophy as Character/Item/Species).
+// How a character is presented for some stretch of the archive
 model Persona {
   id          Int       @id @unique @default(autoincrement())
-  name        String?   // null = no name opinion -> canonical name shows
-  label       String?   // admin-facing handle ("fungus era", "battle-scarred"); never rendered in transcripts
-  slug        String?   @unique // null for name-less personas (no URL identity)
-  image       String?   // era avatar; falls back to character.image
-  color       String?   // era theme color; falls back to character.color
+  name        String?   // null -> canonical name shows
+  label       String?   // admin-facing handle; never rendered in transcripts
+  slug        String?   @unique // null for unnamed personas
+  image       String?
+  color       String?
   character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
   characterId Int
   messages    Message[]
@@ -126,10 +128,18 @@ model Species {
   @@map("species")
 }
 
+enum SeasonKind {
+  MAINLINE
+  SIDE
+  PLANNED
+}
+
 model Season {
   title    String         @id @unique
   episodes Episode[]
+  stories  Story[]
   slug     String         @unique
+  kind     SeasonKind     @default(SIDE)
 
   @@map("seasons")
 }
@@ -192,7 +202,11 @@ model Story {
   publishedDate DateTime?      // real-world publication; an in-universe date would be a GUY Int
   themeColor    String?
   themeColor2   String?
-  format        StoryFormat    @default(SCRIPT) // dialogue presentation: script vs novel-style prose
+  format        StoryFormat    @default(PROSE) // dialogue presentation: script vs novel-style prose
+  // Campaign this story belongs to, if any (FF3 short stories etc.). Same
+  // title FK as Episode.seasonTitle; a season can hold stories but no episodes.
+  season        Season?        @relation(fields: [seasonTitle], references: [title], onDelete: SetNull)
+  seasonTitle   String?
   chapters      StoryChapter[]
 
   @@map("stories")

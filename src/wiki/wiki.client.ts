@@ -16,9 +16,10 @@ export type WikiBucket = "characters" | "species" | "items";
 const BUCKET_FIELDS: Record<WikiBucket, string[]> = {
     characters: [
         "page_name", "slug", "fullname", "image", "imagecaption", "aliases",
-        "faction", "birthdate", "birthplace", "deathdate", "deathcause",
-        "relationship", "planet", "species", "class", "sex", "height",
-        "weight", "hair", "eyes", "creator", "author", "season",
+        "occupation", "faction", "birthdate", "birthplace", "deathdate",
+        "deathcause", "relationship", "planet", "species", "class",
+        "alignment", "sexuality", "sex", "height", "weight", "skin", "hair",
+        "eyes", "creator", "author", "season",
     ],
     species: [
         "page_name", "slug", "image1", "caption1", "union_name", "faction",
@@ -33,7 +34,7 @@ const BUCKET_FIELDS: Record<WikiBucket, string[]> = {
     ],
 };
 
-// Bucket sizes (30/37/8 rows) are all well under this — a whole-bucket pull
+// Bucket sizes (58/43/9 rows as of 2026-10) are all well under this — a whole-bucket pull
 // is always a single request, no pagination needed.
 const WHOLE_BUCKET_LIMIT = 500;
 

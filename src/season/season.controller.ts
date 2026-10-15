@@ -1,6 +1,10 @@
 import { Router, Request, Response } from "express";
+import { SeasonKind } from "@prisma/client";
 import seasonService from "./season.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
+
+const isSeasonKind = (v: unknown): v is SeasonKind =>
+    typeof v === "string" && (Object.values(SeasonKind) as string[]).includes(v);
 
 const initializeSeasonRoutes = (): Router => {
     const router: Router = Router();
@@ -36,27 +40,33 @@ const initializeSeasonRoutes = (): Router => {
 
     // POST /api/seasons: Create a new season
     router.post("/seasons", authenticate, async (req: Request, res: Response) => {
-        const { title, slug } = req.body;
+        const { title, slug, kind } = req.body;
         if (!title) {
             return res.status(400).json({ status: "error", message: "title is required" });
         }
+        if (kind !== undefined && !isSeasonKind(kind)) {
+            return res.status(400).json({ status: "error", message: "kind must be MAINLINE, SIDE or PLANNED" });
+        }
         try {
-            const season = await seasonService.createSeason(title, slug);
+            const season = await seasonService.createSeason(title, slug, kind);
             res.status(201).json({ status: "success", data: season });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });
         }
     });
 
-    // PUT /api/seasons/:title: Rename a season
+    // PUT /api/seasons/:title: Rename a season and/or change its kind
     router.put("/seasons/:title", authenticate, isAdmin, async (req: Request, res: Response) => {
         const { title } = req.params;
-        const { title: newTitle, slug } = req.body;
+        const { title: newTitle, slug, kind } = req.body;
         if (!newTitle) {
             return res.status(400).json({ status: "error", message: "title is required" });
         }
+        if (kind !== undefined && !isSeasonKind(kind)) {
+            return res.status(400).json({ status: "error", message: "kind must be MAINLINE, SIDE or PLANNED" });
+        }
         try {
-            const season = await seasonService.updateSeason(title, newTitle, slug);
+            const season = await seasonService.updateSeason(title, newTitle, slug, kind);
             res.status(200).json({ status: "success", data: season });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });

@@ -39,10 +39,58 @@ const spec = {
                     username: { type: "string" },
                     email: { type: "string", nullable: true },
                     role: { $ref: "#/components/schemas/UserRole" },
-                    icon: { type: "string", nullable: true },
+                    icon: { type: "string", nullable: true, description: "Avatar image URL, resolved from iconBooruId" },
+                    iconBooruId: { type: "integer", nullable: true, description: "booru.vortox.space post the avatar comes from" },
+                    color: { type: "string", nullable: true, description: "Dark-mode hex color for characterless messages (e.g. the Vortox bot)" },
                     bio: { type: "string", nullable: true },
+                    wikiUser: { type: "string", nullable: true },
+                    passwordChangedAt: { type: "string", format: "date-time", nullable: true },
+                    mustChangePassword: { type: "boolean", description: "Writes other than PUT /user/password are refused until the user changes their password" },
+                    loginDisabled: { type: "boolean" },
                     createdAt: { type: "string", format: "date-time" },
                     updatedAt: { type: "string", format: "date-time" },
+                },
+            },
+            PublicUser: {
+                type: "object",
+                properties: {
+                    id: { type: "integer" },
+                    username: { type: "string" },
+                    role: { $ref: "#/components/schemas/UserRole" },
+                    icon: { type: "string", nullable: true },
+                    iconBooruId: { type: "integer", nullable: true },
+                    bio: { type: "string", nullable: true },
+                    wikiUser: { type: "string", nullable: true },
+                    createdAt: { type: "string", format: "date-time" },
+                    characters: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                id: { type: "integer" },
+                                name: { type: "string" },
+                                slug: { type: "string" },
+                                image: { type: "string", nullable: true },
+                                color: { type: "string", nullable: true },
+                            },
+                        },
+                    },
+                    stories: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                id: { type: "integer" },
+                                slug: { type: "string" },
+                                title: { type: "string" },
+                                publishedDate: { type: "string", format: "date-time", nullable: true },
+                            },
+                        },
+                    },
+                    _count: {
+                        type: "object",
+                        properties: { messages: { type: "integer" }, commentaries: { type: "integer" } },
+                    },
                 },
             },
             Character: {
@@ -75,6 +123,7 @@ const spec = {
                     title: { type: "string" },
                     episodes: { type: "array", items: { $ref: "#/components/schemas/Episode" } },
                     slug: { type: "string" },
+                    kind: { type: "string", enum: ["MAINLINE", "SIDE", "PLANNED"] },
                 },
             },
             Episode: {
@@ -162,6 +211,12 @@ const spec = {
                     themeColor: { type: "string", nullable: true },
                     themeColor2: { type: "string", nullable: true },
                     format: { $ref: "#/components/schemas/StoryFormat" },
+                    seasonTitle: { type: "string", nullable: true },
+                    season: {
+                        type: "object",
+                        nullable: true,
+                        properties: { title: { type: "string" }, slug: { type: "string" } },
+                    },
                     chapters: { type: "array", items: { $ref: "#/components/schemas/StoryChapter" } },
                 },
             },
@@ -214,6 +269,72 @@ const spec = {
                     text: { type: "string" },
                 },
             },
+            SearchResults: {
+                type: "object",
+                description: "Grouped by category — scores aren't comparable across categories, so results aren't merged into one ranked list.",
+                properties: {
+                    characters: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                id: { type: "integer" },
+                                name: { type: "string" },
+                                slug: { type: "string" },
+                                image: { type: "string", nullable: true },
+                            },
+                        },
+                    },
+                    species: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                id: { type: "integer" },
+                                name: { type: "string" },
+                                slug: { type: "string" },
+                            },
+                        },
+                    },
+                    items: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                id: { type: "integer" },
+                                name: { type: "string" },
+                                slug: { type: "string" },
+                                image: { type: "string", nullable: true },
+                            },
+                        },
+                    },
+                    messages: {
+                        type: "array",
+                        description: "Full-text (stemmed keyword) matches on Message.text.",
+                        items: {
+                            type: "object",
+                            properties: {
+                                episodeTitle: { type: "string" },
+                                messageNo: { type: "integer" },
+                                text: { type: "string" },
+                            },
+                        },
+                    },
+                    storyLines: {
+                        type: "array",
+                        description: "Full-text (stemmed keyword) matches on StoryLine.text.",
+                        items: {
+                            type: "object",
+                            properties: {
+                                storySlug: { type: "string" },
+                                chapterNo: { type: "integer" },
+                                lineNo: { type: "integer" },
+                                text: { type: "string" },
+                            },
+                        },
+                    },
+                },
+            },
         },
     },
     paths: {
@@ -221,6 +342,7 @@ const spec = {
             post: {
                 tags: ["Auth"],
                 summary: "Register a new user",
+                security: [], // public — no token needed
                 requestBody: {
                     required: true,
                     content: {
@@ -247,6 +369,7 @@ const spec = {
             post: {
                 tags: ["Auth"],
                 summary: "Log in and receive a JWT",
+                security: [], // public — no token needed
                 requestBody: {
                     required: true,
                     content: {
@@ -265,6 +388,7 @@ const spec = {
                 responses: {
                     "200": { description: "JWT token returned" },
                     "400": { description: "Invalid credentials" },
+                    "403": { description: "Account can't log in (system or disabled account)" },
                 },
             },
         },
@@ -272,15 +396,20 @@ const spec = {
             get: {
                 tags: ["Auth"],
                 summary: "Get the authenticated user's profile",
+                description: "Read fresh from the database on every call. Still allowed while a password change is pending.",
                 security: [{ bearerAuth: [] }],
                 responses: {
-                    "200": { description: "User profile" },
+                    "200": {
+                        description: "User profile",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/User" } } },
+                    },
                     "401": { description: "Unauthorized" },
                 },
             },
             put: {
                 tags: ["Auth"],
                 summary: "Update the authenticated user's profile",
+                description: "Usernames can't be changed (they key the archive import). Omitted fields are left as they are; null clears a field. Setting iconBooruId looks the post up on the booru and stores its image URL as icon.",
                 security: [{ bearerAuth: [] }],
                 requestBody: {
                     content: {
@@ -288,9 +417,10 @@ const spec = {
                             schema: {
                                 type: "object",
                                 properties: {
-                                    username: { type: "string" },
-                                    icon: { type: "string" },
-                                    bio: { type: "string" },
+                                    bio: { type: "string", nullable: true, maxLength: 2000 },
+                                    wikiUser: { type: "string", nullable: true, maxLength: 100 },
+                                    iconBooruId: { type: "integer", nullable: true },
+                                    color: { type: "string", nullable: true, pattern: "^#[0-9a-fA-F]{6}$" },
                                 },
                             },
                         },
@@ -298,7 +428,53 @@ const spec = {
                 },
                 responses: {
                     "200": { description: "Updated profile" },
+                    "400": { description: "Validation error, or no such booru post / not an image" },
                     "401": { description: "Unauthorized" },
+                    "403": { description: "Password change required first" },
+                    "502": { description: "The booru couldn't be reached" },
+                },
+            },
+        },
+        "/user/password": {
+            put: {
+                tags: ["Auth"],
+                summary: "Change the authenticated user's password",
+                description: "Invalidates every token issued before the change and clears mustChangePassword; returns a fresh token. Minimum length is PASSWORD_MIN_LENGTH (default 8); at most 72 bytes.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["currentPassword", "newPassword"],
+                                properties: {
+                                    currentPassword: { type: "string" },
+                                    newPassword: { type: "string" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "Password changed; data.token is the new access token" },
+                    "400": { description: "Wrong current password, or new password breaks the rules" },
+                    "401": { description: "Unauthorized" },
+                },
+            },
+        },
+        "/booru/{id}": {
+            get: {
+                tags: ["Auth"],
+                summary: "Look up a booru post's image URLs (avatar preview)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: {
+                    "200": { description: "{ id, imageUrl, previewUrl }" },
+                    "400": { description: "Invalid ID, or the post isn't an image" },
+                    "401": { description: "Unauthorized" },
+                    "404": { description: "No such post" },
+                    "502": { description: "The booru couldn't be reached" },
                 },
             },
         },
@@ -317,13 +493,14 @@ const spec = {
         "/users/{id}": {
             get: {
                 tags: ["Auth"],
-                summary: "Get a user's public profile by ID",
-                security: [{ bearerAuth: [] }],
-                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                summary: "Get a user's public profile by ID or username (public)",
+                security: [], // public — no token needed
+                parameters: [{ name: "id", in: "path", required: true, description: "Numeric id, or username", schema: { type: "string" } }],
                 responses: {
-                    "200": { description: "User profile" },
-                    "400": { description: "Invalid user ID" },
-                    "401": { description: "Unauthorized" },
+                    "200": {
+                        description: "Public profile with the user's characters and stories",
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/PublicUser" } } },
+                    },
                     "404": { description: "User not found" },
                 },
             },
@@ -357,6 +534,7 @@ const spec = {
             get: {
                 tags: ["Characters"],
                 summary: "List all characters",
+                security: [], // public — no token needed
                 parameters: [
                     { name: "search", in: "query", schema: { type: "string" }, description: "Search by name" },
                     { name: "speciesId", in: "query", schema: { type: "integer" } },
@@ -403,6 +581,7 @@ const spec = {
             get: {
                 tags: ["Characters"],
                 summary: "Get a character by id, or by slug when the param isn't a bare integer",
+                security: [], // public — no token needed
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" }, description: "Numeric id or slug" }],
                 responses: { "200": { description: "Character" }, "404": { description: "Not found" } },
             },
@@ -436,6 +615,7 @@ const spec = {
             get: {
                 tags: ["Characters", "Messages", "Stories"],
                 summary: "Get quotes attributed to a character: transcript QUOTE messages and story-embedded dialogue",
+                security: [], // public — no token needed
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 responses: {
                     "200": {
@@ -448,6 +628,7 @@ const spec = {
             get: {
                 tags: ["Characters", "Personas"],
                 summary: "List a character's personas",
+                security: [], // public — no token needed
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 responses: { "200": { description: "Array of personas" } },
             },
@@ -491,6 +672,7 @@ const spec = {
             get: {
                 tags: ["Personas"],
                 summary: "Full persona index, optionally filtered by name — no pagination. Intended for bulk speaker-name matching (e.g. the transcript importer) without N+1-ing over /characters/:id/personas",
+                security: [], // public — no token needed
                 parameters: [{ name: "search", in: "query", schema: { type: "string" }, description: "Search by persona name" }],
                 responses: { "200": { description: "Array of every persona" } },
             },
@@ -541,6 +723,7 @@ const spec = {
             get: {
                 tags: ["Species"],
                 summary: "List all species",
+                security: [], // public — no token needed
                 parameters: [{ name: "search", in: "query", schema: { type: "string" } }],
                 responses: { "200": { description: "Array of species" } },
             },
@@ -576,6 +759,7 @@ const spec = {
             get: {
                 tags: ["Species"],
                 summary: "Get a species by id or slug, including its characters",
+                security: [], // public — no token needed
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" }, description: "Numeric id or slug" }],
                 responses: { "200": { description: "Species" }, "404": { description: "Not found" } },
             },
@@ -601,6 +785,7 @@ const spec = {
             get: {
                 tags: ["Seasons"],
                 summary: "List all seasons",
+                security: [], // public — no token needed
                 parameters: [{ name: "search", in: "query", schema: { type: "string" } }],
                 responses: { "200": { description: "Array of seasons with episodes" } },
             },
@@ -622,6 +807,11 @@ const spec = {
                                         pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
                                         description: "Defaults to a slugified title",
                                     },
+                                    kind: {
+                                        type: "string",
+                                        enum: ["MAINLINE", "SIDE", "PLANNED"],
+                                        description: "Campaign role; defaults to SIDE. Only MAINLINE seasons are on the front-page roster.",
+                                    },
                                 },
                             },
                         },
@@ -634,12 +824,13 @@ const spec = {
             get: {
                 tags: ["Seasons"],
                 summary: "Get a season by title with its episodes",
+                security: [], // public — no token needed
                 parameters: [{ name: "title", in: "path", required: true, schema: { type: "string" } }],
                 responses: { "200": { description: "Season" }, "404": { description: "Not found" } },
             },
             put: {
                 tags: ["Seasons"],
-                summary: "Rename a season (admin only)",
+                summary: "Rename a season and/or change its kind (admin only)",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "title", in: "path", required: true, schema: { type: "string" } }],
                 requestBody: {
@@ -655,6 +846,11 @@ const spec = {
                                         type: "string",
                                         pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
                                         description: "Explicit only — not re-derived from the new title",
+                                    },
+                                    kind: {
+                                        type: "string",
+                                        enum: ["MAINLINE", "SIDE", "PLANNED"],
+                                        description: "Omit to leave unchanged",
                                     },
                                 },
                             },
@@ -675,6 +871,7 @@ const spec = {
             get: {
                 tags: ["Episodes"],
                 summary: "List all episodes",
+                security: [], // public — no token needed
                 parameters: [{ name: "search", in: "query", schema: { type: "string" } }],
                 responses: { "200": { description: "Array of episodes" } },
             },
@@ -712,6 +909,7 @@ const spec = {
             get: {
                 tags: ["Episodes"],
                 summary: "Get an episode by title",
+                security: [], // public — no token needed
                 parameters: [{ name: "title", in: "path", required: true, schema: { type: "string" } }],
                 responses: { "200": { description: "Episode" }, "404": { description: "Not found" } },
             },
@@ -737,6 +935,7 @@ const spec = {
             get: {
                 tags: ["Messages"],
                 summary: "Get paginated messages in an episode",
+                security: [], // public — no token needed
                 parameters: [
                     { name: "episodeTitle", in: "path", required: true, schema: { type: "string" } },
                     { name: "page", in: "query", schema: { type: "integer", default: 1 } },
@@ -750,6 +949,7 @@ const spec = {
             get: {
                 tags: ["Messages"],
                 summary: "Get a single message by episode and sequence number",
+                security: [], // public — no token needed
                 parameters: [
                     { name: "episodeTitle", in: "path", required: true, schema: { type: "string" } },
                     { name: "messageNo", in: "path", required: true, schema: { type: "integer" } },
@@ -836,6 +1036,7 @@ const spec = {
             get: {
                 tags: ["Messages"],
                 summary: "Get a random QUOTE message",
+                security: [], // public — no token needed
                 responses: { "200": { description: "A random quote" }, "404": { description: "No quotes found" } },
             },
         },
@@ -843,7 +1044,11 @@ const spec = {
             get: {
                 tags: ["Stories"],
                 summary: "List all stories with chapter summaries",
-                parameters: [{ name: "search", in: "query", schema: { type: "string" }, description: "Search title and blurb" }],
+                security: [], // public — no token needed
+                parameters: [
+                    { name: "search", in: "query", schema: { type: "string" }, description: "Search title and blurb" },
+                    { name: "season", in: "query", schema: { type: "string" }, description: "Only stories in this season (title or slug)" },
+                ],
                 responses: { "200": { description: "Array of stories" } },
             },
             post: {
@@ -865,6 +1070,7 @@ const spec = {
                                     publishedDate: { type: "string", format: "date-time" },
                                     themeColor: { type: "string" },
                                     themeColor2: { type: "string" },
+                                    season: { type: "string", nullable: true, description: "Season title or slug; null clears" },
                                     format: { $ref: "#/components/schemas/StoryFormat" },
                                 },
                             },
@@ -878,6 +1084,7 @@ const spec = {
             get: {
                 tags: ["Stories"],
                 summary: "Get a story by slug with chapter summaries",
+                security: [], // public — no token needed
                 parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
                 responses: { "200": { description: "Story" }, "404": { description: "Not found" } },
             },
@@ -954,6 +1161,7 @@ const spec = {
             get: {
                 tags: ["Stories"],
                 summary: "Get paginated lines in a chapter",
+                security: [], // public — no token needed
                 parameters: [
                     { name: "slug", in: "path", required: true, schema: { type: "string" } },
                     { name: "chapterNo", in: "path", required: true, schema: { type: "integer" } },
@@ -1008,6 +1216,7 @@ const spec = {
             get: {
                 tags: ["Items"],
                 summary: "List all items",
+                security: [], // public — no token needed
                 parameters: [{ name: "search", in: "query", schema: { type: "string" } }],
                 responses: { "200": { description: "Array of items" } },
             },
@@ -1044,6 +1253,7 @@ const spec = {
             get: {
                 tags: ["Items"],
                 summary: "Get an item by id, or by slug when the param isn't a bare integer",
+                security: [], // public — no token needed
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" }, description: "Numeric id or slug" }],
                 responses: { "200": { description: "Item" }, "404": { description: "Not found" } },
             },
@@ -1069,6 +1279,7 @@ const spec = {
             get: {
                 tags: ["8-Ball"],
                 summary: "Shake the 8-ball for a weighted-random answer (YES:NO:MAYBE = 2:1:1, renormalized over non-empty types)",
+                security: [], // public — no token needed
                 responses: {
                     "200": { description: "A random answer" },
                     "404": { description: "No answers configured" },
@@ -1079,6 +1290,7 @@ const spec = {
             get: {
                 tags: ["8-Ball"],
                 summary: "List all 8-ball answers, ordered by type then id",
+                security: [], // public — no token needed
                 responses: { "200": { description: "Array of answers" } },
             },
             post: {
@@ -1118,6 +1330,43 @@ const spec = {
                     "401": { description: "Unauthorized" },
                     "403": { description: "Forbidden — not an admin" },
                     "404": { description: "Not found" },
+                },
+            },
+        },
+        "/search": {
+            get: {
+                tags: ["Search"],
+                summary: "Unified keyword search across characters, species, items, transcript messages, and story lines, grouped by category",
+                security: [], // public — no token needed
+                parameters: [
+                    { name: "q", in: "query", required: true, schema: { type: "string" } },
+                    {
+                        name: "limit",
+                        in: "query",
+                        schema: { type: "integer", default: 5, minimum: 1, maximum: 50 },
+                        description: "Per-category result cap in grouped mode (self-clamped to 20 there); page size in single-category mode (clamped to 50)",
+                    },
+                    {
+                        name: "category",
+                        in: "query",
+                        schema: { type: "string", enum: ["messages", "storyLines"] },
+                        description: "When set, switches to paginated single-category mode ({data,total,page,limit}) instead of the grouped response — backs the dedicated search-results page",
+                    },
+                    {
+                        name: "page",
+                        in: "query",
+                        schema: { type: "integer", default: 1, minimum: 1 },
+                        description: "Only used when category is set",
+                    },
+                ],
+                responses: {
+                    "200": {
+                        description: "Results grouped by category, or a paginated single category when ?category is set",
+                        content: {
+                            "application/json": { schema: { $ref: "#/components/schemas/SearchResults" } },
+                        },
+                    },
+                    "400": { description: "Missing q" },
                 },
             },
         },

@@ -1,7 +1,8 @@
 /**
  * Whole-bucket refresh of the wiki cache (see PLAN-wiki-cache.md). One
  * `.limit(500).run()` pull per bucket retrieves every row given current
- * bucket sizes (characters 30, species 37, items 8) — no pagination needed.
+ * bucket sizes (characters 58, species 43, items 9 as of 2026-10) — no
+ * pagination needed.
  * Upserts a positive entry for every row the wiki returns, and a negative
  * entry for every DB slug that didn't come back — negatives and positives
  * fall out of the same pass. Standalone script; cron/schedule wiring is a

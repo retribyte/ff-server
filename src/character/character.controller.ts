@@ -193,7 +193,12 @@ const initializeCharacterRoutes = (): Router => {
     // POST /api/characters: Create a new character
     router.post("/characters", authenticate, async (req: Request, res: Response) => {
         try {
-            const character = await characterService.createCharacter({ ...req.body, creatorId: req.user!.id });
+            // Admins (the importer) may attribute a character to the player who voices it
+            const creatorId =
+                req.user!.role === UserRole.ADMIN && Number.isInteger(req.body?.creatorId)
+                    ? req.body.creatorId
+                    : req.user!.id;
+            const character = await characterService.createCharacter({ ...req.body, creatorId });
             res.status(201).json({ status: "success", data: character });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });

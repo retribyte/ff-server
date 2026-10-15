@@ -1,0 +1,16 @@
+meta {
+  name: Search missing q
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:3000/api/search
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -34,7 +34,10 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
 - Schema changes go through **`npx prisma db push`** — `prisma/migrations/` is
   present but empty; this project isn't using versioned migrations day to day
   despite NFR-REL-2's aspiration. Run `npx prisma generate` after any schema
-  edit.
+  edit. `db push` can't see or manage the GIN expression indexes behind
+  `/api/search`'s full-text search (Prisma has no syntax for expression
+  indexes) — run `npm run db:search-indexes` after every `db push` too; it's
+  idempotent and safe to re-run.
 
 ## Architecture
 
@@ -51,6 +54,32 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   each controller by comparing `req.user.id` to the record's `creatorId` —
   there's no shared ownership-middleware helper. The frontend never sees this
   token directly; `ff-site` wraps it in an httpOnly cookie itself.
+  - The JWT carries only `{id, username, role}`; `authenticate` reloads the
+    user from the DB on every request (so `req.user` is never stale) and
+    rejects tokens issued before `passwordChangedAt` and accounts with
+    `loginDisabled`. While `mustChangePassword` is set, `authenticate` refuses
+    every non-GET request — only `PUT /api/user/password` (behind
+    `authenticateAllowingPasswordChange`) gets through.
+  - Usernames are fixed: the archive import maps transcript players to
+    accounts by username. Rename players in the archive's
+    `meta/<season>.json` `usernames` map before seeding, not in the app.
+  - Seeded player accounts get `mustChangePassword`; system accounts get
+    `loginDisabled`. `npm run golive:flag-accounts` applies the same flags to
+    an existing DB (idempotent — skips anyone who already changed their
+    password). In dev, clear the flag with SQL if you don't want the forced
+    change: `UPDATE "User" SET "mustChangePassword" = false;`
+  - Avatars come from booru.vortox.space (Shimmie2): users pick a post ID
+    (`iconBooruId`), and `src/utils/booru.ts` resolves it to an image URL via
+    the Danbooru-compatible API, stored in `icon`. `BOORU_URL` configures it
+    (optional `BOORU_USER`/`BOORU_PASSWORD` go along as Basic auth — Shimmie
+    has no API keys). The live booru sits behind a Cloudflare bot challenge;
+    `IMAGE_KEY` is sent as the `x-image-key` header, which Cloudflare lets
+    through. Without it, lookups fail (502).
+  - System accounts (`prisma/system-accounts.ts`: the Archivist, the FF 8 Ball
+    bot) are `loginDisabled` in the seed and the go-live script.
+  - `npm run docs` lints the OpenAPI spec (`scripts/lint-openapi.ts` dumps
+    `src/openapi.ts` to JSON for Redocly). Public operations declare
+    `security: []` explicitly.
 - **Response envelope**, every JSON response: `{ status: "success", data }` or
   `{ status: "error", message }`. Never leak raw Prisma objects or stack
   traces.
@@ -68,15 +97,22 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   rich text (character blurbs, species descriptions, item descriptions,
   commentary) goes through `sanitizeText()` before storage.
 - `prisma/seed.ts` is the orchestrator: wipes all data, then runs
-  `SEED_SCRIPTS` (`seed-legacy.ts`, `seed-8ball.ts`, `seed-galaxy.ts`) as
-  child processes, skipping (not aborting) any that fail or don't exist on
-  disk — `seed-galaxy.ts` is currently in that list but not present in the
-  repo, and is expected to just be skipped. `seed:legacy` replays the real
-  archive from `ff-site-old`'s bundled JSON (`FF_SITE_DIR`, default
-  `../ff-site-old`) — **only safe against an empty DB**, don't rerun against a
-  live dev database with user-authored content. `migrate-vm-to-story.ts` and
-  `backfill-slugs.ts` are one-off historical migration scripts, already run
-  against the live data; treat them as reference, not as repeatable tooling.
+  `SEED_SCRIPTS` (`seed-legacy.ts`, persona/character-data scripts,
+  `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `create-search-indexes.ts`) as child processes, skipping (not aborting) any
+  that fail or don't exist on disk — `seed-galaxy.ts` is currently in that
+  list but not present in the repo, and is expected to just be skipped.
+  `seed:legacy` replays the real archive from `ff-site-old`'s bundled JSON
+  (`FF_SITE_DIR`, default `../ff-site-old`) — **only safe against an empty
+  DB**, don't rerun against a live dev database with user-authored content.
+  Character colors/avatars/blurbs/species and user color/icon/bio that have no
+  other source live in `prisma/seed-data/{characters,users}.json`, applied by
+  `seed-overlay.ts`; after editing records in the site, `npm run export:overlay`
+  rewrites those files from the dev DB so the change can be committed.
+  `migrate-vm-to-story.ts` and `backfill-slugs.ts` are one-off historical
+  migration scripts, already run against the live data; treat them as
+  reference, not as repeatable tooling. `create-search-indexes.ts` is
+  different in kind from those two — it's idempotent by design and must stay
+  re-runnable (see its header comment and the `db push` bullet above).
 
 ## Conventions
 

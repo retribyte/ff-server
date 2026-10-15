@@ -1,0 +1,138 @@
+{
+    "asier": {
+        "color": "#A69C66",
+        "image": "/avatars/asier.png"
+    },
+    "bail_starlight": {
+        "color": "#FFF8B5",
+        "image": "/avatars/bail.png"
+    },
+    "bellow_brightlight": {
+        "color": "#2D377A",
+        "image": "/avatars/bellow.png"
+    },
+    "dakari": {
+        "color": "#d1734b",
+        "blurb": "A ninja hedgehog pokemon."
+    },
+    "danny": {
+        "image": "/avatars/danny.png"
+    },
+    "dr_jorpa": {
+        "blurb": "Emmett's nice doctor."
+    },
+    "dutch_elkins": {
+        "color": "#0000FF",
+        "image": "/avatars/dutch.png",
+        "blurb": "A country bumpkin bouncing baby bandit."
+    },
+    "edmin_kalvanzas": {
+        "color": "#A9BA5A"
+    },
+    "emmett_tawfeek": {
+        "color": "#62DE2C",
+        "image": "/avatars/emmett.png",
+        "blurb": "The galaxy's scapesquoat."
+    },
+    "ff_8_ball": {
+        "color": "#ce78ff",
+        "image": "/avatars/ff8ball.png"
+    },
+    "garrick": {
+        "color": "#5269FF",
+        "image": "/avatars/garrick.png",
+        "blurb": "A kleptomanic poltergeist."
+    },
+    "ibraxas": {
+        "color": "#CC7D00",
+        "image": "/avatars/ibraxas.png"
+    },
+    "iris_bellatoria": {
+        "color": "#20A0FF",
+        "image": "/avatars/iris.png",
+        "blurb": "The hybrid queen of the light elves."
+    },
+    "jess": {
+        "blurb": "An ottori stowaway."
+    },
+    "jim_johnson": {
+        "color": "#4B8BBE",
+        "image": "/avatars/jim.png"
+    },
+    "kyl300": {
+        "color": "#a66ade",
+        "image": "/avatars/kyl300.png"
+    },
+    "lucian_blackwater": {
+        "image": "/avatars/lucian.png"
+    },
+    "marv": {
+        "blurb": "The street-smart dynamo of the Ravens."
+    },
+    "mateo_krovak": {
+        "color": "#50DDFF",
+        "blurb": "A steel shapeshifter."
+    },
+    "matthias_lewkey": {
+        "color": "#50DDFF",
+        "image": "/avatars/matthias.png"
+    },
+    "morra": {
+        "color": "#FF00FF",
+        "image": "/avatars/morra.png"
+    },
+    "odran": {
+        "blurb": "The prim-and-proper mediator of the Ravens."
+    },
+    "olag": {
+        "blurb": "A slimy suspicious mechanic."
+    },
+    "ravens_leader": {
+        "blurb": "The spiteful leader of the Ravens."
+    },
+    "rawley": {
+        "color": "#CACA00",
+        "image": "/avatars/rawley.png"
+    },
+    "sanya_dreadflower": {
+        "color": "#C82020",
+        "image": "/avatars/sanya.png",
+        "blurb": "An edgy plant person with a demigod on her head."
+    },
+    "sascha": {
+        "blurb": "The pragmatic tactician of the Ravens."
+    },
+    "serpile": {
+        "image": "/avatars/serpile.png"
+    },
+    "seth_imkinki": {
+        "color": "#FF5050",
+        "image": "/avatars/seth.png",
+        "blurb": "A forever lustful, insane elf."
+    },
+    "valentina": {
+        "color": "#FFD080"
+    },
+    "vargas": {
+        "color": "#FFFFFF"
+    },
+    "vec": {
+        "color": "#6A2087",
+        "blurb": "A fungus who really doesn't want to be among us."
+    },
+    "victor_chomsky": {
+        "color": "#ff9900",
+        "image": "/avatars/chomsky.png",
+        "blurb": "A pink-haired arsonist with righteous intentions."
+    },
+    "wes": {
+        "color": "#BB54FF",
+        "image": "/avatars/wes.png",
+        "blurb": "A lizard racer with celebrity fame."
+    },
+    "zion_daybreaker": {
+        "color": "#00D2F4",
+        "image": "/avatars/zion.png",
+        "blurb": "A robotic angel with a chip on his shoulder."
+    }
+}

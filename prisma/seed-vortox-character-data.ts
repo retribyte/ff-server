@@ -46,6 +46,7 @@
  * Run with: npm run seed:vortox-character-data
  */
 import { PrismaClient } from "@prisma/client";
+import { sanitizeText } from "../src/utils/sanitize.js";
 
 const prisma = new PrismaClient();
 
@@ -72,10 +73,10 @@ const BLURBS_BY_SLUG: Record<string, string> = {
 };
 
 // Only the two characters with no color anywhere in the legacy data — see
-// the file-header comment for why Garrick/Emmett/Seth aren't here.
+// the file-header comment for why Garrick/Emmett/Seth aren't here. (Dutch's
+// vortox-bot color #1B006A was superseded by seed-character-colors.ts.)
 const COLORS_BY_SLUG: Record<string, string> = {
     vec: "#6A2087",
-    dutch_elkins: "#1B006A",
 };
 
 async function backfillField(
@@ -86,7 +87,9 @@ async function backfillField(
     let skippedExisting = 0;
     let missing = 0;
 
-    for (const [slug, value] of Object.entries(fieldsBySlug)) {
+    for (const [slug, raw] of Object.entries(fieldsBySlug)) {
+        // Blurbs are rendered as HTML, so they get the same sanitizing as API writes
+        const value = field === "blurb" ? sanitizeText(raw) : raw;
         const character = await prisma.character.findUnique({ where: { slug } });
         if (!character) {
             console.log(`No character with slug '${slug}' — skipping.`);
