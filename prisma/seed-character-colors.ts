@@ -43,6 +43,12 @@ const COLORS_BY_SLUG: Record<string, string> = {
     morra: "#ff00ff",
     dutch_elkins: "#6666ff",
     bellow_brightlight: "#70a89d",
+    // Ravens: ink colors from "Any Means Necessary." (Odran, Sascha; the leader is
+    // uncolored black) and "Everything Was Okay." (Marv). Used as-is, not lightened.
+    ravens_leader: "#000000",
+    odran: "#990000",
+    marv: "#38761d",
+    sascha: "#1155cc",
 };
 
 async function main() {
