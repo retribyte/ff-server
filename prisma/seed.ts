@@ -19,6 +19,7 @@ const SEED_SCRIPTS = [
     "seed-buzzcut-persona.ts",
     "seed-sanya-persona.ts",
     "seed-vortox-character-data.ts",
+    "seed-vortox-weapons.ts",
     "seed-character-colors.ts",
     "seed-species.ts",
     "seed-overlay.ts",
