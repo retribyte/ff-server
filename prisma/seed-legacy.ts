@@ -126,6 +126,9 @@ const DISTINCT_FROM_LEGACY_KEY = new Set(["Edwin"]);
 // md-to-api.py maps the name at conversion, but FF4 episodes still converted
 // straight from the Discord JSON name "Vortox" as the player.
 const PLAYER_ALIASES: Record<string, string> = { Vortox: "FF 8 Ball" };
+
+// Accounts for story authors with no transcript messages (see the Users block)
+const STORY_ONLY_AUTHORS = ["Eve"];
 // Reverse direction -- cyoa.json (also an unconverted ff-site-old asset)
 // still names these speakers by their old short name, same as the color
 // table. Canonicalize any legacy short name seen in CYOA data up front so
@@ -248,6 +251,9 @@ async function main() {
 
     // -- Users: every player seen across all seasons, plus the Archivist (CYOA author) --
     const playerNames = new Set<string>(allMessages.map((m) => m.player));
+    // Story authors who never played in an archived season, so no message
+    // would otherwise create their account (Eve wrote the T&L stories)
+    for (const name of STORY_ONLY_AUTHORS) playerNames.add(name);
 
     const userIds = new Map<string, number>();
     for (const name of [...playerNames].sort()) {
@@ -403,7 +409,8 @@ async function main() {
                 title: "Vortox Machina",
                 blurb:
                     "A VCOMM broadcast from Emmett, last known Squoatling, lost in space. The choose-your-own-adventure chronicle.",
-                authorId: archivist.id,
+                // CYOA built collaboratively in the chronicle; Zander ran it
+                authors: { connect: [{ id: archivist.id }, ...(userIds.has("Zander") ? [{ id: userIds.get("Zander")! }] : [])] },
                 themeColor: "#e8b23b",
                 themeColor2: "#d3612c",
             },

@@ -196,8 +196,7 @@ model Story {
   slug          String         @unique
   title         String         @unique
   blurb         String?
-  author        User?          @relation(fields: [authorId], references: [id])
-  authorId      Int?
+  authors       User[]         // co-written stories have several
   publishedDate DateTime?      // real-world publication; an in-universe date would be a GUY Int
   themeColor    String?
   themeColor2   String?

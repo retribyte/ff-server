@@ -220,7 +220,14 @@ const spec = {
                     slug: { type: "string" },
                     title: { type: "string" },
                     blurb: { type: "string", nullable: true },
-                    authorId: { type: "integer", nullable: true },
+                    authors: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: { id: { type: "integer" }, username: { type: "string" }, icon: { type: "string", nullable: true } },
+                        },
+                    },
+                    authorIds: { type: "array", items: { type: "integer" }, writeOnly: true, description: "Replaces the author list on update" },
                     publishedDate: { type: "string", format: "date-time", nullable: true },
                     themeColor: { type: "string", nullable: true },
                     themeColor2: { type: "string", nullable: true },
@@ -820,7 +827,7 @@ const spec = {
             },
             post: {
                 tags: ["Seasons"],
-                summary: "Create a season",
+                summary: "Create a season (admin only)",
                 security: [{ bearerAuth: [] }],
                 requestBody: {
                     required: true,
@@ -906,7 +913,7 @@ const spec = {
             },
             post: {
                 tags: ["Episodes"],
-                summary: "Create an episode within a season",
+                summary: "Create an episode within a season (admin only)",
                 security: [{ bearerAuth: [] }],
                 requestBody: {
                     required: true,
@@ -987,7 +994,7 @@ const spec = {
             },
             put: {
                 tags: ["Messages"],
-                summary: "Update a message",
+                summary: "Update a message (admin only)",
                 security: [{ bearerAuth: [] }],
                 parameters: [
                     { name: "episodeTitle", in: "path", required: true, schema: { type: "string" } },
@@ -1082,7 +1089,7 @@ const spec = {
             },
             post: {
                 tags: ["Stories"],
-                summary: "Create a story",
+                summary: "Create a story (admin only)",
                 security: [{ bearerAuth: [] }],
                 requestBody: {
                     required: true,
@@ -1095,7 +1102,7 @@ const spec = {
                                     slug: { type: "string", pattern: "^[a-z0-9]+(_[a-z0-9]+)*$" },
                                     title: { type: "string" },
                                     blurb: { type: "string" },
-                                    authorId: { type: "integer" },
+                                    authorIds: { type: "array", items: { type: "integer" }, description: "User ids credited as authors" },
                                     publishedDate: { type: "string", format: "date-time" },
                                     themeColor: { type: "string" },
                                     themeColor2: { type: "string" },
@@ -1138,7 +1145,7 @@ const spec = {
         "/stories/{slug}/chapters": {
             post: {
                 tags: ["Stories"],
-                summary: "Add a chapter (auto-numbered when chapter_no omitted)",
+                summary: "Add a chapter (auto-numbered when chapter_no omitted) (admin only)",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
                 requestBody: {
@@ -1160,7 +1167,7 @@ const spec = {
         "/stories/{slug}/chapters/{chapterNo}": {
             put: {
                 tags: ["Stories"],
-                summary: "Retitle a chapter",
+                summary: "Retitle a chapter (admin only)",
                 security: [{ bearerAuth: [] }],
                 parameters: [
                     { name: "slug", in: "path", required: true, schema: { type: "string" } },
@@ -1202,7 +1209,7 @@ const spec = {
             },
             post: {
                 tags: ["Stories"],
-                summary: "Bulk-append lines to a chapter",
+                summary: "Bulk-append lines to a chapter (admin only)",
                 security: [{ bearerAuth: [] }],
                 parameters: [
                     { name: "slug", in: "path", required: true, schema: { type: "string" } },
@@ -1228,7 +1235,7 @@ const spec = {
         "/stories/{slug}/chapters/{chapterNo}/lines/{lineNo}": {
             put: {
                 tags: ["Stories"],
-                summary: "Update a line",
+                summary: "Update a line (admin only)",
                 security: [{ bearerAuth: [] }],
                 parameters: [
                     { name: "slug", in: "path", required: true, schema: { type: "string" } },

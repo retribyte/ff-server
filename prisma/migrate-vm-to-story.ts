@@ -85,7 +85,7 @@ async function main() {
             title: VM_TITLE,
             blurb:
                 "A VCOMM broadcast from Emmett, last known Squoatling, lost in space. The choose-your-own-adventure chronicle.",
-            authorId: archivist.id,
+            authors: { connect: [{ id: archivist.id }] },
             themeColor: "#e8b23b",
             themeColor2: "#d3612c",
             // Explicit, not relying on the schema default (which is PROSE) —

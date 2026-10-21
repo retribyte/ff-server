@@ -15,7 +15,7 @@ type StoryData = {
     slug: string;
     title: string;
     blurb?: string | null;
-    authorId?: number | null;
+    authorIds?: number[]; // empty = uncredited
     publishedDate?: string | null;
     themeColor?: string | null;
     themeColor2?: string | null;
@@ -34,7 +34,7 @@ type LineData = {
 const VALID_LINE_TYPES = new Set<string>(Object.values(StoryLineType));
 const VALID_FORMATS = new Set<string>(Object.values(StoryFormat));
 
-const AUTHOR_SELECT = { select: { id: true, username: true, icon: true } };
+const AUTHORS_LIST = { orderBy: { username: "asc" as const }, select: { id: true, username: true, icon: true } };
 const SEASON_SELECT = { select: { title: true, slug: true } };
 const CHAPTER_LIST = {
     orderBy: { chapter_no: "asc" as const },
@@ -76,14 +76,14 @@ async function getAllStories(search?: string, season?: string) {
     return await prisma.story.findMany({
         where,
         orderBy: { title: "asc" },
-        include: { author: AUTHOR_SELECT, season: SEASON_SELECT, chapters: CHAPTER_LIST },
+        include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
     });
 }
 
 async function getStoryBySlug(slug: string) {
     return await prisma.story.findUnique({
         where: { slug },
-        include: { author: AUTHOR_SELECT, season: SEASON_SELECT, chapters: CHAPTER_LIST },
+        include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
     });
 }
 
@@ -99,6 +99,13 @@ function validateStoryData(data: StoryData, requireAll: boolean) {
     if (data.format !== undefined && !VALID_FORMATS.has(data.format)) {
         throw new Error(`format must be one of ${[...VALID_FORMATS].join(", ")}`);
     }
+}
+
+function authorRefs(ids: unknown): { id: number }[] {
+    if (!Array.isArray(ids) || !ids.every((id) => Number.isInteger(id))) {
+        throw new Error("authorIds must be an array of user ids");
+    }
+    return ids.map((id) => ({ id }));
 }
 
 /** Season title or slug -> title. undefined passes through (no change), null clears. */
@@ -120,14 +127,14 @@ async function createStory(data: StoryData) {
             slug: data.slug,
             title: data.title,
             blurb: data.blurb ?? null,
-            authorId: data.authorId ?? null,
+            authors: data.authorIds ? { connect: authorRefs(data.authorIds) } : undefined,
             publishedDate: data.publishedDate ? new Date(data.publishedDate) : null,
             themeColor: data.themeColor ?? null,
             themeColor2: data.themeColor2 ?? null,
             format: data.format ?? undefined,
             seasonTitle: seasonTitle ?? null,
         },
-        include: { author: AUTHOR_SELECT, season: SEASON_SELECT, chapters: CHAPTER_LIST },
+        include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
     });
 }
 
@@ -141,7 +148,7 @@ async function updateStory(slug: string, data: Partial<StoryData>) {
             slug: data.slug,
             title: data.title,
             blurb: data.blurb,
-            authorId: data.authorId,
+            authors: data.authorIds !== undefined ? { set: authorRefs(data.authorIds) } : undefined,
             publishedDate: data.publishedDate !== undefined
                 ? (data.publishedDate ? new Date(data.publishedDate) : null)
                 : undefined,
@@ -150,7 +157,7 @@ async function updateStory(slug: string, data: Partial<StoryData>) {
             format: data.format,
             seasonTitle,
         },
-        include: { author: AUTHOR_SELECT, season: SEASON_SELECT, chapters: CHAPTER_LIST },
+        include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
     });
 }
 

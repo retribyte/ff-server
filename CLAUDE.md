@@ -48,6 +48,11 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
     every species assignment.
   - `rename-alias-to-persona.sql`: Alias → Persona. Needed if an `aliases`
     table still exists.
+  - `story-authors-to-many.sql` (2026-10): `Story.authorId` →
+    `Story.authors` many-to-many (`_StoryToUser`). Needed if `stories` still
+    has an `authorId` column. Afterwards, `npm run backfill:story-authors`
+    sets each story's authors from its manuscript's `authors:` frontmatter
+    (re-runnable).
 
   Run with `docker exec -i ff-server-db-1 psql -U <user> <db> < prisma/<script>.sql`,
   then `db push`, `prisma generate`, `npm run db:search-indexes`.
