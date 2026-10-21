@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import { UserRole } from "@prisma/client";
 import messageService from "./message.service.js";
 import characterService from "../character/character.service.js";
-import { authenticate } from "../auth/security.middleware.js";
+import { authenticate, isAdmin } from "../auth/security.middleware.js";
 
 // Shared body validation + ownership check for the two bulk persona-stamp
 // routes below. Returns the resolved character on success, or writes an
@@ -86,7 +86,7 @@ const initializeMessageRoutes = (): Router => {
 
     // POST /api/episodes/:episodeTitle/messages: Append message(s) to an episode.
     // Accepts a single message object, or { messages: [...] } for bulk transcript import.
-    router.post("/episodes/:episodeTitle/messages", authenticate, async (req: Request, res: Response) => {
+    router.post("/episodes/:episodeTitle/messages", authenticate, isAdmin, async (req: Request, res: Response) => {
         const { episodeTitle } = req.params;
         try {
             if (Array.isArray(req.body?.messages)) {
@@ -101,7 +101,7 @@ const initializeMessageRoutes = (): Router => {
     });
 
     // PUT /api/episodes/:episodeTitle/messages/:messageNo: Update a message by episode and sequence number
-    router.put("/episodes/:episodeTitle/messages/:messageNo", authenticate, async (req: Request, res: Response) => {
+    router.put("/episodes/:episodeTitle/messages/:messageNo", authenticate, isAdmin, async (req: Request, res: Response) => {
         const { episodeTitle } = req.params;
         const messageNo = parseInt(req.params.messageNo, 10);
         try {

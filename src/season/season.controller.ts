@@ -39,7 +39,7 @@ const initializeSeasonRoutes = (): Router => {
     });
 
     // POST /api/seasons: Create a new season
-    router.post("/seasons", authenticate, async (req: Request, res: Response) => {
+    router.post("/seasons", authenticate, isAdmin, async (req: Request, res: Response) => {
         const { title, slug, kind } = req.body;
         if (!title) {
             return res.status(400).json({ status: "error", message: "title is required" });

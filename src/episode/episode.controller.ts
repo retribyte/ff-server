@@ -35,7 +35,7 @@ const initializeEpisodeRoutes = (): Router => {
     });
 
     // POST /api/episodes: Create a new episode within a season
-    router.post("/episodes", authenticate, async (req: Request, res: Response) => {
+    router.post("/episodes", authenticate, isAdmin, async (req: Request, res: Response) => {
         try {
             const episode = await episodeService.createEpisode(req.body);
             res.status(201).json({ status: "success", data: episode });
