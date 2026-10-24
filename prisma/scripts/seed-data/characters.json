@@ -13,12 +13,18 @@
             "novakid"
         ]
     },
+    "bee_emmett": {
+        "image": "/avatars/grass_stalker.png"
+    },
     "bellow_brightlight": {
         "color": "#2D377A",
         "image": "/avatars/bellow.png",
         "species": [
             "entomae"
         ]
+    },
+    "buzzcut": {
+        "image": "/avatars/grass_stalker.png"
     },
     "dakari": {
         "color": "#d1734b",
@@ -64,6 +70,9 @@
         "species": [
             "poltergeist"
         ]
+    },
+    "grass_stalker": {
+        "image": "/avatars/grass_stalker.png"
     },
     "ibraxas": {
         "color": "#CC7D00",
@@ -185,6 +194,9 @@
         "species": [
             "anole"
         ]
+    },
+    "zacharias_smith": {
+        "image": "/avatars/zach.png"
     },
     "zion_daybreaker": {
         "color": "#00D2F4",

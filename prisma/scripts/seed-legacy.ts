@@ -12,7 +12,7 @@
  *     characterColors.json, avatars matched against the pixel-art files
  *     carried over to the new frontend)
  *
- * Assumes an empty database — the wipe lives in prisma/seed.ts, which runs
+ * Assumes an empty database — the wipe lives in prisma/scripts/seed.ts, which runs
  * this script as one step of the full seed. Run standalone with:
  * npm run seed:legacy   (only safe against an already-empty DB)
  *
@@ -28,7 +28,7 @@ import { hashSync } from "bcryptjs";
 import { existsSync, readdirSync, readFileSync, statSync } from "fs";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
-import { slugify } from "../src/utils/slug.js";
+import { slugify } from "../../src/utils/slug.js";
 import { isUnknownSpeaker, resolveVmSpeaker } from "./vm-speakers.js";
 import { SYSTEM_ACCOUNTS } from "./system-accounts.js";
 
@@ -36,15 +36,15 @@ const prisma = new PrismaClient();
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
-const FF_SITE_OLD_DIR = process.env.FF_SITE_OLD_DIR ?? resolve(HERE, "../../ff-site-old");
+const FF_SITE_OLD_DIR = process.env.FF_SITE_OLD_DIR ?? resolve(HERE, "../../../ff-site-old");
 const JSON_DIR = join(FF_SITE_OLD_DIR, "src/assets/json");
 const AVATAR_DIR = join(FF_SITE_OLD_DIR, "src/assets/images/avatars");
 
 function resolveFfSiteDir(): string {
     if (process.env.FF_SITE_DIR) return process.env.FF_SITE_DIR;
-    const primary = resolve(HERE, "../../ff-site");
+    const primary = resolve(HERE, "../../../ff-site");
     if (existsSync(primary)) return primary;
-    return resolve(HERE, "../../ff-site-new");
+    return resolve(HERE, "../../../ff-site-new");
 }
 const ARCHIVE_API_DIR = join(resolveFfSiteDir(), "archive-to-markdown/api");
 

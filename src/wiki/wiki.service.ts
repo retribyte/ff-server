@@ -1,4 +1,4 @@
-// Cache-aside read path over the wiki's Bucket data. See PLAN-wiki-cache.md.
+// Cache-aside read path over the wiki's Bucket data. See docs/notes/PLAN-wiki-cache.md.
 import { Prisma, PrismaClient } from "@prisma/client";
 import { sanitizeText } from "../utils/sanitize.js";
 import { fetchBucketRow, WikiBucket, WikiFetchError } from "./wiki.client.js";
@@ -17,7 +17,7 @@ function isStale(fetchedAt: Date, isNegative: boolean): boolean {
 // `<small>`, stray `[[...]]`) — sanitizeText only strips HTML tags, not
 // wikitext syntax, so template invocations and page links need their own
 // pass. This is deliberately a couple of regexes, not a wikitext parser
-// (out of scope per PLAN-wiki-cache.md) — good enough to keep debris out of
+// (out of scope per docs/notes/PLAN-wiki-cache.md) — good enough to keep debris out of
 // display strings, not a faithful render.
 function stripWikitextDebris(text: string): string {
     return text

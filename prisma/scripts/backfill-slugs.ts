@@ -7,7 +7,7 @@
  * "aliases"/"relationships" tables, no "slug" columns anywhere). This script:
  *   1. backs up every column/table the new schema drops (raw SQL — the
  *      regenerated Prisma client no longer has types for them) to
- *      prisma/lore-backup-<ISO-date>.json
+ *      prisma/scripts/lore-backup-<ISO-date>.json
  *   2. renames characters."themeColor" -> characters."color" (a straight
  *      `db push` would instead drop themeColor and add an empty color column)
  *   3. adds + backfills a "slug" column on characters/species/seasons/
@@ -22,7 +22,7 @@ import { PrismaClient } from "@prisma/client";
 import { writeFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
-import { slugify } from "../src/utils/slug.js";
+import { slugify } from "../../src/utils/slug.js";
 
 const prisma = new PrismaClient();
 

@@ -1,5 +1,5 @@
 /**
- * Whole-bucket refresh of the wiki cache (see PLAN-wiki-cache.md). One
+ * Whole-bucket refresh of the wiki cache (see docs/notes/PLAN-wiki-cache.md). One
  * `.limit(500).run()` pull per bucket retrieves every row given current
  * bucket sizes (characters 58, species 43, items 9 as of 2026-10) — no
  * pagination needed.
@@ -9,8 +9,8 @@
  * separate future decision.
  */
 import { PrismaClient } from "@prisma/client";
-import { fetchWholeBucket, WikiBucket } from "../src/wiki/wiki.client.js";
-import { sanitizeRow, upsertCacheEntry } from "../src/wiki/wiki.service.js";
+import { fetchWholeBucket, WikiBucket } from "../../src/wiki/wiki.client.js";
+import { sanitizeRow, upsertCacheEntry } from "../../src/wiki/wiki.service.js";
 
 const prisma = new PrismaClient();
 

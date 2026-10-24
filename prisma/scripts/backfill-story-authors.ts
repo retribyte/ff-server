@@ -26,9 +26,9 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 // Same lookup as seed-legacy.ts: the checkout is ff-site or ff-site-new
 function resolveFfSiteDir(): string {
     if (process.env.FF_SITE_DIR) return process.env.FF_SITE_DIR;
-    const primary = resolve(HERE, "../../ff-site");
+    const primary = resolve(HERE, "../../../ff-site");
     if (existsSync(primary)) return primary;
-    return resolve(HERE, "../../ff-site-new");
+    return resolve(HERE, "../../../ff-site-new");
 }
 const STORIES_DIR = join(resolveFfSiteDir(), "archive-to-markdown/md/stories");
 

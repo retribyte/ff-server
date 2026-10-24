@@ -153,7 +153,7 @@ model WikiCache {
 
 Given bucket sizes (30/37/8 rows), a single `.limit(500).run()` per bucket
 pulls everything in one request. A script,
-`prisma/refresh-wiki-cache.ts` (same spirit as
+`prisma/scripts/refresh-wiki-cache.ts` (same spirit as
 `wiki/scripts/bucket-refresh.js`), does one pull per bucket, upserts every
 returned row, and writes negative entries for every DB slug that didn't come
 back — negatives and positives fall out of the same pass. Runnable
@@ -201,7 +201,7 @@ through the existing `src/utils/sanitize.ts` **once, at cache-write time**
    against `action=bucket` (dot-chained, anonymous read, short timeout).
 3. `src/wiki/wiki.service.ts` — cache-aside `getWikiData(bucket, slug)` as
    described above.
-4. `prisma/refresh-wiki-cache.ts` — whole-bucket pull per type, upsert
+4. `prisma/scripts/refresh-wiki-cache.ts` — whole-bucket pull per type, upsert
    positives, write negatives for unmatched DB slugs.
 5. Wire `wiki.service.ts` into `character.service.ts` / `species.service.ts`
    / `item.service.ts` `get...ById`/`get...BySlug` — attach the nullable

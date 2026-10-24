@@ -8,7 +8,7 @@
 -- subsequent `db push` is a no-op/near-no-op.
 --
 -- Run BEFORE `npx prisma db push` against the updated schema.prisma:
---   docker exec -i ff-server-db-1 psql -U <user> <db> < prisma/rename-alias-to-persona.sql
+--   docker exec -i ff-server-db-1 psql -U <user> <db> < prisma/scripts/rename-alias-to-persona.sql
 --
 -- Deliberately NOT done here (left to `prisma db push`, which only ADDs
 -- these — no drops, no data loss):

@@ -20,7 +20,7 @@ import { fileURLToPath } from "url";
 
 const prisma = new PrismaClient();
 
-const FF_SITE_DIR = process.env.FF_SITE_DIR ?? resolve(dirname(fileURLToPath(import.meta.url)), "../../ff-site");
+const FF_SITE_DIR = process.env.FF_SITE_DIR ?? resolve(dirname(fileURLToPath(import.meta.url)), "../../../ff-site");
 const CYOA_JSON = join(FF_SITE_DIR, "src/assets/json/cyoa.json");
 
 const VM_TITLE = "Vortox Machina";

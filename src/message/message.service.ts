@@ -79,7 +79,7 @@ type MessageHit = {
 
 // Backs the unified /api/search endpoint. Full-text (not substring) match —
 // stemmed keyword search via to_tsvector/plainto_tsquery, ranked by ts_rank
-// and backed by the GIN expression index from prisma/create-search-indexes.ts
+// and backed by the GIN expression index from prisma/scripts/create-search-indexes.ts
 // (Prisma's @@index can't express an expression index, so this can't live in
 // schema.prisma). The 'english' regconfig literal here must byte-match the
 // index's expression for Postgres to use it — don't parameterize it.

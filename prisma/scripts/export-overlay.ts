@@ -1,6 +1,6 @@
 /**
  * Export the dev DB's character / user presentation data into the committed
- * overlay files that seed-overlay.ts applies (prisma/seed-data/*.json).
+ * overlay files that seed-overlay.ts applies (prisma/scripts/seed-data/*.json).
  *
  * Run after editing records in the site (avatar, color, blurb, species, user
  * icon / color / bio), then commit the diff so every clone gets the same data:

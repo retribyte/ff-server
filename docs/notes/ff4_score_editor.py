@@ -36,7 +36,7 @@ import sys
 import webbrowser
 from pathlib import Path
 
-SOURCE = Path(sys.argv[1] if len(sys.argv) > 1 else "FF4-relevance-scores.md")
+SOURCE = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).parent / "FF4-relevance-scores.md")
 OUTPUT_DEFAULT = SOURCE.with_name(SOURCE.stem + "-edited" + SOURCE.suffix)
 
 CELL_SPLIT = re.compile(r"(?<!\\)\|")

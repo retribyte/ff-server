@@ -42,7 +42,7 @@ actually there.
   + `<feature>.service.ts` (Prisma access + business logic). Controllers never
   call Prisma directly. Each service instantiates its own
   `new PrismaClient()` — there is no shared `prisma.ts` singleton (despite
-  `NEW_STYLE_GUIDE.md` documenting one; that guide was carried over from a
+  `docs/notes/NEW_STYLE_GUIDE.md` documenting one; that guide was carried over from a
   different, unrelated project — see caveat below).
 - All routers mount under `/api` in `src/app.ts`.
 - **Auth**: `Authorization: Bearer <JWT>` header, verified by `authenticate`
@@ -67,7 +67,7 @@ actually there.
 - **HTML sanitization** (`src/utils/sanitize.ts`, NFR-SEC-3): user-submitted
   rich text (character blurbs, species descriptions, item descriptions,
   commentary) goes through `sanitizeText()` before storage.
-- `prisma/seed.ts` is the orchestrator: wipes all data, then runs
+- `prisma/scripts/seed.ts` is the orchestrator: wipes all data, then runs
   `SEED_SCRIPTS` (`seed-legacy.ts`, `seed-8ball.ts`, `seed-galaxy.ts`) as
   child processes, skipping (not aborting) any that fail or don't exist on
   disk — `seed-galaxy.ts` is currently in that list but not present in the
@@ -84,7 +84,7 @@ actually there.
   (`getAll[X]`, `get[X]By[Y]`, `create[X]`, `update[X]`, `delete[X]`), and the
   three-layer error-handling pattern (service throws → controller maps to
   status code → global fallback in `app.ts`) are documented in
-  `NEW_STYLE_GUIDE.md`. **Follow the patterns, not the examples** — that
+  `docs/notes/NEW_STYLE_GUIDE.md`. **Follow the patterns, not the examples** — that
   file's code samples (`song`, `playlist`, `mood`, Spotify OAuth env vars,
   MongoDB) are inherited from an unrelated prior project and don't correspond
   to anything in this codebase. This app has no `song`/`playlist`/`mood`
@@ -101,5 +101,5 @@ actually there.
 
 - `api-tests/` is a Bruno collection (`bruno.json`) with folders per
   resource — use it for manual endpoint exercising; there's no automated
-  request-level test suite yet despite `NEW_STYLE_GUIDE.md` referencing
+  request-level test suite yet despite `docs/notes/NEW_STYLE_GUIDE.md` referencing
   `*.spec.ts` files (none currently exist in `src/`).

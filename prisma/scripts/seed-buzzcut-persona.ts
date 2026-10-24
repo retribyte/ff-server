@@ -16,12 +16,12 @@
  * Zander's untagged third-person narration of what Bee Emmett/Buzzcut
  * *does* — those fall through to his registered cast default, Vec, since
  * there's no `Name:` marker to override. Unlike Hunt520's Jack Madison/
- * Terry (REVIEW-hunt520-terry-zach-jack.md), this can't be fixed with a
+ * Terry (archive-to-markdown/notes/REVIEW-hunt520-terry-zach-jack.md), this can't be fixed with a
  * corpus-wide text-matching rule in discord-json-to-api.py — Zander plays
  * Vec *in the very same episodes*, so any heuristic broad enough to catch
  * "Buzzcut does X" risks also reattributing genuine Vec lines. Handled here
  * instead as an explicit, hand-confirmed (episodeTitle, messageNo) list —
- * see REVIEW-buzzcut-identity.md (in ff-site/archive-to-markdown) for how
+ * see archive-to-markdown/notes/REVIEW-buzzcut-identity.md (in ff-site) for how
  * each one was checked against the raw transcript, and the two similarly-
  * shaped lines deliberately left off this list because Buzzcut is the
  * grammatical *object*, not the actor: Goblinators #906 ("He gives Bee

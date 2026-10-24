@@ -25,7 +25,7 @@
  * Run with: npm run seed:species
  */
 import { Class, PrismaClient } from "@prisma/client";
-import { slugify } from "../src/utils/slug.js";
+import { slugify } from "../../src/utils/slug.js";
 
 const prisma = new PrismaClient();
 

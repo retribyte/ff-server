@@ -46,7 +46,7 @@
  * Run with: npm run seed:vortox-character-data
  */
 import { PrismaClient } from "@prisma/client";
-import { sanitizeText } from "../src/utils/sanitize.js";
+import { sanitizeText } from "../../src/utils/sanitize.js";
 
 const prisma = new PrismaClient();
 

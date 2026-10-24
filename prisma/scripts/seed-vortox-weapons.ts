@@ -24,8 +24,8 @@
  * Run with: npm run seed:vortox-weapons
  */
 import { PrismaClient, ItemType } from "@prisma/client";
-import { sanitizeText } from "../src/utils/sanitize.js";
-import { slugify } from "../src/utils/slug.js";
+import { sanitizeText } from "../../src/utils/sanitize.js";
+import { slugify } from "../../src/utils/slug.js";
 
 const prisma = new PrismaClient();
 

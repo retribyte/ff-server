@@ -39,7 +39,7 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   indexes) — run `npm run db:search-indexes` after every `db push` too; it's
   idempotent and safe to re-run.
 - **Schema changes `db push` would lose data on** ship as a one-shot SQL
-  script in `prisma/`, run against an *existing* DB **before** `db push`
+  script in `prisma/scripts/`, run against an *existing* DB **before** `db push`
   (fresh DBs just `db push` + seed). Check for unapplied ones whenever you
   pull onto another machine:
   - `species-to-many.sql` (2026-10): `Character.speciesId` →
@@ -54,7 +54,7 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
     sets each story's authors from its manuscript's `authors:` frontmatter
     (re-runnable).
 
-  Run with `docker exec -i ff-server-db-1 psql -U <user> <db> < prisma/<script>.sql`,
+  Run with `docker exec -i ff-server-db-1 psql -U <user> <db> < prisma/scripts/<script>.sql`,
   then `db push`, `prisma generate`, `npm run db:search-indexes`.
 
 ## Architecture
@@ -63,7 +63,7 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   + `<feature>.service.ts` (Prisma access + business logic). Controllers never
   call Prisma directly. Each service instantiates its own
   `new PrismaClient()` — there is no shared `prisma.ts` singleton (despite
-  `NEW_STYLE_GUIDE.md` documenting one; that guide was carried over from a
+  `docs/notes/NEW_STYLE_GUIDE.md` documenting one; that guide was carried over from a
   different, unrelated project — see caveat below).
 - All routers mount under `/api` in `src/app.ts`.
 - **Auth**: `Authorization: Bearer <JWT>` header, verified by `authenticate`
@@ -93,7 +93,7 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
     has no API keys). The live booru sits behind a Cloudflare bot challenge;
     `IMAGE_KEY` is sent as the `x-image-key` header, which Cloudflare lets
     through. Without it, lookups fail (502).
-  - System accounts (`prisma/system-accounts.ts`: the Archivist, the FF 8 Ball
+  - System accounts (`prisma/scripts/system-accounts.ts`: the Archivist, the FF 8 Ball
     bot) are `loginDisabled` in the seed and the go-live script.
   - `npm run docs` lints the OpenAPI spec (`scripts/lint-openapi.ts` dumps
     `src/openapi.ts` to JSON for Redocly). Public operations declare
@@ -114,7 +114,7 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
 - **HTML sanitization** (`src/utils/sanitize.ts`, NFR-SEC-3): user-submitted
   rich text (character blurbs, species descriptions, item descriptions,
   commentary) goes through `sanitizeText()` before storage.
-- `prisma/seed.ts` is the orchestrator: wipes all data, then runs
+- `prisma/scripts/seed.ts` is the orchestrator: wipes all data, then runs
   `SEED_SCRIPTS` (`seed-legacy.ts`, persona/character-data scripts,
   `seed-species.ts`, `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `create-search-indexes.ts`) as child processes, skipping (not aborting) any
   that fail or don't exist on disk — `seed-galaxy.ts` is currently in that
@@ -123,7 +123,7 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   (`FF_SITE_DIR`, default `../ff-site-old`) — **only safe against an empty
   DB**, don't rerun against a live dev database with user-authored content.
   Character colors/avatars/blurbs/species and user color/icon/bio that have no
-  other source live in `prisma/seed-data/{characters,users}.json`, applied by
+  other source live in `prisma/scripts/seed-data/{characters,users}.json`, applied by
   `seed-overlay.ts`; after editing records in the site, `npm run export:overlay`
   rewrites those files from the dev DB so the change can be committed.
   `migrate-vm-to-story.ts` and `backfill-slugs.ts` are one-off historical
@@ -138,7 +138,7 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   (`getAll[X]`, `get[X]By[Y]`, `create[X]`, `update[X]`, `delete[X]`), and the
   three-layer error-handling pattern (service throws → controller maps to
   status code → global fallback in `app.ts`) are documented in
-  `NEW_STYLE_GUIDE.md`. **Follow the patterns, not the examples** — that
+  `docs/notes/NEW_STYLE_GUIDE.md`. **Follow the patterns, not the examples** — that
   file's code samples (`song`, `playlist`, `mood`, Spotify OAuth env vars,
   MongoDB) are inherited from an unrelated prior project and don't correspond
   to anything in this codebase. This app has no `song`/`playlist`/`mood`
@@ -155,5 +155,5 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
 
 - `api-tests/` is a Bruno collection (`bruno.json`) with folders per
   resource — use it for manual endpoint exercising; there's no automated
-  request-level test suite yet despite `NEW_STYLE_GUIDE.md` referencing
+  request-level test suite yet despite `docs/notes/NEW_STYLE_GUIDE.md` referencing
   `*.spec.ts` files (none currently exist in `src/`).

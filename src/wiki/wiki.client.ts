@@ -1,5 +1,5 @@
 // Thin client for the wiki's Bucket extension (action=bucket on
-// wiki.vortox.space). See PLAN-wiki-cache.md for the reverse-engineered wire
+// wiki.vortox.space). See docs/notes/PLAN-wiki-cache.md for the reverse-engineered wire
 // format. Reads are anonymous — no bot credentials needed.
 import { isValidSlug } from "../utils/slug.js";
 
@@ -106,7 +106,7 @@ function buildQuery(bucket: WikiBucket, fieldNames: string[], whereSlug: string 
     const fields = fieldNames.map((f) => `"${f}"`).join(",");
     const where = whereSlug !== undefined ? `.where("slug","=","${whereSlug}")` : "";
     // Dots, not colons — the shipped query-builder's __index metamethod
-    // double-binds `self` under colon syntax. See PLAN-wiki-cache.md.
+    // double-binds `self` under colon syntax. See docs/notes/PLAN-wiki-cache.md.
     return `mw.ext.bucket("${bucket}").select(${fields})${where}.limit(${limit}).run()`;
 }
 

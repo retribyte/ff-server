@@ -273,7 +273,7 @@ model EightBallAnswer {
 }
 
 // Cache-aside read of the wiki's Bucket data for characters/species/items
-// (see PLAN-wiki-cache.md). `data: null` is a first-class negative-cache
+// (see docs/notes/PLAN-wiki-cache.md). `data: null` is a first-class negative-cache
 // entry (confirmed "no wiki page"), not an error state — most DB slugs don't
 // have one. TTL is read at query time in wiki.service.ts, not stored per-row.
 model WikiCache {
