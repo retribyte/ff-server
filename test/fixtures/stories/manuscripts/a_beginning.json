@@ -1,0 +1,283 @@
+{
+ "story": {
+  "slug": "a_beginning",
+  "title": "A Beginning",
+  "blurb": "Sanya wakes from a nightmare of her slaughtered crew and a monstrous hunter, then asks KYL300 for a name for the emotion that followed her out of the dream.",
+  "season": "FF2",
+  "format": "PROSE"
+ },
+ "authors": [
+  "Brody"
+ ],
+ "chapters": [
+  {
+   "chapter_no": 1,
+   "title": null,
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "Sanya awoke standing. She didn't remember falling asleep. In fact, the last thing she remembered was heading into her room after Seth's translator broke. She left her room and entered the hallway. As she headed to the cockpit, blood started to flow on the floor. Sanya thought it was just another hunt dream, but as she approached the door to the cockpit, she realized this was much worse. Inside the cockpit was a figure hunched over a body, seemingly eating it. The being stopped, dropped the horn it was gnawing on, and turned to face the Floran."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Around the beast were the corpses of the crew."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Who are you?\" The beast did not reply, but simply leaned down to stare eye-to-eye with Sanya.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "Who are you?"
+      },
+      {
+       "text": "\" The beast did not reply, but simply leaned down to stare eye-to-eye with Sanya."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I am a part of you. I am a part of every Floran.\" The monster did not speak, but the words appeared in Sanya's mind, as if she herself were thinking them up. The ship had disappeared around them, leaving the two in the emptiness of space, headed for a black hole.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Dread",
+       "text": "I am a part of you. I am a part of every Floran."
+      },
+      {
+       "text": "\" The monster did not speak, but the words appeared in Sanya's mind, as if she herself were thinking them up. The ship had disappeared around them, leaving the two in the emptiness of space, headed for a black hole."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I am the hunt. I am the hunter. Yet I am so much more. I am the piece of you that craves blood and finds pleasure in death. And you are the rest.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Dread",
+       "text": "I am the hunt. I am the hunter. Yet I am so much more. I am the piece of you that craves blood and finds pleasure in death. And you are the rest."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"What do you want from me?\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "What do you want from me?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I am the hunter... and everyone else is the prey. Including you.\" Sanya felt something eating away at her stomach, like a pack of wolves. It was an emotion she was not familiar with, but she wanted it to stop. The beast then outstretched its arms and grabbed Sanya.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Dread",
+       "text": "I am the hunter... and everyone else is the prey. Including you."
+      },
+      {
+       "text": "\" Sanya felt something eating away at her stomach, like a pack of wolves. It was an emotion she was not familiar with, but she wanted it to stop. The beast then outstretched its arms and grabbed Sanya."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I am more than just a feeling, more than an image in a dream. I have come here to tell you, Sanya, that he is coming. I am coming.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Dread",
+       "text": "I am more than just a feeling, more than an image in a dream. I have come here to tell you, Sanya, that he is coming. I am coming."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"For while your bloodlust is a part of you, all Floran bloodlust was nothing more than a gift.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Dread",
+       "text": "For while your bloodlust is a part of you, all Floran bloodlust was nothing more than a gift."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"A gift from someone beyond time and space. You owe them. You owe me. And I am coming.\" The monster tightened his grip, and, with one swift movement, ripped Sanya in half.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Dread",
+       "text": "A gift from someone beyond time and space. You owe them. You owe me. And I am coming."
+      },
+      {
+       "text": "\" The monster tightened his grip, and, with one swift movement, ripped Sanya in half."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Be wary, Floran. I am coming.\" The beast then entered the black hole and disappeared.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Dread",
+       "text": "Be wary, Floran. I am coming."
+      },
+      {
+       "text": "\" The beast then entered the black hole and disappeared."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Sanya awoke with a start. She still felt that emotion, the one that ate her up inside. It felt like fear, but someone had given it coffee and steroids. She looked around her room. Nothing seemed out of the ordinary, and KYL was charging."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Robot?\" Kyle faintly glowed as he replied.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "Robot?"
+      },
+      {
+       "text": "\" Kyle faintly glowed as he replied."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Yes, Sanya? What do you want?\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "KYL300",
+       "text": "Yes, Sanya? What do you want?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"What do you know about emotionsss?\" KYL sat up, and thought.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "What do you know about emotionsss?"
+      },
+      {
+       "text": "\" KYL sat up, and thought."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I know nearly every possible emotion. Why do you want to know?\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "KYL300",
+       "text": "I know nearly every possible emotion. Why do you want to know?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I have an emotion I can't underssstand. It feelsss like fear, but worssse.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "I have an emotion I can't underssstand. It feelsss like fear, but worssse."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"There are plenty of emotions like that, you would have to be specific.\" KYL thought some more, and then replied, \"Hmm. My best bet would be Dread.\" Dread. Sanya would remember that feeling, and the monster that made her feel it.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "KYL300",
+       "text": "There are plenty of emotions like that, you would have to be specific."
+      },
+      {
+       "text": "\" KYL thought some more, and then replied, \""
+      },
+      {
+       "speaker": "KYL300",
+       "text": "Hmm. My best bet would be Dread."
+      },
+      {
+       "text": "\" Dread. Sanya would remember that feeling, and the monster that made her feel it."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "She hated dread."
+    }
+   ]
+  }
+ ]
+}

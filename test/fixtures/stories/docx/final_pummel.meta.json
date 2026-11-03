@@ -1,0 +1,23 @@
+{
+ "meta": {
+  "slug": "final_pummel",
+  "title": "Final Pummel",
+  "format": "prose",
+  "season": "FF3",
+  "authors": "Trey, Zander, Brody, Lili",
+  "colors": {
+   "#1c4587": "C1c4587",
+   "#38761d": "C38761d",
+   "#980000": "C980000",
+   "#ff0000": "Cff0000",
+   "#654321": "C654321",
+   "#3d85c6": "C3d85c6",
+   "#666666": "C666666",
+   "#ff9900": "Cff9900",
+   "#bf9000": "Cbf9000"
+  }
+ },
+ "warnings": [
+  "text before the first chapter heading became Chapter 0 — give it a title"
+ ]
+}

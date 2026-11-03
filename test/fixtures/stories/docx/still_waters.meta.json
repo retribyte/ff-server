@@ -1,0 +1,16 @@
+{
+ "meta": {
+  "slug": "still_waters",
+  "title": "Still Waters",
+  "format": "prose",
+  "season": "FF4",
+  "authors": "Trey",
+  "colors": {
+   "#3aa5bd": "C3aa5bd",
+   "#ff00ff": "Cff00ff",
+   "#0000ff": "C0000ff",
+   "#134f5c": "C134f5c"
+  }
+ },
+ "warnings": []
+}

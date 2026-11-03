@@ -1,0 +1,18 @@
+{
+ "meta": {
+  "slug": "deep_pockets",
+  "title": "Deep Pockets",
+  "format": "prose",
+  "season": "FF3",
+  "authors": "Trey",
+  "colors": {
+   "#1c4587": "C1c4587",
+   "#38761d": "C38761d",
+   "#666666": "C666666",
+   "#ff88ff": "Cff88ff"
+  }
+ },
+ "warnings": [
+  "prose paragraph contains literal []{}* that may collide with span/emphasis syntax: 'The ghost trailed off and continued to s'"
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "meta": {
+  "slug": "a_quick_break",
+  "title": "A Quick Break",
+  "format": "prose",
+  "season": "FF3",
+  "authors": "Brody",
+  "colors": {
+   "#3d85c6": "C3d85c6",
+   "#980000": "C980000",
+   "#1c4587": "C1c4587",
+   "#073763": "C073763"
+  }
+ },
+ "warnings": []
+}

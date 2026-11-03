@@ -1,0 +1,13 @@
+{
+ "meta": {
+  "slug": "omg_zachs_gay_shocker",
+  "title": "Omg Zach's Gay, Shocker",
+  "format": "prose",
+  "season": "FF4",
+  "authors": "Hunt520",
+  "colors": {}
+ },
+ "warnings": [
+  "prose paragraph contains literal []{}* that may collide with span/emphasis syntax: '“I… just realized I’m trying to pry with'"
+ ]
+}

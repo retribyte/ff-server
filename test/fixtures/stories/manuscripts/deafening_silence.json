@@ -1,0 +1,1140 @@
+{
+ "story": {
+  "slug": "deafening_silence",
+  "title": "Deafening Silence",
+  "blurb": "Zion Daybreaker and Naomi, who grew up together, move from a treehouse promise of a better life to a bitter argument over what they owe the people who hurt them.",
+  "season": "FF4",
+  "format": "PROSE"
+ },
+ "authors": [
+  "Trey"
+ ],
+ "chapters": [
+  {
+   "chapter_no": 1,
+   "title": "Part 1",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "Are you ready, █████?",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Are you ready, █████?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "I’m ready, but what’d you bring me all the way out here for? Come on, show me already!",
+     "segments": [
+      {
+       "speaker": "Naomi",
+       "text": "I’m ready, but what’d you bring me all the way out here for? Come on, show me already!"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Okay… surprise!",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Okay… surprise!"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "gasp The treehouse! ████, you finished it! When did you do this?",
+     "segments": [
+      {
+       "speaker": "Naomi",
+       "text": "gasp",
+       "italic": true
+      },
+      {
+       "speaker": "Naomi",
+       "text": " The treehouse! ████, you finished it! When did you do this?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "I started working last night, after you went to bed.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "I started working last night, after you went to bed."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "This is so awesome! You even got a Tumvolley table! And an HV!? Wait, is that an oven?",
+     "segments": [
+      {
+       "speaker": "Naomi",
+       "text": "This is so awesome! You even got a Tumvolley table! And an HV!? Wait, is that an oven?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Yes, it’s quite intricate actually. There’s a quantum alternator in the back that powers the—",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Yes, it’s quite intricate actually. There’s a quantum alternator in the back that powers the—"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "I love it so much! Thank you, thank you, thank you!",
+     "segments": [
+      {
+       "speaker": "Naomi",
+       "text": "I love it so much! Thank you, thank you, thank you!"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "…you’re welcome, █████. I’m so glad that you like it. Now we can come out here whenever things get unsavory. It’s so remote that not even…",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "…you’re welcome, █████. I’m so glad that you like it. Now we can come out here whenever things get unsavory. It’s so remote that not even…"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "Um, so, what happened at school today?",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Um, so, what happened at school today?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Oh, just the usual… but we learned a little about anatomy. The body is so intricate, but so fragile… in some ways, it’s the toughest machine ever made, but just as easily it can break apart, like it’s nothing.",
+     "segments": [
+      {
+       "speaker": "Naomi",
+       "text": "Oh, just the usual… but we learned a little about anatomy. The body is so intricate, but so fragile… in some ways, it’s the toughest machine ever made, but just as easily it can break apart, like it’s nothing."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "You always were the profound thinker.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "You always were the profound thinker."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Hehehe… you know, it makes me wonder. Maybe I could be a doctor one day? People are all so different, but everyone’s lives are valuable, yeah? Wouldn’t it be great to be able to help people that need it?",
+     "segments": [
+      {
+       "speaker": "Naomi",
+       "text": "Hehehe… you know, it makes me wonder. Maybe I could be a doctor one day? People are all so different, but everyone’s lives are valuable, yeah? Wouldn’t it be great to be able to help people that need it?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The world would be a much better place if everyone was as kind and selfless as you, █████. Though I wish everybody made clear the value their lives held.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "The world would be a much better place if everyone was as kind and selfless as you, █████. Though I wish everybody made clear the value their lives held."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The girls at school make fun of me when I talk like that.",
+     "segments": [
+      {
+       "speaker": "Naomi",
+       "text": "The girls at school make fun of me when I talk like that."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "It’s because you have a big heart. Everyone’s jealous that you’re twice the person they’ll ever be. So forget about those people, alright?",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "It’s because you have a big heart. Everyone’s jealous that you’re twice the person they’ll ever be. So forget about those people, alright?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "…thanks, ████. I don’t feel so bad anymore.",
+     "segments": [
+      {
+       "speaker": "Naomi",
+       "text": "…thanks, ████. I don’t feel so bad anymore."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Oh, and it’s also because you—are—a big dork, you dork! Yeah?",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Oh, and it’s also because you—are—a big dork, you dork! Yeah?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Hahahaha—ugh, don’t tickle me! I thought I told you not to, hehehe!",
+     "segments": [
+      {
+       "speaker": "Naomi",
+       "text": "Hahahaha—ugh, don’t tickle me! I thought I told you not to, hehehe!"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "Do you ever think we’ll be able to really leave the village? Maybe live somewhere… better? Somewhere safe?",
+     "segments": [
+      {
+       "speaker": "Naomi",
+       "text": "Do you ever think we’ll be able to really leave the village? Maybe live somewhere… better? Somewhere safe?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Of course we will. If you want, we’ll move out of here as soon as you’re able to. Find another town, or even build a house all on its own. No more mean people. We could start a new life.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Of course we will. If you want, we’ll move out of here as soon as you’re able to. Find another town, or even build a house all on its own. No more mean people. We could start a new life."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "That’s really possible? We could just… disappear like that?",
+     "segments": [
+      {
+       "speaker": "Naomi",
+       "text": "That’s really possible? We could just… disappear like that?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Sure it is. The world is a big place—the universe is even bigger. Endless lands of opportunity. There’s gotta be some way we can start over. And if not, I’ll make a way.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Sure it is. The world is a big place—the universe is even bigger. Endless lands of opportunity. There’s gotta be some way we can start over. And if not, I’ll make a way."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "…you’d really do that for me?",
+     "segments": [
+      {
+       "speaker": "Naomi",
+       "text": "…you’d really do that for me?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "I would do anything for you, Naomi.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "I would do anything for you, Naomi."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_no": 2,
+   "title": "Part 2",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "“Zion, this is insane!” she exclaimed.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "Zion, this is insane!"
+      },
+      {
+       "text": "” she exclaimed."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Insane—come on, that’s a bit extreme, don’t you think?” he replied.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Insane",
+       "italic": true
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "—come on, that’s a bit extreme, don’t you think?"
+      },
+      {
+       "text": "” he replied."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“No, no I don’t! You can’t just do that, that’s… that’s murder.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "No, no I don’t! You can’t just do that, that’s… that’s murder."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“It isn’t murder, Naomi. It’s justice. It’s what they deserve, you know that.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "It isn’t murder, Naomi. It’s "
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "justice",
+       "italic": true
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": ". It’s what they deserve, you know that."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“That’s—that’s just crazy. You’re saying you want to just kill people like — like it’s no big deal!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "That’s—that’s just crazy. You’re saying you want to just kill people like — like it’s no big deal!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Of course it’s a big deal! It’s a big deal that after all this time, we can finally DO something about our past. After all we’ve been through—isn’t this right?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Of course it’s a big deal! It’s a big deal that after all this time, we can finally DO something about our past. After all we’ve been through—isn’t this "
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "right",
+       "italic": true
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“It’s never right if it involves robbing people’s lives… nobody deserves that.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "It’s never right if it involves robbing people’s lives… nobody deserves that."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“We’d be getting even. An eye for an eye, that’s how it goes, right?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "We’d be getting even. An eye for an eye, that’s how it goes, right?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Sure, if you’re a barbaric earlyman, but I doubt the courts will agree when people’s blood is on our hands!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "Sure, if you’re a barbaric earlyman, but I doubt the courts will agree when people’s blood is on our hands!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“We wouldn’t stick around after! Just put it to rest, make a better life, like we always wanted.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "We wouldn’t stick around after! Just put it to rest, make a better life, like we always wanted."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Zion… look, these people may be evil, but—”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "Zion… look, these people may be evil, but—"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You know, you—you keep saying that word—‘people’—as if it applies here. But no, it doesn’t! It takes a level of humanity to be eligible for that respect. Cruelty,” he took a step forward, “indifference,” another step, “enjoyment of pain and suffering…” and he stopped, “...all disqualifiers.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "You know, you—you keep saying that word—‘people’—as if it applies here. But no, it doesn’t! It takes a level of humanity to be eligible for that respect. Cruelty"
+      },
+      {
+       "text": ",” he took a step forward, “"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "indifference"
+      },
+      {
+       "text": ",” another step, “"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "enjoyment of pain and suffering…"
+      },
+      {
+       "text": "” and he stopped, “"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "...all disqualifiers."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“…I don’t like the way you’re talking, Zion.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "…I don’t like the way you’re talking, Zion."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Let me ask you something, Naomi.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Let me ask you something, Naomi."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“…?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "…?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“When you were a kid, how many nights did you go to bed without a new bruise or broken bone?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "When you were a kid, how many nights did you go to bed without a new bruise or broken bone?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I… I don’t know.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "I… I don’t know."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“One hundred and thirty-six. That’s how many.” He crossed his arms. “Wanna know how I know that? Because I counted every one, just to know how much pain and how many sleepless nights they caused you. You may have forgotten, but I haven’t.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "One hundred and thirty-six. That’s how many."
+      },
+      {
+       "text": "” He crossed his arms. “"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Wanna know how I know that? Because I counted every one, just to know how much pain and how many sleepless nights they caused you. You may have forgotten, but I haven’t."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "“That was a long time ago. Things are different. Times have passed, we’re adults now—and why don’t you act like it? It’s not like we aren’t in the same boat here.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "That was a long time ago. Things are different. Times have passed, we’re adults now—and why don’t you "
+      },
+      {
+       "speaker": "Naomi",
+       "text": "act like it",
+       "italic": true
+      },
+      {
+       "speaker": "Naomi",
+       "text": "? It’s not like we aren’t in the same boat here."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Ah… there it is.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Ah… there it is."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“What?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "What?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I… I really thought you, of all people, would understand. But of course you wouldn’t.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "I… I really thought you, of all people, would understand. But of course you wouldn’t."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“What’s that supposed to mean?” she scoffed.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "What’s that supposed to mean?"
+      },
+      {
+       "text": "” she scoffed."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I’m not like you, Naomi! I’m not like them! That’s the difference between you and me! Despite all that Glahross did to us, at least they still treated you LIKE A PERSON!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "I’m not "
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "like you",
+       "italic": true
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": ", Naomi! I’m not "
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "like them!",
+       "italic": true
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": " That’s the difference between you and me! Despite all that Glahross did to us, at least they still treated you LIKE A PERSON!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“…”"
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I wasn’t a person to them, Naomi! I may as well not even have been alive! You will NEVER understand how degrading it is to spend your life being kicked around like a tin can!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "I wasn’t a "
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "person",
+       "italic": true
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": " to them, Naomi! I may as well not even have been alive! You will NEVER understand how degrading it is to spend your life being kicked around "
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "like a tin can!",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“…Zion, I… I didn’t know.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "…Zion, I… I didn’t know."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“No, but you did! You did know. But you’re more preoccupied with how they could be better, and how there’s always good in them. Why do you care so much about their lives, when they’ve never spared you a SHRED of humanity!?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "No, but you did! You did know. But you’re more preoccupied with how they could be better, and how there’s always good in them. Why do you care so much about their lives, when they’ve never spared you a SHRED of humanity!?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Because they’re living beings! They’re not objects we can bend and break at our will! We’re not Titans, Zion, we’re not the forebears who decide people’s fates! Me and you, we stick together, like we always have, and… and that’s enough. It’s enough that I have you!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "Because they’re "
+      },
+      {
+       "speaker": "Naomi",
+       "text": "living beings!",
+       "italic": true
+      },
+      {
+       "speaker": "Naomi",
+       "text": " They’re not objects we can bend and break at our will! We’re not Titans, Zion, we’re not the forebears who decide people’s fates! Me and you, we stick together, like we always have, and… and that’s enough. It’s enough that I have you!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "He turned away from her. “We were always ‘in it together’ our whole lives, but… but I knew we really weren’t alike.”",
+     "segments": [
+      {
+       "text": "He turned away from her. “"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "We were always ‘in it together’ our whole lives, but… but I knew we really weren’t alike."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“…That’s… still not an excuse. I can’t agree with something like that.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "…That’s… still not an excuse. I can’t agree with something like that."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Yeah, but I know you don’t mean that,” he exclaimed, backing her into a corner. “Even as a kid, I knew you felt the same way. I saw the things you’d write in your journals.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Yeah, but I "
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "know",
+       "italic": true
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": " you don’t mean that"
+      },
+      {
+       "text": ",” he exclaimed, backing her into a corner. “"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Even as a kid, I knew you felt the same way. I saw the things you’d write in your journals."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "She looked away with contempt. “I was a kid thinking about those things. What does that say about you?”",
+     "segments": [
+      {
+       "text": "She looked away with contempt. “"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "I was a kid thinking about those things. What does that say about "
+      },
+      {
+       "speaker": "Naomi",
+       "text": "you",
+       "italic": true
+      },
+      {
+       "speaker": "Naomi",
+       "text": "?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "He was taken aback by this comment, and turned away. “It… it says…” he stammered, “that I care about your feelings! It doesn’t matter if you were a kid, that was real! I know that!”",
+     "segments": [
+      {
+       "text": "He was taken aback by this comment, and turned away. “"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "It… it says…"
+      },
+      {
+       "text": "” he stammered, “"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "that I care about your feelings! It doesn’t matter if you were a kid, that was "
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "real!",
+       "italic": true
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": " I know that!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You don’t!” She pointed at him, and he stepped back. “You have no right to assert that! We did and said stupid things all the time back then. You can’t possibly know what I was thinking from angry scribbles on paper.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "You "
+      },
+      {
+       "speaker": "Naomi",
+       "text": "don’t!",
+       "italic": true
+      },
+      {
+       "text": "” She pointed at him, and he stepped back. “"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "You have no right to assert that! We did and said stupid things all the time back then. You can’t possibly know what I was thinking from angry scribbles on paper."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“We have lived together for over twenty years! I know you better than anyone—better than you know yourself!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "We have lived together for over "
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "twenty years!",
+       "italic": true
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": " I know you better than anyone—better than "
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "you",
+       "italic": true
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": " know "
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "yourself!",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "“…and I thought I knew you.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Naomi",
+       "text": "…and I thought I knew you."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_no": 3,
+   "title": "Part 3",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "It was done.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "It was done."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The fantasies in the back of my mind had played over and over for years, but now, I couldn’t hear them anymore.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "The fantasies in the back of my mind had played over and over for years, but now, I couldn’t hear them anymore."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The agonizing torment, years of desecration, that had fueled my passion for years no longer burned within me.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "The agonizing torment, years of desecration, that had fueled my passion for years no longer burned within me."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "I could not stop myself after I found her like that. The way they desecrated her body, and threw her out as if she was trash. As if she was worthless. As if she was not a person, like they thought of me. The doctors told me there was only so much they could do, but I could not stay and bear to see her end.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "I could not stop myself after I found her like that. The way they desecrated her body, and threw her out as if she was trash. As if she was worthless. As if she was not a person, like they thought of me. The doctors told me there was only so much they could do, but I could not stay and bear to see her end."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "I thought I would feel satisfaction, or vengeance, or even grief. But I don’t feel any of it.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "I thought I would feel satisfaction, or vengeance, or even grief. But I don’t feel any of it."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "As I looked over the destruction of those who forsook me, I could not help but wonder if things could have been different. It was not ambition that brought us here. There was not an objective that pushed these people to their end. This outcome was brought about from pure evil.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "As I looked over the destruction of those who forsook me, I could not help but wonder if things could have been different. It was not ambition that brought us here. There was not an objective that pushed these people to their end. This outcome was brought about from pure evil."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Good and evil. I used to wonder, was there any real distinction? Or is it all fabricated from one’s perspective? Can you separate them, bring them to justice? I used to hear the deliberation in me. I used to feel the defense, and the justification. But I’ve made up my mind, and now I don’t hear anything anymore. I don’t feel anything anymore.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Good and evil. I used to wonder, was there any real distinction? Or is it all fabricated from one’s perspective? Can you separate them, bring them to justice? I used to hear the deliberation in me. I used to feel the defense, and the justification. But I’ve made up my mind, and now I don’t hear anything anymore. I don’t feel anything anymore."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "It’s nothing but silence.",
+     "segments": [
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "It’s nothing but silence."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

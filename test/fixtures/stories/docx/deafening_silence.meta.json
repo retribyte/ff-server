@@ -1,0 +1,16 @@
+{
+ "meta": {
+  "slug": "deafening_silence",
+  "title": "Deafening Silence",
+  "format": "prose",
+  "season": "FF4",
+  "authors": "Trey",
+  "colors": {
+   "#ffffff": "Cffffff",
+   "#ff0000": "Cff0000"
+  }
+ },
+ "warnings": [
+  "prose paragraph contains literal []{}* that may collide with span/emphasis syntax: '*gasp* The treehouse! ████, you finished'"
+ ]
+}

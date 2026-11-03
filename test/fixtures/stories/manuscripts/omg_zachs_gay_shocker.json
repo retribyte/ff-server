@@ -1,0 +1,2619 @@
+{
+ "story": {
+  "slug": "omg_zachs_gay_shocker",
+  "title": "Omg Zach's Gay, Shocker",
+  "blurb": "Hiding in a bar after his crew crashes their ship into a mall, Zach is approached by Jack Madison, a cheerful smuggler's driver who will not take silence for an answer.",
+  "season": "FF4",
+  "format": "PROSE"
+ },
+ "authors": [
+  "Hunt520"
+ ],
+ "chapters": [
+  {
+   "chapter_no": 1,
+   "title": null,
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "Some mall complex, currently under repairs due to an unknown ship flying into it.",
+     "segments": [
+      {
+       "text": "Some mall complex, currently under repairs due to an unknown ship flying into it.",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Seth is currently trying to charm the authorities with an annoyed Zion behind him. The rest of the crew is nonchalant about it, since this is a common occurrence. Zach has a headache, like borderline migraine. He storms off, leaving a worried Bellow with an amused Dutch, who is watching the conversation with the authorities unfold."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zach is annoyed, very annoyed. This is supposed to be a professional crew? How the hell can they be “professional” when they crash into a goddamn mall and then act like nothing happened?! At least Zion is acting appropriately… Zach needs to sit down…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "He finds some bar eventually, he takes a seat without a word, the bartender doesn’t acknowledge him, since Zach never wanted their attention."
+    },
+    {
+     "type": "NARRATION",
+     "text": "(“What the Hell did I get myself into? Is this punishment? God knows that John wouldn’t sic just some random group on me… or did he?”)",
+     "segments": [
+      {
+       "text": "(“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "What the Hell did I get myself into? Is this punishment? God knows that John wouldn’t sic just some random group on me… or did he?",
+       "italic": true
+      },
+      {
+       "text": "”)"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Suddenly a presence appears right next to Zach without warning. He turns his head towards the figure and sees how they smile at the bartender, and then order a drink. Zach gets a good look at them."
+    },
+    {
+     "type": "NARRATION",
+     "text": "A human man, who seems taller, has a blonde crewcut, slightly tan skin, and blue eyes. A white undershirt underneath a red and black letterman jacket paired with light-washed blue jeans and well-worn sneakers. His belt is also home to a laser pistol in its holster. He notices that Zach is staring at him, so he smiles back. Zach is taken aback at that. Just who was this guy… he seems… interesting."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You know, usually when someone sits at a bar, it’s probably because they’re depressed, or getting sloshed.” The man says, and… he has a point.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "You know, usually when someone sits at a bar, it’s probably because they’re depressed, or getting sloshed."
+      },
+      {
+       "text": "” The man says, and… he has a point."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“What, are you a mind reader?” Zach types, the man raises his eyebrows, but doesn’t comment on it.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "What, are you a mind reader?",
+       "italic": true
+      },
+      {
+       "text": "” Zach types, the man raises his eyebrows, but doesn’t comment on it."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Nope! Just know the habits of people.” The man confidently says before taking a drink. “So, can I buy you a drink?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Nope! Just know the habits of people."
+      },
+      {
+       "text": "” The man confidently says before taking a drink. “"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "So, can I buy you a drink?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I don’t drink.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I don’t drink.",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Really? You go to a bar, and not order anything?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Really? You go to a bar, and not order anything?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I mean, you said it yourself, people usually go to bars to be depressed.” Zach types, the faintest hint of a smirk dances on his lips. The man now looks at Zach with intrigue.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I mean, you said it yourself, people usually go to bars to be depressed.",
+       "italic": true
+      },
+      {
+       "text": "” Zach types, the faintest hint of a smirk dances on his lips. The man now looks at Zach with intrigue."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You’re definitely an interesting one.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "You’re definitely an interesting one."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“What gave it away, the fact I don’t talk or the fact I hide my face?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "What gave it away, the fact I don’t talk or the fact I hide my face?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Both really! Why do you hide?” There was no malice in the question, just genuine curiosity. Zach is dumbfounded, just who was this guy?? And why was he so… interesting? The man then squints his eyes and then shrinks into himself, embarrassed.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Both really! Why do you hide?"
+      },
+      {
+       "text": "” There was no malice in the question, just genuine curiosity. Zach is dumbfounded, "
+      },
+      {
+       "text": "just who was this guy?? And why was he so… interesting?",
+       "italic": true
+      },
+      {
+       "text": " The man then squints his eyes and then shrinks into himself, embarrassed."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I… just realized I’m trying to pry without introducing myself! I’m sorry! ahem Hi, I’m Jack Madison. Driver for the Free Handed Trading Company.” Did… did Jack’s smile seem even more… endearing? Zach is so confused… “You know… this is the part where you tell me your name…” How long was Zach spaced out?",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "I… just realized I’m trying to pry without introducing myself! I’m sorry! "
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "ahem",
+       "italic": true
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": " Hi, I’m Jack Madison. Driver for the Free Handed Trading Company."
+      },
+      {
+       "text": "” Did… did Jack’s smile seem even more… endearing? Zach is so confused… “"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "You know… this is the part where you tell me your name…"
+      },
+      {
+       "text": "” How long was Zach spaced out?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Zach”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Zach",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Just Zach?” A nod.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Just Zach?"
+      },
+      {
+       "text": "” A nod."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You are probably the most mysterious person I’ve ever met.” Jack thought out loud.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "You are probably the most mysterious person I’ve ever met."
+      },
+      {
+       "text": "” Jack thought out loud."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I’m sorry?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I’m sorry?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Did I say that out loud?” Another nod. “Um, well… you know my name and now I know yours, mind answering my question?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Did I say that out loud?"
+      },
+      {
+       "text": "” Another nod. “"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Um, well… you know my name and now I know yours, mind answering my question?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Nope. Being hidden is my business, and mine alone” Zach types, almost defensively. Jack gets the message and raises his hands in a placating gesture.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Nope. Being hidden is my business, and mine alone",
+       "italic": true
+      },
+      {
+       "text": "” Zach types, almost defensively. Jack gets the message and raises his hands in a placating gesture."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Alright, alright, I get it. Touchy subject.” Jack tries to smile to defuse the situation… and it worked. “Can I ask a different question?” Now Zach is in a predicament. He could absolutely leave this bar and never look back, leaving Jack to be nothing but a fading memory. But… he could stay, say yes and sit here at this bar with this man who he just met, but doesn’t feel put off. What was this feeling… Curiosity? Or has he finally gone insane with his current crew and is looking for normalcy?",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Alright, alright, I get it. Touchy subject."
+      },
+      {
+       "text": "” Jack tries to smile to defuse the situation… and it worked. “"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Can I ask a different question?"
+      },
+      {
+       "text": "” Now Zach is in a predicament. He could absolutely leave this bar and never look back, leaving Jack to be nothing but a fading memory. But… he could stay, say yes and sit here at this bar with this man who he just met, but doesn’t feel put off. What was this feeling… Curiosity? Or has he finally gone insane with his current crew and is looking for normalcy?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Sure.” Jack’s smile widened. Zach knows he’s in for the long ride… but he doesn’t hate it.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Sure.",
+       "italic": true
+      },
+      {
+       "text": "” Jack’s smile widened. Zach knows he’s in for the long ride… but he doesn’t hate it."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Well, why are you at the bar?” Oh… right… depressed.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Well, why are you at the bar?"
+      },
+      {
+       "text": "” Oh… right… depressed."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Well, you see the ship that’s literally through the wall right now?” Jack turns around to see Seth dabbing on top of the Seraphine while Zion is close to putting a shot through his eyes. Bellow and Dutch finally decide to walk away from the wreckage, and Morra is trying to negotiate with the authorities. The fungus is nowhere to be found… God help those who find it though… Jack raises an eyebrow.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Well, you see the ship that’s literally through the wall right now?",
+       "italic": true
+      },
+      {
+       "text": "” Jack turns around to see Seth dabbing on top of the Seraphine while Zion is close to putting a shot through his eyes. Bellow and Dutch finally decide to walk away from the wreckage, and Morra is trying to negotiate with the authorities. The fungus is nowhere to be found… God help those who find it though… Jack raises an eyebrow."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Yeah… they seem to be an… interesting group…but why point them out?” Zach sighs.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Yeah… they seem to be an… interesting group…but why point them out?"
+      },
+      {
+       "text": "” Zach sighs."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“That’s because I came here with them…” There was a beat of silence.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "That’s because I came here with them…",
+       "italic": true
+      },
+      {
+       "text": "” There was a beat of silence."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“So… that’s your crew?...” Jack asks, a little dumbfounded.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "So… that’s your crew?..."
+      },
+      {
+       "text": "” Jack asks, a little dumbfounded."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Unfortunately…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Unfortunately…",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Well then… quite the entrance you made…” Jack tries to joke, but Zach just lays his head on the bar. Jack sweatdrops. “I’m sure it’s not that bad!” Zach turns his head to face Jack.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Well then… quite the entrance you made…"
+      },
+      {
+       "text": "” Jack tries to joke, but Zach just lays his head on the bar. Jack sweatdrops. “"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "I’m sure it’s not that bad!"
+      },
+      {
+       "text": "” Zach turns his head to face Jack."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Yeah… and I’m sure a prison cell isn’t that bad either!” Jack starts giggling before going on full-on laughter. And though Jack can’t see it, Zach is raising his eyebrow. “What’s so funny?” And why was Jack’s laugh so… endearing? Jack calms down.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Yeah… and I’m sure a prison cell isn’t that bad either!",
+       "italic": true
+      },
+      {
+       "text": "” Jack starts giggling before going on full-on laughter. And though Jack can’t see it, Zach is raising his eyebrow. “"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "What’s so funny?",
+       "italic": true
+      },
+      {
+       "text": "” And why was Jack’s laugh so… endearing? Jack calms down."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Sorry! Sorry! I’m not laughing at you, it’s just…-” Jack points to the authorities. “-those guys aren’t going to do anything, they just yell at you. This entire complex uses the honor system.” Zach raises his head off the bar.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Sorry! Sorry! I’m not laughing at you, it’s just…-"
+      },
+      {
+       "text": "” Jack points to the authorities. “"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "-those guys aren’t going to do anything, they just yell at you. This entire complex uses the honor system."
+      },
+      {
+       "text": "” Zach raises his head off the bar."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Isn’t that dangerous?” Jack shrugs.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Isn’t that dangerous?",
+       "italic": true
+      },
+      {
+       "text": "” Jack shrugs."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“They haven’t had problems before… and besides, no one cares if goods get stolen. Hell, half of the stuff here is stolen.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "They haven’t had problems before… and besides, no one cares if goods get stolen. Hell, half of the stuff here is stolen."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I’m guessing the GU isn’t going to do anything?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I’m guessing the GU isn’t going to do anything?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Well, we are nowhere near GU territory, so no. I’m guessing you were living under the GU?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Well, we are nowhere near GU territory, so no. I’m guessing you were living under the GU?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Yep, but I hated it. That’s why I left.” Why is Zach admitting this? He hasn’t even told the crew… not like they needed to know…",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Yep, but I hated it. That’s why I left.",
+       "italic": true
+      },
+      {
+       "text": "” Why is Zach admitting this? He hasn’t even told the crew… not like they needed to know…"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Oh? Why’s that? Is it because of the war?” Jack inquired. Zach debated… like actually debated on how to answer this.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Oh? Why’s that? Is it because of the war?"
+      },
+      {
+       "text": "” Jack inquired. Zach debated… like actually debated on how to answer this."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You could say that…” Zach decides. Jack nods.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "You could say that…",
+       "italic": true
+      },
+      {
+       "text": "” Zach decides. Jack nods."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Oh well, no use in dwelling on it I suppose…” He takes another drink. “Now then, tell me, what’s your mission?” Jack raises his drink to his lips. Zach goes to type, but then he realizes he doesn’t know. He’s been with them for a bit, but they never told him just what they are doing.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Oh well, no use in dwelling on it I suppose…"
+      },
+      {
+       "text": "” He takes another drink. “"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Now then, tell me, what’s your mission?"
+      },
+      {
+       "text": "” Jack raises his drink to his lips. Zach goes to type, but then he realizes he "
+      },
+      {
+       "text": "doesn’t know",
+       "italic": true
+      },
+      {
+       "text": ". He’s been with them for a bit, but they never told him just what they are doing."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I… don’t know…” Jack almost spits his drink out. Zach almost smiles at that. Finally, the suave guy breaks character… wait… suave?",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I… don’t know…",
+       "italic": true
+      },
+      {
+       "text": "” Jack almost spits his drink out. Zach almost smiles at that. Finally, the suave guy breaks character… wait… "
+      },
+      {
+       "text": "suave",
+       "italic": true
+      },
+      {
+       "text": "?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Cough cough H-how the… cough do you not know what the mission is?” Jack asks, coughing into his elbow. Zach just shrugs.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Cough cough",
+       "italic": true
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": " H-how the… "
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "cough",
+       "italic": true
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": " do you not know what the mission is?"
+      },
+      {
+       "text": "” Jack asks, coughing into his elbow. Zach just shrugs."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I mean… I’ve only been with them for a short while… they just haven’t filled me in yet…” Zach types.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I mean… I’ve only been with them for a short while… they just haven’t filled me in yet…",
+       "italic": true
+      },
+      {
+       "text": "” Zach types."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Usually all the crew gets filled in immediately, no matter how late they join…” Why does Jack sound… empathetic?",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Usually all the crew gets filled in immediately, no matter how late they join…"
+      },
+      {
+       "text": "” Why does Jack sound… empathetic?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“We aren’t exactly the most… put together…” Jack only shrugs.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "We aren’t exactly the most… put together…",
+       "italic": true
+      },
+      {
+       "text": "” Jack only shrugs."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I guess not every crew is perfect.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "I guess not every crew is perfect."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“What about you? You’ve told me nothing about yourself…” Jack looks shocked before flushing pink.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "What about you? You’ve told me nothing about yourself…",
+       "italic": true
+      },
+      {
+       "text": "” Jack looks shocked before flushing pink."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Oh shit! Right, sorry sorry… it’s just that… you’re just… God… just so… interesting.” Thank God Jack can’t see it… but Zach’s ears are now pink. What the? Jack clears his throat.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Oh shit! Right, sorry sorry… it’s just that… you’re just… God… just so… "
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "interesting",
+       "italic": true
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "."
+      },
+      {
+       "text": "” Thank God Jack can’t see it… but Zach’s ears are now pink. What the? Jack clears his throat."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Anyway… right, so! I’m a driver for the Free Handed Trading Company, where we ship anything across places no matter the legality of the cargo!” He says it with pride. Zach is intrigued.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Anyway… right, so! I’m a driver for the Free Handed Trading Company, where we ship anything across places no matter the legality of the cargo!"
+      },
+      {
+       "text": "” He says it with pride. Zach is intrigued."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“And you haven’t been caught?” Jack smiles.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "And you haven’t been caught?",
+       "italic": true
+      },
+      {
+       "text": "” Jack smiles."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Nope!” He takes another drink.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Nope!"
+      },
+      {
+       "text": "” He takes another drink."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Wow…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Wow…",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Impressive, right?” Jack inquired, Zach is conflicted. He’s impressed, but why is he? Is it the fact that even though it’s illegal… Jack just seems… normal.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Impressive, right?"
+      },
+      {
+       "text": "” Jack inquired, Zach is conflicted. He’s impressed, but why is he? Is it the fact that even though it’s illegal… Jack just seems… "
+      },
+      {
+       "text": "normal",
+       "italic": true
+      },
+      {
+       "text": "."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I guess…” Suddenly Zion’s voice rings in Zach’s ear.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I guess…",
+       "italic": true
+      },
+      {
+       "text": "” Suddenly Zion’s voice rings in Zach’s ear."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Ok! So… bad news, ship’s busted, need a few more hours to repair it. Will keep you updated.” The communication cut. Zach lays his head on the bar again. Jack is immediately worried.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Ok! So… bad news, ship’s busted, need a few more hours to repair it. Will keep you updated.",
+       "italic": true
+      },
+      {
+       "text": "” The communication cut. Zach lays his head on the bar again. Jack is immediately worried."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You ok?” The sheer amount of worry is almost overwhelming… but Zach doesn’t hate it…",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "You ok?"
+      },
+      {
+       "text": "” The sheer amount of worry is almost overwhelming… but Zach doesn’t hate it…"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "…."
+    },
+    {
+     "type": "NARRATION",
+     "text": "….."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Fuck it",
+     "segments": [
+      {
+       "text": "Fuck it",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zach needs some goddamn normalcy. He raises his head."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“It’s nothing! Anyway, a person isn’t defined by their career, so! Tell me, what do you do in between jobs?” Jack is confused, but he won’t pry. How considerate!",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "It’s nothing! Anyway, a person isn’t defined by their career, so! Tell me, what do you do in between jobs?",
+       "italic": true
+      },
+      {
+       "text": "” Jack is confused, but he won’t pry. How considerate!"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I’m actually a bit of a reader…” Zach’s heart sped up at that. “Surprising, I know…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "I’m actually a bit of a reader…"
+      },
+      {
+       "text": "” Zach’s heart sped up at that. “"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Surprising, I know…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I mean… yeah, you seem like the sporty type.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I mean… yeah, you seem like the sporty type.",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Oh? Judging people for their looks, are you?” Jack teased, Zach tsked.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Oh? Judging people for their looks, are you?"
+      },
+      {
+       "text": "” Jack teased, Zach tsked."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You did it first, Mr. ‘You are so mysterious.’” Jack opens his mouth to argue, but closes it.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "You did it first, Mr. ‘You are so mysterious.’",
+       "italic": true
+      },
+      {
+       "text": "” Jack opens his mouth to argue, but closes it."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Touché…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Touché…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Oh? Did I get rid of your confidence?” Zach’s turn to tease. Jack just shoots him a look. Zach has half a mind to smile.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Oh? Did I get rid of your confidence?",
+       "italic": true
+      },
+      {
+       "text": "” Zach’s turn to tease. Jack just shoots him a look. Zach has half a mind to smile."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“What about you? What do you do in your free time?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "What about you? What do you do in your free time?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Train.” Jack eyes Oblivion on his back.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Train.",
+       "italic": true
+      },
+      {
+       "text": "” Jack eyes Oblivion on his back."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“That’s all?” Zach nods, Jack frowns.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "That’s all?"
+      },
+      {
+       "text": "” Zach nods, Jack frowns."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You don’t like… take walks? Sightsee? Anything like that?” Zach shakes his head.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "You don’t like… take walks? Sightsee? Anything like that?"
+      },
+      {
+       "text": "” Zach shakes his head."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Usually I get ‘free time’ whenever stuff like that happens.” He points to the Seraphine. “And even before that, I never had free time at all…” Jack stands up.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Usually I get ‘free time’ whenever stuff like that happens.",
+       "italic": true
+      },
+      {
+       "text": "” He points to the Seraphine. “"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "And even before that, I never had free time at all…",
+       "italic": true
+      },
+      {
+       "text": "” Jack stands up."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“That’s unacceptable!” Zach’s confused.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "That’s unacceptable!"
+      },
+      {
+       "text": "” Zach’s confused."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Why?” Jack looks him dead in the eyes… at least that’s how the saying goes.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Why?",
+       "italic": true
+      },
+      {
+       "text": "” Jack looks him dead in the eyes… at least that’s how the saying goes."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Because life’s too short to spend time training. Now let’s go!” Jack grabs Zach’s arm, since when did he get so confident? And why was Zach’s heart going haywire? He starts pulling Zach away. But wait-",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Because life’s too short to spend time training. Now let’s go!"
+      },
+      {
+       "text": "” Jack grabs Zach’s arm, since when did he get so confident? And why was Zach’s heart going haywire? He starts pulling Zach away. But wait-"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Jack! The tab!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Jack! The tab!",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Huh?” Jack turns around to see an unamused bartender. Jack lets go of Zach and smiles, embarrassed. “Oh! My bad!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Huh?"
+      },
+      {
+       "text": "” Jack turns around to see an unamused bartender. Jack lets go of Zach and smiles, embarrassed. “"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Oh! My bad!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Once the tab is paid, Jack then clears his throat."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Now then… you don’t plan on leaving soon… right?” Zach looks over and sees Seth having a Mexican standoff using finger guns with the authorities.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Now then… you don’t plan on leaving soon… right?"
+      },
+      {
+       "text": "” Zach looks over and sees Seth having a Mexican standoff using finger guns with the authorities."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Yep.” Jack lights up at that, Zach finds that… cute?",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Yep.",
+       "italic": true
+      },
+      {
+       "text": "” Jack lights up at that, Zach finds that… cute?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Does that mean I can… show you around? This is my favorite place to hang out at and-”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Does that mean I can… show you around? This is my favorite place to hang out at and-"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Yes” Zach is surprised at just how fast he accepted.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Yes",
+       "italic": true
+      },
+      {
+       "text": "” Zach is surprised at just how fast he accepted."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Great! Let’s go!” Zach has no idea what he’s gotten into, but he doesn’t hate it… what is this feeling?",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Great! Let’s go!"
+      },
+      {
+       "text": "” Zach has no idea what he’s gotten into, but he doesn’t hate it… what is this feeling?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "And so Jack is leading Zach throughout the complex, with Jack listing out the different shops and attractions, while avoiding the Seraphine, as per Zach’s request. The entire time though, Zach’s heart was pounding and his face felt hot. What was happening? Every time Jack would look in his direction, he would smile, and Zach forgets to breathe. Every time Jack would just buy something for Zach, his face only gets hotter. And every time Jack would help someone in need, his heart palpitates."
+    },
+    {
+     "type": "NARRATION",
+     "text": "He’s waiting outside another shop for Jack when he figures it out. Granted, it took him witnessing a couple literally eat each other’s faces off, but he figures it out."
+    },
+    {
+     "type": "NARRATION",
+     "text": "He has a crush on Jack… a man who he literally just met. But he finds him attractive, and wants to have a relationship with him… What the Hell is wrong with him? Jack exits the shop and immediately presents Zach with a sharpening kit. His face is flushed pink and he has one of his hands rubbing the back of his neck and a shy smile on his lips. Zach is staring at him with his mouth slightly agape.",
+     "segments": [
+      {
+       "text": "He has a crush on Jack… a man who he literally "
+      },
+      {
+       "text": "just met",
+       "italic": true
+      },
+      {
+       "text": ". But he finds him attractive, and wants to have a relationship with him… What the Hell is wrong with him? Jack exits the shop and immediately presents Zach with a sharpening kit. His face is flushed pink and he has one of his hands rubbing the back of his neck and a shy smile on his lips. Zach is staring at him with his mouth slightly agape."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "If God is trying to kill Zach via a heart attack… he’s pretty damn close."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I can tell your sword is important to you… so I thought you needed a new kit…” Damn it, he’s considerate too! Zach gulps before taking the kit.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "I can tell your sword is important to you… so I thought you needed a new kit…"
+      },
+      {
+       "text": "” Damn it, he’s considerate too! Zach gulps before taking the kit."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Thanks, I… appreciate it…” Jack chuckles and Zach’s heart melts, and he’s so distracted that he didn’t catch himself from starting to softly laugh too. Jack stops chuckling to just stare.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Thanks, I… appreciate it…",
+       "italic": true
+      },
+      {
+       "text": "” Jack chuckles and Zach’s heart melts, and he’s so distracted that he didn’t catch himself from starting to softly laugh too. Jack stops chuckling to just stare."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Your laugh is beautiful…” Zach immediately stops laughing and turns bright red.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Your laugh is beautiful…"
+      },
+      {
+       "text": "” Zach immediately stops laughing and turns bright red."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“H-huh?” That snaps Jack out of his stupor ’cause now it’s his turn to turn bright red.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "H-huh?",
+       "italic": true
+      },
+      {
+       "text": "” That snaps Jack out of his stupor ’cause now it’s his turn to turn bright red."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“D-did I say that out loud?” Zach couldn’t trust his hands to type, so he just nods. “Sorry… I was taught to be honest at all times…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "D-did I say that out loud?"
+      },
+      {
+       "text": "” Zach couldn’t trust his hands to type, so he just nods. “"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Sorry… I was taught to be honest at all times…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Why are you so… interested in me?” Was it pity? Was it some dumb joke? Gasp is Jack secretly with John and trying to get close to Zach so that he can take him back ho-",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Why are you so… interested in me?",
+       "italic": true
+      },
+      {
+       "text": "” Was it pity? Was it some dumb joke? "
+      },
+      {
+       "text": "Gasp",
+       "italic": true
+      },
+      {
+       "text": " is Jack secretly with John and trying to get close to Zach so that he can take him back ho-"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I like you…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "I like you…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Oh…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "……."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Oh",
+     "segments": [
+      {
+       "text": "Oh",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Jack looks off to the side."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I know we just met and that, but my heart hasn’t stopped pounding since I noticed you at the bar! I’m sorry if it’s creepy but just-”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "I know we just met and that, but my heart hasn’t stopped pounding since I noticed you at the bar! I’m sorry if it’s creepy but just-"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I like you too.” Jack’s head snaps to Zach, who is now blushing. Jack starts laughing lightheartedly, almost like he can’t believe it. Zach smiles, genuinely smiles. They calm down after a minute before Jack reaches for Zach’s hand. Zach complies and Jack takes it in between his own.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I like you too.",
+       "italic": true
+      },
+      {
+       "text": "” Jack’s head snaps to Zach, who is now blushing. Jack starts laughing lightheartedly, almost like he can’t believe it. Zach smiles, genuinely smiles. They calm down after a minute before Jack reaches for Zach’s hand. Zach complies and Jack takes it in between his own."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Listen, I know it’s soon but will you be my bo-”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Listen, I know it’s soon but will you be my bo-"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Human! There you are!” Morra, ever so oblivious to the situation, gets in between them, making Zach drop his smile instantaneously. Really, Morra? They look between the two men. Jack has his hands in his pockets, he looks disappointed. Zach just looks unamused. “Apologies, but am I interrupting something?” At least they are being considerate.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Morra",
+       "text": "Human! There you are!"
+      },
+      {
+       "text": "” Morra, ever so oblivious to the situation, gets in between them, making Zach drop his smile instantaneously. Really, Morra? They look between the two men. Jack has his hands in his pockets, he looks disappointed. Zach just looks unamused. “"
+      },
+      {
+       "speaker": "Morra",
+       "text": "Apologies, but am I interrupting something?"
+      },
+      {
+       "text": "” At least they are being considerate."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Yeah, you were, but you’re here now, so what?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Yeah, you were, but you’re here now, so what?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Ah! Yes… well, the ship is now fixed and the authorities are off our backs! Zion wants to head out now!” Morra says in their usual cheery manner. Zach sighs before looking at Jack… he feels bad.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Morra",
+       "text": "Ah! Yes… well, the ship is now fixed and the authorities are off our backs! Zion wants to head out now!"
+      },
+      {
+       "text": "” Morra says in their usual cheery manner. Zach sighs before looking at Jack… he feels bad."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Ok, I’ll be right behind you, just need to take care of something.” If Morra had an eyebrow, it would be raised, but then they look at Jack again and it clicks.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Ok, I’ll be right behind you, just need to take care of something.",
+       "italic": true
+      },
+      {
+       "text": "” If Morra had an eyebrow, it would be raised, but then they look at Jack again and it clicks."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Don’t be too long now!” They then walked, floated? Just around the corner, leaving the two alone… kind of.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Morra",
+       "text": "Don’t be too long now!"
+      },
+      {
+       "text": "” They then walked, floated? Just around the corner, leaving the two alone… kind of."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "A beat of awkward silence."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“So… you have to leave…” Zach nods… since when can an atmosphere change so quickly? Zach only nods.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "So… you have to leave…"
+      },
+      {
+       "text": "” Zach nods… since when can an atmosphere change so quickly? Zach only nods."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I really did rush into things, did I?” Another nod… “I’m sorry… I’ll leave you be…” He begins to walk away when-",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "I really did rush into things, did I?"
+      },
+      {
+       "text": "” Another nod… “"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "I’m sorry… I’ll leave you be…"
+      },
+      {
+       "text": "” He begins to walk away when-"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I’d love to…” That shocked Jack.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I’d love to…",
+       "italic": true
+      },
+      {
+       "text": "” That shocked Jack."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Really?!” Zach gives a small smile.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Really?!"
+      },
+      {
+       "text": "” Zach gives a small smile."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“It’ll be… difficult. But I’m fully aware of it, I… wouldn’t mind a relationship… Except it wouldn’t work…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "It’ll be… difficult. But I’m fully aware of it, I… wouldn’t mind a relationship… Except it wouldn’t work…",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Why not?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Why not?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Because the moment I leave here, you’ll forget about me… and I doubt we’ll see each other again…” Jack shakes his head.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Because the moment I leave here, you’ll forget about me… and I doubt we’ll see each other again…",
+       "italic": true
+      },
+      {
+       "text": "” Jack shakes his head."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“No, I’ll always remember a face like that!” The sheer confidence of that confused Zach.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "No, I’ll always remember a face like that!"
+      },
+      {
+       "text": "” The sheer confidence of that confused Zach."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“But you don’t know what I look like?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "But you don’t know what I look like?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Exactly!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Exactly!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Either way… I don’t think we would work…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Either way… I don’t think we would work…",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“That’s ’cause you won’t try.” Damn… he got Zach there…",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "That’s ’cause you won’t try."
+      },
+      {
+       "text": "” Damn… he got Zach there…"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Ok… sure, I’ll try it…” God, if Jack smiled any wider, Zach thinks he’ll break.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Ok… sure, I’ll try it…",
+       "italic": true
+      },
+      {
+       "text": "” God, if Jack smiled any wider, Zach thinks he’ll break."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I’ll be the best for you I promise!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "I’ll be the best for you I promise!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Is that what you say to everyone?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Is that what you say to everyone?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Nope! You are the first!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Nope! You are the first!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Sorry to interrupt again, but Human! We must really get going!” Morra says, peering around the corner, Zach looks over and nods before turning back to Jack.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Morra",
+       "text": "Sorry to interrupt again, but Human! We must really get going!"
+      },
+      {
+       "text": "” Morra says, peering around the corner, Zach looks over and nods before turning back to Jack."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I guess that’s my cue… see you later, Jack…” He goes to walk away, but Jack grabs his hand and puts something in it. He then turns Zach’s hand over and kisses it. Zach blushes.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I guess that’s my cue… see you later, Jack…",
+       "italic": true
+      },
+      {
+       "text": "” He goes to walk away, but Jack grabs his hand and puts something in it. He then turns Zach’s hand over and kisses it. Zach blushes."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“See you later!” Jack runs off with a smile on his face. Zach is stunned, but he makes his way to the ship.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "See you later!"
+      },
+      {
+       "text": "” Jack runs off with a smile on his face. Zach is stunned, but he makes his way to the ship."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Oh! So you two are courting!” Morra says.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Morra",
+       "text": "Oh! So you two are courting!"
+      },
+      {
+       "text": "” Morra says."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Morra… please stop talking…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Morra… please stop talking…",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Is the wedding soon?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Morra",
+       "text": "Is the wedding soon?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Morra! Shut up!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Morra! Shut up!",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zach is staring out the window of the new ship, just remembering the “good times”. He knows this mission is practically suicide, but he also knows he needs to call Jack. God knows he isn’t going to hear the end of it…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "…."
+    },
+    {
+     "type": "NARRATION",
+     "text": "….."
+    },
+    {
+     "type": "NARRATION",
+     "text": "……"
+    },
+    {
+     "type": "NARRATION",
+     "text": "Screw it."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Ring",
+     "segments": [
+      {
+       "text": "Ring",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Ring",
+     "segments": [
+      {
+       "text": "Ring",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "R-",
+     "segments": [
+      {
+       "text": "R-",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Please tell me this isn’t a joke…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Please tell me this isn’t a joke…",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Hello to you too…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Hello to you too…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "There’s rustling on the other end, was he lying in bed?"
+    },
+    {
+     "type": "NARRATION",
+     "text": "“ZACH!?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "ZACH!?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Hi, Jack…” Zach hears sniffling, damn it… Jack’s crying.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Hi, Jack…"
+      },
+      {
+       "text": "” Zach hears sniffling, damn it… Jack’s crying."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“When I got the call… I couldn’t believe it… I-I was scared t-that-”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "When I got the call… I couldn’t believe it… I-I was scared t-that-",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Hey, hey! It’s ok! I’m ok! Nothing is wrong, just had an argument with the crew…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Hey, hey! It’s ok! I’m ok! Nothing is wrong, just had an argument with the crew…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“And the solution was to scare me to death?!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "And the solution was to scare me to death?!",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I told you from the beginning, Jack… we aren’t the most put together crew… also Seth’s a major dick.” A soft chuckle is heard.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I told you from the beginning, Jack… we aren’t the most put together crew… also Seth’s a major dick."
+      },
+      {
+       "text": "” A soft chuckle is heard."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I can agree with you on that one… I’m guessing he’s not invited to the wedding?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "I can agree with you on that one… I’m guessing he’s not invited to the wedding?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Obviously… but about the wedding…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Obviously… but about the wedding…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You’re not canceling it, are you?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "You’re not canceling it, are you?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“No! God no, I’m saying let’s wait for a while…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "No! God no, I’m saying let’s wait for a while…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Why?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Why?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Because we’ve been dating for 2 weeks, Jack…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Because we’ve been dating for 2 weeks, Jack…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "There’s silence on Jack’s end."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Has it really only been two weeks? Felt like a lifetime…” Zach smiles at that.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Has it really only been two weeks? Felt like a lifetime…",
+       "italic": true
+      },
+      {
+       "text": "” Zach smiles at that."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I know, but yes, two weeks. Which is why I want to wait for the wedding.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I know, but yes, two weeks. Which is why I want to wait for the wedding."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“That’s fine…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "That’s fine…",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You sure?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "You sure?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Of course! I’ve been known to rush things, and I’m sorry for that…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "Of course! I’ve been known to rush things, and I’m sorry for that…",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Don’t be! I’m just glad you still want to be with me even though we’ve seen each other like twice!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Don’t be! I’m just glad you still want to be with me even though we’ve seen each other like twice!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“That’s because I want to! I’ve never felt this way about anyone, Zach!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "That’s because I want to! I’ve never felt this way about anyone, Zach!",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Me neither…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Me neither…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“So it’s perfect!” Zach laughs.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "So it’s perfect!",
+       "italic": true
+      },
+      {
+       "text": "” Zach laughs."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I guess so… anyway, wanna catch up?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I guess so… anyway, wanna catch up?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I thought you’d never ask.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Jack Madison",
+       "text": "I thought you’d never ask.",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

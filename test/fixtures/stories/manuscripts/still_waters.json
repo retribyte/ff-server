@@ -1,0 +1,1073 @@
+{
+ "story": {
+  "slug": "still_waters",
+  "title": "Still Waters",
+  "blurb": "Aboard the Seraphine, Zion finally tells Morra about the village he left behind. Later, stranded on Nanam-7, the crew circles the same wounds around a fire.",
+  "publishedDate": "2026-10-07",
+  "season": "FF4",
+  "format": "PROSE"
+ },
+ "authors": [
+  "Trey"
+ ],
+ "chapters": [
+  {
+   "chapter_no": 1,
+   "title": "Part 1",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "It is the fourth hour of the sleeping cycle. The crew is due to wake up in a few hours. The atmospheric pressurizer stirs quietly over the common room of the LRC Seraphine. Two people, taken from stars far apart, from different eons, sit together at one table, the only two relinquishing their opportunity to rest."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Morra flips to a new blank page. Their writing instrument makes quick strokes across the sturdy synthetic paper of their journal. Ten more sit on the tableside, some filled and some ready to be filled."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zion Daybreaker turns a small wooden pawn. His filing instrument grazes the shoulder of a miniature resembling himself. Seven more sit on his side of the table, some resembling other crewmates, the others bearing no resemblance."
+    },
+    {
+     "type": "NARRATION",
+     "text": "The two sit in an unbroken silence, the same one they had basked in for hours. Many cycles on this mission had carried similar silences."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zion's filing stops, and he looks up at Morra for the first time in a while. \"What could you possibly need to fill so many books with? All we've done on this mission has been go-getter jobs. Why do you feel the need to document all of this?\"",
+     "segments": [
+      {
+       "text": "Zion's filing stops, and he looks up at Morra for the first time in a while. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "What could you possibly need to fill so many books with? All we've done on this mission has been go-getter jobs. Why do you feel the need to document all of this?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Morra puts down their pen and paused in thought. The sheer silence crawls back into the room for just a moment, before they reply, \"All that I've ever done has been documenting, filling books. This is all that I want to do, all that I have to do. It is my mission, which has, for a moment, intersected with yours.\" Morra caps their pen and sets it down square against their journal. \"I've lived for many eons, in many places and with many peoples. Had I not immortalized them all in ink, I would know none of it now. A million times in a day, I require that knowledge to decide my next step forward.\" Morra looks again at Zion, then to his hand clasped around the wooden figure. They tear a blank page out of their book and begin to write in crude lettering. \"Your mind and mine, and those of the rest of our fellow crewmen, are like blank pages. We fill them as we do work, as we make miracles and as we make mistakes. But if one takes no effort to learn from them...\" Morra waves a hand across the page, a purple haze eating at the ink. \"...a wave of oblivion comes and washes it all away. At that point, what have you and I gained? Is it acceptable to let ourselves get swept up into oblivion, as well?\"",
+     "segments": [
+      {
+       "text": "Morra puts down their pen and paused in thought. The sheer silence crawls back into the room for just a moment, before they reply, \""
+      },
+      {
+       "speaker": "Morra",
+       "text": "All that I've ever done has been documenting, filling books. This is all that I want to do, all that I have to do. It is my mission, which has, for a moment, intersected with yours."
+      },
+      {
+       "text": "\" Morra caps their pen and sets it down square against their journal. \""
+      },
+      {
+       "speaker": "Morra",
+       "text": "I've lived for many eons, in many places and with many peoples. Had I not immortalized them all in ink, I would know none of it now. A million times in a day, I require that knowledge to decide my next step forward."
+      },
+      {
+       "text": "\" Morra looks again at Zion, then to his hand clasped around the wooden figure. They tear a blank page out of their book and begin to write in crude lettering. \""
+      },
+      {
+       "speaker": "Morra",
+       "text": "Your mind and mine, and those of the rest of our fellow crewmen, are like blank pages. We fill them as we do work, as we make miracles and as we make mistakes. But if one takes no effort to learn from them..."
+      },
+      {
+       "text": "\" Morra waves a hand across the page, a purple haze eating at the ink. \""
+      },
+      {
+       "speaker": "Morra",
+       "text": "...a wave of oblivion comes and washes it all away. At that point, what have you and I gained? Is it acceptable to let ourselves get swept up into oblivion, as well?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Morra makes eye contact with Zion, as if trying to pierce through the helmet shielding his eyes. \"I suppose, Captain, I should ask why don't you feel the same need?\"",
+     "segments": [
+      {
+       "text": "Morra makes eye contact with Zion, as if trying to pierce through the helmet shielding his eyes. \""
+      },
+      {
+       "speaker": "Morra",
+       "text": "I suppose, Captain, I should ask why don't you feel the same need?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zion continues to sand his sculpture, trying to maintain his composure even though it is obscured. He swaps to a scalpel and scratches at the neck of his wooden image. \"What if... there are things I would rather forget?\"",
+     "segments": [
+      {
+       "text": "Zion continues to sand his sculpture, trying to maintain his composure even though it is obscured. He swaps to a scalpel and scratches at the neck of his wooden image. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "What if... there are things I would rather forget?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "A wrinkle finds its way to Morra's eye, and a raise follows closely behind. \"Now why, of all things, would you want to do that? Throw away the fuel buried inside of a memory, the fuel that teaches you how to stand? You would decay from the inside out! Imagine what would happen to you if you let—\"",
+     "segments": [
+      {
+       "text": "A wrinkle finds its way to Morra's eye, and a raise follows closely behind. \""
+      },
+      {
+       "speaker": "Morra",
+       "text": "Now why, of all things, would you want to do "
+      },
+      {
+       "speaker": "Morra",
+       "text": "that",
+       "italic": true
+      },
+      {
+       "speaker": "Morra",
+       "text": "? Throw away the fuel buried inside of a memory, the fuel that teaches you how to stand? You would decay from the inside out! Imagine what would happen to you if you let—"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "As they speak, Zion's finger slips, clearing a scalpel to dig into the wood and chop off the head of the miniature hexgot. The wooden fragment rolls across the table, stopping right in front of Morra. They pick it up and hold it between their fingers, for a moment, before placing it back down."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Sir, if I may,\" Morra says while putting their page aside, glancing for a moment at the other sculptures. \"You are not the first to experience hardship in a past life. You are not even the first in this crew to have done so.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Morra",
+       "text": "Sir, if I may,"
+      },
+      {
+       "text": "\" Morra says while putting their page aside, glancing for a moment at the other sculptures. \""
+      },
+      {
+       "speaker": "Morra",
+       "text": "You are not the first to experience hardship in a past life. You are not even the first in this crew to have done so."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zion places his scalpel back on the table and sits back, almost in a stance of defiance."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Whatever the tragedy or sin is that you want to forget, it will find its way to you until you face it. While it must not define you, it is part of what composed you,\" Morra says, looking up to Zion's halo and then to his spiked shoulder. \"You already know this, I gather.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Morra",
+       "text": "Whatever the tragedy or sin is that you want to forget, it will find its way to you until you face it. While it must not define you, it is part of what composed you,"
+      },
+      {
+       "text": "\" Morra says, looking up to Zion's halo and then to his spiked shoulder. \""
+      },
+      {
+       "speaker": "Morra",
+       "text": "You already know this, I gather."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The sheer silence crawls back through the air."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I am certain that I would understand, if you told me, sir. And I would be happy to help you find its place.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Morra",
+       "text": "I am certain that I would understand, if you told me, sir. And I would be happy to help you find its place."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"It's in the past.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "It's in the past."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"And that past is what made you.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Morra",
+       "text": "And that past is what made you."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"No, I'm what made me.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "No, I'm what made me."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"These are not different things.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Morra",
+       "text": "These are not different things."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The sheer silence scratches its way back. It digs its way between the two."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zion places the body of the miniature down on the table, in line with the head it was once attached to."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"At the beginning, there was a village.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "At the beginning, there was a village."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zion feels a gust of air billowing through the holes in his helmet. The wind chills his body from the inside out, but no one else feels it. It forces his teeth to loosen his tongue from its restraint, for the first time."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"It was small, full of angeli. Out past the woods, on a world no one cared to visit. That was the place where they shaped me,\" Zion says while flipping his scalpel to the other side, and flipping it again. \"I came out shaped like them because they were the first thing I saw. They were the only thing I ever saw. To them, it meant something about themselves.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "It was small, full of angeli. Out past the woods, on a world no one cared to visit. That was the place where they shaped me,"
+      },
+      {
+       "text": "\" Zion says while flipping his scalpel to the other side, and flipping it again. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "I came out shaped like them because they were the first thing I saw. They were the only thing I ever saw. To them, it meant something about themselves."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"And about you?\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Morra",
+       "text": "And about you?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "A short breath precedes Zion's words. \"Never about me. That was the start of the flood.\"",
+     "segments": [
+      {
+       "text": "A short breath precedes Zion's words. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Never about me. That was the start of the flood."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The pressurizer stops and starts again, letting a cool air blow through the room. Zion traces the neck of the miniature with his thumb, searching for something to file."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"There was one family who kept me. A girl came from them. Naomi. She was...\" Zion quickly chases his faux pas with a new thought he can't quite articulate. \"She was... I don't know, it... it doesn't matter what she was. The village did what it did to her. They did what they had done to me once I had lost my shine. We were the same, but somehow she was everything I wasn't,\" he sputtered out with a strained voice before leveling. \"Eventually I convinced her to leave. Far enough out of earshot that even their screaming couldn't reach us. We built a place by the river, where no one would come. We were fine. We were not fine, but we were together, all alone. It was better, anything would be—\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "There was one family who kept me. A girl came from them. Naomi. She was..."
+      },
+      {
+       "text": "\" Zion quickly chases his faux pas with a new thought he can't quite articulate. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "She was... I don't know, it... it doesn't matter what she was. The village did what it did to her. They did what they had done to me once I had lost my shine. We were the same, but somehow she was everything I wasn't,"
+      },
+      {
+       "text": "\" he sputtered out with a strained voice before leveling. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Eventually I convinced her to leave. Far enough out of earshot that even their screaming couldn't reach us. We built a place by the river, where no one would come. We were fine. We were not fine, but we were together, all alone. It was better, anything would be—"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zion pauses, biting his tongue until it bleeds. Morra places their hand on his to stop the shaking. His arm relaxes just a bit."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"She wanted to let it go. She believed that they could change, I...\" The scalpel finds itself back in Zion's other hand. \"I couldn't believe it if I wanted to. I didn't. I wanted the village to answer for everything. She said that wasn't justice, I said it was the only kind there was.\" The scalpel presses into the table. \"I left to cool down, like I'd trained myself to do. By the time I came back...\" Zion falters for a moment.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "She wanted to let it go. She believed that they could change, I..."
+      },
+      {
+       "text": "\" The scalpel finds itself back in Zion's other hand. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "I couldn't believe it if I wanted to. I didn't. I wanted the village to answer for everything. She said that wasn't justice, I said it was the only kind there was."
+      },
+      {
+       "text": "\" The scalpel presses into the table. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "I left to cool down, like I'd trained myself to do. By the time I came back..."
+      },
+      {
+       "text": "\" Zion falters for a moment."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"She was slipping away. I couldn't stay,\" Zion admits with his flatness finally regained. \"I left her. There's the first sin in my story. I left.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "She was slipping away. I couldn't stay,"
+      },
+      {
+       "text": "\" Zion admits with his flatness finally regained. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "I left her. There's the first sin in my story. I left."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Morra loses their grip on their captain's hand as he pulls it back to himself."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"The village is gone now. That's the sin that followed,\" Zion spits out, as if his words were poison. He hears himself speaking and grits his teeth. His helmet may hide his face, but his hands stay bound tightly on the table, as if to hide his palms. \"And I'm trying to let that record get washed away. So that's why...\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "The village is gone now. That's the sin that followed,"
+      },
+      {
+       "text": "\" Zion spits out, as if his words were poison. He hears himself speaking and grits his teeth. His helmet may hide his face, but his hands stay bound tightly on the table, as if to hide his palms. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "And I'm trying to let that record get washed away. So that's why..."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Morra picks up the headless miniature and turns it once, twice. They slide it across the table to rest against Zion's glove. For a while, they say nothing."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Thank you for telling me,\" Morra replies, their token formality replaced by a gentle whisper. Zion's gloves stay flat against the wood. \"You called it a record, one that you wish to be washed away. I understand the wish, and many have wished it before. But, my dear Captain, oblivion is not mercy. It does not forgive anything. Instead, it forgets, and forgotten things do not stop being true.\" Morra turns their eye to the severed wooden head. \"I have seen what that choice does to people. I do not want that for you.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Morra",
+       "text": "Thank you for telling me,"
+      },
+      {
+       "text": "\" Morra replies, their token formality replaced by a gentle whisper. Zion's gloves stay flat against the wood. \""
+      },
+      {
+       "speaker": "Morra",
+       "text": "You called it a record, one that you wish to be washed away. I understand the wish, and many have wished it before. But, my dear Captain, oblivion is not mercy. It does not forgive anything. Instead, it forgets, and forgotten things do not stop being true."
+      },
+      {
+       "text": "\" Morra turns their eye to the severed wooden head. \""
+      },
+      {
+       "speaker": "Morra",
+       "text": "I have seen what that choice does to people. I do not want that for you."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zion turns his head slightly. \"Morra, I left her.\"",
+     "segments": [
+      {
+       "text": "Zion turns his head slightly. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Morra, I left her."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Yes, you did. You also carried her out of hell, and built a place for her that could not be reached by it. And you stayed there with her, for years,\" Morra says with conviction. \"I carry many records with me, Zion. I would not call a person by their worst night alone.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Morra",
+       "text": "Yes, you did. You also carried her out of hell, and built a place for her that could not be reached by it. And you stayed there with her, for years,"
+      },
+      {
+       "text": "\" Morra says with conviction. \""
+      },
+      {
+       "speaker": "Morra",
+       "text": "I carry many records with me, Zion. I would not call a person by their worst night alone."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The pressurizer continues to hum. Zion's shoulders, drawn up tight from his first word, relax just a bit."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I won't write anything down unless you ask me to. But if the weight is too much to bear alone, I will hold it with you with all my strength. I am not one who forgets. That, at least, is something I am good for,\" Morra says with a gentle pointedness.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Morra",
+       "text": "I won't write anything down unless you ask me to. But if the weight is too much to bear alone, I will hold it with you with all my strength. I am not one who forgets. That, at least, is something I am good for,"
+      },
+      {
+       "text": "\" Morra says with a gentle pointedness."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zion exhales. The wind stops and holds still. He hears the hum for the first time. He hears the bubbling of liquid through the ship's pipes. He hears a heartbeat from somewhere within his chest. He hears a thousand voices, having been quiet ever since that day. He feels the blood run through his arms, up through his neck."
+    }
+   ]
+  },
+  {
+   "chapter_no": 2,
+   "title": "Part 2",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "It is a cold, dark, and desolate night on Nanam-7. Well, every night is like that here, but after many days of isolation since the crash, the Horizoners have lost whatever fire they once had left in them."
+    },
+    {
+     "type": "NARRATION",
+     "text": "The ground shakes as Dutch and Zion make their slow way back to camp. Dragging behind them is the fruit of the pair's labor for the past few days: a defeated Frostbeast, a woolly mammoth-sized animal native to cold-climate planets. Dutch knows the creature well—at his suggestion, the two went searching for one days ago, and it proved far more difficult than he had anticipated. Now, at last, the Verinian is ready to prepare his favorite meal…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Bellow!... Bellow!... Bellow!...\" echoes Zion's voice down the sinkhole toward the lab. Bellow has really nailed the reclusive scientist cliché lately, emerging only to relieve himself and occasionally, to eat. The longer he spends away from his distractions, the more he has to face their helpless situation, so, of course, he takes the easy route. \"It's time to eat!... time to eat!... to eat!...\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Bellow!... Bellow!... Bellow!..."
+      },
+      {
+       "text": "\" echoes Zion's voice down the sinkhole toward the lab. Bellow has really nailed the reclusive scientist cliché lately, emerging only to relieve himself and occasionally, to eat. The longer he spends away from his distractions, the more he has to face their helpless situation, so, of course, he takes the easy route. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "It's time to eat!... time to eat!... to eat!..."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The sounds of shuffling, clanking, and grunting drift up from below. A disheveled entomae soon makes his way to the lip of the sinkhole and begins to climb the newly built spiral staircase (thanks, Morra), slowly."
+    },
+    {
+     "type": "NARRATION",
+     "text": "By the time he reaches the surface, Dutch has a fire going and a cauldron of stew bubbling over it. He ladles a bowl and holds it out to Bellow with a flourish, with a big grin on his face."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Eat, ya bug. Ya look like a ghost.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Dutch Elkins",
+       "text": "Eat, ya bug. Ya look like a ghost."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Thank you, Dutch.\" Bellow takes the bowl and stares at it.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Thank you, Dutch."
+      },
+      {
+       "text": "\" Bellow takes the bowl and stares at it."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zion sits across the fire with his own bowl balanced on one knee. He slides a spoonful beneath the lip of his helmet, chews, and says nothing. Dutch talks enough for the three of them anyway, about the pelts they will cut from the beast, about the cut of meat he is saving for tomorrow, about how a Frostbeast has never once bested a Verinian. The fire pops and crackles. The wind drags itself across the snow. And Bellow stares into his stew, the steam rising into his antennae, and quietly says to himself:"
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"They were going to destroy my planet. Maybe they already did. And there was nothing I could do to stop it.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "They were going to destroy my planet. Maybe they already did. And there was nothing I could do to stop it."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Dutch's ladle stops in the air. A few yards away, Morra is performing their new routine, trying in vain to wormhole away. The three of them watch with pity as attempt after attempt fails, while Morra strains as hard as they can in the air."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Morra... why don't you give it a rest? You've been at this for hours. It didn't work yesterday, or the day before, or the day before that...\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Morra... why don't you give it a rest? You've been at this for hours. It didn't work yesterday, or the day before, or the day before that..."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"It works... no, it will work, it works, Zion.\" Morra's voice is distorted, garbled, as if the sound waves have taken three round trips before reaching their destination. \"I'm just not... CONNECTED, anymore.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Morra",
+       "text": "It works... no, it will work, it works, Zion."
+      },
+      {
+       "text": "\" Morra's voice is distorted, garbled, as if the sound waves have taken three round trips before reaching their destination. \""
+      },
+      {
+       "speaker": "Morra",
+       "text": "I'm just not... CONNECTED, anymore."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Connected? What the hell d'zat mean? This planet's messin' with your damn head, man.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Dutch Elkins",
+       "text": "Connected? What the hell d'zat mean? This planet's messin' with your damn head, man."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow lets a breath escape his mouth, landing somewhere between a sigh and a chuckle. \"You say that like they were sane to begin with...\"",
+     "segments": [
+      {
+       "text": "Bellow lets a breath escape his mouth, landing somewhere between a sigh and a chuckle. \""
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "You say that like they were sane to begin with..."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Bellow, you, you, you, you, you, are you threatening insulting my intelligence!?\" Morra floats toward the insect, limbs dragging through the snow.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Morra",
+       "text": "Bellow, you, you, you, you, you, are you threatening insulting my intelligence!?"
+      },
+      {
+       "text": "\" Morra floats toward the insect, limbs dragging through the snow."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Morra...\" says Bellow, staring into Morra's eye with a quiver in his voice. The two of them are inches apart when the silence breaks. \"...you're going to knock over my stew.\" Morra stops in their tracks, suspended in front of Bellow's stew.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Morra..."
+      },
+      {
+       "text": "\" says Bellow, staring into Morra's eye with a quiver in his voice. The two of them are inches apart when the silence breaks. \""
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "...you're going to knock over my stew."
+      },
+      {
+       "text": "\" Morra stops in their tracks, suspended in front of Bellow's stew."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"You look like death,\" Zion says, half-concerned and half-snarky. Morra runs segmented fingers through their faded, disheveled purple hair and straightens a tattered, frost-laden silk coat. \"Come sit down, fraternize with us for once. We'll toast to you and your survival skills.\" Zion raises a glass of water in the golem's honor.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "You look like death,"
+      },
+      {
+       "text": "\" Zion says, half-concerned and half-snarky. Morra runs segmented fingers through their faded, disheveled purple hair and straightens a tattered, frost-laden silk coat. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Come sit down, fraternize with us for once. We'll toast to you and your survival skills."
+      },
+      {
+       "text": "\" Zion raises a glass of water in the golem's honor."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I don't need to rest, I need to fix this. I need to fix this. I nxgd tk fsx tshduxis jlshdfwvreP﭂^Ի船恬开ԕ˓𺵈ٕ򣳨೭񔵒통S0费, don't you agree Captain?\" Morra says, tilting their head in Zion's direction.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Morra",
+       "text": "I don't need to rest, I need to fix this. I need to fix this. I nxgd tk fsx tshduxis jlshdfwvreP﭂^Ի船恬开ԕ˓𺵈ٕ򣳨೭񔵒통S0费, don't you agree Captain?"
+      },
+      {
+       "text": "\" Morra says, tilting their head in Zion's direction."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Uh huh. Well, before you do that, come sit with us.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Uh huh. Well, before you do that, come sit with us."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Morra does not sit, continuing to hover at the edge of the firelight for a long moment. They press one hand flat against their chest as though checking for something, before drifting back toward the dark to try again. Zion watches them go, keeping watch until they are only a faint purple glow against the snow."
+    },
+    {
+     "type": "NARRATION",
+     "text": "The stew has gone cold and the fire has burned low. Dutch has slumped against the Frostbeast's flank, snoring like a man who has eaten too well. Bellow is still holding his bowl."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"They were going to destroy my planet,\" Bellow says again, as if he has not already said it. \"My family is there. Everyone I know. Everything I was working for.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "They were going to destroy my planet,"
+      },
+      {
+       "text": "\" Bellow says again, as if he has not already said it. \""
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "My family is there. Everyone I know. Everything I was working for."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Well...\" Zion shifts, searching for something to say that is helpful and finding only what is true. \"I'm sorry for your loss, Bellow. But you know... there are dangers to be had when the stakes are this high.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Well..."
+      },
+      {
+       "text": "\" Zion shifts, searching for something to say that is helpful and finding only what is true. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "I'm sorry for your loss, Bellow. But you know... there are dangers to be had when the stakes are this high."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"You are not helping. You never do. Of course you always know the wrong thing to say.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "You are not helping. You never do. Of course you always know the wrong thing to say."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"What's that supposed to mean?\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "What's that supposed to mean?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"It means you hear a person say their home might be gone and your first thought is the odds,\" Bellow says, and his voice cracks on the last word. \"You don't ask how I'm doing. You don't ask if I've slept. You just brief me, like… Like I'm a report. Like it's a problem that you can solve, if you just wait it out and stay calm.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "It means you hear a person say their home might be gone and your first thought is the odds,"
+      },
+      {
+       "text": "\" Bellow says, and his voice cracks on the last word. \""
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "You don't ask how I'm doing. You don't ask if I've slept. You just brief me, like… Like I'm a report. Like it's a problem that you can solve, if you just wait it out and stay calm."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The wind pauses. Zion's grip tightens on his spoon, and for a moment, he looks like he might say something sharper. Then he lets out a long breath, and some of the iron goes out of his shoulders."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Hey, look. When you die of brooding and lack of sunlight, I don't want you having any regrets. So let's just get it out, yeah?\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Hey, look. When you die of brooding and lack of sunlight, I don't want you having any regrets. So let's just get it out, yeah?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Why is everything a fight with you?\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Why is everything a fight with you?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Life's a fight, Beller,\" Dutch mumbles, without opening his eyes.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Dutch Elkins",
+       "text": "Life's a fight, Beller,"
+      },
+      {
+       "text": "\" Dutch mumbles, without opening his eyes."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow stands up in defiance. \"That is NOT true! Life's an experience, a joyous experience! And everyone I've ever known might have that taken away from them!\"",
+     "segments": [
+      {
+       "text": "Bellow stands up in defiance. \""
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "That is NOT true! Life's an experience, a joyous experience! And everyone I've ever known might have that taken away from them!"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Told you it could've been a bluff,\" Zion says. \"You don't know, so stop worrying about it.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "Told you it could've been a bluff,"
+      },
+      {
+       "text": "\" Zion says. \""
+      },
+      {
+       "speaker": "Zion Daybreaker",
+       "text": "You don't know, so stop worrying about it."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow sets the bowl down in the snow. He looks at the man across the fire, at the white armor and the black X across its chest. He shudders, and pulls on the blue hoodie wrapped around him."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"You're so cold all the time. You've never lost anyone, have you? Not really. Or else you'd know what you sound like.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "You're so cold all the time. You've never lost anyone, have you? Not really. Or else you'd know what you sound like."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zion holds his breath. He swallows. Behind him, far out beyond the sinkhole, a faint purple light flickers, goes out, and flickers again."
+    }
+   ]
+  }
+ ]
+}

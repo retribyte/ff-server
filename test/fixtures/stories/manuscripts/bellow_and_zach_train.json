@@ -1,0 +1,970 @@
+{
+ "story": {
+  "slug": "bellow_and_zach_train",
+  "title": "Bellow and Zach Train",
+  "blurb": "Zach teaches Bellow swordfighting with sticks on a forest planet, and the lessons slowly turn into quiet talks about home, old crews and what happened on Barbona.",
+  "season": "FF4",
+  "format": "PROSE"
+ },
+ "authors": [
+  "Hunt520"
+ ],
+ "chapters": [
+  {
+   "chapter_no": 1,
+   "title": null,
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "The Hori- sorry, Goblinators are parked in some random forest planet, presumably for supplies that they keep running out of. And while everyone is out shopping, Zach hangs back and walks the forest, picking up and examining various sticks on the ground.",
+     "segments": [
+      {
+       "text": "The Hori- sorry, Goblinators are parked in some random forest planet, presumably for supplies that they keep running out of. And while everyone is out shopping, Zach hangs back and walks the forest, picking up and examining various sticks on the ground.",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow had finished shopping when he received a text from Zach."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Meet me outside the ship in two hours.” Bellow looks at the text confused, but he’ll entertain it.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Meet me outside the ship in two hours.",
+       "italic": true
+      },
+      {
+       "text": "” Bellow looks at the text confused, but he’ll entertain it."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Two hours pass and Bellow exits the ship, he turns the corner to see Zach holding two sticks, each a different length."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Uh… Zach? What are you doing?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Uh… Zach? What are you doing?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You said you had interest in swordfighting, correct?” Bellow chuckles.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "You said you had interest in swordfighting, correct?",
+       "italic": true
+      },
+      {
+       "text": "” Bellow chuckles."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Well yes… but I didn’t think we’d be doing this now. I mean… I don’t have a sword myself yet...”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Well yes… but I didn’t think we’d be doing this now. I mean… I don’t have a sword myself yet..."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“So? Better now instead of later, besides, we can go over basics right now, then when you get a sword, we can talk about personal styles.” Bellow nods. Zach tosses Bellow the longer stick. “Let’s start with your stance. So show me what you think the proper stance is.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "So? Better now instead of later, besides, we can go over basics right now, then when you get a sword, we can talk about personal styles.",
+       "italic": true
+      },
+      {
+       "text": "” Bellow nods. Zach tosses Bellow the longer stick. “"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Let’s start with your stance. So show me what you think the proper stance is.",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“O-Ok…” Bellow then holds the stick with all four hands. He raises it and it looks correct, but he is tense all throughout his body. Zach shook his head and walked over. He pointed his stick at Bellow’s shoulders.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "O-Ok…"
+      },
+      {
+       "text": "” Bellow then holds the stick with all four hands. He raises it and it looks correct, but he is tense all throughout his body. Zach shook his head and walked over. He pointed his stick at Bellow’s shoulders."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Relax your shoulders-” He then pointed at Bellow’s knees.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Relax your shoulders-",
+       "italic": true
+      },
+      {
+       "text": "” He then pointed at Bellow’s knees."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Bend your knees.” He then walks in front of Bellow before getting into his stance with his stick. “The trick is to remain loose so that you can make movements quickly, if you stay stiff, you have to take time to relax your body. It’s better to stay relaxed. Next lesson.” Zach rushes towards Bellow and swings, Bellow panics a little and goes to block, which he does in succession.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Bend your knees.",
+       "italic": true
+      },
+      {
+       "text": "” He then walks in front of Bellow before getting into his stance with his stick. “"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "The trick is to remain loose so that you can make movements quickly, if you stay stiff, you have to take time to relax your body. It’s better to stay relaxed. Next lesson.",
+       "italic": true
+      },
+      {
+       "text": "” Zach rushes towards Bellow and swings, Bellow panics a little and goes to block, which he does in succession."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Oh good, you know how to block.” Zach resets his position. “The only thing is to not panic, keep a level head even when you’re at a disadvantage. And always keep your eyes on the opponent. Got it?” Bellow nods. “Good, now let’s try this again.” Zach swings again and Bellow doesn’t panic this time, he blocks. Zach swings again and Bellow blocks, but he staggers back. Zach resets.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Oh good, you know how to block.",
+       "italic": true
+      },
+      {
+       "text": "” Zach resets his position. “"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "The only thing is to not panic, keep a level head even when you’re at a disadvantage. And always keep your eyes on the opponent. Got it?",
+       "italic": true
+      },
+      {
+       "text": "” Bellow nods. “"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Good, now let’s try this again.",
+       "italic": true
+      },
+      {
+       "text": "” Zach swings again and Bellow doesn’t panic this time, he blocks. Zach swings again and Bellow blocks, but he staggers back. Zach resets."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You have to move, staying still will get you hit. Moving backwards is sometimes the move.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "You have to move, staying still will get you hit. Moving backwards is sometimes the move.",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Zach… this is very confusing…” Bellow admits, dropping his stance in defeat. Zach drops his stance as well.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Zach… this is very confusing…"
+      },
+      {
+       "text": "” Bellow admits, dropping his stance in defeat. Zach drops his stance as well."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I’m sorry, I’m going too fast, aren’t I?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I’m sorry, I’m going too fast, aren’t I?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“A little…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "A little…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Then let’s slow down, let’s just go back and forth for right now, and don’t put all your strength into it, remember… these are sticks.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Then let’s slow down, let’s just go back and forth for right now, and don’t put all your strength into it, remember… these are sticks.",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Chuckle Right.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Chuckle",
+       "italic": true
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": " Right."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "The next time Bellow gets a text from Zach, Zach says to meet him when it’s dark. An odd request, but he pays no mind to it."
+    },
+    {
+     "type": "NARRATION",
+     "text": "It’s dark when Bellow turns the corner and sees Zach sat crisscrossed near a campfire."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“What’s this? I thought we were training…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "What’s this? I thought we were training…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“We are training. Part of being a swordsman is keeping a clear head in battle at all times. So this lesson we’ll be meditating. And also just… talking.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "We are training. Part of being a swordsman is keeping a clear head in battle at all times. So this lesson we’ll be meditating. And also just… talking.",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Talking?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Talking?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Sometimes it’s better to just talk about stuff that plagues our thoughts instead of trying to meditate it out.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Sometimes it’s better to just talk about stuff that plagues our thoughts instead of trying to meditate it out.",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I guess…” Bellow joins Zach and copies him, crossing his legs as he sat down.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "I guess…"
+      },
+      {
+       "text": "” Bellow joins Zach and copies him, crossing his legs as he sat down."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Now… take a deep breath, and as you exhale, take in the sounds around you.” Bellow closes his eyes and breathes in.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Now… take a deep breath, and as you exhale, take in the sounds around you.",
+       "italic": true
+      },
+      {
+       "text": "” Bellow closes his eyes and breathes in."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "The chirping of crickets",
+     "segments": [
+      {
+       "text": "The chirping of crickets",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The crackling of the campfire",
+     "segments": [
+      {
+       "text": "The crackling of the campfire",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Maybe a few frogs",
+     "segments": [
+      {
+       "text": "Maybe a few frogs",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The gentle breeze rustling the leaves of the trees",
+     "segments": [
+      {
+       "text": "The gentle breeze rustling the leaves of the trees",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Now then, do these sounds remind you of anything?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Now then, do these sounds remind you of anything?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“It reminds me of… home.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "It reminds me of… home."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Oh…” Bellow opens his eyes.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Oh…",
+       "italic": true
+      },
+      {
+       "text": "” Bellow opens his eyes."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Did… did I say something wrong?” Zach realizes he typed that out and started panicking.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Did… did I say something wrong?"
+      },
+      {
+       "text": "” Zach realizes he typed that out and started panicking."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“N-No! It’s just that… well… you never talk about your home that often…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "N-No! It’s just that… well… you never talk about your home that often…",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Because I don’t need to? I mean… no one on the crew talked about their home… so…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Because I don’t need to? I mean… no one on the crew talked about their home… so…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“That’s true, but it’s nice that through meditation, you’re reminded of something familiar.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "That’s true, but it’s nice that through meditation, you’re reminded of something familiar.",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I guess… wait, what are you reminded of when you meditate?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "I guess… wait, what are you reminded of when you meditate?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“The old ship I was on…” Bellow is looking at Zach fully now.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "The old ship I was on…",
+       "italic": true
+      },
+      {
+       "text": "” Bellow is looking at Zach fully now."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“That’s right! You had a crew before this… sorry for your loss… I guess…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "That’s right! You had a crew before this… sorry for your loss… I guess…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“It was nothing, never had any real connections to any of them besides the Captain… even then all he did for me was let me on the crew and taught me how to use a sword properly.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "It was nothing, never had any real connections to any of them besides the Captain… even then all he did for me was let me on the crew and taught me how to use a sword properly.",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Well… I say thanks to him then. After all, I get to receive training now.” Zach smiles a little.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Well… I say thanks to him then. After all, I get to receive training now."
+      },
+      {
+       "text": "” Zach smiles a little."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Right, anyway, break over. Let’s continue.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Right, anyway, break over. Let’s continue.",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "They continue this for several days, Bellow is getting faster and even managing to get a few hits in. Zach is proud of Bellow’s progress, but as the days go by Zach keeps remembering what happened on Barbona. It’s distracting him and he takes a nasty swing to the face."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Oh my God Zach! Are you ok?” Bellow shouts, dropping his stick and grabbing Zach’s arm and directing him to sit down, leaning against the ship. “Let’s sit down, and I should have some stuff on hand. Oh God…I’m so sorry!” Bellow started pulling out various medical supplies, starting with disinfectant wipes and rubbing at the cut.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Oh my God Zach! Are you ok?"
+      },
+      {
+       "text": "” Bellow shouts, dropping his stick and grabbing Zach’s arm and directing him to sit down, leaning against the ship. “"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Let’s sit down, and I should have some stuff on hand. Oh God…I’m so sorry!"
+      },
+      {
+       "text": "” Bellow started pulling out various medical supplies, starting with disinfectant wipes and rubbing at the cut."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“It’s… fine…” Zach is out of it.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "It’s… fine…",
+       "italic": true
+      },
+      {
+       "text": "” Zach is out of it."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“It’s bleeding Zach! This isn’t fine…” Bellow finishes cleaning the cut and examines it. “Oh good, it doesn’t need stitches.” He then started taping bandages. “You’ve been out of it recently… are you ok?” Zach thinks about it for a second.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "It’s bleeding Zach! This isn’t fine…"
+      },
+      {
+       "text": "” Bellow finishes cleaning the cut and examines it. “"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Oh good, it doesn’t need stitches."
+      },
+      {
+       "text": "” He then started taping bandages. “"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "You’ve been out of it recently… are you ok?"
+      },
+      {
+       "text": "” Zach thinks about it for a second."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I never apologized for what happened on Barbona…” Bellow paused then continued.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "I never apologized for what happened on Barbona…",
+       "italic": true
+      },
+      {
+       "text": "” Bellow paused then continued."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Oh… that… don’t worry about it…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Oh… that… don’t worry about it…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“But I tried to kill you guys!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "But I tried to kill you guys!",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“And? With what we went through before you showed up… and heck, what we go through now, we- or at least I’m- used to being in near-death situations…” Zach is confused.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "And? With what we went through before you showed up… and heck, what we go through now, we- or at least I’m- used to being in near-death situations…"
+      },
+      {
+       "text": "” Zach is confused."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“So… you’re not mad?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "So… you’re not mad?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“It’s water under the bridge… besides… you haven’t tried killing us since. So…” Bellow has a point… he finishes taping the bandages.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "It’s water under the bridge… besides… you haven’t tried killing us since. So…"
+      },
+      {
+       "text": "” Bellow has a point… he finishes taping the bandages."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Thanks…” Bellow smiles.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Thanks…",
+       "italic": true
+      },
+      {
+       "text": "” Bellow smiles."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“No problem, now shall we continue training, or are we done for today?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "No problem, now shall we continue training, or are we done for today?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“When do we leave this planet?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "When do we leave this planet?",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Whenever Seth can actually secure resources… so maybe another day or so…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Whenever Seth can actually secure resources… so maybe another day or so…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Let’s stop for today.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Zacharias Smith",
+       "text": "Let’s stop for today.",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zach can feel that his bond with Bellow has grown, maybe one day…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow can see the stars…"
+    }
+   ]
+  }
+ ]
+}

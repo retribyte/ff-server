@@ -1,0 +1,1258 @@
+{
+ "story": {
+  "slug": "chomskys_journal_audio_logs",
+  "title": "Chomsky's Journal & Audio Logs",
+  "blurb": "Victor Chomsky's private journal and audio logs from aboard the pirate ship, as a stranded arsonist with a secret agenda studies the crew he has joined.",
+  "season": "FF2",
+  "format": "PROSE"
+ },
+ "authors": [
+  "Jonas"
+ ],
+ "chapters": [
+  {
+   "chapter_no": 1,
+   "title": "Entry 1",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "September 4th According to the revolution of Chromatin 43, 3096 GUY"
+    },
+    {
+     "type": "NARRATION",
+     "text": "Today was strange, to say the least."
+    },
+    {
+     "type": "NARRATION",
+     "text": "The last thing I remember before the ship crashed was on the way down. People were shouting, rushing around the ship, trying to avoid the inevitable. I however, stayed in my room, calm and collected."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Okay, so I wasn't exactly calm, but can you really blame me? The ship was about to crash for crying out loud!"
+    },
+    {
+     "type": "NARRATION",
+     "text": "I stared out the window as the ground rapidly approached, panicking just like everyone else. This had never happened to me. The only other time I was ever in a ship before meeting the space pirates was when my boss let me test his prototype for a new model. As horrible as the man was, he was a terrific engineer, so naturally the test flight went off without a hitch. Of course, I was prepared in case of a crash, but a simulator was nothing compared to the real thing. I stopped screaming long enough to pull out my family photo from my childhood. If I died, would my parents be mad at me in the afterlife for accidentally killing them? To be honest, I didn't really believe in an afterlife, but who knows?"
+    },
+    {
+     "type": "NARRATION",
+     "text": "We crashed into a pit of quicksand, and I suddenly blacked out. I'm not really sure how, but I think the bruise on my head is an indication."
+    },
+    {
+     "type": "NARRATION",
+     "text": "I awoke next to the ship, abandoned and alone. That's okay though. I work best alone. The crew on the other hand, I thought needed me. I found Emmett’s tracks, and I followed them all the way to a burning hut where the captain himself sat next to. He wasn't talking normally though. He kept making regular goat bleats, and I'm pretty sure he was shrinking."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Great, I thought. Our captain is a child now.",
+     "segments": [
+      {
+       "text": "Great,",
+       "italic": true
+      },
+      {
+       "text": " I thought. "
+      },
+      {
+       "text": "Our captain is a child now.",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "He kept screaming too, and only stopped when the floran held him. I think he saw her as a mother figure."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Meanwhile, the rest of the pirates were yelling at each other, and I had to take matters into my own hands. I took the ingredients from the floran and, mixing them with chemicals I had on me, made a concoction that should’ve at least stopped the shrinking. I gave it to him, and while it did work, he spit out a bunch at me and burned my perfectly good leather jacket. I knew I should've stayed away from acidic chemicals. The martian was a good enough doctor to finally fix him, though for some reason he turned into a bee at one point? I’m still very confused about that."
+    },
+    {
+     "type": "NARRATION",
+     "text": "We are now stranded in the wilderness of a planet once home to Seth, and even though I don't want to admit it, I believe he may be our only hope to getting out of this mess. Yep, our fate rests in a sex-crazed elf who makes very questionable life decisions. I swear, sometimes I’m the only sane one in this place."
+    }
+   ]
+  },
+  {
+   "chapter_no": 2,
+   "title": "Entry 3",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "September 22 According to the revolution of Chromatin 43, 3096 GUY"
+    },
+    {
+     "type": "NARRATION",
+     "text": "A new member joined our crew today, apparently some friend of the elf. In fact, the new guy, who calls himself Deyner, seems to be an elf as well. It upsets me that we have three elves on board."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Well, two and a half, if you count Iris’s archdemon side."
+    },
+    {
+     "type": "NARRATION",
+     "text": "He managed to fix that stupid loose screw in my flamethrower, which was nice of him, although I don’t know why he would trust me so easily. Further investigation is needed."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Shortly after Deyner arrived, we were invaded by pirates. It was fun to light some people up, until I was knocked out."
+    },
+    {
+     "type": "NARRATION",
+     "text": "I had a strange dream while I was knocked out. It was about me as a baby, I think, though it was so long ago I can't remember if it's true or not."
+    },
+    {
+     "type": "NARRATION",
+     "text": "The dream took place in a forest. I was being held by a strange man who, from what I could see, wore a brown cloak over his shirt, brown gloves, and a satchel. The man’s face was severely pale, and his baby blue hair rustled across his serious face. His yellow eyes scoured for something ahead of us, though I couldn't make out what it could be."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Suddenly, I cried out, my infant wails piercing the silence of the forest. The man looked down at me and said nothing, only stared at me blankly. And I remember, if only briefly, seeing comfort somehow in that blank stare, and my crying slowed slightly. My hands reached out for his face and"
+    },
+    {
+     "type": "NARRATION",
+     "text": "“CHOMSKY!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "CHOMSKY!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "clunk crash",
+     "segments": [
+      {
+       "text": "clunk ",
+       "italic": true
+      },
+      {
+       "text": "crash",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Uh, yes? Sir?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Uh, yes? Sir?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Where in blazes are you? You should have finished your mission days ago!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "Where in blazes are you? You should have finished your mission days ago!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Um…..”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Um….."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“STOP STUTTERING AND SPEAK UP!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "STOP STUTTERING AND SPEAK UP!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "throat clear",
+     "segments": [
+      {
+       "text": "throat clear",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Sorry, sir. Unfortunately, I've been captured by space pirates.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Sorry, sir. Unfortunately, I've been captured by space pirates."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“PIRATES? You allowed yourself to be captured by measly pirates?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "PIRATES? You allowed yourself to be captured by measly pirates?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I have reason to believe they have information that could be of use to us. I have been made a trusted ally on this ship, and I plan to exploit that.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "I have reason to believe they have information that could be of use to us. I have been made a trusted ally on this ship, and I plan to exploit that."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Trusted? ALLY?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "Trusted? ALLY?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You know my duties lie only with you, sir.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "You know my duties lie only with you, sir."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Yeah, they had better. What information could these random pirates have anyway?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "Yeah, they had better. What information could these random pirates have anyway?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“They know where the artifact is. Not to mention, they have extensive weaponry, including a floran.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "They know where the artifact is. Not to mention, they have extensive weaponry, including a floran."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“A floran? Yes, I suppose we could use one of those. My connection to the Dread Lord has been stagnant lately. Carry on then. You have until the end of the next month to follow up on your new mission. You know what happens to people who fail me. Over and out.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "A floran? Yes, I suppose we could use one of those. My connection to the Dread Lord has been stagnant lately. Carry on then. You have until the end of the next month to follow up on your new mission. You know what happens to people who fail me. Over and out."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I understand, sir. Over and out.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "I understand, sir. Over and out."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_no": 3,
+   "title": "Entry 4",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "September 27 According to the revolution of Chromatin 43, 3096 GUY"
+    },
+    {
+     "type": "NARRATION",
+     "text": "Garrick. The pun-loving ghost."
+    },
+    {
+     "type": "NARRATION",
+     "text": "He’s alright, I guess. He at least doesn't get in the way of my private work. In fact, he’s actually been helping with a side project of mine.",
+     "segments": [
+      {
+       "text": "He’s alright, I guess. He at least doesn't get in the way of my private work. In fact, he’s actually been "
+      },
+      {
+       "text": "helping",
+       "italic": true
+      },
+      {
+       "text": " with a side project of mine."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Well, it's more of a prank really, but it's important nonetheless. I have ulterior motives for this practical “joke.”"
+    },
+    {
+     "type": "NARRATION",
+     "text": "The idea behind it I actually got from one of Emmett’s father’s books. Apparently, there was some kind of zombie outbreak among the Squoatlings, and I plan to recreate this scenario on the ship."
+    },
+    {
+     "type": "NARRATION",
+     "text": "I mean sure, maybe it's a little morbid, but it's all in good fun, at least for the ghost. I personally need to do this to find out the crew’s weaknesses. Iris is controlled by her emotions, Sanya by Dread, Seth by intercourse, and now it’s time to find out what the Squoatling’s is. Now that I think about it though, I'm not sure how I would best Garrick. I mean he is a ghost, after all."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Maybe I should be worried about him."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Hey, Chomsky, I got this box of stuff from Emmett. Come take a look!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Garrick",
+       "text": "Hey, Chomsky, I got this box of stuff from Emmett. Come take a look!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Speak of the devil. I leave the rest to my audio log."
+    },
+    {
+     "type": "HEADING",
+     "text": "Garrick"
+    },
+    {
+     "type": "NARRATION",
+     "text": "C: “Hmm. These are mostly just work tools. The staple gun might be useful though.”",
+     "segments": [
+      {
+       "text": "C: “"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Hmm. These are mostly just work tools. The staple gun might be useful though."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "G: “There's some shedding in there too.”",
+     "segments": [
+      {
+       "text": "G: “"
+      },
+      {
+       "speaker": "Garrick",
+       "text": "There's some shedding in there too."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "C: “Ah! Great find. We need as much of his fur as possible. This needs to be perfect.”",
+     "segments": [
+      {
+       "text": "C: “"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Ah! Great find. We need as much of his fur as possible. This needs to be perfect."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "HEADING",
+     "text": "Emmett"
+    },
+    {
+     "type": "NARRATION",
+     "text": "E: “Hey Chomsky. Could I have one of my father’s books back?”",
+     "segments": [
+      {
+       "text": "E: “"
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "Hey Chomsky. Could I have one of my father’s books back?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "C: “No.”",
+     "segments": [
+      {
+       "text": "C: “"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "No."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "E: “Why not?”",
+     "segments": [
+      {
+       "text": "E: “"
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "Why not?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "C: “Your culture is really interesting to me.”",
+     "segments": [
+      {
+       "text": "C: “"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Your culture is really interesting to me."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "E: “Really?”",
+     "segments": [
+      {
+       "text": "E: “"
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "Really?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "C: “No.”",
+     "segments": [
+      {
+       "text": "C: “"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "No."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "HEADING",
+     "text": "Sanya"
+    },
+    {
+     "type": "NARRATION",
+     "text": "C: “Hey!”",
+     "segments": [
+      {
+       "text": "C: “"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Hey!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "S: “AAH! Fire man!”",
+     "segments": [
+      {
+       "text": "S: “"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "AAH! Fire man!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "C: “Calm down, I just want to chat.”",
+     "segments": [
+      {
+       "text": "C: “"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Calm down, I just want to chat."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "S: “Oh… what’s up?”",
+     "segments": [
+      {
+       "text": "S: “"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "Oh… what’s up?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "C: “You’re basically Emmett’s mother now. Do you know what upsets him?”",
+     "segments": [
+      {
+       "text": "C: “"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "You’re basically Emmett’s mother now. Do you know what upsets him?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "S: “Why do you need to know?”",
+     "segments": [
+      {
+       "text": "S: “"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "Why do you need to know?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "C: “Uh… asking for a friend?”",
+     "segments": [
+      {
+       "text": "C: “"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Uh… asking for a friend?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "S: “Right. I guess he gets upset if he doesn't get grass.”",
+     "segments": [
+      {
+       "text": "S: “"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "Right. I guess he gets upset if he doesn't get grass."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "C: “I sssssssee. Thank you for your time.”",
+     "segments": [
+      {
+       "text": "C: “"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "I sssssssee. Thank you for your time."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "S: “Don’t mock me! I’ve stopped doing that!”",
+     "segments": [
+      {
+       "text": "S: “"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "Don’t mock me! I’ve stopped doing that!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_no": 4,
+   "title": "Entry 5",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "October 1 According to the revolution of Chromatin 43, 3096 GUY"
+    },
+    {
+     "type": "NARRATION",
+     "text": "I’ve got to keep this journal in a safer location."
+    },
+    {
+     "type": "NARRATION",
+     "text": "I went to the ship’s pool for the first time. It’s actually pretty cool, the way the gelatinous water is able to hold someone’s weight if they decide to just sit on top of it."
+    },
+    {
+     "type": "NARRATION",
+     "text": "I was talking to Garrick, because you know, I wanted to know more about him. Nothing personal, I swear. Then, just out of the blue, he said, “At least I’m not the one who killed my parents.” Never before have I been so terrified by one sentence.",
+     "segments": [
+      {
+       "text": "I was talking to Garrick, because you know, I wanted to know more about him. Nothing personal, I swear. Then, just out of the blue, he said, “"
+      },
+      {
+       "speaker": "Garrick",
+       "text": "At least I’m not the one who killed my parents."
+      },
+      {
+       "text": "” Never before have I been so terrified by one sentence."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "So yeah, Garrick has at least seen that entry, but who knows what others he’s seen? My entire mission could be compromised in one fell swoop, and there's nothing I could do to stop it."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Unless…."
+    },
+    {
+     "type": "NARRATION",
+     "text": "BRILLIANT ESCAPE PLAN IN CASE THE ORIGINAL PLAN GOES WRONG",
+     "segments": [
+      {
+       "text": "BRILLIANT ESCAPE PLAN IN CASE THE ORIGINAL PLAN GOES WRONG",
+       "bold": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Step 1) take a spacesuit"
+    },
+    {
+     "type": "NARRATION",
+     "text": "Step 2) sneakily exit the ship and into the blackness of space"
+    },
+    {
+     "type": "NARRATION",
+     "text": "No, that would be suicide."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Step 1) contact the boss and tell him to send backup"
+    },
+    {
+     "type": "NARRATION",
+     "text": "That would mean telling the boss that I failed, which would also be suicide."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Step 1) convince the crew that I've changed"
+    },
+    {
+     "type": "NARRATION",
+     "text": "Oh sure, they'll definitely believe that. Maybe there really is no way out of this."
+    },
+    {
+     "type": "NARRATION",
+     "text": "I think back to my dream about the man with the blue hair. Is he still alive? Even if he was though, I don't know his name, what he would look like now, or really anything at all about him. Just that stern but caring look in his eyes. From the looks of him, he might be from a frost planet. That's at least a start. I mean there's only an infinite number of planets in the universe."
+    },
+    {
+     "type": "NARRATION",
+     "text": "I don't need a plan. I need a miracle. So if there really is a God, please hear me."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Please don't let the pirates find out about my plan. Because even if they don't realize it, they're the villains here. I've seen them destroy countless lives for their own personal gain, or for no reason at all. The people I work for may not be the nicest people, but they have good ideas and plans to put the universe into an era of peace. The only problem is, there cannot be peace without war. So God, if you really do exist, protect me and my people. We’re only trying to help."
+    }
+   ]
+  },
+  {
+   "chapter_no": 5,
+   "title": "Entry 6",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "October 9 According to the revolution of Chromatin 43, 3097 GUY"
+    },
+    {
+     "type": "NARRATION",
+     "text": "I stared at the figure in my hand. It wasn't like the other Ottori idols. This one had five different symbols, combined in a way so that they all flowed into each other. The first was an arrow, pointing straight up. Then, a triangle surrounding the point of the arrow. Three wavy lines at the base of the arrow. A circle overlapping the middle of the arrow, and a jagged line through the center of the circle. I pulled out my communicator and muted my ship com."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“This is Victor Chomsky, calling in. Boss, do you read me?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "This is Victor Chomsky, calling in. Boss, do you read me?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Yes, I read you. This had better be good, Chomsky. I'm in the middle of something.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "Yes, I read you. This had better be good, Chomsky. I'm in the middle of something."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I found it.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "I found it."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You found what?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "You found what?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“The artifact. I have it.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "The artifact. I have it."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“...”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "..."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Boss?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Boss?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Do not talk unless spoken to.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "Do not talk unless spoken to."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Yes, of course, sir.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Yes, of course, sir."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "muffled voices",
+     "segments": [
+      {
+       "text": "muffled voices",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“...”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "..."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I am sending immediate back-up to your location. Be careful with that talisman, Red.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "I am sending immediate back-up to your location. Be careful with that talisman, Red."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Red?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Red?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Over and out.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Chomsky's Boss",
+       "text": "Over and out."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "As I pondered over the Boss calling me by a new nickname, I felt....something. Not something physical, but it was something I couldn't quite place. As if the inside of my head itched, or I was hungry or thirsty. Hmm. Probably just some annoying joke about my hair. He makes those a lot. I ignored the feeling and thought about my next move. I knew that with the technology available to the boss, it would take at least a couple weeks before they arrived. That gave me just a little time to follow through with my plan for the Squoatling and any other plans I can come up with."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Only then did it occur to me what carnage would happen were the boss to show up suddenly. He would wreak havoc, and kill every single person aboard this ship, aside from myself. He never told me what the artifact could do, or why he wanted it so bad. Now, as I hold possibly the most powerful relic in the entire universe within my very hands, I wonder if I’ve done the right thing, or if I've doomed us all."
+    }
+   ]
+  },
+  {
+   "chapter_no": 6,
+   "title": "Entry 7",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "October 12 According to the revolution of Chromatin 43, 3097 GUY"
+    },
+    {
+     "type": "NARRATION",
+     "text": "I can’t say that my plan for Emmett went off without a hitch. It started out all right, but then the Squoatling pretended to turn feral. His eyes rolled into the back of his head and he started foaming at the mouth. It scared me half to death and I may have almost killed him."
+    },
+    {
+     "type": "NARRATION",
+     "text": "It was an accident, I swear. Just a reflex."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Then Garrick made the costume throw Emmett across the room, probably giving him a concussion and several broken bones. I didn't want him to get hurt, I just wanted to find out how he would react. And now I know. It’s not just the crave. I think Emmett has some kind of legitimate weakness to zombies."
+    },
+    {
+     "type": "NARRATION",
+     "text": "I always knew the bite on his ear was really strange, as if a raging animal had bitten a chunk out. But now I think he has actually been turned into some mix of the undead and the living. Scary stuff."
+    },
+    {
+     "type": "NARRATION",
+     "text": "On a different note, Garrick caused some damage to the ship, and now I've got to fix it. And I'm not even a mechanic! Oh well. I'm sure there are instructions online on how to repair a smashed refrigerator."
+    }
+   ]
+  },
+  {
+   "chapter_no": 7,
+   "title": "Entry 8",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "October 16 According to the revolution of Chromatin 43, 3097 GUY"
+    },
+    {
+     "type": "NARRATION",
+     "text": "I haven't been able to focus all week. I keep spilling chemicals. I called Emmett Seth, and I called Seth Sanya. I keep pacing back and forth, my boots leaving countless skid marks in my room. The crew started to notice too."
+    },
+    {
+     "type": "HEADING",
+     "text": "Conversation with Iris"
+    },
+    {
+     "type": "NARRATION",
+     "text": "I: “Hey Chomsky!”",
+     "segments": [
+      {
+       "text": "I: “"
+      },
+      {
+       "speaker": "Iris",
+       "text": "Hey Chomsky!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "C: “What? Oh. Hey.”",
+     "segments": [
+      {
+       "text": "C: “"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "What? Oh. Hey."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "I: “Is everything okay? You’ve been walking up and down this hallway for half an hour. We’re starting to worry about you.”",
+     "segments": [
+      {
+       "text": "I: “"
+      },
+      {
+       "speaker": "Iris",
+       "text": "Is everything okay? You’ve been walking up and down this hallway for half an hour. We’re starting to worry about you."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "C: “Pssh, whaaaat? I’m fine. Really. Just, uh, have a lot on my mind.”",
+     "segments": [
+      {
+       "text": "C: “"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Pssh, whaaaat? I’m "
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "fine.",
+       "italic": true
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": " Really. Just, uh, have a lot on my mind."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "I: “Like what?”",
+     "segments": [
+      {
+       "text": "I: “"
+      },
+      {
+       "speaker": "Iris",
+       "text": "Like what?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "C: “Oh you know. Stuff.”",
+     "segments": [
+      {
+       "text": "C: “"
+      },
+      {
+       "speaker": "Victor Chomsky",
+       "text": "Oh you know. Stuff."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "I: “Well, if you say so. You should probably get a comb though. You’ve been running your hand through your hair and it’s sticking up all over the place.”",
+     "segments": [
+      {
+       "text": "I: “"
+      },
+      {
+       "speaker": "Iris",
+       "text": "Well, if you say so. You should probably get a comb though. You’ve been running your hand through your hair and it’s sticking up all over the place."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Luckily no one has pried too much in their questions. I don't think I could come up with a reasonable excuse. I mean how do you explain calmly that the largest powerhouse in the entire universe is going to blow us up?"
+    },
+    {
+     "type": "NARRATION",
+     "text": "I’m currently sitting on my bed, writing aimlessly. There's no point in all this worrying. It's going to happen, no matter what. I might as well accept it. But no matter how much I try and ignore it, no matter how much I pretend it’ll all be fine, I know it's not."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Something bad is about to happen, and it's all my fault."
+    }
+   ]
+  }
+ ]
+}

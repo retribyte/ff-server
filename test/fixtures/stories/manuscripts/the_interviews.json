@@ -1,0 +1,919 @@
+{
+ "story": {
+  "slug": "the_interviews",
+  "title": "The Interviews",
+  "blurb": "Non-canon. Emmett and Josephine, perhaps the last two Squoatlings, are hounded across Daerthlorn by news crews whose questions get more personal every time.",
+  "season": "FF2",
+  "format": "PROSE"
+ },
+ "authors": [
+  "Zander"
+ ],
+ "chapters": [
+  {
+   "chapter_no": 1,
+   "title": null,
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "It took Daerthlorn five months until the news crews realized who their newest residents were. Oh, the publicity their channels could receive with the event of a Squoatling couple living on their planet. Some time passed for the Channel Five crew to find the man, but as soon as they caught track of Emmett's whereabouts, it wasn't long until they found him."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Oh hi! You're a Squoatling!\" Emmett looked from side to side while in his Vegetation Co. uniform.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Five Anchor",
+       "text": "Oh hi! You're a Squoatling!"
+      },
+      {
+       "text": "\" Emmett looked from side to side while in his Vegetation Co. uniform."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Uhm, yes. I'm a Squoatling. What's it to you?\" The spokesperson of the crew did a little jig out of excitement.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "Uhm, yes. I'm a Squoatling. What's it to you?"
+      },
+      {
+       "text": "\" The spokesperson of the crew did a little jig out of excitement."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"We were just curious if you would answer a few questions for Channel Five!\" Emmett put a hoof to his chin, thinking for a bit.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Five Anchor",
+       "text": "We were just curious if you would answer a few questions for Channel Five!"
+      },
+      {
+       "text": "\" Emmett put a hoof to his chin, thinking for a bit."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I would like to, but I'd have to decline due to personal reasons.\" Emmett could not give his position away to the media, especially if it could be reached by Llamanians.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "I would like to, but I'd have to decline due to personal reasons."
+      },
+      {
+       "text": "\" Emmett could not give his position away to the media, especially if it could be reached by Llamanians."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Oh! But we insist! You must!\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Five Anchor",
+       "text": "Oh! But we insist! You must!"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"What?\" Emmett raised an eyebrow.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "What?"
+      },
+      {
+       "text": "\" Emmett raised an eyebrow."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"So, what brings you to our planet?\" Emmett did not speak until he knew their efforts were persistent.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Five Anchor",
+       "text": "So, what brings you to our planet?"
+      },
+      {
+       "text": "\" Emmett did not speak until he knew their efforts were persistent."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"The two of us escaped from the Llamanians like a few months ago. We landed here and have lived here ever since.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "The two of us escaped from the Llamanians like a few months ago. We landed here and have lived here ever since."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Oh! So you aren't that new around here.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Five Anchor",
+       "text": "Oh! So you aren't that new around here."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I know where I am, I suppose.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "I know where I am, I suppose."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"What do you plan on doing here?\" Emmett shook his head.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Five Anchor",
+       "text": "What do you plan on doing here?"
+      },
+      {
+       "text": "\" Emmett shook his head."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I don't think you need to know that.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "I don't think you need to know that."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"But we do! We need to accommodate you in our home.\" Emmett sighed loudly.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Five Anchor",
+       "text": "But we do! We need to accommodate you in our home."
+      },
+      {
+       "text": "\" Emmett sighed loudly."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I guess we're just wanting to get by. Get our daily source of grass and possibly start a family.\" The anchor licked her lips due to how juicy she thought the information was.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "I guess we're just wanting to get by. Get our daily source of grass and possibly start a family."
+      },
+      {
+       "text": "\" The anchor licked her lips due to how juicy she thought the information was."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"So you admit you two are a couple?\" Emmett gasped.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Five Anchor",
+       "text": "So you admit you two are a couple?"
+      },
+      {
+       "text": "\" Emmett gasped."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I never said that!\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "I never said that!"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Families need to have loving parents, Squoatling.\" After this last statement, the lunch whistle blew.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Five Anchor",
+       "text": "Families need to have loving parents, Squoatling."
+      },
+      {
+       "text": "\" After this last statement, the lunch whistle blew."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Well, time for me to get back to work.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "Well, time for me to get back to work."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"We'll be back!\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Five Anchor",
+       "text": "We'll be back!"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "After Channel Five broadcasted the short interview, the other crews were infuriated. More and more interviews were made, with some lasting all night. Both Emmett and Josephine were exhausted. They went into positions where they knew they would not be interviewed. On the contrary, the crews caught up, and started to break barriers to reach them. Channel Six, in particular, actually broke into their apartment."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Josephine! We have some questions!\" A buff security guard kicked down the bathroom door. Josephine, who had just finished showering, pulled the shower curtain over herself to cover her shame.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Six Guard",
+       "text": "Josephine! We have some questions!"
+      },
+      {
+       "text": "\" A buff security guard kicked down the bathroom door. Josephine, who had just finished showering, pulled the shower curtain over herself to cover her shame."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"What the hell, guys?!\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "What the hell, guys?!"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Hey Josephine. We just--\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Six Anchor",
+       "text": "Hey Josephine. We just--"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Wanted to ask a few questions? Sure, I'm definitely in an available condition to direct my attention to you,\" Josephine stammered. She was a little pissed that they would screw over their house for their avarice.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "Wanted to ask a few questions? Sure, I'm definitely in an available condition to direct my attention to you"
+      },
+      {
+       "text": ",\" Josephine stammered. She was a little pissed that they would screw over their house for their avarice."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Remember Josephine, 4th law. States that news channels can invade privacy.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Six Anchor",
+       "text": "Remember Josephine, 4th law. States that news channels can invade privacy."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"The laws here are stupid,\" she muttered to herself.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "The laws here are stupid"
+      },
+      {
+       "text": ",\" she muttered to herself."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"First question, so, are you and Emmett a couple?\" Josephine rolled her eyes to the side, a bit out of embarrassment.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Six Anchor",
+       "text": "First question, so, are you and Emmett a couple?"
+      },
+      {
+       "text": "\" Josephine rolled her eyes to the side, a bit out of embarrassment."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Why is this important?\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "Why is this important?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Just answer the question.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Six Anchor",
+       "text": "Just answer the question."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"...Yes, we're mates, I guess. Still, why?\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "...Yes, we're mates, I guess. Still, why?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Wait, you two have--\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Six Anchor",
+       "text": "Wait, you two have--"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"No, no!\" the purple Squoatling cried.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "No, no!"
+      },
+      {
+       "text": "\" the purple Squoatling cried."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"We haven't thought about having a child. Not yet.\" The spokesman raised an eyebrow.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "We haven't thought about having a child. Not yet."
+      },
+      {
+       "text": "\" The spokesman raised an eyebrow."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Not yet?\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Six Anchor",
+       "text": "Not yet?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I mean, we're probably the last two of our kind. Praise Squoat that we're different genders. But I don't really want to mate with him yet.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "I mean, we're probably the last two of our kind. Praise Squoat that we're different genders. But I don't really want to mate with him yet."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Aren't you just being selfish then?\" Josephine shuffled her hooves in the shower, furrowing her brow. She ended up slipping on the soapy floor beneath her.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Six Anchor",
+       "text": "Aren't you just being selfish then?"
+      },
+      {
+       "text": "\" Josephine shuffled her hooves in the shower, furrowing her brow. She ended up slipping on the soapy floor beneath her."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I'm okay, I'm okay. Don't touch me!\" She got up and reluctantly got out, getting a towel to wrap herself up in.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "I'm okay, I'm okay. Don't touch me!"
+      },
+      {
+       "text": "\" She got up and reluctantly got out, getting a towel to wrap herself up in."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Impressive figure, Ms. Josephine.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Six Anchor",
+       "text": "Impressive figure, Ms. Josephine."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Not a word about this, Channel Six.\" She made her way to the kitchen, inevitably being asked more highly personal questions.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "Not a word about this, Channel Six."
+      },
+      {
+       "text": "\" She made her way to the kitchen, inevitably being asked more highly personal questions."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"So, Ms. Josephine, have you and Emmett...\" The news anchor suggestively pushed one of his tentacle appendages through the other, which was wrapped in a circle.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Six Anchor",
+       "text": "So, Ms. Josephine, have you and Emmett..."
+      },
+      {
+       "text": "\" The news anchor suggestively pushed one of his tentacle appendages through the other, which was wrapped in a circle."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"If I say yes, will you leave me alone?\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "If I say yes, will you leave me alone?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Ooh! Juicy!\" He licked his lips.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Six Anchor",
+       "text": "Ooh! Juicy!"
+      },
+      {
+       "text": "\" He licked his lips."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Such a pervert...\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "Such a pervert..."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Just a few more questions, madam. Mind having a drink with me?\" Josephine smirked a little through her irritation.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Six Anchor",
+       "text": "Just a few more questions, madam. Mind having a drink with me?"
+      },
+      {
+       "text": "\" Josephine smirked a little through her irritation."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Channel Eleven was the last of the news crews to forcibly interview the two Squoatlings. This crew caught the two off guard when they decided to have some lunch at a local coffee shop. Immediately, their emotions went south."
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Yes, Channel Eleven?\" Emmett exhaled.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "Yes, Channel Eleven?"
+      },
+      {
+       "text": "\" Emmett exhaled."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Just a few questions.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Eleven Reporter",
+       "text": "Just a few questions."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Shoot,\" Josephine quickly mouthed.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "Shoot"
+      },
+      {
+       "text": ",\" Josephine quickly mouthed."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Do you two have a healthy relationship?\" Refusing to speak any unnecessary information, Emmett tiredly nodded.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Eleven Reporter",
+       "text": "Do you two have a healthy relationship?"
+      },
+      {
+       "text": "\" Refusing to speak any unnecessary information, Emmett tiredly nodded."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Josephine, has Emmett been treating you right?\" Josephine smiled a little.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Eleven Reporter",
+       "text": "Josephine, has Emmett been treating you right?"
+      },
+      {
+       "text": "\" Josephine smiled a little."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I mean, yeah. He's kind-of the reason why we're here. Definitely a treat in the sheets.\" Emmett nudged her in the side softly. \"What? It's true.\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "I mean, yeah. He's kind-of the reason why we're here. Definitely a treat in the sheets."
+      },
+      {
+       "text": "\" Emmett nudged her in the side softly. \""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "What? It's true."
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Now they're going to ask even m--\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "Now they're going to ask even m--"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Who's the more dominant one out of you two?\" Both of them kept quiet. They looked at one another, with Emmett shaking his head towards their interviewer.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Eleven Reporter",
+       "text": "Who's the more dominant one out of you two?"
+      },
+      {
+       "text": "\" Both of them kept quiet. They looked at one another, with Emmett shaking his head towards their interviewer."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"If we answer this, will you guys stop?\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "If we answer this, will you guys stop?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"We feel like we've gotten enough from the other times, so yes. Sure.\" Josephine sat up straight in her seat.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Eleven Reporter",
+       "text": "We feel like we've gotten enough from the other times, so yes. Sure."
+      },
+      {
+       "text": "\" Josephine sat up straight in her seat."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"I'm the fucker and he's the fuckee.\" She purposely said this in a way so that they could not use this information on television.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Josephine",
+       "text": "I'm the fucker and he's the fuckee."
+      },
+      {
+       "text": "\" She purposely said this in a way so that they could not use this information on television."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"Is this true, Tawfeek?\" Emmett just shrugged, chuckling at her crude response.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "speaker": "Channel Eleven Reporter",
+       "text": "Is this true, Tawfeek?"
+      },
+      {
+       "text": "\" Emmett just shrugged, chuckling at her crude response."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

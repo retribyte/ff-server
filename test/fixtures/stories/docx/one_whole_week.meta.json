@@ -1,0 +1,16 @@
+{
+ "meta": {
+  "slug": "one_whole_week",
+  "title": "One Whole Week",
+  "format": "prose",
+  "season": "FF3",
+  "authors": "Brody",
+  "colors": {
+   "#ff0000": "Cff0000",
+   "#cf0000": "Ccf0000",
+   "#980000": "C980000",
+   "#3d85c6": "C3d85c6"
+  }
+ },
+ "warnings": []
+}

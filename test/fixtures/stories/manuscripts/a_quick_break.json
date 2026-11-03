@@ -1,0 +1,567 @@
+{
+ "story": {
+  "slug": "a_quick_break",
+  "title": "A Quick Break",
+  "blurb": "Rattled by how badly her last job went, Sanya spends a break researching at her temple with Mary, then calls in a favor from Garrick.",
+  "season": "FF3",
+  "format": "PROSE"
+ },
+ "authors": [
+  "Brody"
+ ],
+ "chapters": [
+  {
+   "chapter_no": 1,
+   "title": null,
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "“Anything in that one, Red?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Mary",
+       "text": "Anything in that one, Red?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Sanya had taken some time off after the death of Richard Jamerez to visit her temple and do a bit of research. The assassin knew she had gotten a little rusty, but she never expected to be that worse for wear. A simple job like that would have been easy when she worked alone, but now?"
+    },
+    {
+     "type": "NARRATION",
+     "text": "“No, nothing in this book. Pass me the next one.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "No, nothing in this book. Pass me the next one."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Maybe it was just the newbie, she thought to herself. I can’t be getting weak. I’ve been doing this since I bloomed, I can’t be getting weak. Sanya glazes over the pages, deep in thought. No, no. It’s not me. I was able to cut down 4 enemies in no time, so what was it?",
+     "segments": [
+      {
+       "text": "Maybe it was just the newbie,",
+       "italic": true
+      },
+      {
+       "text": " she thought to herself. "
+      },
+      {
+       "text": "I can’t be getting weak. I’ve been doing this since I bloomed, I can’t be getting weak.",
+       "italic": true
+      },
+      {
+       "text": " Sanya glazes over the pages, deep in thought. "
+      },
+      {
+       "text": "No, no. It’s not me. I was able to cut down 4 enemies in no time, so what was it?",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Hey, Red? You good?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Mary",
+       "text": "Hey, Red? You good?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“What? Oh, yes, I’m fine.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "What? Oh, yes, I’m fine."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You haven’t flipped a page in minutes.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Mary",
+       "text": "You haven’t flipped a page in minutes."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The Floran looked at her Angelus friend, then back at the book. Closing its cover, Sanya put the tome down and sat up, brushing off her legs. This was her fourth visit to the temple since meeting Mary, but the intruder had made a big impact on Sanya."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“My bad. A lot has happened with my crew recently, so I’ve been a bit lost in thought.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "My bad. A lot has happened with my crew recently, so I’ve been a bit lost in thought."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Ooh? Like what?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Mary",
+       "text": "Ooh? Like what?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Sanya grabbed a snack from the food bin and sat back down on her sleeping bag. Sanya’s setup had changed slightly. A new, light blue sleeping bag sat next to Sanya’s red one, along with more food variation and other assorted knick-knacks."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“We were given a high-value target to hit. Normally a breeze, but the latest addition nearly made a mockery of us.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "We were given a high-value target to hit. Normally a breeze, but the latest addition nearly made a mockery of us."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Ooh, they sound fun.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Mary",
+       "text": "Ooh, they sound fun."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“He certainly fits right in with our gaggle of idiots.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "He certainly fits right in with our gaggle of idiots."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“And when do I get to meet all of these idiots?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Mary",
+       "text": "And when do I get to meet all of these idiots?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I’ve told you, it’s not that simple.” Sanya gave a quick glare at Mary, her cold demeanor once again reappearing. “My teleporter only has the power for single-person usage. I can’t ask for another, as people would get increasingly suspicious. Besides,” Sanya stood up once again. “These aren’t normal people. Crew members range from annoying to unkillable to the most wanted being in the GU. It takes all the restraint I have not to murder half of them.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "I’ve told you, it’s not that simple."
+      },
+      {
+       "text": "” Sanya gave a quick glare at Mary, her cold demeanor once again reappearing. “"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "My teleporter only has the power for single-person usage. I can’t ask for another, as people would get increasingly suspicious. Besides"
+      },
+      {
+       "text": ",” Sanya stood up once again. “"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "These aren’t normal people. Crew members range from annoying to unkillable to the most wanted being in the GU. It takes all the restraint I have not to murder half of them."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I can handle myself. I think I more than proved it.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Mary",
+       "text": "I can handle myself. I think I more than proved it."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Sanya paused. Normally, she’d let someone head straight first into danger. She knew she cared about Mary, but…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "“We’ll have to see what happens. I have to get going, or they’ll start to get suspicious.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "We’ll have to see what happens. I have to get going, or they’ll start to get suspicious."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Good-” But before the Angelus could finish, Sanya had teleported out of the temple, leaving her alone yet again.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Mary",
+       "text": "Good-"
+      },
+      {
+       "text": "” But before the Angelus could finish, Sanya had teleported out of the temple, leaving her alone yet again."
+      }
+     ]
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "After returning to the ship for a few hours, Sanya crept out of her bed. She knew Garrick would still be awake, and she had a few favors to ask him. Sure enough, as soon as she creaked open the door, she could see the ghost dart off to attempt to avoid being caught."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Come here, Ghost. I need to ask you some things.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "Come here, Ghost. I need to ask you some things."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Garrick turned in intrigue."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“You need to ask me something? Alright, shoot.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Garrick",
+       "text": "You need to ask me something? Alright, shoot."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“A few things. First, how much would it cost to upgrade a personal teleporter?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "A few things. First, how much would it cost to upgrade a personal teleporter?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Why are you asking me?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Garrick",
+       "text": "Why are you asking me?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I know you have sources.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "I know you have sources."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Well,” the ghost floated there, pondering. “It would depend on who you get it from. Why are you asking?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Garrick",
+       "text": "Well"
+      },
+      {
+       "text": ",” the ghost floated there, pondering. “"
+      },
+      {
+       "speaker": "Garrick",
+       "text": "It would depend on who you get it from. Why are you asking?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Question 2: Can you living beings enter your pocket?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "Question 2: Can you living beings enter your pocket?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Yes. Remember, that’s where Jess came from? But you didn’t answer my question.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Garrick",
+       "text": "Yes. Remember, that’s where Jess came from? But you didn’t answer my question."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Good. Jump in and I’ll explain later.” Sanya knelt down as her flower opened out of its bloom. Dread awoke with what appeared to be a yawn, taking a second to glance at Garrick.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "Good. Jump in and I’ll explain later."
+      },
+      {
+       "text": "” Sanya knelt down as her flower opened out of its bloom. Dread awoke with what appeared to be a yawn, taking a second to glance at Garrick."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Oh, it’s the Ghost. What do you want?",
+     "segments": [
+      {
+       "speaker": "Dread",
+       "text": "Oh, it’s the Ghost. What do you want?",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“He’s hopping in.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "He’s hopping in."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I am doing nothing of the sort!”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Garrick",
+       "text": "I am doing nothing of the sort!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Now, or I wake up Iris and tell her where her dancing ribbons really went.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "Now, or I wake up Iris and tell her where her dancing ribbons really went."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "With a sigh, and about 12 minutes of hyping himself up, Garrick squished himself into Sanya’s flower."
+    },
+    {
+     "type": "NARRATION",
+     "text": "That was disgusting.",
+     "segments": [
+      {
+       "speaker": "Dread",
+       "text": "That was disgusting.",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“We’re not done yet. I think it’s time we go and visit our friend.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sanya Dreadflower",
+       "text": "We’re not done yet. I think it’s time we go and visit our friend."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

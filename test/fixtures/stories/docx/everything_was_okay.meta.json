@@ -1,0 +1,22 @@
+{
+ "meta": {
+  "slug": "everything_was_okay",
+  "title": "Everything Was Okay",
+  "format": "prose",
+  "season": "FF4",
+  "authors": "Silas",
+  "colors": {
+   "#0b5394": "C0b5394",
+   "#38761d": "C38761d",
+   "#434343": "C434343",
+   "#bf9000": "Cbf9000",
+   "#5b0f00": "C5b0f00",
+   "#990000": "C990000",
+   "#741b47": "C741b47",
+   "#1155cc": "C1155cc"
+  }
+ },
+ "warnings": [
+  "most of the text is monospace — treated as the body font, not TRANSCRIPT blocks"
+ ]
+}

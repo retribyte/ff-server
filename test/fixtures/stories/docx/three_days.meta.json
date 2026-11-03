@@ -1,0 +1,13 @@
+{
+ "meta": {
+  "slug": "three_days",
+  "title": "Three Days",
+  "format": "prose",
+  "season": "FF4",
+  "authors": "Trey",
+  "colors": {
+   "#1155cc": "C1155cc"
+  }
+ },
+ "warnings": []
+}

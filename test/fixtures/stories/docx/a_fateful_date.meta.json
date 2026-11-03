@@ -1,0 +1,15 @@
+{
+ "meta": {
+  "slug": "a_fateful_date",
+  "title": "A Fateful Date",
+  "format": "prose",
+  "season": "FF3",
+  "authors": "Brody",
+  "colors": {
+   "#980000": "C980000",
+   "#ff0000": "Cff0000",
+   "#4a86e8": "C4a86e8"
+  }
+ },
+ "warnings": []
+}

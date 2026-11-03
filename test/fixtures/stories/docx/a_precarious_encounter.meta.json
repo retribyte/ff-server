@@ -1,0 +1,17 @@
+{
+ "meta": {
+  "slug": "a_precarious_encounter",
+  "title": "A Precarious Encounter",
+  "format": "prose",
+  "season": "FF3",
+  "authors": "Zander",
+  "colors": {
+   "#38761d": "C38761d",
+   "#666666": "C666666",
+   "#783f04": "C783f04",
+   "#980000": "C980000",
+   "#1c4587": "C1c4587"
+  }
+ },
+ "warnings": []
+}

@@ -1,0 +1,384 @@
+{
+ "story": {
+  "slug": "any_means_necessary",
+  "title": "Any Means Necessary",
+  "blurb": "In a dark warehouse, three armored Ravens, Odran, Sascha and their leader, take stock of a fallen comrade and vow to wipe out whoever is responsible.",
+  "season": "FF4",
+  "format": "PROSE"
+ },
+ "authors": [
+  "Trey"
+ ],
+ "chapters": [
+  {
+   "chapter_no": 1,
+   "title": null,
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "The figures stood still in the darkened room, the only light emanating from the dual holograms. It was dead silent, with not another living soul nearby. The ghostly emptiness of the warehouse was enough to make one queasy, just from being there. One of them swiped away on their wrist device, staring sharply at the screens."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Vitals are unresponsive, boss,” said the figure in blue.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sascha",
+       "text": "Vitals are unresponsive, boss",
+       "bold": true
+      },
+      {
+       "text": ",” said the figure in blue."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“What did you say?” said the black-clad leader. His voice pierced through the air like a knife, leaving a chill in the air. This shadowy figure towered above even his two comrades, who wore similar armor to himself.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Ravens Leader",
+       "text": "What did you say?",
+       "bold": true
+      },
+      {
+       "text": "” said the black-clad leader. His voice pierced through the air like a knife, leaving a chill in the air. This shadowy figure towered above even his two comrades, who wore similar armor to himself."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The figure in blue stopped her frantic tapping and looked up at the boss."
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Marv is dead.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sascha",
+       "text": "Marv is dead.",
+       "bold": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“What!?” blurted the figure in red. “How is that even possible?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Odran",
+       "text": "What!?",
+       "bold": true
+      },
+      {
+       "text": "” blurted the figure in red. “"
+      },
+      {
+       "speaker": "Odran",
+       "text": "How is that even possible?",
+       "bold": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I don’t know, Odran, maybe he slipped and cracked his big head open,” jeered the blue figure, crossing her arms as she spoke.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sascha",
+       "text": "I don’t know, Odran, maybe he slipped and cracked his big head open",
+       "bold": true
+      },
+      {
+       "text": ",” jeered the blue figure, crossing her arms as she spoke."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“That is absolutely impossible and you know it, Sascha.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Odran",
+       "text": "That is absolutely impossible and you know it, Sascha.",
+       "bold": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Do you have a better explanation?” Sascha began to pace back and forth, her soles clanking loudly against the stone floor. A moment of silence followed, before…",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sascha",
+       "text": "Do you have a better explanation?",
+       "bold": true
+      },
+      {
+       "text": "” Sascha began to pace back and forth, her soles clanking loudly against the stone floor. A moment of silence followed, before…"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“He died because he’s reckless, arrogant, and stupid.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Ravens Leader",
+       "text": "He died because he’s reckless, arrogant, and stupid.",
+       "bold": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Sir?”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Odran",
+       "text": "Sir?",
+       "bold": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I gave the order for Sascha to dispose of their fleet while we take possession of the Galactic Union’s central harbor. Marv ignored my order and ran off to do it himself,” rumbled the one in black, the coldness of his voice crackling like thunder. “He knew that his armor was damaged.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Ravens Leader",
+       "text": "I gave the order for Sascha to dispose of their fleet while we take possession of the Galactic Union’s central harbor. Marv ignored my order and ran off to do it himself",
+       "bold": true
+      },
+      {
+       "text": ",” rumbled the one in black, the coldness of his voice crackling like thunder. “"
+      },
+      {
+       "speaker": "Ravens Leader",
+       "text": "He knew that his armor was damaged.",
+       "bold": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“That dumbass… I could have taken them out no problem. He probably charged in without a second thought.” There was an air of disappointment in her speech, mixed with equal annoyance.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sascha",
+       "text": "That dumbass… I could have taken them out no problem. He probably charged in without a second thought.",
+       "bold": true
+      },
+      {
+       "text": "” There was an air of disappointment in her speech, mixed with equal annoyance."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“It may be detrimental to our plans if we are missing such an asset. Will the armor be retrievable?” the red-clad figure said, glaring at his compeer. Sascha continued tapping away on her holographic device as she calculated, unblinking, the immense amount of data being provided.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Odran",
+       "text": "It may be detrimental to our plans if we are missing such an asset. Will the armor be retrievable?",
+       "bold": true
+      },
+      {
+       "text": "” the red-clad figure said, glaring at his compeer. Sascha continued tapping away on her holographic device as she calculated, unblinking, the immense amount of data being provided."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“All systems that are still connected are reporting catastrophic failure. The armor couldn’t be recovered in any helpful way,” she answered.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sascha",
+       "text": "All systems that are still connected are reporting catastrophic failure. The armor couldn’t be recovered in any helpful way",
+       "bold": true
+      },
+      {
+       "text": ",” she answered."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Oh, well that’s just marvelous! So not only have the ants somehow defeated a member of our squadron, but they now have broken power armor to study and reverse-engineer!” Odran threw his hands up in the air as he spoke.",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Odran",
+       "text": "Oh, well that’s just marvelous! So not only have the ants ",
+       "bold": true
+      },
+      {
+       "speaker": "Odran",
+       "text": "somehow ",
+       "italic": true,
+       "bold": true
+      },
+      {
+       "speaker": "Odran",
+       "text": "defeated a member of our squadron, but they now have broken power armor to study and reverse-engineer!",
+       "bold": true
+      },
+      {
+       "text": "” Odran threw his hands up in the air as he spoke."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“It doesn’t matter. Instead of whining, maybe we should come up with a solution? You’re always the critic—how about you figure something out for once.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sascha",
+       "text": "It doesn’t matter. Instead of whining, maybe we should come up with a solution? You’re always the critic—how about ",
+       "bold": true
+      },
+      {
+       "speaker": "Sascha",
+       "text": "you ",
+       "italic": true,
+       "bold": true
+      },
+      {
+       "speaker": "Sascha",
+       "text": "figure something out for once.",
+       "bold": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“That’s enough. But Sascha is right. If this group is a serious threat, we need to focus on disposing of them… as soon as possible.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Ravens Leader",
+       "text": "That’s enough. But Sascha is right. If this group is a serious threat, we need to focus on disposing of them… as soon as possible.",
+       "bold": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Yes, sir.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Odran",
+       "text": "Yes, sir.",
+       "bold": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "“Understood.”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Sascha",
+       "text": "Understood.",
+       "bold": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "The three closed the helmets on each of their mechanical suits, the armors’ eyes radiating menacingly as they marched. The Ravens had worked long and hard, performing countless acts of terrorism, always inching closer to their goal. If the Galactic Union wanted to wrestle, they’d wrestle. If the Horizoners wanted to brawl, they’d sure as hell brawl."
+    },
+    {
+     "type": "NARRATION",
+     "text": "They would restore their former glory."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Through any means necessary."
+    }
+   ]
+  }
+ ]
+}

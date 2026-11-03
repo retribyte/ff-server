@@ -1,0 +1,13 @@
+{
+ "meta": {
+  "slug": "bellows_journal_and_audio_logs",
+  "title": "Bellow's Journal and Audio Logs",
+  "format": "prose",
+  "season": "FF4",
+  "authors": "Jonas",
+  "colors": {}
+ },
+ "warnings": [
+  "prose paragraph contains literal []{}* that may collide with span/emphasis syntax: '*While Quietly Crying:* What am I suppos'"
+ ]
+}

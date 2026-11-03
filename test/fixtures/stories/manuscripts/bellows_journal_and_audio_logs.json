@@ -1,0 +1,663 @@
+{
+ "story": {
+  "slug": "bellows_journal_and_audio_logs",
+  "title": "Bellow's Journal and Audio Logs",
+  "blurb": "Bellow Brightlight's journal entries and audio logs, kept across the Horizoners' missions, tracking his friendship with Dutch and a crew under growing strain.",
+  "season": "FF4",
+  "format": "PROSE"
+ },
+ "authors": [
+  "Jonas"
+ ],
+ "chapters": [
+  {
+   "chapter_no": 1,
+   "title": "After Episode 3",
+   "lines": [
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "I never would have imagined this mission would be so dangerous. Though I didn’t get hit, my crewmates suffered heavy damage."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Dutch tried to stand up to that brute, but got his rib broken in the process."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Luckily I was able to find some supplies at the bazaar we stopped at. He should be healed in a few days."
+    },
+    {
+     "type": "NARRATION",
+     "text": "That’s the second time I’ve had to save him."
+    },
+    {
+     "type": "NARRATION",
+     "text": "I feel like I’m starting to bond with some of the crew members. Morra has a similar interest in flora, Zion is a very reasonable type, and Dutch…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "Well, Dutch might be the closest thing I have to a friend on this ship. We’ve been able to chat whenever I tend to his wounds."
+    },
+    {
+     "type": "NARRATION",
+     "text": "He’s a bit reckless at times, but I admire his bravery."
+    },
+    {
+     "type": "NARRATION",
+     "text": "I’ll be prepared to come to his aid any time he needs."
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "The stars are extra beautiful tonight. It’s amazing how much you can see from space…"
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    }
+   ]
+  },
+  {
+   "chapter_no": 2,
+   "title": "After Episode 3, A Little Later",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "Bellow looks at the number the shopkeep gave him, with the words “Call Me” written next to it.",
+     "segments": [
+      {
+       "text": "Bellow looks at the number the shopkeep gave him, with the words “Call Me” written next to it.",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "After a moment, he decides to call.",
+     "segments": [
+      {
+       "text": "After a moment, he decides to call.",
+       "italic": true
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "(Ring….)"
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow: “Um…Hello?”",
+     "segments": [
+      {
+       "text": "Bellow: “"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Um…Hello?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "???: “Oh! It’s you, Handsome!”",
+     "segments": [
+      {
+       "text": "???: “"
+      },
+      {
+       "speaker": "Terry",
+       "text": "Oh! It’s you, Handsome!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow: “It’s me…”",
+     "segments": [
+      {
+       "text": "Bellow: “"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "It’s me…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "???: “I forgot to give you my name. Terry Keep!”",
+     "segments": [
+      {
+       "text": "???: “"
+      },
+      {
+       "speaker": "Terry",
+       "text": "I forgot to give you my name. Terry Keep!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow: “Bellow Brightlight.”",
+     "segments": [
+      {
+       "text": "Bellow: “"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Bellow Brightlight."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Terry: “So, I was wondering, maybe you would want to come by for dinner sometime? There’s this amazing diner by the shop I’d love to take you to!”",
+     "segments": [
+      {
+       "text": "Terry: “"
+      },
+      {
+       "speaker": "Terry",
+       "text": "So, I was wondering, maybe you would want to come by for dinner sometime? There’s this amazing diner by the shop I’d love to take you to!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow: “Oh…but, I barely know you.”",
+     "segments": [
+      {
+       "text": "Bellow: “"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Oh…but, I barely know you."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Terry: “Well, that’s what dinner is for, silly! We can get to know each other a bit better.”",
+     "segments": [
+      {
+       "text": "Terry: “"
+      },
+      {
+       "speaker": "Terry",
+       "text": "Well, that’s what dinner is for, silly! We can get to know each other a bit better."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow: “You mean…like a date?”",
+     "segments": [
+      {
+       "text": "Bellow: “"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "You mean…like a date?"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Terry: “I mean, if you’re okay with that.”",
+     "segments": [
+      {
+       "text": "Terry: “"
+      },
+      {
+       "speaker": "Terry",
+       "text": "I mean, if you’re okay with that."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow: “....I…Don’t take this the wrong way, it’s just…My species, well…we don’t, uh, mesh well with other species. Not in that way…”",
+     "segments": [
+      {
+       "text": "Bellow: “"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "....I…Don’t take this the wrong way, it’s just…My species, well…we don’t, uh, mesh well with other species. Not in that way…"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Terry: “O-Oh.”",
+     "segments": [
+      {
+       "text": "Terry: “"
+      },
+      {
+       "speaker": "Terry",
+       "text": "O-Oh."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow: “Plus, me personally…I’d rather focus on my mission than a relationship…but, dinner still sounds nice.”",
+     "segments": [
+      {
+       "text": "Bellow: “"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Plus, me personally…I’d rather focus on my mission than a relationship…but, dinner still sounds nice."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Terry: “Hey, it was worth a shot. See you there!”",
+     "segments": [
+      {
+       "text": "Terry: “"
+      },
+      {
+       "speaker": "Terry",
+       "text": "Hey, it was worth a shot. See you there!"
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow: “Bye.”",
+     "segments": [
+      {
+       "text": "Bellow: “"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Bye."
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "(Click.)"
+    },
+    {
+     "type": "NARRATION",
+     "text": "“I hope there’ll be pancakes…”",
+     "segments": [
+      {
+       "text": "“"
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "I hope there’ll be pancakes…",
+       "italic": true
+      },
+      {
+       "text": "”"
+      }
+     ]
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    }
+   ]
+  },
+  {
+   "chapter_no": 3,
+   "title": "After Episode 4",
+   "lines": [
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "We visited an ocean planet this week."
+    },
+    {
+     "type": "NARRATION",
+     "text": "I’m not…the BIGGEST fan of water, being from the dryer side of Moonshine."
+    },
+    {
+     "type": "NARRATION",
+     "text": "In fact, for the first time in a long time, I lost my ability to fly due to my wings getting too wet. Not a pleasant experience."
+    },
+    {
+     "type": "NARRATION",
+     "text": "We got a new crew member today. Zach, the human. It’s been an awfully long time since I met a human…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "Dutch almost got himself killed again, but as always, I was there to revive him. He really should be more careful."
+    },
+    {
+     "type": "NARRATION",
+     "text": "I did get to destroy him in blackjack though."
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "The reflection of the stars in the ocean waves is the only redeeming quality of this planet…"
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    }
+   ]
+  },
+  {
+   "chapter_no": 4,
+   "title": "After Episode 11",
+   "lines": [
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "I…don’t know how to feel about our captain, or about Dutch, or anyone else on the team anymore."
+    },
+    {
+     "type": "NARRATION",
+     "text": "There was a big fight today, and I snapped at multiple people. I’ve never lost myself to anger before, but…I think I really scared Zach. Seeing that kind of reaction really made me scared of myself. I didn’t know I could just lose myself altogether like that."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Eventually Zion and I worked something out, and he’s going to talk to the fungus, or, Vec now, about his behavior."
+    },
+    {
+     "type": "NARRATION",
+     "text": "Dutch will be harder to convince. I don’t know if he’s ever going to forgive Zion OR Vec for what happened today."
+    },
+    {
+     "type": "NARRATION",
+     "text": "And to be honest, I don’t know if I will either."
+    },
+    {
+     "type": "NARRATION",
+     "text": "I just hope Dutch stops being so…ANGRY about it. It’s only going to compel him to make rash decisions that could get him killed."
+    },
+    {
+     "type": "NARRATION",
+     "text": "He’s still one of my very best friends, but…I can’t stand watching him be like this."
+    },
+    {
+     "type": "NARRATION",
+     "text": "And I don’t know what to do about it."
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "The stars burn fiercely tonight…"
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    }
+   ]
+  },
+  {
+   "chapter_no": 5,
+   "title": "After Episode 14",
+   "lines": [
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "AUDIO LOG"
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "Bellow:"
+    },
+    {
+     "type": "NARRATION",
+     "text": "No, no, no, no, this isn’t happening…",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "No, no, no, no, this isn’t happening…"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "But it clearly is, I saw it with my own eyes!",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "But it clearly is, I saw it with my own eyes!"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "How could that man be Zach’s father???",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "How could that man be Zach’s father???"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "And then those blasted criminals took them both away!",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "And then those blasted criminals took them both away!"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "They’re going to be trapped together for a while…",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "They’re going to be trapped together for a while…"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "I can’t let that happen.",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "I can’t let that happen."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "I WON’T let that happen.",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "I WON’T let that happen."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "But then, what’s going to happen to my parents?",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "But then, what’s going to happen to my parents?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Not important, Zach comes first.",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Not important, Zach comes first."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "But does he? Isn’t family the most important?",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "But does he? Isn’t family the most important?"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Zach IS family.",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Zach IS family."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "Maybe not in the traditional sense, but…",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "Maybe not in the traditional sense, but…"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "I have to get out there.",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "I have to get out there."
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "I don’t even know where they went…",
+     "segments": [
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "I don’t even know where they went…"
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "…"
+    },
+    {
+     "type": "NARRATION",
+     "text": "While Quietly Crying: What am I supposed to do?",
+     "segments": [
+      {
+       "text": "While Quietly Crying: ",
+       "italic": true
+      },
+      {
+       "speaker": "Bellow Brightlight",
+       "text": "What am I supposed to do?"
+      }
+     ]
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "END OF AUDIO LOG"
+    },
+    {
+     "type": "BREAK",
+     "text": ""
+    },
+    {
+     "type": "NARRATION",
+     "text": "In the night sky, a warrior declares his triumph despite all odds…"
+    }
+   ]
+  }
+ ]
+}
