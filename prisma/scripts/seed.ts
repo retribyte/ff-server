@@ -14,6 +14,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const prisma = new PrismaClient();
 
 const SEED_SCRIPTS = [
+    // DB guards first (idempotent), so every script below, the NPC
+    // conversion included, runs under the rules prod has
+    "create-triggers.ts",
     "seed-legacy.ts",
     "seed-vec-personas.ts",
     "seed-buzzcut-persona.ts",
@@ -28,7 +31,6 @@ const SEED_SCRIPTS = [
     "seed-galaxy.ts",
     "backfill-story-hashes.ts",
     "create-search-indexes.ts",
-    "create-triggers.ts",
 ];
 
 function runScript(script: string) {
