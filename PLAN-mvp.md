@@ -13,9 +13,14 @@ Anything `db push` would lose data on ships as a one-shot SQL script in
 
 - **Archived transcripts are immutable to members.** This overrides the design
   doc. Members cannot create, edit or delete any part of an Episode, Messages
-  included, and that covers attribution (`characterId`, `personaId`).
-  Commentary is the member channel for annotating the archive. Import does not
-  alter transcript text.
+  included: no changes to text, type, timestamp, player, or which character a
+  line belongs to (`characterId`). Commentary is the member channel for
+  annotating the archive. Import does not alter transcript text.
+- **Exception: owners keep persona stamping.** Stamping `personaId` across
+  their character's lines (episode/season scope) is presentation, not a
+  message change. It lets players customize how their character's name and
+  appearance read over time. The existing owner-or-admin rule in
+  `resolveStampAuthorization` stays.
 - **NPC speakers become character-less personas.** `Message.characterId` null
   plus `Message.personaId` set means "a named voice with no character record"
   ("Llamanian Guard", "Toll Booth Operator"). This requires
@@ -52,8 +57,8 @@ by hand.
 
 ## Phase 1 — Archive lockdown (#3)
 
-Message/episode/season/story writes are already admin-only (402babc). Two leaks
-remain:
+Message/episode/season/story writes are already admin-only (402babc). One leak
+remains:
 
 - [ ] **Character delete rewrites history.** `messages_characterId_fkey` and
       `story_lines_characterId_fkey` are `ON DELETE SET NULL`, so deleting a
@@ -63,22 +68,20 @@ remain:
       `StoryLine.character`, then `db push`. This only changes the FK, so no
       data is lost. Return a clear 409 ("character appears in the archive")
       instead of a raw Prisma error.
-- [ ] **Persona stamping is owner-or-admin.** `POST
-      /episodes/:t/personas/apply` and `/seasons/:t/personas/apply` write
-      `Message.personaId`. Make both `isAdmin` and drop the owner branch of
-      `resolveStampAuthorization`. Gate `PersonaStampPanel` /
-      `AttributionControl` to admin in the site (they mostly are already;
-      verify).
-- [ ] Owners keep: character bio/image/color/blurb, persona *definitions*
-      (name/image/color of their own personas, CRUD), commentary, 8-ball,
-      profile. Editing a persona's look changes how archived lines render.
-      That's character presentation, not history, so it stays.
+- [ ] Owners keep: character bio/image/color/blurb, personas (CRUD and
+      episode/season stamping onto their own character's lines), commentary,
+      8-ball, profile. Stamping is deliberately **not** locked down (see
+      Decisions). Consider exposing `PersonaStampPanel` to owners in the site
+      if it's currently admin-only.
+- [ ] Persona delete is safe as-is: the message→persona FK is `RESTRICT`, so
+      a persona still stamped on lines can't be deleted out from under them.
+      Keep that through Phase 2's FK rewrite.
 - [ ] Close open registration for launch: accounts are pre-seeded. Either
       remove `POST /register` from the site, or require an invite code.
-- [ ] Design doc edits: §2.2 Member row, FR-CHAR-3's "owner or admin" stamp
-      sentence → admin, §7 criterion 2 ("attach quotes to it" → quotes come
-      from admin-imported transcripts), plus a new principle under §3.8
-      stating the immutability rule.
+- [ ] Design doc edits: §2.2 Member row, §7 criterion 2 ("attach quotes to
+      it" → quotes come from admin-imported transcripts), plus a new principle
+      under §3.8 stating the immutability rule and the stamping exception.
+      FR-CHAR-3's owner-or-admin stamp rule stays as written.
 
 ## Phase 2 — NPC speakers as character-less personas (#5)
 
@@ -113,7 +116,10 @@ remain:
 - [ ] `createMessage` / `updateMessage`: relax the QUOTE check
       (`message.service.ts:219`).
 - [ ] Importer: an unmatched speaker becomes a find-or-create NPC persona
-      (instead of today's "unattributed, QUOTE → OTHER").
+      (instead of today's "unattributed, QUOTE → OTHER"). Episode import now
+      goes through ff-site's `archive-to-markdown/api-import.py` and the append
+      endpoints (`POST /episodes/import` answers 410), so the change lands
+      there. Also update the site's `EpisodeImporter` if it's still in use.
 - [ ] Reader: `resolvePersonaIdentity` already handles `character = null`
       with a persona. Add a no-link branch for the
       `<Link href="/characters/${characterId}">` in `StoryBlock.tsx`.
@@ -121,7 +127,8 @@ remain:
       They're keyed on characterId, so this mostly happens on its own;
       verify.
 - [ ] No bulk stamp for NPC personas. Per-line admin AttributionControl is
-      enough for the MVP.
+      enough for the MVP. Owner stamping stays keyed on characterId, so NPC
+      personas, which have no owner, are admin-only by construction.
 
 ### Data conversion (script)
 - [ ] **It has to live in the seed pipeline, not only run once on dev.**
@@ -189,5 +196,7 @@ remain:
       (NFR-REL-3).
 - [ ] Smoke test: an episode deep link, a legacy `/ff2/...` redirect, a story
       chapter, a character page, member login + must-change-password, a
-      member commentary, and a member trying to stamp (expect 403).
+      member commentary, a member stamping their own character (expect 200)
+      and someone else's (expect 403), and a member deleting a character that
+      appears in the archive (expect 409).
 - [ ] Announce in ff-chat.
