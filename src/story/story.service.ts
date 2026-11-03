@@ -443,6 +443,11 @@ function voiceKey(text: string): string {
 
 type KnownVoice = { characterId: number | null; speaker: string | null };
 
+// Stand-in voices that say "some NPC" rather than who: carrying one over would
+// just re-label a quote as "NPC", so they count as unnamed.
+const PLACEHOLDER_VOICES = ["npc", "npcs", "?", "unknown", "unnamed"];
+const isPlaceholder = (name: string | null | undefined) => !!name && PLACEHOLDER_VOICES.includes(name.trim().toLowerCase());
+
 /**
  * Every voiced fragment of a story (DIALOGUE lines and segment spans), keyed
  * by its text, in reading order — so a revised draft's unnamed NPC fragments
@@ -454,6 +459,15 @@ async function knownVoices(tx: Prisma.TransactionClient, storyId: number): Promi
         orderBy: [{ chapter: { chapter_no: "asc" } }, { line_no: "asc" }],
         select: { type: true, text: true, characterId: true, speaker: true, npcVoice: true, segments: true },
     });
+    // characters standing in for "some NPC" (the legacy generic NPC character)
+    const placeholderIds = new Set(
+        (
+            await tx.character.findMany({
+                where: { OR: PLACEHOLDER_VOICES.map((name) => ({ name: { equals: name, mode: "insensitive" as const } })) },
+                select: { id: true },
+            })
+        ).map((c) => c.id)
+    );
     const voices = new Map<string, KnownVoice[]>();
     // unnamed NPC fragments are listed too (as no voice), so occurrence numbers line up
     const add = (text: string, characterId: number | null | undefined, speaker: string | null | undefined, npc?: boolean) => {
@@ -461,7 +475,12 @@ async function knownVoices(tx: Prisma.TransactionClient, storyId: number): Promi
         const key = voiceKey(text);
         if (!key) return;
         const list = voices.get(key) ?? [];
-        list.push({ characterId: characterId ?? null, speaker: characterId ? null : (speaker ?? null) });
+        const placeholder = (characterId && placeholderIds.has(characterId)) || (!characterId && isPlaceholder(speaker));
+        list.push(
+            placeholder
+                ? { characterId: null, speaker: null }
+                : { characterId: characterId ?? null, speaker: characterId ? null : (speaker ?? null) }
+        );
         voices.set(key, list);
     };
     for (const line of lines) {

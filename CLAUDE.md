@@ -138,7 +138,14 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   - `PUT /api/stories/:slug/import` is the revision path: `{chapters}` replaces
     every chapter and line in one transaction, keeping the story row (id,
     slug, title, authors, season, blurb, theme) and recomputing `contentHash`.
-    `chapter_no` 0 is allowed (a preface before Chapter 1).
+    `chapter_no` 0 is allowed (a preface before Chapter 1). Unnamed NPC voice
+    fragments in the revision (segment `npc: true` / line `npcVoice: true`, no
+    speaker) take the voice their text already had, matched by occurrence;
+    placeholder voices ("NPC", "?", "Unknown") aren't carried.
+  - **NPC voices**: `PATCH /api/stories/:slug/voices` names or un-names NPC
+    fragments. It's the one story write open to the story's **authors** as
+    well as admins, and it can only touch NPC-flagged fragments, never text or
+    character attribution.
   - `POST /api/episodes/import` (same idea for `{seasonTitle, episode,
     messages}`) is **retired and answers 410**: the archive is seeded, and
     episode re-imports go through ff-site's `archive-to-markdown/api-import.py`
