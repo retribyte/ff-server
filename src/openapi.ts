@@ -944,11 +944,13 @@ const spec = {
         "/episodes/import": {
             post: {
                 tags: ["Episodes"],
-                summary: "Atomically import a whole episode with its messages (admin only)",
+                summary: "Retired — always 410 Gone",
+                deprecated: true,
                 description:
-                    "One transaction: creates the season if it doesn't exist, the episode, and every message (numbered 1..n). " +
-                    "Either all of it lands or none does. Body limit 10mb.",
-                security: [{ bearerAuth: [] }],
+                    "Episode import is closed to the web now that the archive is seeded; re-imports go through " +
+                    "archive-to-markdown/api-import.py (POST /episodes + /episodes/{episodeTitle}/messages). " +
+                    "The body below is the shape it accepted while enabled.",
+                security: [],
                 requestBody: {
                     required: true,
                     content: {
@@ -975,12 +977,7 @@ const spec = {
                         },
                     },
                 },
-                responses: {
-                    "201": { description: "Episode imported; data carries messageCount and seasonCreated" },
-                    "400": { description: "Invalid payload — nothing was written" },
-                    "401": { description: "Unauthorized" },
-                    "409": { description: "Title, slug, or season episode number already in use — nothing was written" },
-                },
+                responses: { "410": { description: "Episode import is retired" } },
             },
         },
         "/episodes/{title}": {

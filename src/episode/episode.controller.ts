@@ -1,7 +1,6 @@
 import { Router, Request, Response } from "express";
 import episodeService from "./episode.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
-import { importJson, importErrorResponse } from "../utils/import.js";
 
 const initializeEpisodeRoutes = (): Router => {
     const router: Router = Router();
@@ -45,16 +44,18 @@ const initializeEpisodeRoutes = (): Router => {
         }
     });
 
-    // POST /api/episodes/import: Atomic whole-episode import { seasonTitle, episode, messages }.
-    // Creates the season if missing. All or nothing; 409 when the title/slug/episode number is taken.
-    router.post("/episodes/import", authenticate, isAdmin, importJson, async (req: Request, res: Response) => {
-        try {
-            const episode = await episodeService.importEpisode(req.body);
-            res.status(201).json({ status: "success", data: episode });
-        } catch (error: any) {
-            const { status, message } = importErrorResponse(error, "episode");
-            res.status(status).json({ status: "error", message });
-        }
+    // POST /api/episodes/import: RETIRED — 410 Gone. Once production is seeded
+    // the transcript archive is closed to web imports; (re)imports go through
+    // ff-site/archive-to-markdown/api-import.py, which uses POST /episodes +
+    // /episodes/:title/messages. Answered before auth or body parsing so a
+    // large stray upload gets the 410, not a 413. To bring it back, mount
+    // `authenticate, isAdmin, importJson` and call episodeService.importEpisode
+    // (atomic, 409 on title/slug/season+number conflicts) — see git history.
+    router.post("/episodes/import", (_req: Request, res: Response) => {
+        res.status(410).json({
+            status: "error",
+            message: "Episode import is retired — the transcript archive is seeded. Use archive-to-markdown/api-import.py for re-imports.",
+        });
     });
 
     // PUT /api/episodes/:title: Update an episode's metadata by title

@@ -111,19 +111,22 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   `DateTime`. An identical copy lives at `ff-site/src/lib/guy-time.ts` —
   changes must land in both. Real-world timestamps (`Message.timestamp`,
   `Episode.playedDate`) stay plain `DateTime`.
-- **Imports are atomic**: `POST /api/stories/import` and `POST /api/episodes/import`
-  take a whole story (`{story, chapters:[{chapter_no, title?, lines}]}`) or
-  episode (`{seasonTitle, episode, messages}`, season created if missing) and
-  write it in one interactive transaction — all or nothing, so an existing
-  story/episode is always a complete one. Conflicts return **409**: slug or
-  title (stories: title case-insensitive), episode season+number, and for
-  stories identical text via `Story.contentHash` (`src/story/story-hash.ts`;
+- **Story import is atomic**: `POST /api/stories/import` takes a whole story
+  (`{story, chapters:[{chapter_no, title?, lines}]}`) and writes it in one
+  interactive transaction — all or nothing, so an existing story is always a
+  complete one. Conflicts return **409**: slug, title (case-insensitive), or
+  identical text via `Story.contentHash` (`src/story/story-hash.ts`;
   import-time fingerprint, not updated by line edits; `npm run
   backfill:story-hashes` fills it for stories created any other way — the
-  seed runs it). These two routes skip the global 100kb JSON parser and
-  mount a 10mb one *after* `authenticate, isAdmin` (`src/utils/import.ts`).
-  The older append endpoints (`.../chapters/:n/lines`, `.../messages`) remain
-  for incremental API use, not for imports.
+  seed runs it). The route skips the global 100kb JSON parser and mounts a
+  10mb one *after* `authenticate, isAdmin` (`src/utils/import.ts`).
+  - `POST /api/episodes/import` (same idea for `{seasonTitle, episode,
+    messages}`) is **retired and answers 410**: the archive is seeded, and
+    episode re-imports go through ff-site's `archive-to-markdown/api-import.py`
+    via the chunked append endpoints. `episodeService.importEpisode` (atomic,
+    409 on title/slug/season+number) is kept for re-enabling.
+  - The append endpoints (`.../chapters/:n/lines`, `.../messages`) remain for
+    incremental API use and the CLI episode uploaders.
 - **HTML sanitization** (`src/utils/sanitize.ts`, NFR-SEC-3): user-submitted
   rich text (character blurbs, species descriptions, item descriptions,
   commentary) goes through `sanitizeText()` before storage.

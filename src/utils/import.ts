@@ -6,7 +6,8 @@ import { Prisma } from "@prisma/client";
 // hundred KB, past express.json()'s 100kb default — so the global parser
 // skips these paths, and each import route mounts `importJson` itself,
 // *after* authenticate/isAdmin, so only admins can make the server buffer a
-// large body.
+// large body. (/api/episodes/import is retired and only answers 410, but stays
+// listed so an oversized stray upload gets that 410 instead of a 413.)
 export const IMPORT_PATHS = new Set(["/api/stories/import", "/api/episodes/import"]);
 export const importJson = express.json({ limit: "10mb" });
 
