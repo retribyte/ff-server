@@ -28,10 +28,6 @@ const spec = {
                 type: "string",
                 enum: ["YES", "NO", "MAYBE"],
             },
-            SentienceClass: {
-                type: "string",
-                enum: ["BLACK", "HIGHER_SENTIENT", "LOWER_SENTIENT", "NON_SENTIENT"],
-            },
             User: {
                 type: "object",
                 properties: {
@@ -98,35 +94,9 @@ const spec = {
                 properties: {
                     id: { type: "integer" },
                     name: { type: "string" },
-                    species: {
-                        type: "array",
-                        description: "Every species the character belongs to (hybrids have several)",
-                        items: {
-                            type: "object",
-                            properties: { id: { type: "integer" }, name: { type: "string" }, slug: { type: "string" } },
-                        },
-                    },
-                    speciesIds: {
-                        type: "array",
-                        items: { type: "integer" },
-                        minItems: 1,
-                        writeOnly: true,
-                        description: "On update: replaces the character's species",
-                    },
                     image: { type: "string", nullable: true },
                     color: { type: "string", nullable: true },
                     blurb: { type: "string", nullable: true },
-                    creatorId: { type: "integer" },
-                    slug: { type: "string" },
-                },
-            },
-            Species: {
-                type: "object",
-                properties: {
-                    id: { type: "integer" },
-                    name: { type: "string" },
-                    description: { type: "string" },
-                    class: { $ref: "#/components/schemas/SentienceClass" },
                     creatorId: { type: "integer" },
                     slug: { type: "string" },
                 },
@@ -321,17 +291,6 @@ const spec = {
                                 name: { type: "string" },
                                 slug: { type: "string" },
                                 image: { type: "string", nullable: true },
-                            },
-                        },
-                    },
-                    species: {
-                        type: "array",
-                        items: {
-                            type: "object",
-                            properties: {
-                                id: { type: "integer" },
-                                name: { type: "string" },
-                                slug: { type: "string" },
                             },
                         },
                     },
@@ -600,7 +559,6 @@ const spec = {
                 security: [], // public — no token needed
                 parameters: [
                     { name: "search", in: "query", schema: { type: "string" }, description: "Search by name" },
-                    { name: "speciesId", in: "query", schema: { type: "integer" }, description: "Characters belonging to this species (among others)" },
                     { name: "ownerId", in: "query", schema: { type: "integer" } },
                     { name: "season", in: "query", schema: { type: "string" } },
                 ],
@@ -616,10 +574,9 @@ const spec = {
                         "application/json": {
                             schema: {
                                 type: "object",
-                                required: ["name", "speciesIds"],
+                                required: ["name"],
                                 properties: {
                                     name: { type: "string" },
-                                    speciesIds: { type: "array", items: { type: "integer" }, minItems: 1 },
                                     image: { type: "string" },
                                     color: { type: "string" },
                                     blurb: { type: "string" },
@@ -933,68 +890,6 @@ const spec = {
                     "404": { description: "Character not found" },
                     "409": { description: "Slug or name already taken" },
                 },
-            },
-        },
-        "/species": {
-            get: {
-                tags: ["Species"],
-                summary: "List all species",
-                security: [], // public — no token needed
-                parameters: [{ name: "search", in: "query", schema: { type: "string" } }],
-                responses: { "200": { description: "Array of species" } },
-            },
-            post: {
-                tags: ["Species"],
-                summary: "Create a species",
-                security: [{ bearerAuth: [] }],
-                requestBody: {
-                    required: true,
-                    content: {
-                        "application/json": {
-                            schema: {
-                                type: "object",
-                                required: ["name", "description", "class"],
-                                properties: {
-                                    name: { type: "string" },
-                                    description: { type: "string" },
-                                    class: { $ref: "#/components/schemas/SentienceClass" },
-                                    slug: {
-                                        type: "string",
-                                        pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
-                                        description: "Defaults to a slugified name",
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-                responses: { "201": { description: "Species created" }, "401": { description: "Unauthorized" } },
-            },
-        },
-        "/species/{id}": {
-            get: {
-                tags: ["Species"],
-                summary: "Get a species by id or slug, including its characters",
-                security: [], // public — no token needed
-                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" }, description: "Numeric id or slug" }],
-                responses: { "200": { description: "Species" }, "404": { description: "Not found" } },
-            },
-            put: {
-                tags: ["Species"],
-                summary: "Update a species (owner or admin)",
-                security: [{ bearerAuth: [] }],
-                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
-                requestBody: {
-                    content: { "application/json": { schema: { $ref: "#/components/schemas/Species" } } },
-                },
-                responses: { "200": { description: "Updated species" }, "403": { description: "Forbidden" } },
-            },
-            delete: {
-                tags: ["Species"],
-                summary: "Delete a species (owner or admin)",
-                security: [{ bearerAuth: [] }],
-                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
-                responses: { "204": { description: "Deleted" }, "403": { description: "Forbidden" } },
             },
         },
         "/seasons": {
@@ -1792,7 +1687,7 @@ const spec = {
         "/search": {
             get: {
                 tags: ["Search"],
-                summary: "Unified keyword search across characters, species, items, transcript messages, and story lines, grouped by category",
+                summary: "Unified keyword search across characters, items, transcript messages, and story lines, grouped by category",
                 security: [], // public — no token needed
                 parameters: [
                     { name: "q", in: "query", required: true, schema: { type: "string" } },

@@ -22,7 +22,6 @@ const SEED_SCRIPTS = [
     "seed-vortox-character-data.ts",
     "seed-vortox-weapons.ts",
     "seed-character-colors.ts",
-    "seed-species.ts",
     "seed-npc-personas.ts",
     "seed-overlay.ts",
     "seed-8ball.ts",
@@ -54,7 +53,6 @@ async function main() {
     await prisma.episode.deleteMany();
     await prisma.season.deleteMany();
     await prisma.character.deleteMany();
-    await prisma.species.deleteMany();
     await prisma.user.deleteMany();
 
     for (const script of SEED_SCRIPTS) runScript(script);

@@ -2,12 +2,12 @@
  * Export the dev DB's character / user presentation data into the committed
  * overlay files that seed-overlay.ts applies (prisma/scripts/seed-data/*.json).
  *
- * Run after editing records in the site (avatar, color, blurb, species, user
+ * Run after editing records in the site (avatar, color, blurb, user
  * icon / color / bio), then commit the diff so every clone gets the same data:
  *     npm run export:overlay
  *
  * The files are rewritten from the DB: every character with a color, image or
- * blurb (or a non-default species) and every user with a color, icon or bio.
+ * blurb and every user with a color, icon or bio.
  * Sorted and stably formatted, so `git diff` shows only real changes. Values
  * already produced by other seed sources are included too; that's harmless,
  * since the overlay just re-applies them.
@@ -19,9 +19,8 @@ import { fileURLToPath } from "url";
 
 const prisma = new PrismaClient();
 const DATA_DIR = join(dirname(fileURLToPath(import.meta.url)), "seed-data");
-const DEFAULT_SPECIES = "unclassified"; // seed-legacy.ts' placeholder taxon
 
-type Entry = Record<string, string | string[]>;
+type Entry = Record<string, string>;
 
 function write(file: string, data: Record<string, Entry>) {
     mkdirSync(DATA_DIR, { recursive: true });
@@ -41,13 +40,11 @@ function write(file: string, data: Record<string, Entry>) {
 
 async function main() {
     const characters: Record<string, Entry> = {};
-    for (const c of await prisma.character.findMany({ include: { species: { select: { slug: true }, orderBy: { slug: "asc" } } } })) {
+    for (const c of await prisma.character.findMany()) {
         const entry: Entry = {};
         if (c.color) entry.color = c.color;
         if (c.image) entry.image = c.image;
         if (c.blurb) entry.blurb = c.blurb;
-        const species = c.species.map((s) => s.slug);
-        if (!(species.length === 1 && species[0] === DEFAULT_SPECIES)) entry.species = species;
         if (Object.keys(entry).length) characters[c.slug] = entry;
     }
     write("characters.json", characters);

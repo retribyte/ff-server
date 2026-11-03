@@ -6,7 +6,7 @@ import { isValidSlug } from "../utils/slug.js";
 const WIKI_API_URL = "https://wiki.vortox.space/w/api.php";
 const FETCH_TIMEOUT_MS = 4000;
 
-export type WikiBucket = "characters" | "species" | "items";
+export type WikiBucket = "characters" | "items";
 
 // Which fields to pull comes from the wiki itself: each bucket's schema is a
 // public JSON page, Bucket:<name> ({field: {type, repeated?, ...}}), which

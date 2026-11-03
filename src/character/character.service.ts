@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 
 type CharacterData = {
     name: string;
-    speciesIds: number[];
     blurb?: string;
     image?: string;
     color?: string;
@@ -17,7 +16,6 @@ type CharacterData = {
 
 type CharacterFilters = {
     search?: string;
-    speciesId?: number;
     ownerId?: number;
     season?: string;
     // limit/lite: additive, unified-/api/search-only (a narrower select
@@ -27,20 +25,8 @@ type CharacterFilters = {
     lite?: boolean;
 };
 
-// What a character carries of each of its species (hybrids have several)
-const SPECIES_SUMMARY = { select: { id: true, name: true, slug: true } } as const;
-
-// Every character keeps at least one species (Unclassified until known), so
-// an empty or malformed list is rejected rather than stored.
-function speciesRefs(ids: unknown): { id: number }[] {
-    if (!Array.isArray(ids) || ids.length === 0 || !ids.every((id) => Number.isInteger(id))) {
-        throw new Error("speciesIds must be a non-empty array of species ids");
-    }
-    return ids.map((id) => ({ id }));
-}
-
 async function getAllCharacters(filters: CharacterFilters = {}) {
-    const { search, speciesId, ownerId, season, limit, lite } = filters;
+    const { search, ownerId, season, limit, lite } = filters;
     const where: any = {};
 
     if (search) {
@@ -49,7 +35,6 @@ async function getAllCharacters(filters: CharacterFilters = {}) {
             { personas: { some: { name: { contains: search, mode: "insensitive" } } } },
         ];
     }
-    if (speciesId !== undefined) where.species = { some: { id: speciesId } };
     if (ownerId !== undefined) where.creatorId = ownerId;
     if (season) {
         where.messages = { some: { episode: { seasonTitle: season } } };
@@ -58,7 +43,7 @@ async function getAllCharacters(filters: CharacterFilters = {}) {
     if (lite) {
         return await prisma.character.findMany({ where, select: { id: true, name: true, slug: true, image: true }, take: limit });
     }
-    return await prisma.character.findMany({ where, include: { species: SPECIES_SUMMARY }, take: limit });
+    return await prisma.character.findMany({ where, take: limit });
 }
 
 // Attaches wiki-sourced fields under a nullable `wiki` key, keyed off the
@@ -73,7 +58,7 @@ async function attachWikiData<T extends { slug: string }>(character: T): Promise
 }
 
 async function getCharacterById(id: number, options: { withWiki?: boolean } = {}) {
-    const character = await prisma.character.findUnique({ where: { id }, include: { personas: true, species: SPECIES_SUMMARY } });
+    const character = await prisma.character.findUnique({ where: { id }, include: { personas: true } });
     if (!character) return null;
     return options.withWiki ? await attachWikiData(character) : character;
 }
@@ -91,26 +76,26 @@ async function getCharacterBySlug(slug: string, options: { withWiki?: boolean } 
 }
 
 async function resolveCharacterBySlug(slug: string) {
-    const character = await prisma.character.findUnique({ where: { slug }, include: { personas: true, species: SPECIES_SUMMARY } });
+    const character = await prisma.character.findUnique({ where: { slug }, include: { personas: true } });
     if (character) return character;
     const normalized = normalizeSlug(slug);
     if (normalized !== slug) {
         const byNormalized = await prisma.character.findUnique({
             where: { slug: normalized },
-            include: { personas: true, species: SPECIES_SUMMARY },
+            include: { personas: true },
         });
         if (byNormalized) return byNormalized;
     }
 
     const persona = await prisma.persona.findUnique({
         where: { slug },
-        include: { character: { include: { personas: true, species: SPECIES_SUMMARY } } },
+        include: { character: { include: { personas: true } } },
     });
     if (persona) return persona.character;
     if (normalized !== slug) {
         const personaByNormalized = await prisma.persona.findUnique({
             where: { slug: normalized },
-            include: { character: { include: { personas: true, species: SPECIES_SUMMARY } } },
+            include: { character: { include: { personas: true } } },
         });
         if (personaByNormalized) return personaByNormalized.character;
     }
@@ -122,14 +107,12 @@ async function createCharacter(data: CharacterData) {
     return await prisma.character.create({
         data: {
             name: data.name,
-            species: { connect: speciesRefs(data.speciesIds) },
             blurb: data.blurb !== undefined ? sanitizeText(data.blurb) : undefined,
             image: data.image,
             color: data.color,
             slug: data.slug ?? slugify(data.name),
             creatorId: data.creatorId,
         },
-        include: { species: SPECIES_SUMMARY },
     });
 }
 
@@ -138,13 +121,11 @@ async function updateCharacter(id: number, data: Partial<CharacterData>) {
         where: { id },
         data: {
             name: data.name,
-            species: data.speciesIds !== undefined ? { set: speciesRefs(data.speciesIds) } : undefined,
             blurb: data.blurb !== undefined ? sanitizeText(data.blurb) : undefined,
             image: data.image,
             color: data.color,
             slug: data.slug,
         },
-        include: { species: SPECIES_SUMMARY },
     });
 }
 

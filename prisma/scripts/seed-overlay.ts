@@ -2,7 +2,7 @@
  * Character / user overlay seed — idempotent.
  *
  * The committed home for presentation data that has no other source: colors,
- * avatars, blurbs and species for characters (seed-data/characters.json, keyed
+ * avatars and blurbs for characters (seed-data/characters.json, keyed
  * by slug) and color / icon / bio for users (seed-data/users.json, keyed by
  * username). Runs last in the seed chain, so it wins over every earlier source.
  *
@@ -30,7 +30,6 @@ interface CharacterOverlay {
     color?: string;
     image?: string;
     blurb?: string;
-    species?: string[]; // species slugs (hybrids have several)
 }
 
 interface UserOverlay {
@@ -40,28 +39,13 @@ interface UserOverlay {
 }
 
 async function main() {
-    const speciesIds = new Map((await prisma.species.findMany({ select: { id: true, slug: true } })).map((s) => [s.slug, s.id]));
-
     let applied = 0;
     const missing: string[] = [];
     for (const [slug, entry] of Object.entries(load<CharacterOverlay>("characters.json"))) {
-        const { species, color, image, blurb } = entry;
-        const unknown = (species ?? []).filter((s) => !speciesIds.has(s));
-        if (unknown.length) {
-            console.log(`Character '${slug}': species ${unknown.map((s) => `'${s}'`).join(", ")} not found — leaving species alone.`);
-        }
-        const speciesSet = species?.length && !unknown.length ? species.map((s) => ({ id: speciesIds.get(s)! })) : undefined;
-        // updateMany can't touch relations, hence update-by-slug
-        const exists = await prisma.character.findUnique({ where: { slug }, select: { id: true } });
-        if (!exists) {
-            missing.push(slug);
-            continue;
-        }
-        await prisma.character.update({
-            where: { slug },
-            data: { color, image, blurb, species: speciesSet && { set: speciesSet } },
-        });
-        applied++;
+        const { color, image, blurb } = entry;
+        const { count } = await prisma.character.updateMany({ where: { slug }, data: { color, image, blurb } });
+        if (count) applied++;
+        else missing.push(slug);
     }
     console.log(`Overlay: ${applied} character(s) updated${missing.length ? `, ${missing.length} not in DB: ${missing.join(", ")}` : ""}.`);
 

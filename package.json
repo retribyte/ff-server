@@ -20,7 +20,6 @@
         "backfill:story-authors": "tsx prisma/scripts/backfill-story-authors.ts",
         "backfill:story-hashes": "tsx prisma/scripts/backfill-story-hashes.ts",
         "seed:character-colors": "tsx prisma/scripts/seed-character-colors.ts",
-        "seed:species": "tsx prisma/scripts/seed-species.ts",
         "seed:overlay": "tsx prisma/scripts/seed-overlay.ts",
         "export:overlay": "tsx prisma/scripts/export-overlay.ts",
         "migrate:vm": "tsx prisma/scripts/migrate-vm-to-story.ts",

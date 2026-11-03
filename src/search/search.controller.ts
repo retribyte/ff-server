@@ -4,7 +4,7 @@ import searchService from "./search.service.js";
 const initializeSearchRoutes = (): Router => {
     const router: Router = Router();
 
-    // GET /api/search: Unified keyword search across characters, species,
+    // GET /api/search: Unified keyword search across characters,
     // items, transcript messages, and story lines — grouped by category,
     // not merged into a single ranked list (public). With ?category=
     // (messages|storyLines) set, switches to paginated single-category mode

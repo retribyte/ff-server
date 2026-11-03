@@ -9,8 +9,7 @@
 -- Run BEFORE `npx prisma db push` against the updated schema.prisma:
 --   docker exec -i ff-server-db-1 psql -U <user> <db> < prisma/story-authors-to-many.sql
 --
--- Not idempotent (a second run fails on "already exists") — one-shot, like
--- species-to-many.sql.
+-- Not idempotent (a second run fails on "already exists"): one-shot.
 
 BEGIN;
 

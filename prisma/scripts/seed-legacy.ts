@@ -23,7 +23,7 @@
  *   FF_SITE_DIR       — the Next.js rebuild (archive-to-markdown/api/*).
  *                       Default: ../ff-site, falling back to ../ff-site-new.
  */
-import { PrismaClient, UserRole, Class, MessageType, StoryLineType, Prisma, SeasonKind } from "@prisma/client";
+import { PrismaClient, UserRole, MessageType, StoryLineType, Prisma, SeasonKind } from "@prisma/client";
 import { hashSync } from "bcryptjs";
 import { existsSync, readdirSync, readFileSync } from "fs";
 import { dirname, join, resolve } from "path";
@@ -285,18 +285,6 @@ async function main() {
         },
     });
 
-    // -- Placeholder species (characters can be reclassified later via the UI) --
-    const unclassified = await prisma.species.create({
-        data: {
-            name: "Unclassified",
-            description:
-                "Placeholder taxon for characters imported from the legacy archive. Assign a real species when known.",
-            class: Class.HIGHER_SENTIENT,
-            creatorId: archivist.id,
-            slug: slugify("Unclassified"),
-        },
-    });
-
     // -- Characters: every speaker across all seasons, CYOA speakers, and color-table entries --
     // Owner = the player who voiced them most; CYOA/color-only speakers -> Archivist.
     const blockCounts = new Map<string, Map<string, number>>();
@@ -326,7 +314,6 @@ async function main() {
         const character = await prisma.character.create({
             data: {
                 name,
-                species: { connect: { id: unclassified.id } },
                 creatorId: mainPlayer ? userIds.get(mainPlayer)! : archivist.id,
                 color:
                     (DISTINCT_FROM_LEGACY_KEY.has(name) ? undefined : colors.dark[name]) ??
