@@ -122,8 +122,9 @@ remains:
 
 ## Phase 2 — NPC speakers as character-less personas (#5)
 
-**Status 2026-11-03: done on branch `npc-personas`** (ff-server `107d54d`,
-`7d024a7`, `e30a4c0`; ff-site `6784b11`; not merged to main). The shared dev DB
+**Status 2026-11-03: done on branch `npc-personas`** (ff-server `107d54d`..`55aa199`,
+ff-site `6784b11`, `138e38f`; not merged to main). A full fresh `npm run seed`
+into a scratch DB applies the conversion cleanly (143 NPC personas). The shared dev DB
 is converted (backup `backups/pre-npc-personas-2026-11-03.dump`): 143 NPC
 personas voice 762 lines, and the message count is unchanged. Two items are
 still open (unchecked below): the no-character sweep and reconciling the
@@ -136,6 +137,16 @@ persona-stamping mechanisms. Notes from building it:
   `speaker` (line or segment) is set to the old character name. Dread's 13 FF4
   prose segments still *display* "Sanya Dreadflower", because the reader
   prefers `character.name` (user ruling: canonical names are fine).
+- Fresh seed vs dev: 82 messages are attributed differently, none caused by
+  Phase 2. They come from dev hand-fixes the seed scripts don't reproduce:
+  47 Vec "Sascha" stamps in Wrong Answer from seed-vec-personas, `john` vs
+  `john_smith` in Crashlanded, and seed-buzzcut-persona's messageNo lists, which
+  reattribute Goblinators #615/#786 from Goblin King/SRE Control to Buzzcut.
+  This belongs to the persona-stamping reconcile below; resolve it before the
+  prod seed.
+- `export:overlay` from the converted dev DB drops the deleted slugs
+  (bee_emmett, dakari, jess, valentina; their entries are dead now) and
+  writes the renamed ones.
 - Renames take their new display name from the target slug, title-cased
   (`era` → "Era").
 - Prod caveat: stories uploaded *after* the seed are matched against the
