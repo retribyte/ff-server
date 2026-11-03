@@ -22,6 +22,8 @@ JWT_EXPIRATION=86400
 SALT_ROUNDS=12
 
 # Optional
+# Self-registration is closed unless this is "true" (accounts are pre-seeded)
+REGISTRATION_OPEN=false
 PASSWORD_MIN_LENGTH=8
 BOORU_URL="https://booru.vortox.space"
 # Sent as the x-image-key header to get past the booru's Cloudflare bot challenge

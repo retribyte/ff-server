@@ -360,9 +360,17 @@ const spec = {
     },
     paths: {
         "/register": {
+            get: {
+                tags: ["Auth"],
+                summary: "Whether self-registration is open (REGISTRATION_OPEN=true)",
+                security: [], // public — no token needed
+                responses: {
+                    "200": { description: "{ open: boolean }" },
+                },
+            },
             post: {
                 tags: ["Auth"],
-                summary: "Register a new user",
+                summary: "Register a new user (only while REGISTRATION_OPEN=true)",
                 security: [], // public — no token needed
                 requestBody: {
                     required: true,
@@ -383,6 +391,7 @@ const spec = {
                 responses: {
                     "201": { description: "User created" },
                     "400": { description: "Validation error or username taken" },
+                    "403": { description: "Registration is closed" },
                 },
             },
         },
@@ -644,6 +653,7 @@ const spec = {
                     "204": { description: "Deleted" },
                     "403": { description: "Forbidden" },
                     "404": { description: "Not found" },
+                    "409": { description: "The character speaks in the archive (a message, story line or in-paragraph story segment), so it can't be deleted" },
                 },
             },
         },

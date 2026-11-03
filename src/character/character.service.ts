@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { sanitizeText } from "../utils/sanitize.js";
 import { normalizeSlug, slugify } from "../utils/slug.js";
 import { getWikiData } from "../wiki/wiki.service.js";
@@ -148,10 +148,30 @@ async function updateCharacter(id: number, data: Partial<CharacterData>) {
     });
 }
 
+/** The character is attributed somewhere in the archive, so it can't be deleted — maps to 409. */
+export class CharacterInArchiveError extends Error {}
+
 async function deleteCharacter(id: number): Promise<void> {
-    // Messages intentionally still block deletion: a character woven into
-    // the archive shouldn't silently vanish.
-    await prisma.character.delete({ where: { id } });
+    // Archive immutability: a character woven into the archive can't vanish
+    // and strip attribution from its lines. Message.character and
+    // StoryLine.character are onDelete: Restrict (P2003 on delete), but
+    // in-paragraph prose speakers live in StoryLine.segments JSON with no FK,
+    // so check those here.
+    const containment = JSON.stringify([{ characterId: id }]);
+    const [{ count }] = await prisma.$queryRaw<{ count: bigint }[]>`
+        SELECT count(*) AS count FROM story_lines WHERE segments @> ${containment}::jsonb
+    `;
+    if (count > 0n) {
+        throw new CharacterInArchiveError("This character speaks in the archive, so it can't be deleted");
+    }
+    try {
+        await prisma.character.delete({ where: { id } });
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
+            throw new CharacterInArchiveError("This character speaks in the archive, so it can't be deleted");
+        }
+        throw error;
+    }
 }
 
 // --- Personas ----------------------------------------------------------

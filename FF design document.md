@@ -73,7 +73,7 @@ The System SHALL define exactly two roles:
 
 | Role | Capabilities |
 |---|---|
-| Member | Read all published content. Create entities and edit/delete entities they own. Edit their own profile. |
+| Member | Read all published content. Create entities and edit/delete entities they own. Edit their own profile. Never edit or delete archive content (Seasons, Episodes, Messages; see FR-EP-2), except persona stamping on their own characters' lines (FR-CHAR-3). |
 | Admin | All Member rights, plus edit/delete on records, plus role assignment. |
 
 Visitors (no account) MAY read all published content; they cannot create or edit anything.
@@ -88,7 +88,7 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 
 ### 3.1 Accounts and Authentication
 
-- **FR-AUTH-1** The System MUST support user registration with username, email, and password.
+- **FR-AUTH-1** The System MUST support user registration with username, email, and password. Self-registration MUST be closable by configuration (`REGISTRATION_OPEN`), and is closed by default: player accounts are pre-seeded.
 - **FR-AUTH-2** The System MUST support password-based login that yields an authenticated session.
 - **FR-AUTH-3** The System MUST hash passwords using a recognized password-hashing function at rest.
 - **FR-AUTH-4** A user MUST be able to view and edit their own profile (display name, avatar, bio).
@@ -151,6 +151,7 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 ### 3.8 Episodes and Transcripts
 
 - **FR-EP-1** An episode MUST hold an ordered sequence of messages; see §3.9 for the message model.
+- **FR-EP-2** *Archive immutability.* An archived transcript stays as imported. Importing MUST NOT alter transcript text. Creating, editing or deleting a Season, Episode or Message — including a message's text, type, timestamp, player or character attribution — MUST be restricted to admins. The one member exception is persona stamping (FR-CHAR-3): a character's owner MAY change which of that character's personas its lines display, because that is presentation, not a change to the message. Indirect rewrites are covered too: an entity that appears in the archive (e.g. a character speaking in a message or story line) MUST NOT be deletable, and the database MUST enforce this (`ON DELETE RESTRICT`), not only the application. Commentary (§3.10) is how members annotate the archive.
 
 ### 3.9 Messages
 
@@ -332,7 +333,7 @@ These are stack preferences for the Technical Design phase and do not change the
 The first release of the System is considered complete when:
 
 1. A visitor can read any episode at a stable URL, and legacy `ff-site` URLs redirect to the new ones.
-2. A registered member can create a character, edit it, give it personas, attach it to a species, attach quotes to it, and view it on a public character page.
+2. A registered member can create a character, edit it, give it personas, stamp those personas onto the character's archived lines, and view it on a public character page that lists its quotes (quotes come from admin-imported transcripts; see FR-EP-2).
 3. A registered member can create an item (with an item type), optionally associate it with a character, and view it on an item page.
 4. An external client authenticating with an API token can perform all of the above operations programmatically.
 5. The site passes the non-functional bars in §5.1–§5.4 on a representative dataset.

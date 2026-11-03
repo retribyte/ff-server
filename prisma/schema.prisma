@@ -163,7 +163,7 @@ model Message {
   episodeTitle  String
   player        User       @relation(fields: [playerId], references: [id])
   playerId      Int
-  character     Character? @relation(fields: [characterId], references: [id])
+  character     Character? @relation(fields: [characterId], references: [id], onDelete: Restrict) // archive immutability: a character in the archive can't be deleted out from under its lines
   characterId   Int?
   persona       Persona?   @relation(fields: [personaId, characterId], references: [id, characterId], onDelete: Restrict)
   personaId     Int?
@@ -234,7 +234,7 @@ model StoryLine {
   line_no     Int           // 1-based within chapter; deep-link anchor
   type        StoryLineType
   text        String
-  character   Character?    @relation(fields: [characterId], references: [id])
+  character   Character?    @relation(fields: [characterId], references: [id], onDelete: Restrict) // same as Message.character
   characterId Int?
   speaker     String?       // display-name fallback when no Character row exists
   // Sub-paragraph dialogue spans for novel-style prose: [{text, characterId?, speaker?}]

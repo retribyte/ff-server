@@ -22,7 +22,10 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   Serves on `:3000`; API is under `/api`, Swagger docs (built from
   `src/openapi.ts`) at `/api/docs`.
 - `.env` (gitignored; see `README.md` for the template) — `DATABASE_URL`,
-  `JWT_SECRET`, `JWT_EXPIRATION`, `SALT_ROUNDS`, `PORT`. `FF_SITE_DIR`
+  `JWT_SECRET`, `JWT_EXPIRATION`, `SALT_ROUNDS`, `PORT`, and
+  `REGISTRATION_OPEN` (`"true"` to allow self-registration; anything else
+  closes it — `POST /api/register` answers 403 and the site hides its form;
+  `GET /api/register` reports `{ open }`). `FF_SITE_DIR`
   overrides the legacy-data path used by one-off scripts in `prisma/`
   (defaults to `../ff-site-old` or `../ff-site` depending on the script — see
   below).
@@ -72,6 +75,14 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   each controller by comparing `req.user.id` to the record's `creatorId` —
   there's no shared ownership-middleware helper. The frontend never sees this
   token directly; `ff-site` wraps it in an httpOnly cookie itself.
+  - **Archive immutability** (FR-EP-2, a deliberate override of the original
+    doc): every write to Seasons/Episodes/Messages is `isAdmin`, including
+    attribution. Owners may still stamp personas onto their own character's
+    lines (`.../personas/apply`, owner-or-admin): that's presentation, not a
+    message change. Don't add member write paths to archive data, and watch
+    for indirect ones: `Message.character`/`StoryLine.character` are
+    `onDelete: Restrict`, and `deleteCharacter` also refuses (409) when a
+    character appears in `StoryLine.segments` JSON, which has no FK.
   - The JWT carries only `{id, username, role}`; `authenticate` reloads the
     user from the DB on every request (so `req.user` is never stale) and
     rejects tokens issued before `passwordChangedAt` and accounts with

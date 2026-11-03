@@ -9,7 +9,22 @@ const initializeUserRoutes = (): Router => {
     const router: Router = Router();
 
     // POST /api/register: Register a new user account
+    // Self-registration is closed unless REGISTRATION_OPEN=true: player
+    // accounts are pre-seeded (mustChangePassword), and an open form would
+    // let anyone create characters, items, commentary and 8-ball answers.
+    const registrationOpen = () => process.env.REGISTRATION_OPEN === "true";
+
+    // GET /api/register: Whether self-registration is open (lets the site hide its form)
+    router.get("/register", (_req: Request, res: Response) => {
+        res.status(200).json({ status: "success", data: { open: registrationOpen() } });
+    });
+
     router.post("/register", async (req: Request, res: Response) => {
+        if (!registrationOpen()) {
+            return res
+                .status(403)
+                .json({ status: "error", message: "Registration is closed — ask an admin for an account" });
+        }
         const { username, email, password } = req.body;
         if (!username || !email || !password) {
             return res

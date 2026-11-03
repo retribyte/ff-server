@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { Prisma } from "@prisma/client";
-import characterService from "./character.service.js";
+import characterService, { CharacterInArchiveError } from "./character.service.js";
 import messageService from "../message/message.service.js";
 import storyService from "../story/story.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
@@ -239,7 +239,8 @@ const initializeCharacterRoutes = (): Router => {
             await characterService.deleteCharacter(id);
             res.status(204).send();
         } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            const status = error instanceof CharacterInArchiveError ? 409 : 400;
+            res.status(status).json({ status: "error", message: error.message });
         }
     });
 
