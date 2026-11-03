@@ -123,7 +123,7 @@ remains:
 ## Phase 2 — NPC speakers as character-less personas (#5)
 
 **Status 2026-11-03: done on branch `npc-personas`** (ff-server `107d54d`..`55aa199`,
-ff-site `6784b11`, `138e38f`; not merged to main). A full fresh `npm run seed`
+ff-site `6784b11`, `138e38f`; merged to `main` 2026-11-03, not pushed). A full fresh `npm run seed`
 into a scratch DB applies the conversion cleanly (143 NPC personas). The shared dev DB
 is converted (backup `backups/pre-npc-personas-2026-11-03.dump`): 143 NPC
 personas voice 762 lines, and the message count is unchanged. Two items are
@@ -147,7 +147,10 @@ persona-stamping mechanisms. Notes from building it:
   regenerated with `md-to-api.py --all`, and the 24 old Discord-JSON FF4
   conversions are parked in `api-superseded/`. Now a fresh seed differs from
   dev only in FF3 "Junk Food" (a few reordered lines, #496–529), whose markdown was edited after dev was
-  imported, so there dev is the stale side.
+  imported, so there dev is the stale side. **Fixed 2026-11-03:** dev's 9 reordered lines
+  were renumbered to match a fresh seed (the same rows, so this equals a
+  re-import), and dev's character colors/images were set to the seed's values
+  (the user's call). Dev and a fresh seed now agree on both.
 - `export:overlay` from the converted dev DB drops the deleted slugs
   (bee_emmett, dakari, jess, valentina; their entries are dead now) and
   writes the renamed ones.
@@ -283,7 +286,7 @@ dashboard.
 ## Phase 3 — Remove Species
 
 **Status 2026-11-03: done on branch `remove-species`** in both repos (cut from
-`npc-personas`; not pushed). **Resolved as wiki-cache-only** (user, 2026-11-03):
+`npc-personas`; merged to `main` 2026-11-03, not pushed). **Resolved as wiki-cache-only** (user, 2026-11-03):
 there's no species table, but the wiki cache's `species` bucket stays.
 Read-only `GET /api/species[/:slug]` serves it for a future bot.
 `refresh:wiki-cache` refreshes it, and stale slugs become negatives. The shared dev DB's species tables
