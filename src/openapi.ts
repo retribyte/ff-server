@@ -1193,7 +1193,7 @@ const spec = {
                                             type: "object",
                                             required: ["chapter_no", "lines"],
                                             properties: {
-                                                chapter_no: { type: "integer", minimum: 1 },
+                                                chapter_no: { type: "integer", minimum: 0, description: "0 for a preface before Chapter 1" },
                                                 title: { type: "string", nullable: true },
                                                 lines: { type: "array", items: { $ref: "#/components/schemas/StoryLine" } },
                                             },
@@ -1209,6 +1209,49 @@ const spec = {
                     "400": { description: "Invalid payload — nothing was written" },
                     "401": { description: "Unauthorized" },
                     "409": { description: "Slug/title taken, or identical text already imported — nothing was written" },
+                },
+            },
+        },
+        "/stories/{slug}/import": {
+            put: {
+                tags: ["Stories"],
+                summary: "Atomically replace a story's chapters and lines with a revised draft (admin only)",
+                description:
+                    "One transaction: deletes every chapter and line, then writes the new ones (numbered 1..n per chapter). " +
+                    "The story's id, slug, title, authors, season, blurb and theme are kept. Line numbers may shift. Body limit 10mb.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["chapters"],
+                                properties: {
+                                    chapters: {
+                                        type: "array",
+                                        items: {
+                                            type: "object",
+                                            required: ["chapter_no", "lines"],
+                                            properties: {
+                                                chapter_no: { type: "integer", minimum: 0 },
+                                                title: { type: "string", nullable: true },
+                                                lines: { type: "array", items: { $ref: "#/components/schemas/StoryLine" } },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "Story revised (same shape as GET /stories/{slug}, plus lineCount)" },
+                    "400": { description: "Invalid draft — nothing was changed" },
+                    "401": { description: "Unauthorized" },
+                    "404": { description: "No story with that slug" },
+                    "409": { description: "The draft's text is identical to a different story — nothing was changed" },
                 },
             },
         },

@@ -120,6 +120,10 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   backfill:story-hashes` fills it for stories created any other way — the
   seed runs it). The route skips the global 100kb JSON parser and mounts a
   10mb one *after* `authenticate, isAdmin` (`src/utils/import.ts`).
+  - `PUT /api/stories/:slug/import` is the revision path: `{chapters}` replaces
+    every chapter and line in one transaction, keeping the story row (id,
+    slug, title, authors, season, blurb, theme) and recomputing `contentHash`.
+    `chapter_no` 0 is allowed (a preface before Chapter 1).
   - `POST /api/episodes/import` (same idea for `{seasonTitle, episode,
     messages}`) is **retired and answers 410**: the archive is seeded, and
     episode re-imports go through ff-site's `archive-to-markdown/api-import.py`

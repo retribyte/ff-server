@@ -421,20 +421,17 @@ type StoryImport = { story: StoryData; chapters: ImportChapter[] };
  * exists" always means "this story imported completely". Rejects (409) a
  * slug or title already in use, or content identical to an existing story's.
  */
-async function importStory(body: StoryImport) {
-    const { story, chapters } = body ?? ({} as StoryImport);
-    if (!story || typeof story !== "object") throw new Error("body must be { story, chapters }");
-    validateStoryData(story, true);
-    if (story.authorIds !== undefined) authorRefs(story.authorIds);
+/** Validates import chapters; returns them in chapter_no order with the content fingerprint. */
+function prepareChapters(chapters: ImportChapter[]): { ordered: ImportChapter[]; contentHash: string } {
     if (!Array.isArray(chapters) || chapters.length === 0) {
         throw new Error("chapters must be a non-empty array");
     }
-
     const seenChapterNos = new Set<number>();
     for (const [ci, chapter] of chapters.entries()) {
         const label = `Chapter ${chapter?.chapter_no ?? `#${ci + 1}`}`;
-        if (!Number.isInteger(chapter?.chapter_no) || chapter.chapter_no < 1) {
-            throw new Error(`Chapter #${ci + 1}: chapter_no must be a positive integer`);
+        // 0 is allowed: a preface or prologue before "Chapter 1"
+        if (!Number.isInteger(chapter?.chapter_no) || chapter.chapter_no < 0) {
+            throw new Error(`Chapter #${ci + 1}: chapter_no must be a whole number, 0 or more`);
         }
         if (seenChapterNos.has(chapter.chapter_no)) throw new Error(`${label}: duplicate chapter_no`);
         seenChapterNos.add(chapter.chapter_no);
@@ -446,6 +443,28 @@ async function importStory(body: StoryImport) {
     const contentHash = storyContentHash(
         ordered.map((chapter) => ({ lines: chapter.lines.map((line) => ({ type: line.type, text: storedText(line) })) }))
     );
+    return { ordered, contentHash };
+}
+
+/** Creates chapters and their lines for a story, inside the caller's transaction. */
+async function insertChapters(tx: Prisma.TransactionClient, storyId: number, ordered: ImportChapter[]): Promise<number> {
+    let lineCount = 0;
+    for (const chapter of ordered) {
+        const createdChapter = await tx.storyChapter.create({
+            data: { storyId, chapter_no: chapter.chapter_no, title: chapter.title ?? null },
+        });
+        await insertLines(tx, createdChapter.id, 1, chapter.lines);
+        lineCount += chapter.lines.length;
+    }
+    return lineCount;
+}
+
+async function importStory(body: StoryImport) {
+    const { story, chapters } = body ?? ({} as StoryImport);
+    if (!story || typeof story !== "object") throw new Error("body must be { story, chapters }");
+    validateStoryData(story, true);
+    if (story.authorIds !== undefined) authorRefs(story.authorIds);
+    const { ordered, contentHash } = prepareChapters(chapters);
     const seasonTitle = await resolveSeasonTitle(story.season);
 
     return await prisma.$transaction(async (tx) => {
@@ -480,14 +499,7 @@ async function importStory(body: StoryImport) {
             },
         });
 
-        let lineCount = 0;
-        for (const chapter of ordered) {
-            const createdChapter = await tx.storyChapter.create({
-                data: { storyId: created.id, chapter_no: chapter.chapter_no, title: chapter.title ?? null },
-            });
-            await insertLines(tx, createdChapter.id, 1, chapter.lines);
-            lineCount += chapter.lines.length;
-        }
+        const lineCount = await insertChapters(tx, created.id, ordered);
 
         const full = await tx.story.findUniqueOrThrow({
             where: { id: created.id },
@@ -547,6 +559,40 @@ async function updateLine(slug: string, chapterNo: number, lineNo: number, data:
     });
 }
 
+/**
+ * Atomic revision: replaces every chapter and line of an existing story with
+ * a new draft in one transaction, keeping the story itself (id, slug, title,
+ * authors, season, blurb, theme). Rejects (409) text identical to a
+ * *different* story; re-sending the story's own text is allowed and just
+ * rewrites it. Line numbers restart at 1 per chapter, so deep links into the
+ * story may shift; nothing else hangs off story lines.
+ */
+async function replaceStoryContent(slug: string, body: { chapters: ImportChapter[] }) {
+    const { ordered, contentHash } = prepareChapters(body?.chapters);
+    return await prisma.$transaction(async (tx) => {
+        const story = await tx.story.findUnique({ where: { slug }, select: { id: true } });
+        if (!story) throw new Error(`Story '${slug}' not found`);
+        const byContent = await tx.story.findFirst({
+            where: { contentHash, id: { not: story.id } },
+            select: { slug: true, title: true },
+        });
+        if (byContent) {
+            throw new ImportConflictError(
+                `This draft's text is identical to '${byContent.title}' (slug '${byContent.slug}'), a different story`
+            );
+        }
+        await tx.storyLine.deleteMany({ where: { chapter: { storyId: story.id } } });
+        await tx.storyChapter.deleteMany({ where: { storyId: story.id } });
+        const lineCount = await insertChapters(tx, story.id, ordered);
+        await tx.story.update({ where: { id: story.id }, data: { contentHash } });
+        const full = await tx.story.findUniqueOrThrow({
+            where: { id: story.id },
+            include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
+        });
+        return { ...full, lineCount };
+    }, IMPORT_TX_OPTIONS);
+}
+
 export default {
     getAllStories,
     getStoryBySlug,
@@ -559,6 +605,7 @@ export default {
     getLinesByChapter,
     createLines,
     importStory,
+    replaceStoryContent,
     updateLine,
     getStoryQuotesByCharacter,
     searchStoryLines,

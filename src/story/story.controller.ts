@@ -54,6 +54,22 @@ const initializeStoryRoutes = (): Router => {
         }
     });
 
+    // PUT /api/stories/:slug/import: Atomic revision { chapters: [...] } — replaces
+    // every chapter and line, keeping the story's metadata. 404 unknown slug,
+    // 409 when the text duplicates a different story.
+    router.put("/stories/:slug/import", authenticate, isAdmin, importJson, async (req: Request, res: Response) => {
+        try {
+            const story = await storyService.replaceStoryContent(req.params.slug, req.body);
+            res.status(200).json({ status: "success", data: story });
+        } catch (error: any) {
+            if (/^Story '.*' not found$/.test(error?.message ?? "")) {
+                return res.status(404).json({ status: "error", message: error.message });
+            }
+            const { status, message } = importErrorResponse(error, "story");
+            res.status(status).json({ status: "error", message });
+        }
+    });
+
     // PUT /api/stories/:slug: Update story metadata (incl. rename/reslug)
     router.put("/stories/:slug", authenticate, isAdmin, async (req: Request, res: Response) => {
         const { slug } = req.params;

@@ -9,12 +9,14 @@ import { Prisma } from "@prisma/client";
 // large body. (/api/episodes/import is retired and only answers 410, but stays
 // listed so an oversized stray upload gets that 410 instead of a 413.)
 export const IMPORT_PATHS = new Set(["/api/stories/import", "/api/episodes/import"]);
+// PUT /api/stories/:slug/import (revision) carries a whole story too
+const REVISION_PATH = /^\/api\/stories\/[^/]+\/import$/;
 export const importJson = express.json({ limit: "10mb" });
 
 const defaultJson = express.json();
 
 export function jsonExceptImports(req: Request, res: Response, next: NextFunction): void {
-    if (IMPORT_PATHS.has(req.path)) return next();
+    if (IMPORT_PATHS.has(req.path) || REVISION_PATH.test(req.path)) return next();
     defaultJson(req, res, next);
 }
 
