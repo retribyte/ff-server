@@ -30,7 +30,8 @@
  *
  * The whole run is one transaction, then checked: total message count
  * unchanged, no QUOTE without a voice, every persona on its character
- * (the trigger's rule). Any failure rolls everything back.
+ * (the trigger's rule), no story segment pointing at a deleted character,
+ * no DIALOGUE story line without a speaker. Any failure rolls everything back.
  *
  * Re-runnable: a row whose character is gone is reported as already applied,
  * and msg: refs already moved off the character are skipped.
@@ -257,6 +258,15 @@ async function main() {
                 WHERE p."characterId" IS DISTINCT FROM m."characterId"
             `;
             if (mismatched > 0n) throw new Error(`${mismatched} message(s) carry a persona of another character`);
+            // Segment characterIds have no FK, so a dangling one would go unnoticed.
+            const [{ dangling }] = await tx.$queryRaw<{ dangling: bigint }[]>`
+                SELECT count(*) AS dangling FROM story_lines sl, jsonb_array_elements(sl.segments) seg
+                WHERE seg ? 'characterId' AND jsonb_typeof(seg->'characterId') = 'number'
+                  AND NOT EXISTS (SELECT 1 FROM characters c WHERE c.id = (seg->>'characterId')::int)
+            `;
+            if (dangling > 0n) throw new Error(`${dangling} story segment(s) point at a character that no longer exists`);
+            const voicelessDialogue = await tx.storyLine.count({ where: { type: "DIALOGUE", characterId: null, OR: [{ speaker: null }, { speaker: "" }] } });
+            if (voicelessDialogue) throw new Error(`${voicelessDialogue} DIALOGUE story line(s) left without a speaker`);
             const npcPersonas = await tx.persona.count({ where: { characterId: null } });
             const npcLines = await tx.message.count({ where: { characterId: null, personaId: { not: null } } });
             console.log(`\nOK: ${messagesAfter} messages (unchanged), ${npcPersonas} NPC personas voicing ${npcLines} lines.`);
