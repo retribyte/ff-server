@@ -176,13 +176,8 @@ export function paragraphText(paragraph: Paragraph): string {
 
 // ---------- meta ----------
 
-export function slugify(text: string): string {
-    let slug = text.normalize("NFKD").replace(/[^\x00-\x7f]/g, "").toLowerCase();
-    slug = slug.replace(new RegExp(`[${WS}-]+`, "g"), "_");
-    slug = slug.replace(/[^a-z0-9_]+/g, "");
-    slug = slug.replace(/_+/g, "_").replace(/^_+|_+$/g, "");
-    return slug || "untitled";
-}
+// No slugify here: the CLI's slugify is the canonical rule (src/utils/slug.ts),
+// which index.ts uses directly.
 
 export type ColorInfo = { count: number; samples: string[] };
 

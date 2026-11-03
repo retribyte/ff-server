@@ -30,8 +30,8 @@ export type DocxConversion = {
     warnings: string[];
 };
 
-// Slugs are a cross-site identity (the wiki's rules, src/utils/slug.ts), so
-// the web path derives them canonically, not with the CLI port's slugify.
+// Slugs are a cross-site identity (the wiki's rules, src/utils/slug.ts; the
+// Python CLI's slugify is the same rule), with the CLI's "untitled" fallback.
 const slugFor = (text: string) => canonicalSlugify(text) || "untitled";
 
 export function analyzeDocx(data: Uint8Array, fileName?: string): DocxAnalysis {
