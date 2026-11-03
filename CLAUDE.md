@@ -101,11 +101,15 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
 - **Response envelope**, every JSON response: `{ status: "success", data }` or
   `{ status: "error", message }`. Never leak raw Prisma objects or stack
   traces.
-- **Slugs** (`src/utils/slug.ts`): the derivation (lowercase, spaces/hyphens →
-  single underscore, punctuation dropped, doubled underscores collapsed) must
-  stay byte-for-byte identical to the wiki's slug rules
-  (`Final Frontier Wiki:Slugs` on wiki.vortox.space) and to `ff-site`'s copy —
-  slugs are a cross-site identity, not a local convenience.
+- **Slugs** (`src/utils/slug.ts`): the derivation (accented letters
+  transliterated to plain Latin — à→a, ß→ss, æ→ae, ø→o — not dropped;
+  lowercase; spaces/hyphens → single underscore; punctuation dropped; doubled
+  underscores collapsed) must stay byte-for-byte identical to the wiki's slug
+  rules (`Final Frontier Wiki:Slugs` on wiki.vortox.space), to `ff-site`'s
+  copy (`src/lib/slug.ts`) and to its docx CLI
+  (`archive-to-markdown/story-docx-to-md.py`) — slugs are a cross-site
+  identity, not a local convenience. Cases live in `test/slug.test.ts`
+  (`npm test`). The rule only governs *new* slugs; stored slugs never change.
 - **GUY calendar dates** (`src/utils/guy-time.ts`): in-universe dates
   (`Character` DOB, etc.) are stored as integer equinox counts, not
   `DateTime`. An identical copy lives at `ff-site/src/lib/guy-time.ts` —
