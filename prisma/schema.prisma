@@ -206,6 +206,11 @@ model Story {
   season        Season?        @relation(fields: [seasonTitle], references: [title], onDelete: SetNull)
   seasonTitle   String?
   chapters      StoryChapter[]
+  // Duplicate-import detection: sha256 of the lines as imported (per chapter,
+  // in order, [type, text] per line — see storyContentHash in story.service.ts).
+  // Fingerprints the manuscript at import time; later line edits don't update
+  // it. Null for stories that predate it until backfill:story-hashes runs.
+  contentHash   String?        @unique
 
   @@map("stories")
 }

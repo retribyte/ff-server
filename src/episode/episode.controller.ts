@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import episodeService from "./episode.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
+import { importJson, importErrorResponse } from "../utils/import.js";
 
 const initializeEpisodeRoutes = (): Router => {
     const router: Router = Router();
@@ -41,6 +42,18 @@ const initializeEpisodeRoutes = (): Router => {
             res.status(201).json({ status: "success", data: episode });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });
+        }
+    });
+
+    // POST /api/episodes/import: Atomic whole-episode import { seasonTitle, episode, messages }.
+    // Creates the season if missing. All or nothing; 409 when the title/slug/episode number is taken.
+    router.post("/episodes/import", authenticate, isAdmin, importJson, async (req: Request, res: Response) => {
+        try {
+            const episode = await episodeService.importEpisode(req.body);
+            res.status(201).json({ status: "success", data: episode });
+        } catch (error: any) {
+            const { status, message } = importErrorResponse(error, "episode");
+            res.status(status).json({ status: "error", message });
         }
     });
 

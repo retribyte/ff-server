@@ -1,5 +1,7 @@
 import { PrismaClient, Prisma, StoryLineType, StoryFormat } from "@prisma/client";
 import { SLUG_PATTERN } from "../utils/slug.js";
+import { IMPORT_TX_OPTIONS, ImportConflictError } from "../utils/import.js";
+import { storyContentHash } from "./story-hash.js";
 
 const prisma = new PrismaClient();
 
@@ -385,22 +387,114 @@ async function createLines(slug: string, chapterNo: number, lines: LineData[]) {
             orderBy: { line_no: "desc" },
         });
         const firstLineNo = (last?.line_no ?? 0) + 1;
-
-        await tx.storyLine.createMany({
-            data: lines.map((line, index) => ({
-                chapterId: chapter.id,
-                line_no: firstLineNo + index,
-                type: line.type,
-                // Segmented lines derive `text` from the spans so the two can't desync
-                text: hasSegments(line) ? textFromSegments(line.segments) : line.text,
-                characterId: line.characterId ?? null,
-                speaker: line.speaker ?? null,
-                segments: hasSegments(line) ? (line.segments as object[]) : undefined,
-            })),
-        });
-
+        await insertLines(tx, chapter.id, firstLineNo, lines);
         return { count: lines.length, firstLineNo, lastLineNo: firstLineNo + lines.length - 1 };
     });
+}
+
+/** The `text` a line is stored with: segmented lines derive it from the spans so the two can't desync. */
+function storedText(line: LineData): string {
+    return hasSegments(line) ? textFromSegments(line.segments) : line.text;
+}
+
+/** Writes already-validated lines into a chapter with sequential line_nos, inside the caller's transaction. */
+async function insertLines(tx: Prisma.TransactionClient, chapterId: number, firstLineNo: number, lines: LineData[]) {
+    await tx.storyLine.createMany({
+        data: lines.map((line, index) => ({
+            chapterId,
+            line_no: firstLineNo + index,
+            type: line.type,
+            text: storedText(line),
+            characterId: line.characterId ?? null,
+            speaker: line.speaker ?? null,
+            segments: hasSegments(line) ? (line.segments as object[]) : undefined,
+        })),
+    });
+}
+
+type ImportChapter = { chapter_no: number; title?: string | null; lines: LineData[] };
+type StoryImport = { story: StoryData; chapters: ImportChapter[] };
+
+/**
+ * Atomic whole-story import: the story, every chapter and every line in one
+ * transaction — it either lands complete or not at all, so "this story
+ * exists" always means "this story imported completely". Rejects (409) a
+ * slug or title already in use, or content identical to an existing story's.
+ */
+async function importStory(body: StoryImport) {
+    const { story, chapters } = body ?? ({} as StoryImport);
+    if (!story || typeof story !== "object") throw new Error("body must be { story, chapters }");
+    validateStoryData(story, true);
+    if (story.authorIds !== undefined) authorRefs(story.authorIds);
+    if (!Array.isArray(chapters) || chapters.length === 0) {
+        throw new Error("chapters must be a non-empty array");
+    }
+
+    const seenChapterNos = new Set<number>();
+    for (const [ci, chapter] of chapters.entries()) {
+        const label = `Chapter ${chapter?.chapter_no ?? `#${ci + 1}`}`;
+        if (!Number.isInteger(chapter?.chapter_no) || chapter.chapter_no < 1) {
+            throw new Error(`Chapter #${ci + 1}: chapter_no must be a positive integer`);
+        }
+        if (seenChapterNos.has(chapter.chapter_no)) throw new Error(`${label}: duplicate chapter_no`);
+        seenChapterNos.add(chapter.chapter_no);
+        if (!Array.isArray(chapter.lines)) throw new Error(`${label}: lines must be an array`);
+        for (const [li, line] of chapter.lines.entries()) validateLine(line, `${label}, line ${li + 1}`);
+    }
+
+    const ordered = [...chapters].sort((a, b) => a.chapter_no - b.chapter_no);
+    const contentHash = storyContentHash(
+        ordered.map((chapter) => ({ lines: chapter.lines.map((line) => ({ type: line.type, text: storedText(line) })) }))
+    );
+    const seasonTitle = await resolveSeasonTitle(story.season);
+
+    return await prisma.$transaction(async (tx) => {
+        const bySlug = await tx.story.findUnique({ where: { slug: story.slug }, select: { slug: true } });
+        if (bySlug) throw new ImportConflictError(`A story with slug '${story.slug}' is already in the archive`);
+        const byTitle = await tx.story.findFirst({
+            where: { title: { equals: story.title, mode: "insensitive" } },
+            select: { slug: true, title: true },
+        });
+        if (byTitle) {
+            throw new ImportConflictError(`A story titled '${byTitle.title}' is already in the archive (slug '${byTitle.slug}')`);
+        }
+        const byContent = await tx.story.findUnique({ where: { contentHash }, select: { slug: true, title: true } });
+        if (byContent) {
+            throw new ImportConflictError(
+                `This manuscript's text is identical to '${byContent.title}' (slug '${byContent.slug}'), already in the archive`
+            );
+        }
+
+        const created = await tx.story.create({
+            data: {
+                slug: story.slug,
+                title: story.title,
+                blurb: story.blurb ?? null,
+                authors: story.authorIds ? { connect: authorRefs(story.authorIds) } : undefined,
+                publishedDate: story.publishedDate ? new Date(story.publishedDate) : null,
+                themeColor: story.themeColor ?? null,
+                themeColor2: story.themeColor2 ?? null,
+                format: story.format ?? undefined,
+                seasonTitle: seasonTitle ?? null,
+                contentHash,
+            },
+        });
+
+        let lineCount = 0;
+        for (const chapter of ordered) {
+            const createdChapter = await tx.storyChapter.create({
+                data: { storyId: created.id, chapter_no: chapter.chapter_no, title: chapter.title ?? null },
+            });
+            await insertLines(tx, createdChapter.id, 1, chapter.lines);
+            lineCount += chapter.lines.length;
+        }
+
+        const full = await tx.story.findUniqueOrThrow({
+            where: { id: created.id },
+            include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
+        });
+        return { ...full, lineCount };
+    }, IMPORT_TX_OPTIONS);
 }
 
 async function updateLine(slug: string, chapterNo: number, lineNo: number, data: Partial<LineData>) {
@@ -464,6 +558,7 @@ export default {
     deleteChapter,
     getLinesByChapter,
     createLines,
+    importStory,
     updateLine,
     getStoryQuotesByCharacter,
     searchStoryLines,

@@ -111,12 +111,25 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   `DateTime`. An identical copy lives at `ff-site/src/lib/guy-time.ts` —
   changes must land in both. Real-world timestamps (`Message.timestamp`,
   `Episode.playedDate`) stay plain `DateTime`.
+- **Imports are atomic**: `POST /api/stories/import` and `POST /api/episodes/import`
+  take a whole story (`{story, chapters:[{chapter_no, title?, lines}]}`) or
+  episode (`{seasonTitle, episode, messages}`, season created if missing) and
+  write it in one interactive transaction — all or nothing, so an existing
+  story/episode is always a complete one. Conflicts return **409**: slug or
+  title (stories: title case-insensitive), episode season+number, and for
+  stories identical text via `Story.contentHash` (`src/story/story-hash.ts`;
+  import-time fingerprint, not updated by line edits; `npm run
+  backfill:story-hashes` fills it for stories created any other way — the
+  seed runs it). These two routes skip the global 100kb JSON parser and
+  mount a 10mb one *after* `authenticate, isAdmin` (`src/utils/import.ts`).
+  The older append endpoints (`.../chapters/:n/lines`, `.../messages`) remain
+  for incremental API use, not for imports.
 - **HTML sanitization** (`src/utils/sanitize.ts`, NFR-SEC-3): user-submitted
   rich text (character blurbs, species descriptions, item descriptions,
   commentary) goes through `sanitizeText()` before storage.
 - `prisma/scripts/seed.ts` is the orchestrator: wipes all data, then runs
   `SEED_SCRIPTS` (`seed-legacy.ts`, persona/character-data scripts,
-  `seed-species.ts`, `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `create-search-indexes.ts`) as child processes, skipping (not aborting) any
+  `seed-species.ts`, `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `backfill-story-hashes.ts`, `create-search-indexes.ts`) as child processes, skipping (not aborting) any
   that fail or don't exist on disk — `seed-galaxy.ts` is currently in that
   list but not present in the repo, and is expected to just be skipped.
   `seed:legacy` replays the real archive from `ff-site-old`'s bundled JSON

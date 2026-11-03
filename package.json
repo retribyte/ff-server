@@ -20,6 +20,7 @@
         "seed:vortox-character-data": "tsx prisma/scripts/seed-vortox-character-data.ts",
         "seed:vortox-weapons": "tsx prisma/scripts/seed-vortox-weapons.ts",
         "backfill:story-authors": "tsx prisma/scripts/backfill-story-authors.ts",
+        "backfill:story-hashes": "tsx prisma/scripts/backfill-story-hashes.ts",
         "seed:character-colors": "tsx prisma/scripts/seed-character-colors.ts",
         "seed:species": "tsx prisma/scripts/seed-species.ts",
         "seed:overlay": "tsx prisma/scripts/seed-overlay.ts",

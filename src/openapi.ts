@@ -941,6 +941,48 @@ const spec = {
                 responses: { "201": { description: "Episode created" }, "401": { description: "Unauthorized" } },
             },
         },
+        "/episodes/import": {
+            post: {
+                tags: ["Episodes"],
+                summary: "Atomically import a whole episode with its messages (admin only)",
+                description:
+                    "One transaction: creates the season if it doesn't exist, the episode, and every message (numbered 1..n). " +
+                    "Either all of it lands or none does. Body limit 10mb.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["seasonTitle", "episode", "messages"],
+                                properties: {
+                                    seasonTitle: { type: "string" },
+                                    episode: {
+                                        type: "object",
+                                        required: ["title", "episode_no"],
+                                        properties: {
+                                            title: { type: "string" },
+                                            episode_no: { type: "integer" },
+                                            summary: { type: "string" },
+                                            playedDate: { type: "string", format: "date-time" },
+                                            slug: { type: "string", pattern: "^[a-z0-9]+(_[a-z0-9]+)*$" },
+                                        },
+                                    },
+                                    messages: { type: "array", items: { $ref: "#/components/schemas/Message" } },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "201": { description: "Episode imported; data carries messageCount and seasonCreated" },
+                    "400": { description: "Invalid payload — nothing was written" },
+                    "401": { description: "Unauthorized" },
+                    "409": { description: "Title, slug, or season episode number already in use — nothing was written" },
+                },
+            },
+        },
         "/episodes/{title}": {
             get: {
                 tags: ["Episodes"],
@@ -1114,6 +1156,63 @@ const spec = {
                     },
                 },
                 responses: { "201": { description: "Story created" }, "401": { description: "Unauthorized" } },
+            },
+        },
+        "/stories/import": {
+            post: {
+                tags: ["Stories"],
+                summary: "Atomically import a whole story with its chapters and lines (admin only)",
+                description:
+                    "One transaction: the story, every chapter, and every line (numbered 1..n per chapter). Either all of it " +
+                    "lands or none does. Duplicate detection: 409 when the slug or title (case-insensitive) is taken, or when " +
+                    "the lines' text is identical to an existing story's (Story.contentHash). Body limit 10mb.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["story", "chapters"],
+                                properties: {
+                                    story: {
+                                        type: "object",
+                                        required: ["slug", "title"],
+                                        properties: {
+                                            slug: { type: "string", pattern: "^[a-z0-9]+(_[a-z0-9]+)*$" },
+                                            title: { type: "string" },
+                                            blurb: { type: "string" },
+                                            authorIds: { type: "array", items: { type: "integer" } },
+                                            publishedDate: { type: "string", format: "date-time" },
+                                            themeColor: { type: "string" },
+                                            themeColor2: { type: "string" },
+                                            season: { type: "string", nullable: true, description: "Season title or slug" },
+                                            format: { $ref: "#/components/schemas/StoryFormat" },
+                                        },
+                                    },
+                                    chapters: {
+                                        type: "array",
+                                        items: {
+                                            type: "object",
+                                            required: ["chapter_no", "lines"],
+                                            properties: {
+                                                chapter_no: { type: "integer", minimum: 1 },
+                                                title: { type: "string", nullable: true },
+                                                lines: { type: "array", items: { $ref: "#/components/schemas/StoryLine" } },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "201": { description: "Story imported (same shape as GET /stories/{slug}, plus lineCount)" },
+                    "400": { description: "Invalid payload — nothing was written" },
+                    "401": { description: "Unauthorized" },
+                    "409": { description: "Slug/title taken, or identical text already imported — nothing was written" },
+                },
             },
         },
         "/stories/{slug}": {

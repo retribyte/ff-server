@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import storyService from "./story.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
+import { importJson, importErrorResponse } from "../utils/import.js";
 
 const initializeStoryRoutes = (): Router => {
     const router: Router = Router();
@@ -38,6 +39,18 @@ const initializeStoryRoutes = (): Router => {
             res.status(201).json({ status: "success", data: story });
         } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });
+        }
+    });
+
+    // POST /api/stories/import: Atomic whole-story import { story, chapters: [{ chapter_no, title?, lines }] }.
+    // All or nothing; 409 when the slug/title is taken or the text duplicates an existing story.
+    router.post("/stories/import", authenticate, isAdmin, importJson, async (req: Request, res: Response) => {
+        try {
+            const story = await storyService.importStory(req.body);
+            res.status(201).json({ status: "success", data: story });
+        } catch (error: any) {
+            const { status, message } = importErrorResponse(error, "story");
+            res.status(status).json({ status: "error", message });
         }
     });
 

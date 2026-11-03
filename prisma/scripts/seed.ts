@@ -25,6 +25,7 @@ const SEED_SCRIPTS = [
     "seed-overlay.ts",
     "seed-8ball.ts",
     "seed-galaxy.ts",
+    "backfill-story-hashes.ts",
     "create-search-indexes.ts",
 ];
 

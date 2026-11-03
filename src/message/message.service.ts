@@ -1,10 +1,10 @@
-import { PrismaClient, MessageType } from "@prisma/client";
+import { PrismaClient, MessageType, Prisma } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 const PERSONA_SELECT = { select: { id: true, name: true, image: true, color: true } };
 
-type MessageData = {
+export type MessageData = {
     playerId: number;
     characterId?: number;
     personaId?: number;
@@ -132,6 +132,24 @@ const VALID_TYPES = new Set<string>(Object.values(MessageType));
  * transaction so concurrent imports can't collide.
  */
 async function createMessages(episodeTitle: string, messages: MessageData[]) {
+    await validateMessages(messages);
+
+    return await prisma.$transaction(async (tx) => {
+        const episode = await tx.episode.findUnique({ where: { title: episodeTitle } });
+        if (!episode) throw new Error(`Episode '${episodeTitle}' not found`);
+
+        const last = await tx.message.findFirst({
+            where: { episodeTitle },
+            orderBy: { messageNo: "desc" },
+        });
+        const firstMessageNo = (last?.messageNo ?? 0) + 1;
+        await insertMessages(tx, episodeTitle, firstMessageNo, messages);
+        return { count: messages.length, firstMessageNo, lastMessageNo: firstMessageNo + messages.length - 1 };
+    });
+}
+
+/** Rejects a bulk message batch before anything is written (shared by append and atomic episode import). */
+export async function validateMessages(messages: MessageData[]): Promise<void> {
     for (const [index, msg] of messages.entries()) {
         if (!VALID_TYPES.has(msg.type)) {
             throw new Error(`Message ${index + 1}: invalid type '${msg.type}'`);
@@ -147,31 +165,26 @@ async function createMessages(episodeTitle: string, messages: MessageData[]) {
         }
         await assertPersonaMatchesCharacter(msg.personaId, msg.characterId, `Message ${index + 1}: `);
     }
+}
 
-    return await prisma.$transaction(async (tx) => {
-        const episode = await tx.episode.findUnique({ where: { title: episodeTitle } });
-        if (!episode) throw new Error(`Episode '${episodeTitle}' not found`);
-
-        const last = await tx.message.findFirst({
-            where: { episodeTitle },
-            orderBy: { messageNo: "desc" },
-        });
-        const firstMessageNo = (last?.messageNo ?? 0) + 1;
-
-        await tx.message.createMany({
-            data: messages.map((msg, index) => ({
-                episodeTitle,
-                messageNo: firstMessageNo + index,
-                playerId: msg.playerId,
-                characterId: msg.characterId ?? null,
-                personaId: msg.personaId ?? null,
-                timestamp: msg.timestamp ? new Date(msg.timestamp) : null,
-                type: msg.type,
-                text: msg.text,
-            })),
-        });
-
-        return { count: messages.length, firstMessageNo, lastMessageNo: firstMessageNo + messages.length - 1 };
+/** Writes already-validated messages with sequential messageNos, inside the caller's transaction. */
+export async function insertMessages(
+    tx: Prisma.TransactionClient,
+    episodeTitle: string,
+    firstMessageNo: number,
+    messages: MessageData[]
+): Promise<void> {
+    await tx.message.createMany({
+        data: messages.map((msg, index) => ({
+            episodeTitle,
+            messageNo: firstMessageNo + index,
+            playerId: msg.playerId,
+            characterId: msg.characterId ?? null,
+            personaId: msg.personaId ?? null,
+            timestamp: msg.timestamp ? new Date(msg.timestamp) : null,
+            type: msg.type,
+            text: msg.text,
+        })),
     });
 }
 

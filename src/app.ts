@@ -13,6 +13,7 @@ import commentaryController from "./commentary/commentary.controller.js";
 import eightballController from "./eightball/eightball.controller.js";
 import searchController from "./search/search.controller.js";
 import apiSpec from "./openapi.js";
+import { jsonExceptImports } from "./utils/import.js";
 
 class App {
     public app: Application;
@@ -20,7 +21,8 @@ class App {
     constructor() {
         this.app = express();
         this.app.use(cors());
-        this.app.use(express.json());
+        // Import routes parse their own (larger) bodies — see utils/import.ts
+        this.app.use(jsonExceptImports);
         this.routes();
         this.errorHandlers();
     }
