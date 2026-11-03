@@ -283,17 +283,15 @@ dashboard.
 ## Phase 3 — Remove Species
 
 **Status 2026-11-03: done on branch `remove-species`** in both repos (cut from
-`npc-personas`; not merged, not pushed). **Tentative, so don't merge it yet.**
-The user is discussing with another contributor whether to keep Species as a
-wiki-cache-only table that a future bot could read. If so, this branch gets
-reworked rather than merged. The shared dev DB has been pushed
-(backup `backups/pre-remove-species-2026-11-03.dump`), and its 44 `species`
-rows in `wiki_cache` were deleted. A full fresh `npm run seed` into a scratch
-DB still gives 143 NPC personas, 762 lines and 51,649 messages. The species
-wiki proxy went too: the species pages were its only consumer. Character
-pages now show the wiki's `species` field in the infobox. The overlay's
-`species` keys were stripped by hand, not by `export:overlay` (open
-colors/images question).
+`npc-personas`; not pushed). **Resolved as wiki-cache-only** (user, 2026-11-03):
+there's no species table, but the wiki cache's `species` bucket stays.
+Read-only `GET /api/species[/:slug]` serves it for a future bot.
+`refresh:wiki-cache` refreshes it, and stale slugs become negatives. The shared dev DB's species tables
+were dropped (backup `backups/pre-remove-species-2026-11-03.dump`); its
+`species` rows in `wiki_cache` are kept. A full fresh `npm run seed` into a
+scratch DB still gives 143 NPC personas, 762 lines and 51,649 messages. The
+site's species pages are gone. Character pages show the wiki's `species`
+field in the infobox. The overlay's `species` keys were stripped by hand.
 
 - [x] Server: drop `src/species/`, the species parts of
       `character.service/controller`, `search.*`, `openapi.ts`, `app.ts`,
@@ -324,6 +322,8 @@ colors/images question).
 
 - [ ] Fresh DB credentials and `JWT_SECRET`. Nothing from dev carries over: a
       DB password was pasted in DMs on 2026-08-19.
+- [ ] After the prod DB is seeded: `npm run refresh:wiki-cache`. The seed doesn't fill
+      `wiki_cache`, and `/api/species` serves only that cache, so it's empty until this runs.
 - [ ] Seed: dump dev → prod, then `npm run golive:flag-accounts`, *or* a fresh
       `npm run seed` plus stories via `story-md-to-api.py --upload`. Before a
       fresh seed, run `python3 md-to-api.py --all` in ff-site's

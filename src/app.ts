@@ -8,6 +8,7 @@ import episodeController from "./episode/episode.controller.js";
 import messageController from "./message/message.controller.js";
 import storyController from "./story/story.controller.js";
 import itemController from "./item/item.controller.js";
+import speciesController from "./species/species.controller.js";
 import commentaryController from "./commentary/commentary.controller.js";
 import eightballController from "./eightball/eightball.controller.js";
 import searchController from "./search/search.controller.js";
@@ -36,6 +37,7 @@ class App {
         this.app.use("/api", messageController.initializeMessageRoutes());
         this.app.use("/api", storyController.initializeStoryRoutes());
         this.app.use("/api", itemController.initializeItemRoutes());
+        this.app.use("/api", speciesController.initializeSpeciesRoutes());
         this.app.use("/api", commentaryController.initializeCommentaryRoutes());
         this.app.use("/api", eightballController.initializeEightballRoutes());
         this.app.use("/api", searchController.initializeSearchRoutes());

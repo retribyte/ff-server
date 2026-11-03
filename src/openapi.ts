@@ -101,6 +101,20 @@ const spec = {
                     slug: { type: "string" },
                 },
             },
+            WikiSpecies: {
+                type: "object",
+                description: "A species as cached from the wiki's `species` Bucket. The wiki owns species lore; this API only serves the cache.",
+                properties: {
+                    slug: { type: "string" },
+                    name: { type: "string", description: "The wiki page name" },
+                    fetchedAt: { type: "string", format: "date-time", description: "When the row was last read from the wiki" },
+                    data: {
+                        type: "object",
+                        additionalProperties: true,
+                        description: "Every field the wiki's species schema has (diet, homeworld, class, ...); repeated fields are arrays",
+                    },
+                },
+            },
             Season: {
                 type: "object",
                 properties: {
@@ -889,6 +903,34 @@ const spec = {
                     "403": { description: "Forbidden" },
                     "404": { description: "Character not found" },
                     "409": { description: "Slug or name already taken" },
+                },
+            },
+        },
+        "/species": {
+            get: {
+                tags: ["Species"],
+                summary: "List the species cached from the wiki",
+                description: "Read-only. Served from the wiki cache, which `npm run refresh:wiki-cache` fills; species absent from the wiki are left out.",
+                security: [], // public — no token needed
+                parameters: [{ name: "search", in: "query", schema: { type: "string" }, description: "Matches the slug or the wiki page name" }],
+                responses: {
+                    "200": {
+                        description: "Array of cached species",
+                        content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/WikiSpecies" } } } },
+                    },
+                },
+            },
+        },
+        "/species/{slug}": {
+            get: {
+                tags: ["Species"],
+                summary: "Get one cached species by slug",
+                description: "Read-only, from the wiki cache. A slug that isn't cached is a 404; this never fetches from the wiki live.",
+                security: [], // public — no token needed
+                parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+                responses: {
+                    "200": { description: "Cached species", content: { "application/json": { schema: { $ref: "#/components/schemas/WikiSpecies" } } } },
+                    "404": { description: "Not cached, or cached as absent from the wiki" },
                 },
             },
         },

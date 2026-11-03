@@ -15,9 +15,13 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
 `Persona` (FR-CHAR-3, formerly `Alias`), `Season`, `Episode`,
 `Message`, `Item`, `Commentary`, `Character`, `User` are implemented). Check
 `prisma/schema.prisma` for what's actually there. There's no `Species`
-model (removed 2026-11, MVP Phase 3): the wiki owns species lore, and a
-character page shows the wiki's `species` field from the wiki cache. Don't
-add species back to the DB.
+model (removed 2026-11, MVP Phase 3): the wiki owns species lore. Species
+exist here only as the wiki cache's `species` bucket. `GET /api/species` and
+`/api/species/:slug` serve those cached rows read-only (for a future bot),
+and they never fetch live: a species has no DB row to bound the cache. `npm
+run refresh:wiki-cache` fills and refreshes the bucket, so run it on a fresh
+DB. A character page shows the wiki's `species` field from its own wiki
+data. Don't add a species table back.
 
 ## Environment
 

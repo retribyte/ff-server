@@ -131,7 +131,9 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 
 ### 3.5 Species
 
-*Removed — species are not stored in the System. The wiki (wiki.vortox.space) owns species lore; a character page shows the wiki's `species` field through the wiki cache (§4.6). FR-SPC-1 to FR-SPC-3 are withdrawn.*
+*FR-SPC-1 to FR-SPC-3 are withdrawn: species are not stored as records in the System. The wiki (wiki.vortox.space) owns species lore, and a character page shows the wiki's `species` field through the wiki cache (§4.6).*
+
+- **FR-SPC-4** The System MUST serve the species it has cached from the wiki, read-only: a list and a lookup by slug (`GET /api/species`, `GET /api/species/:slug`). These read the cache only and never fetch from the wiki on request. A scheduled or manual refresh keeps the cache current. They exist so other clients (e.g. a future bot) can read species lore without querying the wiki directly.
 
 ### 3.6 Locations
 

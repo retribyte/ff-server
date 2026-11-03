@@ -1,7 +1,7 @@
 /**
  * Whole-bucket refresh of the wiki cache (see docs/notes/PLAN-wiki-cache.md). One
  * `.limit(500).run()` pull per bucket retrieves every row given current
- * bucket sizes (characters 58, items 9 as of 2026-10) — no
+ * bucket sizes (characters 58, species 43, items 9 as of 2026-10) — no
  * pagination needed.
  * Upserts a positive entry for every row the wiki returns, and a negative
  * entry for every DB slug that didn't come back — negatives and positives
@@ -18,6 +18,13 @@ const BUCKETS: { bucket: WikiBucket; getDbSlugs: () => Promise<string[]> }[] = [
     {
         bucket: "characters",
         getDbSlugs: async () => (await prisma.character.findMany({ select: { slug: true } })).map((r) => r.slug),
+    },
+    {
+        // Species have no DB table: the slugs already cached are the ones to
+        // check, so a species deleted from the wiki turns into a negative entry
+        bucket: "species",
+        getDbSlugs: async () =>
+            (await prisma.wikiCache.findMany({ where: { bucket: "species" }, select: { slug: true } })).map((r) => r.slug),
     },
     {
         bucket: "items",
