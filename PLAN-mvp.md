@@ -282,19 +282,32 @@ dashboard.
 
 ## Phase 3 — Remove Species
 
-- [ ] Server: drop `src/species/`, the species parts of
+**Status 2026-11-03: done on branch `remove-species`** in both repos (cut from
+`npc-personas`; not merged, not pushed). **Tentative, so don't merge it yet.**
+The user is discussing with another contributor whether to keep Species as a
+wiki-cache-only table that a future bot could read. If so, this branch gets
+reworked rather than merged. The shared dev DB has been pushed
+(backup `backups/pre-remove-species-2026-11-03.dump`), and its 44 `species`
+rows in `wiki_cache` were deleted. A full fresh `npm run seed` into a scratch
+DB still gives 143 NPC personas, 762 lines and 51,649 messages. The species
+wiki proxy went too: the species pages were its only consumer. Character
+pages now show the wiki's `species` field in the infobox. The overlay's
+`species` keys were stripped by hand, not by `export:overlay` (open
+colors/images question).
+
+- [x] Server: drop `src/species/`, the species parts of
       `character.service/controller`, `search.*`, `openapi.ts`, `app.ts`,
       and `"species"` in `WikiBucket` (check whether a species wiki proxy is
       still wanted first). Drop `Species`, `_CharacterToSpecies` and the
       `Class` enum. Make species not required on character create.
-- [ ] Site: about 20 files. `/species` routes, the CharacterIndex species
+- [x] Site: about 20 files. `/species` routes, the CharacterIndex species
       filter, editor fields, nav, search tabs.
-- [ ] Seed scripts: drop `seed-species.ts` from `SEED_SCRIPTS`. Also strip
+- [x] Seed scripts: drop `seed-species.ts` from `SEED_SCRIPTS`. Also strip
       species from `seed-data/characters.json` and from `export:overlay`.
       `db push` will drop the tables. Nothing needs saving, since the wiki
       has the lore.
-- [ ] Update `CLAUDE.md` (both repos) where Species is listed as implemented.
-- [ ] Design doc: delete §3.5, FR-CHAR-10's species filter and FR-SR-1's
+- [x] Update `CLAUDE.md` (both repos) where Species is listed as implemented.
+- [x] Design doc: delete §3.5, FR-CHAR-10's species filter and FR-SR-1's
       species mention.
 
 ## Phase 4 — Portraits (data pass, not a feature)

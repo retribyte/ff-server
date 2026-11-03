@@ -21,14 +21,14 @@ This document specifies the requirements for a new, small web application ("the 
 
 ### 1.2 Vision
 
-A single small web application that is the canonical home for the Final Frontier universe' **lore and archives**: it stores characters, species, locations, items (weapons, equipment, artifacts, etc. as lore entries), and quotes; it lets registered members create and edit those entities through a web UI; and it presents finished campaigns as a polished public archive that anyone can read.
+A single small web application that is the canonical home for the Final Frontier universe' **lore and archives**: it stores characters, locations, items (weapons, equipment, artifacts, etc. as lore entries), and quotes; it lets registered members create and edit those entities through a web UI; and it presents finished campaigns as a polished public archive that anyone can read.
 
 ### 1.3 Scope
 
 #### In scope
 
 - Web-based read access to the campaign archive (seasons, episodes, transcripts) and to standalone narrative works — prose stories and the CYOA chronicle — published outside that season/episode hierarchy.
-- Web-based authoring and management of the lore entities defined in §4: characters (biographical fields only), species, locations, items (descriptive only), quotes.
+- Web-based authoring and management of the lore entities defined in §4: characters (biographical fields only), locations, items (descriptive only), quotes. Species lore lives on the wiki, not in the System (§3.5).
 - User accounts and a simple two-role permission model.
 - A single relational database; the existing `ff-server` Prisma schema is the baseline.
 
@@ -36,7 +36,7 @@ A single small web application that is the canonical home for the Final Frontier
 
 - **The live tabletop game.** Live combat, turn rotation, voice-channel integration, dice rolling at the table — these remain with whatever client runs live play.
 - **In-game character status.** HP, shield, resistances, damage-over-time, incorporeal state, status effects, damage events. The System stores who a character *is*, not their current combat state.
-- **Automated migration from legacy stores.** Migrating records directly from the `vortox-bot` MongoDB or from raw Discord exports is out of scope. Bulk narrative content (episode transcripts, standalone stories) is instead loaded through an admin-only import console (§3.14) that accepts JSON already produced by the external `archive-to-markdown` conversion pipeline; individual lore entities (characters, species, items, quotes) are hand-authored through the interactive UI/API.
+- **Automated migration from legacy stores.** Migrating records directly from the `vortox-bot` MongoDB or from raw Discord exports is out of scope. Bulk narrative content (episode transcripts, standalone stories) is instead loaded through an admin-only import console (§3.14) that accepts JSON already produced by the external `archive-to-markdown` conversion pipeline; individual lore entities (characters, items, quotes) are hand-authored through the interactive UI/API.
 - **Admin dashboard.** Admins use the same UI as members, plus the elevated edit rights described in §2.2, plus the archive-import console (§3.14) for bulk-loading pipeline-converted episode and story JSON. No general operator console, analytics dashboard, or bulk-management UI beyond that one import tool.
 - **Discord bot replacement.** The System exposes an API (§3.10) so that an external client *could* be built against it, but the bot itself is not a deliverable.
 - **Real-time collaborative editing.**
@@ -48,7 +48,6 @@ A single small web application that is the canonical home for the Final Frontier
 | **Episode** | One session/installment of a campaign, with an ordered transcript of messages. |
 | **Season** | A grouping of episodes under one campaign arc (e.g. FF1, FF2, Vortox Machina). |
 | **Character** | A persistent in-universe person/creature, owned by a user, with biographical attributes only. |
-| **Species** | A taxonomic classification a character belongs to. |
 | **Item** | A descriptive in-universe object (weapon, piece of equipment, artifact, etc.), classified by an `ItemType` field. The System records items as lore, not as combat mechanics. May optionally be associated with a character. |
 | **Quote** | A `Message` of type `QUOTE`; requires a character speaker. Not a separate entity. |
 | **GUY** | The in-universe time unit used for characters' dates of birth and episode timestamps. |
@@ -64,7 +63,7 @@ A single small web application that is the canonical home for the Final Frontier
 ### 2.1 Personas
 
 - **Visitor (unauthenticated).** A fan or newcomer who wants to read finished campaigns and explore the universe' lore.
-- **Member (authenticated user).** Maintains their own characters and contributes lore entries (species, items, quotes).
+- **Member (authenticated user).** Maintains their own characters and contributes lore entries (items, quotes).
 - **Admin.** Site operator. Same UI as a member, plus the ability to edit/delete records and change another user's role.
 
 ### 2.2 Roles and Permissions
@@ -119,22 +118,20 @@ Each requirement is identified by a stable ID for traceability. `MUST` / `SHOULD
 
 ### 3.4 Character Management
 
-- **FR-CHAR-1** A member MUST be able to create a character. Required fields: name, species. Optional fields drawn from the existing `Character` model in the `ff-server` schema: personas (see FR-CHAR-3), avatar image, theme color, blurb. A character's displayed avatar image and theme color MUST resolve per message on each field independently as `persona ?? character` (a persona that sets only one of image/color falls through to the character's value for the other); the transcript reader's full display fallback chain (name, avatar, color) is `persona ?? character ?? player` (see FR-CHAR-3).
+- **FR-CHAR-1** A member MUST be able to create a character. Required field: name. Optional fields drawn from the existing `Character` model in the `ff-server` schema: personas (see FR-CHAR-3), avatar image, theme color, blurb. A character's displayed avatar image and theme color MUST resolve per message on each field independently as `persona ?? character` (a persona that sets only one of image/color falls through to the character's value for the other); the transcript reader's full display fallback chain (name, avatar, color) is `persona ?? character ?? player` (see FR-CHAR-3).
 - **FR-CHAR-2** A character MUST belong to exactly one user (its creator/owner).
-- **FR-CHAR-3** A character MUST be able to have zero or more **personas** (per the existing `Persona` model, renamed from the earlier name-only `Alias` model). A persona represents how a character is presented for some stretch of the archive — an alternate display name, an alternate avatar image, an alternate theme color, or any combination — and is the System's single presentation mechanism: attribution is per message (`Message.personaId`, optional), not a stored default consulted at render time. A persona MUST set at least one of `name`, `image`, or `color`; when `name` is not set (a "look-only" persona, e.g. a mid-archive appearance change with no name change) the persona MUST also carry a `label`, an admin-facing handle never rendered in transcripts, so it stays distinguishable in management UIs. A named persona MUST have a permanent, unique `slug` (derived `<character_slug>_<name_slug>`, same philosophy as Character/Item/Species) that resolves to the persona's owning character wherever a character slug is accepted; a name-less persona has no slug. A persona MUST belong to at most one character, and a message's persona, if set, MUST belong to the same character the message is attributed to — the database itself MUST enforce this (a trigger on `messages` comparing the persona's `characterId` to the message's with null-safe equality, plus one refusing to move a persona that messages use to another character), not only the application layer. A persona with no character is an **NPC persona**: a named voice for a one-off speaker ("Enemy A", "Llamanian Guard") that isn't worth a character. Its lines have no character (`characterId` null). An NPC persona MUST have a name, has no slug or page, and MUST be unique by case-insensitive name across the archive (the same "Receptionist" in two seasons is one nameplate). Creating, editing and assigning NPC personas, and converting speakers between characters and NPC personas (demote, promote, merge, rename), MUST be restricted to admins (FR-EP-2); character quote pages and random quotes leave NPC lines out. To assign a persona across many messages at once, the System MUST provide write-time bulk-assignment ("stamp") operations scoped to all of a character's messages within one episode or within one season; stamping with `personaId: null` clears the affected messages back to canonical (character-only) attribution. Performing a stamp MUST be restricted to the character's owner or an admin (FR-CHAR-8).
+- **FR-CHAR-3** A character MUST be able to have zero or more **personas** (per the existing `Persona` model, renamed from the earlier name-only `Alias` model). A persona represents how a character is presented for some stretch of the archive — an alternate display name, an alternate avatar image, an alternate theme color, or any combination — and is the System's single presentation mechanism: attribution is per message (`Message.personaId`, optional), not a stored default consulted at render time. A persona MUST set at least one of `name`, `image`, or `color`; when `name` is not set (a "look-only" persona, e.g. a mid-archive appearance change with no name change) the persona MUST also carry a `label`, an admin-facing handle never rendered in transcripts, so it stays distinguishable in management UIs. A named persona MUST have a permanent, unique `slug` (derived `<character_slug>_<name_slug>`, same philosophy as Character/Item) that resolves to the persona's owning character wherever a character slug is accepted; a name-less persona has no slug. A persona MUST belong to at most one character, and a message's persona, if set, MUST belong to the same character the message is attributed to — the database itself MUST enforce this (a trigger on `messages` comparing the persona's `characterId` to the message's with null-safe equality, plus one refusing to move a persona that messages use to another character), not only the application layer. A persona with no character is an **NPC persona**: a named voice for a one-off speaker ("Enemy A", "Llamanian Guard") that isn't worth a character. Its lines have no character (`characterId` null). An NPC persona MUST have a name, has no slug or page, and MUST be unique by case-insensitive name across the archive (the same "Receptionist" in two seasons is one nameplate). Creating, editing and assigning NPC personas, and converting speakers between characters and NPC personas (demote, promote, merge, rename), MUST be restricted to admins (FR-EP-2); character quote pages and random quotes leave NPC lines out. To assign a persona across many messages at once, the System MUST provide write-time bulk-assignment ("stamp") operations scoped to all of a character's messages within one episode or within one season; stamping with `personaId: null` clears the affected messages back to canonical (character-only) attribution. Performing a stamp MUST be restricted to the character's owner or an admin (FR-CHAR-8).
 - **FR-CHAR-4** *Removed — interpersonal relationships between characters are out of scope.*
 - **FR-CHAR-5** *Removed — Location entity is out of scope.*
 - **FR-CHAR-6** *Removed — in-game status (HP, shield, resistances, status effects, DoT) is out of scope.*
-- **FR-CHAR-7** A character page MUST display the character's biographical data (species, blurb) and any recorded personas.
+- **FR-CHAR-7** A character page MUST display the character's biographical data (blurb, plus the wiki's quick-reference fields such as species; see §4.6) and any recorded personas.
 - **FR-CHAR-8** Editing a character MUST be restricted to its owner or an admin.
 - **FR-CHAR-9** A character MUST be searchable by name and persona name.
-- **FR-CHAR-10** The System MUST list all characters with filter (by species, by owner, by season they appeared in).
+- **FR-CHAR-10** The System MUST list all characters with filter (by owner, by season they appeared in).
 
 ### 3.5 Species
 
-- **FR-SPC-1** A member MUST be able to create a species, populating the fields already defined on the existing `Species` model: name, description, sentience class.
-- **FR-SPC-2** A species MUST be referencable from a character.
-- **FR-SPC-3** A species page MUST list every character belonging to it.
+*Removed — species are not stored in the System. The wiki (wiki.vortox.space) owns species lore; a character page shows the wiki's `species` field through the wiki cache (§4.6). FR-SPC-1 to FR-SPC-3 are withdrawn.*
 
 ### 3.6 Locations
 
@@ -179,7 +176,7 @@ Messages are the core content unit of the System. Every message belongs to an ep
 
 ### 3.12 Search
 
-- **FR-SR-1** The System MUST provide a search for each category such as characters, items, species, and episode titles.
+- **FR-SR-1** The System MUST provide a search for each category such as characters, items, and episode titles.
 
 ### 3.13 Magic 8-Ball
 
@@ -207,7 +204,6 @@ This section captures the *entities* and *relationships* the System must represe
 - **User** — credentials, profile fields, role enum.
 - **Character** — biographical fields as currently defined; ownership via `creator`.
 - **Persona** (renamed from the earlier name-only `Alias`) — nullable name, label, nullable image, nullable color, nullable (name-less personas only) permanent slug, character reference.
-- **Species** — full taxonomic record as currently defined.
 - **Season** — grouping of episodes. Carries a `kind` enum (`MAINLINE`, `SIDE`, `PLANNED`; default `SIDE`) marking its role in the campaign: mainline campaigns (FF1–FF4) form the front-page/archives roster, side content (T&L, Vortox Machina, Wish Hunt) stays off it, and planned seasons (FF5) exist as placeholders for stories and not-yet-played content. Seasons are listed alphabetically by slug, so no separate order field exists.
 - **Episode** — title, season, episode number, messages.
 - **Message** — sequence number, timestamps, author, optional character, type enum, text body.
@@ -229,7 +225,6 @@ This section captures the *entities* and *relationships* the System must represe
 ### 4.4 Relationships (including additions)
 
 - A **User** owns many **Characters**; a Character has exactly one owner.
-- A **Character** belongs to at most one **Species**; a Species has many Characters.
 - A **Character** has many **Personas**.
 - A **Season** has many **Episodes**; an **Episode** has many **Messages** in a stable order.
 - A **Message** is authored by a **User** and optionally spoken by a **Character**; it MAY also carry an optional **Persona**, which MUST belong to that same Character, or, for an NPC line with no Character, be an NPC persona (see FR-CHAR-3).
@@ -251,7 +246,7 @@ This section captures the *entities* and *relationships* the System must represe
 
 ### 4.6 Wiki cache layer
 
-A subset of quick-reference fields (birthdate, birthplace, sex, height/weight, hair/eyes, home planet, aliases, relationships on Character; binomial name, lifespan, diet, habitat, origin on Species) live on the wiki, not in Postgres, and are read at request time through a `WikiCache` table backed by the wiki's Bucket extension — not modeled here as first-class fields. See `PLAN-wiki-cache.md` and `src/wiki/` for the read path.
+A subset of quick-reference fields (birthdate, birthplace, sex, height/weight, hair/eyes, home planet, aliases, relationships, species on Character) live on the wiki, not in Postgres, and are read at request time through a `WikiCache` table backed by the wiki's Bucket extension — not modeled here as first-class fields. See `PLAN-wiki-cache.md` and `src/wiki/` for the read path.
 
 ---
 
@@ -350,7 +345,7 @@ For traceability. Each row is a responsibility currently held by a legacy app an
 | CYOA interactive reader | `ff-site` | §3.3 Story Reader (Prose & CYOA) |
 | User registration / login | `ff-server` | §3.1 Accounts |
 | Character biographical CRUD | `ff-server` + `vortox-bot` (incompatible split) | §3.4 Character Management |
-| Species CRUD | `ff-server` (schema only) | §3.5 Species |
+| Species CRUD | `ff-server` (schema only) | **OUT OF SCOPE** — the wiki owns species lore (§3.5) |
 | Episode + Message storage | `ff-server` (schema only) | §3.8 Episodes and Transcripts |
 | Items (weapons, equipment, artifacts) as descriptive lore | `vortox-bot` (mechanical) | §3.7 Items (lore entries) |
 | Locations | `vortox-bot` | **OUT OF SCOPE** |

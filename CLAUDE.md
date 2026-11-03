@@ -1,7 +1,7 @@
 # Final Frontier — API Server
 
 Express/TypeScript/Prisma/Postgres API for the Final Frontier lore archive and
-campaign reader: users, characters, species, seasons/episodes/messages,
+campaign reader: users, characters, seasons/episodes/messages,
 stories (prose/CYOA), items, commentary. Consumed by the `ff-site` Next.js
 frontend (sibling repo, symlinked in as `ff-site/ff-server`) and by any
 external client via the token-authenticated API (FR-API-*).
@@ -12,9 +12,12 @@ the schema has already grown past it in places (the `Story`/`StoryChapter`/
 `StoryLine` models implement CYOA/prose reading, which the doc only gestures
 at; `EightBallAnswer` isn't in the doc at all) and lags it in others
 (`Relationship`, called for by FR-CHAR-4, doesn't exist as a model yet —
-`Persona` (FR-CHAR-3, formerly `Alias`), `Species`, `Season`, `Episode`,
+`Persona` (FR-CHAR-3, formerly `Alias`), `Season`, `Episode`,
 `Message`, `Item`, `Commentary`, `Character`, `User` are implemented). Check
-`prisma/schema.prisma` for what's actually there.
+`prisma/schema.prisma` for what's actually there. There's no `Species`
+model (removed 2026-11, MVP Phase 3): the wiki owns species lore, and a
+character page shows the wiki's `species` field from the wiki cache. Don't
+add species back to the DB.
 
 ## Environment
 
@@ -49,10 +52,6 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   script in `prisma/scripts/`, run against an *existing* DB **before** `db push`
   (fresh DBs just `db push` + seed). Check for unapplied ones whenever you
   pull onto another machine:
-  - `species-to-many.sql` (2026-10): `Character.speciesId` →
-    `Character.species` many-to-many (`_CharacterToSpecies`). Needed if
-    `characters` still has a `speciesId` column; a bare `db push` would drop
-    every species assignment.
   - `rename-alias-to-persona.sql`: Alias → Persona. Needed if an `aliases`
     table still exists.
   - `story-authors-to-many.sql` (2026-10): `Story.authorId` →
@@ -168,11 +167,11 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   - The append endpoints (`.../chapters/:n/lines`, `.../messages`) remain for
     incremental API use and the CLI episode uploaders.
 - **HTML sanitization** (`src/utils/sanitize.ts`, NFR-SEC-3): user-submitted
-  rich text (character blurbs, species descriptions, item descriptions,
+  rich text (character blurbs, item descriptions,
   commentary) goes through `sanitizeText()` before storage.
 - `prisma/scripts/seed.ts` is the orchestrator: wipes all data, then runs
   `SEED_SCRIPTS` (`seed-legacy.ts`, persona/character-data scripts,
-  `seed-species.ts`, `seed-npc-personas.ts`, `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `backfill-story-hashes.ts`, `create-search-indexes.ts`, `create-triggers.ts`) as child processes, skipping (not aborting) any
+  `seed-npc-personas.ts`, `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `backfill-story-hashes.ts`, `create-search-indexes.ts`, `create-triggers.ts`) as child processes, skipping (not aborting) any
   that fail or don't exist on disk — `seed-galaxy.ts` is currently in that
   list but not present in the repo, and is expected to just be skipped.
   `seed:legacy` replays the real archive: episodes from ff-site's
@@ -188,7 +187,7 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   (that's why seed-vec-personas/seed-buzzcut-persona were retired). Two
   files for one episode is a seed error; park stale ones in
   `archive-to-markdown/api-superseded/`.
-  Character colors/avatars/blurbs/species and user color/icon/bio that have no
+  Character colors/avatars/blurbs and user color/icon/bio that have no
   other source live in `prisma/scripts/seed-data/{characters,users}.json`, applied by
   `seed-overlay.ts`; after editing records in the site, `npm run export:overlay`
   rewrites those files from the dev DB so the change can be committed.
