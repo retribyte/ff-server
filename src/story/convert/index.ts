@@ -5,7 +5,8 @@
 // takes it from there: speaker → character matching, preview, then
 // POST /stories/import (or PUT /stories/:slug/import for a revision).
 
-import { collectColors, convert, frontmatter, loadDocument, paragraphText, readParagraphs, slugify, DocxError, type ColorMap, type StoryMeta } from "./docx.js";
+import { collectColors, convert, frontmatter, loadDocument, paragraphText, readParagraphs, DocxError, type ColorMap, type StoryMeta } from "./docx.js";
+import { slugify as canonicalSlugify } from "../../utils/slug.js";
 import { parseManuscript, ManuscriptError, type ManuscriptPayload } from "./manuscript.js";
 import { rstrip } from "./py.js";
 
@@ -29,6 +30,10 @@ export type DocxConversion = {
     warnings: string[];
 };
 
+// Slugs are a cross-site identity (the wiki's rules, src/utils/slug.ts), so
+// the web path derives them canonically, not with the CLI port's slugify.
+const slugFor = (text: string) => canonicalSlugify(text) || "untitled";
+
 export function analyzeDocx(data: Uint8Array, fileName?: string): DocxAnalysis {
     const body = loadDocument(data);
     const paragraphs = readParagraphs(body);
@@ -44,7 +49,7 @@ export function analyzeDocx(data: Uint8Array, fileName?: string): DocxAnalysis {
         defaults: {
             title: titleText,
             blurb: subtitle ? paragraphText(subtitle) || null : null,
-            slug: slugify(titleText ?? stem ?? "untitled"),
+            slug: slugFor(titleText ?? stem ?? "untitled"),
         },
         pictures,
     };
@@ -73,7 +78,7 @@ export function convertDocx(data: Uint8Array, options: ConvertOptions): DocxConv
         }
     }
     if (missing.length) throw new ManuscriptError(`every color needs a speaker or narration; unmapped: ${missing.join(", ")}`);
-    const meta: StoryMeta = { ...options, slug: options.slug || slugify(options.title), format, colors };
+    const meta: StoryMeta = { ...options, slug: options.slug || slugFor(options.title), format, colors };
     for (const key of ["title", "blurb", "authors", "published", "season", "themeColor", "themeColor2"] as const) {
         const value = meta[key];
         // frontmatter is line-based: a value can't span lines or start a comment
