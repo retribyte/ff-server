@@ -12,6 +12,7 @@ import itemController from "./item/item.controller.js";
 import commentaryController from "./commentary/commentary.controller.js";
 import eightballController from "./eightball/eightball.controller.js";
 import searchController from "./search/search.controller.js";
+import speakerController from "./speaker/speaker.controller.js";
 import apiSpec from "./openapi.js";
 import { jsonExceptImports } from "./utils/import.js";
 
@@ -40,6 +41,7 @@ class App {
         this.app.use("/api", commentaryController.initializeCommentaryRoutes());
         this.app.use("/api", eightballController.initializeEightballRoutes());
         this.app.use("/api", searchController.initializeSearchRoutes());
+        this.app.use("/api", speakerController.initializeSpeakerRoutes());
     }
 
     private errorHandlers(): void {

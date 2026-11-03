@@ -191,10 +191,13 @@ async function getPersonasByCharacter(characterId: number) {
 // Full index of every persona, for callers (e.g. the transcript importer)
 // that need to match speaker names against all characters in one call
 // instead of N+1-ing over getPersonasByCharacter. No pagination — persona
-// counts stay small.
-async function getAllPersonas(search?: string) {
-    const where = search ? { name: { contains: search } } : undefined;
-    return await prisma.persona.findMany({ where, orderBy: { id: "asc" } });
+// counts stay small. NPC personas (characterId null) are included; `npc`
+// narrows to just them (true) or just character personas (false).
+async function getAllPersonas(search?: string, npc?: boolean) {
+    const where: Prisma.PersonaWhereInput = {};
+    if (search) where.name = { contains: search };
+    if (npc !== undefined) where.characterId = npc ? null : { not: null };
+    return await prisma.persona.findMany({ where, orderBy: npc ? { name: "asc" } : { id: "asc" } });
 }
 
 async function getPersonaById(id: number) {
@@ -232,6 +235,11 @@ async function updatePersona(id: number, data: Partial<PersonaData>) {
     const existing = await prisma.persona.findUnique({ where: { id } });
     if (!existing) {
         throw new Error(`Persona with id '${id}' not found`);
+    }
+    if (existing.characterId === null) {
+        // NPC voice: always named, never a slug or page.
+        if (data.slug) throw new Error("NPC personas have no slug");
+        if (data.name !== undefined && !data.name?.trim()) throw new Error("NPC personas need a name");
     }
 
     const nextName = data.name !== undefined ? data.name : existing.name;

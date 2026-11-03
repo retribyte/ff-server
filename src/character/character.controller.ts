@@ -25,6 +25,16 @@ function mapPersonaError(error: any): { status: number; message: string } {
     return { status: 400, message: error.message ?? "Invalid persona data" };
 }
 
+// Owner-of-character or admin. NPC personas (no character) have no owner,
+// so only admins may edit them.
+async function canEditPersona(characterId: number | null, user: Request["user"]): Promise<boolean> {
+    if (!user) return false;
+    if (user.role === UserRole.ADMIN) return true;
+    if (characterId === null) return false;
+    const character = await characterService.getCharacterById(characterId);
+    return !!character && character.creatorId === user.id;
+}
+
 const initializeCharacterRoutes = (): Router => {
     const router: Router = Router();
 
@@ -127,14 +137,19 @@ const initializeCharacterRoutes = (): Router => {
     });
 
     // GET /api/personas: Full persona index (public), optionally filtered by
-    // ?search= on the persona name. No pagination — used by the transcript
+    // ?search= on the persona name, and ?npc=true|false for only NPC voices
+    // (no character) or only character personas. No pagination — used by the transcript
     // importer to match speaker names against every character in one call
     // instead of N+1-ing over /characters/:id/personas. Distinct HTTP methods
     // from the /personas/:id routes below, so there's no route-matching
     // ambiguity regardless of declaration order.
     router.get("/personas", async (req: Request, res: Response) => {
         try {
-            const personas = await characterService.getAllPersonas(req.query.search as string | undefined);
+            const { search, npc } = req.query;
+            const personas = await characterService.getAllPersonas(
+                search as string | undefined,
+                npc === "true" ? true : npc === "false" ? false : undefined
+            );
             res.status(200).json({ status: "success", data: personas });
         } catch (error) {
             console.error("Error fetching personas:", error);
@@ -151,8 +166,7 @@ const initializeCharacterRoutes = (): Router => {
             if (!persona) {
                 return res.status(404).json({ status: "error", message: `Persona with id '${id}' not found` });
             }
-            const character = await characterService.getCharacterById(persona.characterId);
-            if (!character || (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN)) {
+            if (!(await canEditPersona(persona.characterId, req.user!))) {
                 return res.status(403).json({ status: "error", message: "Forbidden" });
             }
             const updated = await characterService.updatePersona(id, {
@@ -178,8 +192,7 @@ const initializeCharacterRoutes = (): Router => {
             if (!persona) {
                 return res.status(404).json({ status: "error", message: `Persona with id '${id}' not found` });
             }
-            const character = await characterService.getCharacterById(persona.characterId);
-            if (!character || (character.creatorId !== req.user!.id && req.user!.role !== UserRole.ADMIN)) {
+            if (!(await canEditPersona(persona.characterId, req.user!))) {
                 return res.status(403).json({ status: "error", message: "Forbidden" });
             }
             await characterService.deletePersona(id);

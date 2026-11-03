@@ -40,7 +40,11 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   edit. `db push` can't see or manage the GIN expression indexes behind
   `/api/search`'s full-text search (Prisma has no syntax for expression
   indexes) — run `npm run db:search-indexes` after every `db push` too; it's
-  idempotent and safe to re-run.
+  idempotent and safe to re-run. Same for `npm run db:triggers`
+  (`prisma/scripts/create-triggers.ts`): the trigger that keeps a message's
+  persona on that message's character (null == null for NPC lines), the one
+  that freezes a used persona's character, and the partial unique index on
+  NPC persona names. None of these are in the schema.
 - **Schema changes `db push` would lose data on** ship as a one-shot SQL
   script in `prisma/scripts/`, run against an *existing* DB **before** `db push`
   (fresh DBs just `db push` + seed). Check for unapplied ones whenever you
@@ -58,7 +62,8 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
     (re-runnable).
 
   Run with `docker exec -i ff-server-db-1 psql -U <user> <db> < prisma/scripts/<script>.sql`,
-  then `db push`, `prisma generate`, `npm run db:search-indexes`.
+  then `db push`, `prisma generate`, `npm run db:search-indexes`,
+  `npm run db:triggers`.
 
 ## Architecture
 
@@ -83,6 +88,15 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
     for indirect ones: `Message.character`/`StoryLine.character` are
     `onDelete: Restrict`, and `deleteCharacter` also refuses (409) when a
     character appears in `StoryLine.segments` JSON, which has no FK.
+  - **NPC personas** (`Persona.characterId` null) voice one-off speakers;
+    their lines have no character. Moving voices between characters and
+    NPCs goes through `src/speaker/speaker.service.ts` (demote, promote,
+    merge, rename; admin endpoints under `/api/admin/speakers/`), which
+    rewrites messages, story lines and `segments` JSON together in one
+    transaction. Don't hand-roll `updateMany`s for this: the segments JSON is
+    easy to miss. `seed-npc-personas.ts` applies the reviewed
+    `seed-data/npc-speakers.csv` through the same functions (`--dry-run`
+    rolls back).
   - The JWT carries only `{id, username, role}`; `authenticate` reloads the
     user from the DB on every request (so `req.user` is never stale) and
     rejects tokens issued before `passwordChangedAt` and accounts with
@@ -158,7 +172,7 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   commentary) goes through `sanitizeText()` before storage.
 - `prisma/scripts/seed.ts` is the orchestrator: wipes all data, then runs
   `SEED_SCRIPTS` (`seed-legacy.ts`, persona/character-data scripts,
-  `seed-species.ts`, `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `backfill-story-hashes.ts`, `create-search-indexes.ts`) as child processes, skipping (not aborting) any
+  `seed-species.ts`, `seed-npc-personas.ts`, `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `backfill-story-hashes.ts`, `create-search-indexes.ts`, `create-triggers.ts`) as child processes, skipping (not aborting) any
   that fail or don't exist on disk — `seed-galaxy.ts` is currently in that
   list but not present in the repo, and is expected to just be skipped.
   `seed:legacy` replays the real archive from `ff-site-old`'s bundled JSON
@@ -170,8 +184,8 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   rewrites those files from the dev DB so the change can be committed.
   `migrate-vm-to-story.ts` and `backfill-slugs.ts` are one-off historical
   migration scripts, already run against the live data; treat them as
-  reference, not as repeatable tooling. `create-search-indexes.ts` is
-  different in kind from those two — it's idempotent by design and must stay
+  reference, not as repeatable tooling. `create-search-indexes.ts` (and
+  `create-triggers.ts`) is different in kind from those two — it's idempotent by design and must stay
   re-runnable (see its header comment and the `db push` bullet above).
 
 ## Conventions

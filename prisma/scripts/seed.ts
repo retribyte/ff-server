@@ -22,11 +22,13 @@ const SEED_SCRIPTS = [
     "seed-vortox-weapons.ts",
     "seed-character-colors.ts",
     "seed-species.ts",
+    "seed-npc-personas.ts",
     "seed-overlay.ts",
     "seed-8ball.ts",
     "seed-galaxy.ts",
     "backfill-story-hashes.ts",
     "create-search-indexes.ts",
+    "create-triggers.ts",
 ];
 
 function runScript(script: string) {

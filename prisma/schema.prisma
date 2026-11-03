@@ -105,12 +105,16 @@ model Persona {
   slug        String?   @unique // null for unnamed personas
   image       String?
   color       String?
-  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  characterId Int
+  // null -> an NPC persona: a named voice with no Character behind it
+  // ("Enemy A", "Llamanian Guard"). NPC personas always have a name, never a
+  // slug or a page, and are unique by lower(name) via a partial unique index
+  // (personas_npc_name_key) that prisma/scripts/create-triggers.ts installs;
+  // @@unique([characterId, name]) can't cover them, since NULLs are distinct.
+  character   Character? @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  characterId Int?
   messages    Message[]
 
   @@unique([characterId, name]) // Postgres: NULLs distinct -> many name-less personas allowed
-  @@unique([id, characterId])   // composite FK target for Message.persona (retires assertPersonaMatchesCharacter as load-bearing)
   @@map("personas")
 }
 
@@ -165,7 +169,11 @@ model Message {
   playerId      Int
   character     Character? @relation(fields: [characterId], references: [id], onDelete: Restrict) // archive immutability: a character in the archive can't be deleted out from under its lines
   characterId   Int?
-  persona       Persona?   @relation(fields: [personaId, characterId], references: [id, characterId], onDelete: Restrict)
+  // Single-column FK. That the persona belongs to this message's character
+  // (both null for an NPC line) is enforced by the messages_persona_match
+  // trigger from prisma/scripts/create-triggers.ts, not by a composite FK:
+  // a composite FK skips the check whenever characterId is null (MATCH SIMPLE).
+  persona       Persona?   @relation(fields: [personaId], references: [id], onDelete: Restrict)
   personaId     Int?
   timestamp     DateTime?
   type          MessageType

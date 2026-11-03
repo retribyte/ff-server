@@ -6,34 +6,43 @@ const PERSONA_SELECT = { select: { id: true, name: true, image: true, color: tru
 
 export type MessageData = {
     playerId: number;
-    characterId?: number;
-    personaId?: number;
+    characterId?: number | null;
+    personaId?: number | null;
     timestamp: string;
     type: MessageType;
     text: string;
 };
 
 // A message's personaId, if set, must belong to the same characterId the
-// message is (or is being) attributed to. `prefix` lets bulk import include
-// the message index in the thrown error, matching the existing QUOTE check.
-// The composite FK (Message.personaId+characterId -> Persona.id+characterId,
-// see schema.prisma) makes this unrepresentable at the DB level too — this
-// stays for a friendly error message instead of a raw Prisma FK violation.
+// message is (or is being) attributed to, where an NPC persona (characterId
+// null) only goes on a line with no character: "null == null". `prefix` lets
+// bulk import include the message index in the thrown error, matching the
+// QUOTE check. The messages_persona_match trigger
+// (prisma/scripts/create-triggers.ts) enforces the same rule in the DB; this
+// stays for a friendly error instead of a raw trigger exception.
 async function assertPersonaMatchesCharacter(
     personaId: number | null | undefined,
     characterId: number | null | undefined,
     prefix = ""
 ): Promise<void> {
     if (personaId === undefined || personaId === null) return;
-    if (!characterId) {
-        throw new Error(`${prefix}characterId is required when personaId is set`);
-    }
     const persona = await prisma.persona.findUnique({ where: { id: personaId } });
     if (!persona) {
         throw new Error(`${prefix}Persona with id '${personaId}' not found`);
     }
-    if (persona.characterId !== characterId) {
-        throw new Error(`${prefix}Persona with id '${personaId}' does not belong to character '${characterId}'`);
+    if ((persona.characterId ?? null) !== (characterId ?? null)) {
+        throw new Error(
+            persona.characterId === null
+                ? `${prefix}Persona with id '${personaId}' is an NPC voice, so the message can't also have a character`
+                : `${prefix}Persona with id '${personaId}' does not belong to character '${characterId ?? "none"}'`
+        );
+    }
+}
+
+// FR-MSG-4: a QUOTE needs a voice, either a character or an NPC persona.
+function assertQuoteHasVoice(type: MessageType | undefined, characterId: number | null | undefined, personaId: number | null | undefined, prefix = ""): void {
+    if (type === MessageType.QUOTE && !characterId && !personaId) {
+        throw new Error(`${prefix}characterId or personaId is required for QUOTE messages`);
     }
 }
 
@@ -111,12 +120,14 @@ async function searchMessages(
     return { data, total: Number(countResult[0]?.count ?? 0), page, limit };
 }
 
+// Character quotes only: NPC lines (no characterId) are left out.
 async function getRandomQuote() {
-    const count = await prisma.message.count({ where: { type: MessageType.QUOTE } });
+    const where = { type: MessageType.QUOTE, characterId: { not: null } };
+    const count = await prisma.message.count({ where });
     if (count === 0) return null;
     const skip = Math.floor(Math.random() * count);
     const quotes = await prisma.message.findMany({
-        where: { type: MessageType.QUOTE },
+        where,
         skip,
         take: 1,
         include: { character: true, episode: true, persona: PERSONA_SELECT },
@@ -160,9 +171,7 @@ export async function validateMessages(messages: MessageData[]): Promise<void> {
         if (typeof msg.text !== "string") {
             throw new Error(`Message ${index + 1}: text is required`);
         }
-        if (msg.type === MessageType.QUOTE && !msg.characterId) {
-            throw new Error(`Message ${index + 1}: characterId is required for QUOTE messages`);
-        }
+        assertQuoteHasVoice(msg.type, msg.characterId, msg.personaId, `Message ${index + 1}: `);
         await assertPersonaMatchesCharacter(msg.personaId, msg.characterId, `Message ${index + 1}: `);
     }
 }
@@ -189,9 +198,7 @@ export async function insertMessages(
 }
 
 async function createMessage(episodeTitle: string, data: MessageData) {
-    if (data.type === MessageType.QUOTE && !data.characterId) {
-        throw new Error("characterId is required for QUOTE messages");
-    }
+    assertQuoteHasVoice(data.type, data.characterId, data.personaId);
     await assertPersonaMatchesCharacter(data.personaId, data.characterId);
 
     const last = await prisma.message.findFirst({
@@ -216,23 +223,23 @@ async function createMessage(episodeTitle: string, data: MessageData) {
 }
 
 async function updateMessage(episodeTitle: string, messageNo: number, data: Partial<MessageData>) {
-    if (data.type === MessageType.QUOTE && !data.characterId) {
-        throw new Error("characterId is required for QUOTE messages");
+    // A partial update is checked against the message as it will be: the
+    // patch laid over the stored row, so e.g. `{characterId: null}` alone
+    // can't leave a QUOTE without a voice.
+    const existing = await prisma.message.findUnique({
+        where: { episodeTitle_messageNo: { episodeTitle, messageNo } },
+    });
+    if (!existing) {
+        throw new Error(`Message ${messageNo} of episode '${episodeTitle}' not found`);
     }
-
-    if (data.personaId !== undefined && data.personaId !== null) {
-        // characterId may not be part of this partial update — fall back to
-        // the message's existing characterId so the persona check still sees
-        // the character the message is actually attributed to.
-        const effectiveCharacterId =
-            data.characterId !== undefined
-                ? data.characterId
-                : (
-                      await prisma.message.findUnique({
-                          where: { episodeTitle_messageNo: { episodeTitle, messageNo } },
-                      })
-                  )?.characterId;
-        await assertPersonaMatchesCharacter(data.personaId, effectiveCharacterId);
+    const effective = {
+        type: data.type ?? existing.type,
+        characterId: data.characterId !== undefined ? data.characterId : existing.characterId,
+        personaId: data.personaId !== undefined ? data.personaId : existing.personaId,
+    };
+    assertQuoteHasVoice(effective.type, effective.characterId, effective.personaId);
+    if (data.characterId !== undefined || data.personaId !== undefined) {
+        await assertPersonaMatchesCharacter(effective.personaId, effective.characterId);
     }
 
     return await prisma.message.update({

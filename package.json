@@ -28,6 +28,8 @@
         "migrate:vm": "tsx prisma/scripts/migrate-vm-to-story.ts",
         "backfill:slugs": "tsx prisma/scripts/backfill-slugs.ts",
         "db:search-indexes": "tsx prisma/scripts/create-search-indexes.ts",
+        "db:triggers": "tsx prisma/scripts/create-triggers.ts",
+        "seed:npc-personas": "tsx prisma/scripts/seed-npc-personas.ts",
         "golive:flag-accounts": "tsx prisma/scripts/flag-accounts-golive.ts",
         "refresh:wiki-cache": "tsx prisma/scripts/refresh-wiki-cache.ts",
         "test": "tsx --test test/*.test.ts"

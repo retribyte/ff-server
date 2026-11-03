@@ -161,7 +161,7 @@ const spec = {
                     personaId: {
                         type: "integer",
                         nullable: true,
-                        description: "If set, characterId must also be set and the persona must belong to that character",
+                        description: "If set, the persona must belong to characterId; an NPC persona (characterId null) goes only on a line with no character. A QUOTE needs characterId or personaId (FR-MSG-4).",
                     },
                     persona: {
                         type: "object",
@@ -181,7 +181,7 @@ const spec = {
             },
             Persona: {
                 type: "object",
-                description: "A way a character is presented for some stretch of the archive: a different name, a different look, or both (FR-CHAR-3/9), e.g. Vec appears as 'Fungus' in FF4 episodes 2-10. Attached per message via Message.personaId — the only presentation mechanism. Named-persona slugs are permanent once created.",
+                description: "A way a character is presented for some stretch of the archive: a different name, a different look, or both (FR-CHAR-3/9), e.g. Vec appears as 'Fungus' in FF4 episodes 2-10. Attached per message via Message.personaId — the only presentation mechanism. Named-persona slugs are permanent once created. A persona with characterId null is an NPC voice ('Enemy A', 'Receptionist'): always named, no slug or page, unique by case-insensitive name, admin-managed.",
                 properties: {
                     id: { type: "integer" },
                     name: { type: "string", nullable: true, description: "null = no name opinion, canonical character name shows" },
@@ -189,7 +189,15 @@ const spec = {
                     slug: { type: "string", nullable: true, description: "null for name-less personas (no URL identity)" },
                     image: { type: "string", nullable: true, description: "Era avatar; falls back to character.image" },
                     color: { type: "string", nullable: true, description: "Era theme color; falls back to character.color" },
-                    characterId: { type: "integer" },
+                    characterId: { type: "integer", nullable: true, description: "null = NPC persona (no character behind it)" },
+                },
+            },
+            SpeakerScope: {
+                type: "object",
+                description: "Narrows a speaker operation to part of a character's lines. Omit (or leave both empty) for all of them; only a full move deletes the source character.",
+                properties: {
+                    seasons: { type: "array", items: { type: "string" }, description: "Season slugs, e.g. [\"ff4\"]: messages in those seasons' episodes plus story lines in stories filed under them" },
+                    messages: { type: "array", items: { type: "string" }, description: "'<episode_slug>#<messageNo>' refs; each must currently be voiced by the source character (else 409)" },
                 },
             },
             StoryLineType: {
@@ -727,16 +735,43 @@ const spec = {
         "/personas": {
             get: {
                 tags: ["Personas"],
-                summary: "Full persona index, optionally filtered by name — no pagination. Intended for bulk speaker-name matching (e.g. the transcript importer) without N+1-ing over /characters/:id/personas",
+                summary: "Full persona index, optionally filtered by name — no pagination. Intended for bulk speaker-name matching (e.g. the transcript importer) without N+1-ing over /characters/:id/personas. Includes NPC personas (characterId null).",
                 security: [], // public — no token needed
-                parameters: [{ name: "search", in: "query", schema: { type: "string" }, description: "Search by persona name" }],
+                parameters: [
+                    { name: "search", in: "query", schema: { type: "string" }, description: "Search by persona name" },
+                    { name: "npc", in: "query", schema: { type: "string", enum: ["true", "false"] }, description: "true: only NPC personas (sorted by name); false: only character personas" },
+                ],
                 responses: { "200": { description: "Array of every persona" } },
+            },
+            post: {
+                tags: ["Personas"],
+                summary: "Find or create an NPC persona by case-insensitive name (admin only)",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["name"],
+                                properties: { name: { type: "string" }, image: { type: "string" }, color: { type: "string" } },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "An NPC persona with that name already existed; returned unchanged" },
+                    "201": { description: "NPC persona created" },
+                    "400": { description: "Validation error" },
+                    "401": { description: "Unauthorized" },
+                    "403": { description: "Forbidden" },
+                },
             },
         },
         "/personas/{id}": {
             put: {
                 tags: ["Personas"],
-                summary: "Update a persona (owner of the parent character, or admin)",
+                summary: "Update a persona (owner of the parent character, or admin; NPC personas are admin-only, keep a name and take no slug)",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 requestBody: {
@@ -764,7 +799,7 @@ const spec = {
             },
             delete: {
                 tags: ["Personas"],
-                summary: "Delete a persona (owner of the parent character, or admin)",
+                summary: "Delete a persona (owner of the parent character, or admin; NPC personas are admin-only)",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 responses: {
@@ -772,6 +807,131 @@ const spec = {
                     "400": { description: "Cannot delete: messages still reference this persona" },
                     "403": { description: "Forbidden" },
                     "404": { description: "Not found" },
+                },
+            },
+        },
+        "/admin/speakers/demote": {
+            post: {
+                tags: ["Speakers"],
+                summary: "Turn a character into an NPC voice (admin only)",
+                description: "Moves the character's lines to the NPC persona of the same name (found or created) or to intoPersonaId: messages get characterId null + that persona; story lines and in-paragraph segments lose the character and keep its name as speaker text. A full (unscoped) move then deletes the character. One transaction.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["characterId"],
+                                properties: {
+                                    characterId: { type: "integer" },
+                                    intoPersonaId: { type: "integer", description: "An existing NPC persona to fold into" },
+                                    scope: { $ref: "#/components/schemas/SpeakerScope" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "{persona, personaCreated, messages, storyLines, storySegmentLines, deletedCharacter}" },
+                    "400": { description: "Validation error (bad scope, unknown season, persona isn't an NPC)" },
+                    "403": { description: "Forbidden" },
+                    "404": { description: "Character or persona not found" },
+                    "409": { description: "A msg: ref isn't voiced by this character, or the character is still referenced after the move" },
+                },
+            },
+        },
+        "/admin/speakers/promote": {
+            post: {
+                tags: ["Speakers"],
+                summary: "Turn an NPC voice into a character (admin only)",
+                description: "Creates a character from the NPC persona (owner defaults to the player who voiced most of its lines), moves its messages to the character with no persona, and deletes the NPC persona. One transaction.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["personaId"],
+                                properties: {
+                                    personaId: { type: "integer" },
+                                    ownerId: { type: "integer", description: "Required when the NPC has no lines" },
+                                    name: { type: "string", description: "Defaults to the persona name" },
+                                    slug: { type: "string", pattern: "^[a-z0-9]+(_[a-z0-9]+)*$", description: "Defaults to slugify(name)" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "201": { description: "{character, messages}" },
+                    "400": { description: "Validation error" },
+                    "403": { description: "Forbidden" },
+                    "404": { description: "Persona or owner not found" },
+                    "409": { description: "Slug already taken" },
+                },
+            },
+        },
+        "/admin/speakers/merge": {
+            post: {
+                tags: ["Speakers"],
+                summary: "Move one character's lines onto another (admin only)",
+                description: "Plain merge: the lines show the target's canonical name (personas stamped on them are cleared). asPersona: they're stamped with a persona of the target named after the source (found or created), so they keep reading as before. A full (unscoped) move then deletes the source. One transaction.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["sourceId", "targetId"],
+                                properties: {
+                                    sourceId: { type: "integer" },
+                                    targetId: { type: "integer" },
+                                    asPersona: { type: "boolean" },
+                                    scope: { $ref: "#/components/schemas/SpeakerScope" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "{target, persona, personaCreated, messages, storyLines, storySegmentLines, deletedCharacter}" },
+                    "400": { description: "Validation error (merge into itself, bad scope)" },
+                    "403": { description: "Forbidden" },
+                    "404": { description: "Character not found" },
+                    "409": { description: "A msg: ref isn't voiced by the source, or the source is still referenced after the move" },
+                },
+            },
+        },
+        "/admin/speakers/rename": {
+            post: {
+                tags: ["Speakers"],
+                summary: "Rename a character and/or change its slug (admin only; before go-live, since slugs are permanent once public)",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["characterId"],
+                                properties: {
+                                    characterId: { type: "integer" },
+                                    name: { type: "string" },
+                                    slug: { type: "string", pattern: "^[a-z0-9]+(_[a-z0-9]+)*$" },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "Updated character" },
+                    "400": { description: "Validation error" },
+                    "403": { description: "Forbidden" },
+                    "404": { description: "Character not found" },
+                    "409": { description: "Slug or name already taken" },
                 },
             },
         },
@@ -1130,7 +1290,7 @@ const spec = {
         "/quotes/random": {
             get: {
                 tags: ["Messages"],
-                summary: "Get a random QUOTE message",
+                summary: "Get a random QUOTE message from a character (NPC lines are left out)",
                 security: [], // public — no token needed
                 responses: { "200": { description: "A random quote" }, "404": { description: "No quotes found" } },
             },

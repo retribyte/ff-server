@@ -108,7 +108,8 @@ const initializeMessageRoutes = (): Router => {
             const message = await messageService.updateMessage(episodeTitle, messageNo, req.body);
             res.status(200).json({ status: "success", data: message });
         } catch (error: any) {
-            res.status(400).json({ status: "error", message: error.message });
+            const status = /^Message \d+ of episode .* not found$/.test(error.message ?? "") ? 404 : 400;
+            res.status(status).json({ status: "error", message: error.message });
         }
     });
 
