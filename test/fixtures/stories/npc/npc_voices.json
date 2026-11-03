@@ -1,0 +1,97 @@
+{
+ "story": {
+  "slug": "npc_voices",
+  "title": "NPC Voices",
+  "format": "PROSE"
+ },
+ "authors": [
+  "Trey"
+ ],
+ "chapters": [
+  {
+   "chapter_no": 1,
+   "title": "Gray Ink",
+   "lines": [
+    {
+     "type": "NARRATION",
+     "text": "\"Come out with your hands up!\" boasted a large, burly commander. Emmett felt his heart race. \"Who's there?\"",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "npc": true,
+       "text": "Come out with your hands up!"
+      },
+      {
+       "text": "\" boasted a large, burly commander. Emmett felt his heart race. \""
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "Who's "
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "there",
+       "italic": true
+      },
+      {
+       "speaker": "Emmett Tawfeek",
+       "text": "?"
+      },
+      {
+       "text": "\""
+      }
+     ]
+    },
+    {
+     "type": "NARRATION",
+     "text": "\"SHOOT AND SCATTER!\" he screamed, and \"Fire!\" someone answered.",
+     "segments": [
+      {
+       "text": "\""
+      },
+      {
+       "npc": true,
+       "text": "SHOOT",
+       "bold": true
+      },
+      {
+       "npc": true,
+       "text": " AND SCATTER!"
+      },
+      {
+       "text": "\" he screamed, and \""
+      },
+      {
+       "npc": true,
+       "text": "Fire!"
+      },
+      {
+       "text": "\" someone answered."
+      }
+     ]
+    },
+    {
+     "type": "DIALOGUE",
+     "npcVoice": true,
+     "text": "General Llod will be waiting for you all below."
+    },
+    {
+     "type": "DIALOGUE",
+     "speaker": "Emmett Tawfeek",
+     "text": "Lead the way."
+    },
+    {
+     "type": "DIALOGUE",
+     "npcVoice": true,
+     "text": "Stay close. continued on a second line."
+    },
+    {
+     "type": "NARRATION",
+     "text": "A plain paragraph with no voices."
+    }
+   ]
+  }
+ ]
+}

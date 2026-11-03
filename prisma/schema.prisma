@@ -237,8 +237,15 @@ model StoryLine {
   character   Character?    @relation(fields: [characterId], references: [id], onDelete: Restrict) // same as Message.character
   characterId Int?
   speaker     String?       // display-name fallback when no Character row exists
-  // Sub-paragraph dialogue spans for novel-style prose: [{text, characterId?, speaker?}]
-  // where a segment with a voice is dialogue, one without is narration. The
+  // An NPC voice (a DIALOGUE line): speaker is the NPC's name, or null while
+  // it's unnamed. Authors/admins name it from the reader (PATCH .../voices);
+  // only lines with this flag can be named that way.
+  npcVoice    Boolean       @default(false)
+  // Sub-paragraph dialogue spans for novel-style prose:
+  // [{text, characterId?, speaker?, npc?, italic?, bold?}]
+  // where a segment with a voice is dialogue, one without is narration. A
+  // segment with `npc: true` is an NPC voice: `speaker` is its name, or absent
+  // while unnamed (still dialogue, not narration). The
   // segment texts concatenate verbatim (no separators) to exactly `text`, so
   // search/scan/highlight keep working on `text`. Only set on NARRATION lines.
   // NOTE: segment characterIds live in JSON — no FK, so Character.storyLines

@@ -9,9 +9,13 @@ type StorySegment = {
     text: string;
     characterId?: number | null;
     speaker?: string | null;
+    // An NPC voice: `speaker` is its name, absent while unnamed (still dialogue)
+    npc?: boolean;
     italic?: boolean;
     bold?: boolean;
 };
+
+const NPC_NAME_MAX = 80;
 
 type StoryData = {
     slug: string;
@@ -30,6 +34,7 @@ type LineData = {
     text: string;
     characterId?: number | null;
     speaker?: string | null;
+    npcVoice?: boolean; // DIALOGUE only: an NPC voice, named by `speaker` or unnamed
     segments?: StorySegment[] | null;
 };
 
@@ -339,7 +344,13 @@ function validateSegments(segments: StorySegment[], label: string) {
         if (typeof segment.text !== "string") {
             throw new Error(`${label}: segment ${i + 1} needs a string text`);
         }
-        if (segment.characterId || segment.speaker || segment.italic || segment.bold) annotated = true;
+        if (segment.npc !== undefined && typeof segment.npc !== "boolean") {
+            throw new Error(`${label}: segment ${i + 1} npc must be a boolean`);
+        }
+        if (segment.npc && segment.characterId) {
+            throw new Error(`${label}: segment ${i + 1} is an NPC voice, so it can't link a character`);
+        }
+        if (segment.characterId || segment.speaker || segment.npc || segment.italic || segment.bold) annotated = true;
     }
     if (!annotated) {
         throw new Error(`${label}: segments need at least one dialogue or styled span; send plain text otherwise`);
@@ -353,9 +364,16 @@ function validateLine(line: LineData, label: string) {
     if (typeof line.text !== "string") {
         throw new Error(`${label}: text is required`);
     }
-    // Dialogue needs a speaking voice — a linked character or a display name
-    if (line.type === StoryLineType.DIALOGUE && !line.characterId && !line.speaker) {
-        throw new Error(`${label}: DIALOGUE lines require characterId or speaker`);
+    if (line.npcVoice !== undefined && typeof line.npcVoice !== "boolean") {
+        throw new Error(`${label}: npcVoice must be a boolean`);
+    }
+    if (line.npcVoice && (line.type !== StoryLineType.DIALOGUE || line.characterId)) {
+        throw new Error(`${label}: npcVoice is for DIALOGUE lines without a linked character`);
+    }
+    // Dialogue needs a speaking voice — a linked character, a display name, or
+    // an NPC voice (which may be unnamed until someone names it in the reader)
+    if (line.type === StoryLineType.DIALOGUE && !line.characterId && !line.speaker && !line.npcVoice) {
+        throw new Error(`${label}: DIALOGUE lines require characterId, speaker or npcVoice`);
     }
     // Headings are a short block line — no voice, no segments
     if (line.type === StoryLineType.HEADING && line.text.trim().length === 0) {
@@ -407,9 +425,173 @@ async function insertLines(tx: Prisma.TransactionClient, chapterId: number, firs
             text: storedText(line),
             characterId: line.characterId ?? null,
             speaker: line.speaker ?? null,
+            npcVoice: line.npcVoice ?? false,
             segments: hasSegments(line) ? (line.segments as object[]) : undefined,
         })),
     });
+}
+
+// ---- NPC voices -------------------------------------------------------------
+// An NPC voice (gray text in a Google Doc, `{?}` in a manuscript) can't be
+// mapped to one speaker by color, so it imports unnamed and is named later,
+// fragment by fragment, by a story author or an admin reading the story.
+
+/** Comparison key for carrying a voice across a re-import: letters and digits only. */
+function voiceKey(text: string): string {
+    return text.normalize("NFKD").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+}
+
+type KnownVoice = { characterId: number | null; speaker: string | null };
+
+/**
+ * Every voiced fragment of a story (DIALOGUE lines and segment spans), keyed
+ * by its text, in reading order — so a revised draft's unnamed NPC fragments
+ * can take the voice their unchanged text already had.
+ */
+async function knownVoices(tx: Prisma.TransactionClient, storyId: number): Promise<Map<string, KnownVoice[]>> {
+    const lines = await tx.storyLine.findMany({
+        where: { chapter: { storyId } },
+        orderBy: [{ chapter: { chapter_no: "asc" } }, { line_no: "asc" }],
+        select: { type: true, text: true, characterId: true, speaker: true, npcVoice: true, segments: true },
+    });
+    const voices = new Map<string, KnownVoice[]>();
+    // unnamed NPC fragments are listed too (as no voice), so occurrence numbers line up
+    const add = (text: string, characterId: number | null | undefined, speaker: string | null | undefined, npc?: boolean) => {
+        if (!characterId && !speaker && !npc) return;
+        const key = voiceKey(text);
+        if (!key) return;
+        const list = voices.get(key) ?? [];
+        list.push({ characterId: characterId ?? null, speaker: characterId ? null : (speaker ?? null) });
+        voices.set(key, list);
+    };
+    for (const line of lines) {
+        if (line.type === StoryLineType.DIALOGUE) add(line.text, line.characterId, line.speaker, line.npcVoice);
+        const segments = line.segments as StorySegment[] | null;
+        if (Array.isArray(segments)) for (const seg of segments) add(seg.text, seg.characterId, seg.speaker, seg.npc);
+    }
+    return voices;
+}
+
+/**
+ * Fills a revised draft's unnamed NPC fragments from the story's current
+ * voices, matching on text by occurrence: the n-th voiced "Fire!" in the draft
+ * takes the voice of the n-th voiced "Fire!" in the story as it stands (so an
+ * NPC's "Yes." never inherits the character who said "Yes." earlier). A match
+ * on a linked character becomes that character; a match on a name stays an
+ * NPC voice with that name. Returns how many fragments it filled.
+ */
+function carryVoices(chapters: ImportChapter[], voices: Map<string, KnownVoice[]>): number {
+    const seen = new Map<string, number>();
+    // the old voice at this fragment's occurrence of its text, counting every voiced fragment
+    const occurrence = (text: string): KnownVoice | null => {
+        const key = voiceKey(text);
+        if (!key) return null;
+        const n = seen.get(key) ?? 0;
+        seen.set(key, n + 1);
+        return voices.get(key)?.[n] ?? null;
+    };
+    const voiced = (characterId: number | null | undefined, speaker: string | null | undefined, npc: boolean | undefined) =>
+        !!characterId || !!speaker || !!npc;
+    let filled = 0;
+    for (const chapter of chapters) {
+        for (const line of chapter.lines) {
+            if (line.type === StoryLineType.DIALOGUE && voiced(line.characterId, line.speaker, line.npcVoice)) {
+                const known = occurrence(line.text);
+                if (line.npcVoice && !line.speaker && (known?.characterId || known?.speaker)) {
+                    if (known.characterId) {
+                        line.characterId = known.characterId;
+                        line.npcVoice = false;
+                    } else line.speaker = known.speaker;
+                    filled++;
+                }
+            }
+            if (!hasSegments(line)) continue;
+            for (const seg of line.segments) {
+                if (!voiced(seg.characterId, seg.speaker, seg.npc)) continue;
+                const known = occurrence(seg.text);
+                if (!seg.npc || seg.speaker || !(known?.characterId || known?.speaker)) continue;
+                if (known!.characterId) {
+                    seg.characterId = known!.characterId;
+                    delete seg.npc;
+                } else seg.speaker = known!.speaker;
+                filled++;
+            }
+        }
+    }
+    return filled;
+}
+
+type VoiceAssignment = { chapterNo: number; lineNo: number; segment?: number | null; speaker: string | null };
+
+/**
+ * Names (or un-names, with a null/blank speaker) NPC voice fragments: a
+ * segment of a NARRATION line, or a whole npcVoice DIALOGUE line when
+ * `segment` is omitted. Only NPC-flagged fragments can be named this way, so
+ * the story's text and its character attributions can't change through here.
+ * One transaction; any bad assignment rejects them all.
+ */
+async function assignVoices(slug: string, assignments: VoiceAssignment[]) {
+    if (!Array.isArray(assignments) || assignments.length === 0) {
+        throw new Error("assignments must be a non-empty array");
+    }
+    if (assignments.length > 500) throw new Error("at most 500 assignments per request");
+    const story = await prisma.story.findUnique({ where: { slug }, select: { id: true } });
+    if (!story) return null;
+
+    return await prisma.$transaction(async (tx) => {
+        const updated: { chapterNo: number; lineNo: number; speaker: string | null; segments: StorySegment[] | null }[] = [];
+        // several assignments may target one line (two fragments in a paragraph)
+        const pending = new Map<number, { line: { id: number; type: StoryLineType; npcVoice: boolean; speaker: string | null; segments: StorySegment[] | null }; chapterNo: number; lineNo: number }>();
+        for (const [i, a] of assignments.entries()) {
+            const label = `Assignment ${i + 1}`;
+            if (!Number.isInteger(a?.chapterNo) || !Number.isInteger(a?.lineNo)) {
+                throw new Error(`${label}: chapterNo and lineNo must be whole numbers`);
+            }
+            if (a.speaker !== null && typeof a.speaker !== "string") throw new Error(`${label}: speaker must be a string or null`);
+            const speaker = a.speaker?.trim() || null;
+            if (speaker && speaker.length > NPC_NAME_MAX) throw new Error(`${label}: names are at most ${NPC_NAME_MAX} characters`);
+
+            let entry = [...pending.values()].find((p) => p.chapterNo === a.chapterNo && p.lineNo === a.lineNo);
+            if (!entry) {
+                const line = await tx.storyLine.findFirst({
+                    where: { line_no: a.lineNo, chapter: { storyId: story.id, chapter_no: a.chapterNo } },
+                    select: { id: true, type: true, npcVoice: true, speaker: true, segments: true },
+                });
+                if (!line) throw new Error(`${label}: no line ${a.lineNo} in chapter ${a.chapterNo}`);
+                entry = {
+                    line: { ...line, segments: Array.isArray(line.segments) ? (structuredClone(line.segments) as StorySegment[]) : null },
+                    chapterNo: a.chapterNo,
+                    lineNo: a.lineNo,
+                };
+                pending.set(line.id, entry);
+            }
+            const { line } = entry;
+            if (a.segment === undefined || a.segment === null) {
+                if (!line.npcVoice) throw new Error(`${label}: line ${a.lineNo} isn't an NPC voice`);
+                line.speaker = speaker;
+            } else {
+                const seg = Number.isInteger(a.segment) ? line.segments?.[a.segment] : undefined;
+                if (!seg?.npc) throw new Error(`${label}: segment ${a.segment} of line ${a.lineNo} isn't an NPC voice`);
+                if (speaker) seg.speaker = speaker;
+                else delete seg.speaker;
+            }
+        }
+        for (const [id, { line, chapterNo, lineNo }] of pending) {
+            await tx.storyLine.update({
+                where: { id },
+                data: line.segments ? { segments: line.segments as object[] } : { speaker: line.speaker },
+            });
+            updated.push({ chapterNo, lineNo, speaker: line.speaker, segments: line.segments });
+        }
+        return updated;
+    });
+}
+
+/** Story authors may name their story's NPC voices; admins may name any. */
+async function canNameVoices(slug: string, user: { id: number; role: string }): Promise<boolean | null> {
+    const story = await prisma.story.findUnique({ where: { slug }, select: { authors: { select: { id: true } } } });
+    if (!story) return null;
+    return user.role === "ADMIN" || story.authors.some((a) => a.id === user.id);
 }
 
 type ImportChapter = { chapter_no: number; title?: string | null; lines: LineData[] };
@@ -581,6 +763,8 @@ async function replaceStoryContent(slug: string, body: { chapters: ImportChapter
                 `This draft's text is identical to '${byContent.title}' (slug '${byContent.slug}'), a different story`
             );
         }
+        // NPC fragments someone already named keep their names across a revision
+        const voicesCarried = carryVoices(ordered, await knownVoices(tx, story.id));
         await tx.storyLine.deleteMany({ where: { chapter: { storyId: story.id } } });
         await tx.storyChapter.deleteMany({ where: { storyId: story.id } });
         const lineCount = await insertChapters(tx, story.id, ordered);
@@ -589,11 +773,13 @@ async function replaceStoryContent(slug: string, body: { chapters: ImportChapter
             where: { id: story.id },
             include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
         });
-        return { ...full, lineCount };
+        return { ...full, lineCount, voicesCarried };
     }, IMPORT_TX_OPTIONS);
 }
 
 export default {
+    assignVoices,
+    canNameVoices,
     getAllStories,
     getStoryBySlug,
     createStory,

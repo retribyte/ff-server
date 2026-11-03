@@ -94,6 +94,28 @@ const initializeStoryRoutes = (): Router => {
         }
     });
 
+    // PATCH /api/stories/:slug/voices: name NPC voice fragments as you read.
+    // Body { assignments: [{ chapterNo, lineNo, segment?, speaker }] } — segment
+    // indexes a NARRATION line's spans; omit it for a whole npcVoice DIALOGUE
+    // line. speaker null/blank un-names it. Only NPC-flagged fragments can be
+    // named, so text and character attribution can't change through here.
+    // Story authors or admins; returns the updated lines.
+    router.patch("/stories/:slug/voices", authenticate, async (req: Request, res: Response) => {
+        const { slug } = req.params;
+        try {
+            const allowed = await storyService.canNameVoices(slug, req.user as { id: number; role: string });
+            if (allowed === null) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
+            if (!allowed) {
+                return res.status(403).json({ status: "error", message: "Only this story's authors or an admin can name its voices" });
+            }
+            const updated = await storyService.assignVoices(slug, req.body?.assignments);
+            if (updated === null) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
+            res.status(200).json({ status: "success", data: updated });
+        } catch (error: any) {
+            res.status(400).json({ status: "error", message: error.message });
+        }
+    });
+
     // PUT /api/stories/:slug: Update story metadata (incl. rename/reslug)
     router.put("/stories/:slug", authenticate, isAdmin, async (req: Request, res: Response) => {
         const { slug } = req.params;

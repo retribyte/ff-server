@@ -6,13 +6,20 @@ import { WS, collapse, len, rstrip, split, splitlines, strip, stripChars } from 
 
 export class ManuscriptError extends Error {}
 
-export type Segment = { text: string; speaker?: string; italic?: true; bold?: true };
+// `npc` (a span) / `npcVoice` (a DIALOGUE line): an NPC voice with no name
+// yet, written {?} / "> ?:" in the manuscript. It's named later in the reader.
+export type Segment = { text: string; speaker?: string; npc?: true; italic?: true; bold?: true };
 export type ManuscriptLine = {
     type: "NARRATION" | "DIALOGUE" | "ACTION" | "TRANSCRIPT" | "BREAK" | "HEADING";
     text: string;
     speaker?: string;
+    npcVoice?: true;
     segments?: Segment[];
 };
+
+/** The speaker name for an NPC voice with no name yet ({?} / "> ?:"). */
+export const UNNAMED_NPC = "?";
+type Voice = { speaker?: string; npc?: true };
 export type ManuscriptChapter = { chapter_no: number; title: string | null; lines: ManuscriptLine[] };
 export type ManuscriptPayload = {
     story: Record<string, string>;
@@ -79,7 +86,9 @@ function flushParagraph(buffer: string[], out: ManuscriptLine[]) {
             const match = DIALOGUE_RE.exec(stripped);
             if (match) {
                 if (current) out.push(current);
-                current = { type: "DIALOGUE", speaker: strip(match[1]), text: match[2] };
+                const speaker = strip(match[1]);
+                const voice = speaker === UNNAMED_NPC ? { npcVoice: true as const } : { speaker };
+                current = { type: "DIALOGUE", ...voice, text: match[2] };
             } else if (current) {
                 current.text += " " + body;
             } else {
@@ -108,7 +117,7 @@ function flushParagraph(buffer: string[], out: ManuscriptLine[]) {
 }
 
 /** Split `text` on *italic* / **bold** / ***both*** markers into segments carrying `base`. */
-export function parseEmphasis(text: string, base: { speaker?: string }): Segment[] {
+export function parseEmphasis(text: string, base: Voice): Segment[] {
     const segments: Segment[] = [];
     let pos = 0;
     for (const match of text.matchAll(EMPHASIS_RE)) {
@@ -139,7 +148,8 @@ export function parseInlineSegments(text: string): Segment[] | null {
     for (const match of text.matchAll(INLINE_DIALOGUE_RE)) {
         const start = match.index!;
         if (start > pos) add(parseEmphasis(text.slice(pos, start), {}));
-        segments.push(...parseEmphasis(match[1], { speaker: strip(match[2]) }));
+        const speaker = strip(match[2]);
+        segments.push(...parseEmphasis(match[1], speaker === UNNAMED_NPC ? { npc: true } : { speaker }));
         hasAnnotation = true; // a dialogue span is itself an annotation
         pos = start + match[0].length;
     }

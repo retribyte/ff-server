@@ -208,6 +208,11 @@ const spec = {
                     text: { type: "string" },
                     characterId: { type: "integer", nullable: true },
                     speaker: { type: "string", nullable: true },
+                    npc: {
+                        type: "boolean",
+                        description:
+                            "An NPC voice: `speaker` is its name, or absent while unnamed (still dialogue). Named via PATCH /stories/{slug}/voices; can't carry a characterId",
+                    },
                     italic: { type: "boolean" },
                     bold: { type: "boolean" },
                 },
@@ -260,6 +265,11 @@ const spec = {
                     text: { type: "string" },
                     characterId: { type: "integer", nullable: true },
                     speaker: { type: "string", nullable: true, description: "Display name when no Character row exists" },
+                    npcVoice: {
+                        type: "boolean",
+                        description:
+                            "DIALOGUE only: an NPC voice, named by `speaker` or unnamed (speaker null). Named via PATCH /stories/{slug}/voices",
+                    },
                     segments: {
                         type: "array",
                         nullable: true,
@@ -1314,6 +1324,55 @@ const spec = {
                     "401": { description: "Unauthorized" },
                     "404": { description: "No story with that slug" },
                     "409": { description: "The draft's text is identical to a different story — nothing was changed" },
+                },
+            },
+        },
+        "/stories/{slug}/voices": {
+            patch: {
+                tags: ["Stories"],
+                summary: "Name NPC voice fragments while reading (story authors or admins)",
+                description:
+                    "Names (or, with a null/blank speaker, un-names) NPC voice fragments: a segment of a NARRATION line " +
+                    "(`segment` = its index), or a whole `npcVoice` DIALOGUE line (`segment` omitted). Only NPC-flagged " +
+                    "fragments can be named here, so the text and character attributions never change. One transaction: " +
+                    "any invalid assignment rejects them all. A later revision (PUT /stories/{slug}/import) keeps these " +
+                    "names for fragments whose text is unchanged.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["assignments"],
+                                properties: {
+                                    assignments: {
+                                        type: "array",
+                                        minItems: 1,
+                                        maxItems: 500,
+                                        items: {
+                                            type: "object",
+                                            required: ["chapterNo", "lineNo", "speaker"],
+                                            properties: {
+                                                chapterNo: { type: "integer" },
+                                                lineNo: { type: "integer" },
+                                                segment: { type: "integer", nullable: true },
+                                                speaker: { type: "string", nullable: true, maxLength: 80 },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "The updated lines: [{ chapterNo, lineNo, speaker, segments }]" },
+                    "400": { description: "Invalid assignment (not an NPC voice, no such line) — nothing was changed" },
+                    "401": { description: "Unauthorized" },
+                    "403": { description: "Not one of this story's authors, and not an admin" },
+                    "404": { description: "No story with that slug" },
                 },
             },
         },
