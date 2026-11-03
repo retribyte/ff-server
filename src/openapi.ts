@@ -1155,6 +1155,58 @@ const spec = {
                 responses: { "201": { description: "Story created" }, "401": { description: "Unauthorized" } },
             },
         },
+        "/stories/convert": {
+            post: {
+                tags: ["Stories"],
+                summary: "Convert a Google Docs .docx export into a story import payload (admin only; writes nothing)",
+                description:
+                    "Without `meta`: an analysis for the color → speaker form (every ink color with samples, Title/Subtitle " +
+                    "defaults, how many embedded pictures won't come across). With `meta`: the payload `{story, authors, chapters}` " +
+                    "with speakers as names, ready for POST /stories/import after speaker → character matching, plus the " +
+                    "markdown manuscript and converter warnings. Every color in the doc must be mapped (null = narration). Body limit 10mb.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["docx"],
+                                properties: {
+                                    docx: { type: "string", format: "byte", description: "The .docx file, base64" },
+                                    fileName: { type: "string", description: "Fallback for the default slug" },
+                                    meta: {
+                                        type: "object",
+                                        required: ["title", "colors"],
+                                        properties: {
+                                            title: { type: "string" },
+                                            slug: { type: "string", pattern: "^[a-z0-9]+(_[a-z0-9]+)*$" },
+                                            format: { type: "string", enum: ["prose", "script"], default: "prose" },
+                                            blurb: { type: "string" },
+                                            authors: { type: "string", description: "Comma-separated usernames" },
+                                            published: { type: "string", format: "date" },
+                                            season: { type: "string" },
+                                            themeColor: { type: "string" },
+                                            themeColor2: { type: "string" },
+                                            colors: {
+                                                type: "object",
+                                                additionalProperties: { type: "string", nullable: true },
+                                                description: "`#rrggbb` → speaker name, or null for narration ink",
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "Analysis, or { payload, markdown, warnings }" },
+                    "400": { description: "Not a usable .docx, or invalid meta" },
+                    "401": { description: "Unauthorized" },
+                },
+            },
+        },
         "/stories/import": {
             post: {
                 tags: ["Stories"],

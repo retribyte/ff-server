@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import storyService from "./story.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { importJson, importErrorResponse } from "../utils/import.js";
+import { analyzeDocx, convertDocx, DocxError, ManuscriptError } from "./convert/index.js";
 
 const initializeStoryRoutes = (): Router => {
     const router: Router = Router();
@@ -51,6 +52,29 @@ const initializeStoryRoutes = (): Router => {
         } catch (error: any) {
             const { status, message } = importErrorResponse(error, "story");
             res.status(status).json({ status: "error", message });
+        }
+    });
+
+    // POST /api/stories/convert: Google Docs .docx -> story. Body { docx: base64, fileName?, meta? }.
+    // Without meta: an analysis (colors with samples, title/blurb defaults, picture count) for the
+    // color -> speaker form. With meta {title, format, colors: {hex: name|null}, ...}: the import
+    // payload {story, authors, chapters} (speakers as names) plus the manuscript and warnings.
+    // Writes nothing.
+    router.post("/stories/convert", authenticate, isAdmin, importJson, async (req: Request, res: Response) => {
+        const { docx, fileName, meta } = req.body ?? {};
+        if (typeof docx !== "string" || !docx) {
+            return res.status(400).json({ status: "error", message: "body must be { docx: <base64 .docx>, meta? }" });
+        }
+        try {
+            const data = new Uint8Array(Buffer.from(docx, "base64"));
+            const result = meta ? convertDocx(data, meta) : analyzeDocx(data, typeof fileName === "string" ? fileName : undefined);
+            res.status(200).json({ status: "success", data: result });
+        } catch (error: any) {
+            if (error instanceof DocxError || error instanceof ManuscriptError) {
+                return res.status(400).json({ status: "error", message: error.message });
+            }
+            console.error("Story conversion failed:", error);
+            res.status(500).json({ status: "error", message: "Conversion failed" });
         }
     });
 
