@@ -6,10 +6,11 @@
  * seed-legacy.ts turns every transcript speaker tag into a Character, so a
  * fresh seed recreates "Enemy A" and "Llamanian Guard" as characters. This
  * script is what makes a fresh seed match the converted dev DB, which is why
- * it lives in SEED_SCRIPTS and not as a one-off. It runs after the persona
- * seeds (seed-vec-personas, seed-buzzcut-persona, seed-sanya-persona) and
- * before seed-overlay, so an overlay exported after the conversion (with the
- * renamed slugs) still applies.
+ * it lives in SEED_SCRIPTS and not as a one-off. It runs after
+ * seed-sanya-persona and before seed-overlay, so an overlay exported after
+ * the conversion (with the renamed slugs) still applies. Every other persona
+ * (Vec's hosts, Buzzcut's "Bee Emmett") comes from the markdown's
+ * `X as Y` tags and meta personaTimeline, via seed-legacy.
  *
  * Decisions (column `decision`):
  *   keep     nothing to do (a scoped keep row just documents the split)

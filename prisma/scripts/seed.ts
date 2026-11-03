@@ -18,8 +18,6 @@ const SEED_SCRIPTS = [
     // conversion included, runs under the rules prod has
     "create-triggers.ts",
     "seed-legacy.ts",
-    "seed-vec-personas.ts",
-    "seed-buzzcut-persona.ts",
     "seed-sanya-persona.ts",
     "seed-vortox-character-data.ts",
     "seed-vortox-weapons.ts",

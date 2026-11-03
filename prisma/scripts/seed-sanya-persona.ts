@@ -12,7 +12,10 @@
  *
  * Folds both back into Sanya, keeping the pre-reveal name as a persona so
  * the transcript still reads as it did before the reveal — the same
- * approach seed-buzzcut-persona.ts takes for "Bee Emmett".
+ * approach the markdown takes for Buzzcut's "Bee Emmett" (`Buzzcut as Bee
+ * Emmett` tags). Unlike the retired seed-vec-personas/seed-buzzcut-persona
+ * scripts, this keys on the episode title and the stray characters, not on
+ * message numbers, so it survives re-imports.
  *
  * Run with: npm run seed:sanya-persona
  */

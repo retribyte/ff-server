@@ -175,9 +175,19 @@ at; `EightBallAnswer` isn't in the doc at all) and lags it in others
   `seed-species.ts`, `seed-npc-personas.ts`, `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `backfill-story-hashes.ts`, `create-search-indexes.ts`, `create-triggers.ts`) as child processes, skipping (not aborting) any
   that fail or don't exist on disk — `seed-galaxy.ts` is currently in that
   list but not present in the repo, and is expected to just be skipped.
-  `seed:legacy` replays the real archive from `ff-site-old`'s bundled JSON
-  (`FF_SITE_DIR`, default `../ff-site-old`) — **only safe against an empty
-  DB**, don't rerun against a live dev database with user-authored content.
+  `seed:legacy` replays the real archive: episodes from ff-site's
+  `archive-to-markdown/api/<season>/*.json` (`FF_SITE_DIR`), plus Vortox
+  Machina and legacy colors/avatars from `ff-site-old` (`FF_SITE_OLD_DIR`) —
+  **only safe against an empty DB**, don't rerun against a live dev database
+  with user-authored content. That `api/` folder is gitignored build output:
+  **run `python3 md-to-api.py --all` in ff-site's `archive-to-markdown/`
+  before any seed** (dev or prod). The hand-edited markdown is the source of
+  truth for transcript text, speakers and personas (`` `Vec as Sascha` ``
+  tags, meta `personaTimeline`); fix attribution there, not with post-hoc
+  scripts keyed on message numbers, which go stale on the next re-import
+  (that's why seed-vec-personas/seed-buzzcut-persona were retired). Two
+  files for one episode is a seed error; park stale ones in
+  `archive-to-markdown/api-superseded/`.
   Character colors/avatars/blurbs/species and user color/icon/bio that have no
   other source live in `prisma/scripts/seed-data/{characters,users}.json`, applied by
   `seed-overlay.ts`; after editing records in the site, `npm run export:overlay`

@@ -137,13 +137,17 @@ persona-stamping mechanisms. Notes from building it:
   `speaker` (line or segment) is set to the old character name. Dread's 13 FF4
   prose segments still *display* "Sanya Dreadflower", because the reader
   prefers `character.name` (user ruling: canonical names are fine).
-- Fresh seed vs dev: 82 messages are attributed differently, none caused by
-  Phase 2. They come from dev hand-fixes the seed scripts don't reproduce:
-  47 Vec "Sascha" stamps in Wrong Answer from seed-vec-personas, `john` vs
-  `john_smith` in Crashlanded, and seed-buzzcut-persona's messageNo lists, which
-  reattribute Goblinators #615/#786 from Goblin King/SRE Control to Buzzcut.
-  This belongs to the persona-stamping reconcile below; resolve it before the
-  prod seed.
+- Fresh seed vs dev: 82 messages were attributed differently, none caused by
+  Phase 2. **Resolved 2026-11-03** by making the markdown the only source.
+  `seed-vec-personas.ts` and `seed-buzzcut-persona.ts` stamped by message
+  numbers that went stale after the markdown re-import (47 Vec lines in Wrong
+  Answer blanket-stamped "Sascha", and Goblinators #615/#786 moved to Buzzcut).
+  The markdown already has those personas as `X as Y` tags, so both scripts are
+  deleted. Crashlanded's `` `John` `` tags became `` `John Smith` ``. `api/` is
+  regenerated with `md-to-api.py --all`, and the 24 old Discord-JSON FF4
+  conversions are parked in `api-superseded/`. Now a fresh seed differs from
+  dev only in FF3 "Junk Food" (a few reordered lines, #496–529), whose markdown was edited after dev was
+  imported, so there dev is the stale side.
 - `export:overlay` from the converted dev DB drops the deleted slugs
   (bee_emmett, dakari, jess, valentina; their entries are dead now) and
   writes the renamed ones.
@@ -270,9 +274,11 @@ dashboard.
       import JSON, otherwise leave them.
 - [x] Assertions: total message count unchanged, no message has a QUOTE
       without a voice, and the trigger accepts every row.
-- [ ] Reconcile the two persona-stamping mechanisms (`seed-vec-personas.ts`
+- [x] Reconcile the two persona-stamping mechanisms (`seed-vec-personas.ts`
       vs import-time `personaTimeline`) while in here. Seeds in f41f57d
-      touch both personas and species.
+      touch both personas and species. **Done 2026-11-03:** the markdown
+      (`X as Y` tags + `personaTimeline`) wins; seed-vec-personas and
+      seed-buzzcut-persona are deleted (see the fresh-seed note above).
 
 ## Phase 3 — Remove Species
 
@@ -306,7 +312,11 @@ dashboard.
 - [ ] Fresh DB credentials and `JWT_SECRET`. Nothing from dev carries over: a
       DB password was pasted in DMs on 2026-08-19.
 - [ ] Seed: dump dev → prod, then `npm run golive:flag-accounts`, *or* a fresh
-      `npm run seed` plus stories via `story-md-to-api.py --upload`.
+      `npm run seed` plus stories via `story-md-to-api.py --upload`. Before a
+      fresh seed, run `python3 md-to-api.py --all` in ff-site's
+      `archive-to-markdown/`: `api/` is gitignored build output of the
+      markdown, and seed-legacy reads it. After uploading stories, check story
+      speakers (see the Phase 2 prod caveat).
 - [ ] Crawler protection. The booru's bandwidth went up 10× in Aug 2026 from
       crawlers on metered NFSN. Add `robots.txt` (or `app/robots.ts`),
       cache the immutable reader pages (`fa0b8a5` on `virtualization`; check

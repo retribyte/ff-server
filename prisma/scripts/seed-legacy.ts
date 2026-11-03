@@ -25,7 +25,7 @@
  */
 import { PrismaClient, UserRole, Class, MessageType, StoryLineType, Prisma, SeasonKind } from "@prisma/client";
 import { hashSync } from "bcryptjs";
-import { existsSync, readdirSync, readFileSync, statSync } from "fs";
+import { existsSync, readdirSync, readFileSync } from "fs";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 import { slugify } from "../../src/utils/slug.js";
@@ -177,10 +177,12 @@ function loadSeasons(): LoadedSeason[] {
         throw new Error(`archive-to-markdown/api not found at ${ARCHIVE_API_DIR} — set FF_SITE_DIR`);
     }
     const seasons = new Map<string, LoadedSeason>();
-    // Episode titles are unique, but api/ can hold two files for one title: the
-    // markdown-derived one (md-to-api.py) and an older direct-from-Discord-JSON
-    // conversion left behind. The most recently written file wins.
-    const byTitle = new Map<string, { file: string; mtime: number; payload: ImportPayload }>();
+    // api/ is a build product of the markdown: regenerate it with
+    // `python3 md-to-api.py --all` (ff-site archive-to-markdown) before seeding.
+    // One file per episode title. A second file for a title is a leftover from
+    // an older converter (they used to be picked by newest mtime, which let a
+    // stale file win), so it's an error: move it to api-superseded/.
+    const byTitle = new Map<string, { file: string; payload: ImportPayload }>();
     for (const dirName of readdirSync(ARCHIVE_API_DIR).sort()) {
         // archive-to-markdown/api/stories/ holds Story-shaped payloads
         // ({story, author, chapters}), not season/episode payloads — the
@@ -204,14 +206,14 @@ function loadSeasons(): LoadedSeason[] {
                     msg.persona = "Fungo";
                 }
             }
-            const mtime = statSync(path).mtimeMs;
             const prior = byTitle.get(payload.episode.title);
             if (prior) {
-                const [keep, drop] = mtime > prior.mtime ? [path, prior.file] : [prior.file, path];
-                console.warn(`  duplicate episode "${payload.episode.title}": using ${keep}, ignoring ${drop}`);
-                if (mtime <= prior.mtime) continue;
+                throw new Error(
+                    `Two files for episode "${payload.episode.title}": ${prior.file} and ${path}. ` +
+                        "Regenerate api/ from the markdown (md-to-api.py --all) and move the stale one to api-superseded/."
+                );
             }
-            byTitle.set(payload.episode.title, { file: path, mtime, payload });
+            byTitle.set(payload.episode.title, { file: path, payload });
         }
     }
     for (const { payload } of byTitle.values()) {
