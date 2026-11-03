@@ -614,6 +614,6 @@ Mera eroreni Lla sodotaq.
 
 *To view the bloopers for Final Pummel, visit this link:*
 
-***
+*Obama Story*
 
 *Thank you for reading!*
