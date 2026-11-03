@@ -122,16 +122,38 @@ remains:
 
 ## Phase 2 — NPC speakers as character-less personas (#5)
 
+**Status 2026-11-03: done on branch `npc-personas`** (ff-server `107d54d`,
+`7d024a7`, `e30a4c0`; ff-site `6784b11`; not merged to main). The shared dev DB
+is converted (backup `backups/pre-npc-personas-2026-11-03.dump`): 143 NPC
+personas voice 762 lines, and the message count is unchanged. Two items are
+still open (unchecked below): the no-character sweep and reconciling the
+persona-stamping mechanisms. Notes from building it:
+- Speaker ops live in `src/speaker/`, with endpoints
+  `POST /api/admin/speakers/{demote,promote,merge,rename}`. The site has an
+  admin panel on character pages, `/characters/npcs` (with Promote), and the
+  extended 🎭 attribution control in transcripts.
+- Story lines have no persona column. When lines move to an NPC or a persona,
+  `speaker` (line or segment) is set to the old character name. Dread's 13 FF4
+  prose segments still *display* "Sanya Dreadflower", because the reader
+  prefers `character.name` (user ruling: canonical names are fine).
+- Renames take their new display name from the target slug, title-cased
+  (`era` → "Era").
+- Prod caveat: stories uploaded *after* the seed are matched against the
+  converted character set, so a manuscript's "Iris" or "Jess" won't link and
+  "Dread" in an FF4 story links to the FF2/3 Dread. Re-running
+  `seed:npc-personas` after uploading fixes only links to characters that
+  still exist, so check story speakers after a prod upload.
+
 ### Schema
-- [ ] `Persona.characterId Int?`. For NPC personas `name` is required (the
+- [x] `Persona.characterId Int?`. For NPC personas `name` is required (the
       `label` rule only applies to name-less personas). NPC personas get no
       slug and no page.
-- [ ] `Message.persona` relation becomes single-column
+- [x] `Message.persona` relation becomes single-column
       (`personaId → Persona.id`). The composite FK can't carry a null
       characterId: MATCH SIMPLE skips the check, and Prisma can't load the
       relation. A hand-written composite FK won't help either: `db push`
       drops FKs that aren't in the schema.
-- [ ] Enforce the match with a **trigger** instead, which `db push` leaves
+- [x] Enforce the match with a **trigger** instead, which `db push` leaves
       alone. Install it from an idempotent script (`npm run db:triggers`,
       modeled on `create-search-indexes.ts`), add it to `SEED_SCRIPTS`, and
       run it after every `db push` the same way:
@@ -141,29 +163,29 @@ remains:
       updates the same way, or forbid them. Switch
       `assertPersonaMatchesCharacter` to IS DISTINCT semantics (null == null
       passes) as the app-level mirror.
-- [ ] NPC persona uniqueness: global by case-insensitive name, enforced by
+- [x] NPC persona uniqueness: global by case-insensitive name, enforced by
       find-or-create in the service. `@@unique([characterId, name])` does
       nothing when characterId is null.
-- [ ] Update FR-CHAR-3 (composite FK → trigger) and FR-MSG-4 (QUOTE requires
+- [x] Update FR-CHAR-3 (composite FK → trigger) and FR-MSG-4 (QUOTE requires
       `characterId` **or** `personaId`).
 
 ### Server / site
-- [ ] `POST /personas` (admin) for character-less create.
+- [x] `POST /personas` (admin) for character-less create.
       `GET /personas?npc=true` for pickers.
-- [ ] `createMessage` / `updateMessage`: relax the QUOTE check
+- [x] `createMessage` / `updateMessage`: relax the QUOTE check
       (`message.service.ts:219`).
-- [ ] Importer: an unmatched speaker becomes a find-or-create NPC persona
+- [x] Importer: an unmatched speaker becomes a find-or-create NPC persona
       (instead of today's "unattributed, QUOTE → OTHER"). Episode import now
       goes through ff-site's `archive-to-markdown/api-import.py` and the append
       endpoints (`POST /episodes/import` answers 410), so the change lands
       there. Also update the site's `EpisodeImporter` if it's still in use.
-- [ ] Reader: `resolvePersonaIdentity` already handles `character = null`
+- [x] Reader: `resolvePersonaIdentity` already handles `character = null`
       with a persona. Add a no-link branch for the
       `<Link href="/characters/${characterId}">` in `StoryBlock.tsx`.
-- [ ] Character quote pages and `/quotes/random` exclude NPC personas.
+- [x] Character quote pages and `/quotes/random` exclude NPC personas.
       They're keyed on characterId, so this mostly happens on its own;
       verify.
-- [ ] No bulk stamp for NPC personas. Per-line admin AttributionControl is
+- [x] No bulk stamp for NPC personas. Per-line admin AttributionControl is
       enough for the MVP. Owner stamping stays keyed on characterId, so NPC
       personas, which have no owner, are admin-only by construction.
 
@@ -203,21 +225,21 @@ list for admins (with Promote) under `/characters`. That stays inside
 dashboard.
 
 ### Data conversion (script)
-- [ ] **It has to live in the seed pipeline, not only run once on dev.**
+- [x] **It has to live in the seed pipeline, not only run once on dev.**
       `seed-legacy.ts` replays ff-site-old's JSON and would recreate every
       NPC character on a fresh `npm run seed`. Commit the reviewed CSV
       (e.g. `prisma/scripts/seed-data/npc-speakers.csv`) and add a
       `seed-npc-personas.ts` to `SEED_SCRIPTS` after `seed-legacy`, so a
       seed and a dev→prod dump end up with the same data.
-- [ ] Take a fresh `pg_dump` into `ff-server/backups/` before running it on
+- [x] Take a fresh `pg_dump` into `ff-server/backups/` before running it on
       dev.
-- [ ] `seed-npc-personas.ts` reads the CSV and calls the speaker operations
+- [x] `seed-npc-personas.ts` reads the CSV and calls the speaker operations
       in this order: `rename`, then `merge`/`persona` (honoring `scope`,
       including `msg:` refs, which fail loudly if the message isn't currently
       attributed to the row's character;
       merges into `npc` rows go after those rows are demoted), then `npc`,
       then `delete`. Leave `review` rows alone.
-- [ ] **Story display after a merge:** the story reader prefers
+- [x] **Story display after a merge:** the story reader prefers
       `character.name` over `speaker` (`StoryReader.tsx:50,135`,
       `stories.ts` `voiceName`). So Dakari's and Jess's prose would start
       reading "Dakari Vatssel"/"Jessica". Keep the manuscript's names by
@@ -226,7 +248,7 @@ dashboard.
       are set. This is presentation only, and the character link and quote
       attribution still move. **User decision 2026-11-03: not needed**, since
       the canonical name is fine. Skip it.
-- [ ] For each `npc` row in the CSV: find-or-create the persona by
+- [x] For each `npc` row in the CSV: find-or-create the persona by
       normalized name, merging duplicates across owners (`@@unique([creatorId,
       name])` allows Zander's "Guard" and Sean's "Guard"). Set
       `messages.characterId = null, personaId = persona`. Set story_lines
@@ -235,7 +257,7 @@ dashboard.
 - [ ] Also sweep the 766 QUOTE/ACTION messages with no character: match
       them to an NPC persona if their speaker is recoverable from the
       import JSON, otherwise leave them.
-- [ ] Assertions: total message count unchanged, no message has a QUOTE
+- [x] Assertions: total message count unchanged, no message has a QUOTE
       without a voice, and the trigger accepts every row.
 - [ ] Reconcile the two persona-stamping mechanisms (`seed-vec-personas.ts`
       vs import-time `personaTimeline`) while in here. Seeds in f41f57d
