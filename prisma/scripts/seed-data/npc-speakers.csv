@@ -1,0 +1,337 @@
+decision,target,scope,reason,wiki_page,id,slug,name,owner,messages,episodes,seasons,story_refs,has_image,personas,sample_line
+merge,jessica,,Real character,,5287,ottori_girl,Ottori Girl,Lili,19,1,ff2,0,f,0,"Look. If you want my nana's heirlooms, you'll have to take me too!"
+merge,jacob_climm,,wiki page 'Jacob' is Jacob Climm; same player (Josh),Jacob,5420,jacob,Jacob,Josh,15,3,ff1,0,f,0,I guess I'm fine where I am. I'll just wait.
+merge,gu_news_reporter,,"guess: same GU News report on Ustrrot, same player and season",,5325,reporter,Reporter,Trey,8,1,ff4,0,f,0,Sergeant Major Bobed Ustrrot has not been confirmed alive. This has been GU News. Stay tuned for any incoming updates on
+merge,mission_control,,your ruling: LS is Mission Control,,5232,ls,LS,Zander,4,1,ff4,0,f,0,One of our men who worked on the weapons found his data on the nav frequencies for the weapons. Sending them now. Progra
+merge,toll_station_operator,,"guess: same speaker, same player and season",,5377,toll_station,Toll Station,Sean,3,1,ff2,0,f,0,
+merge,goblin,,"context: ""The summon melts away, revealing ... a goblin"" (Elf Heaven)",Squoatling,5426,squoatling,Squoatling,Zander,3,1,ff4,0,f,0,Seth... I feel bad about killing that guy...
+merge,computer,msg:dont_be_a_shitty_dad#460 msg:wrong_answer#327,"context, per message: the ship's automated nav/alert computer (""COLLISION IMMINENT"", ""YOU HAVE REACHED YOUR DESTINATION"")",,5246,loudspeaker,Loudspeaker,Trey,2,3,ff4,0,f,0,"As I was saying before, we're going to the ADE. Planet is Gelfi-2, trying to get some kind of fuel. I'm sure we'll get a"
+merge,grand_elders_daughter,,"context: same scene, she says ""...kill the Grand Elder's Daughter?!""",,5313,random_woman,Random Woman,Sean,2,1,ff2,0,f,0,You think a simple gunshot can kill the Grand Elder's Daughter?!
+merge,iris_bellatoria,,wiki redirect Iris → Iris Bellatoria,Iris Bellatoria,5419,iris,Iris,Trey,1,1,ff4,11,f,0,Hey! Stop stealing my powers!
+merge,news_reporter,,"duplicate (typo), same player and season",,5274,new_reporter,New Reporter,Zander,1,1,ff2,0,f,0,The Llamanians have sent out a few hundred patrol ships to try and eliminate the rest of the squoatling race. They say i
+merge,old_ottori_woman,,"guess: the angry one (""WHY YOU LITTLE-!""), same scene",,5284,old_ottori,Old Ottori,Lili,1,1,ff2,0,f,0,WHY YOU LITTLE-!
+merge,random_partygoer,,duplicate (typo),,5316,randomm_partygoer,Randomm Partygoer,Sean,1,1,ff2,0,f,0,Doesn't look very micro to me.
+merge,heavenly_ferrywoman,,duplicate (case variant of the name),,5196,heavenly_ferrywoman_2,Heavenly ferrywoman,Sean,1,1,ff2,0,f,0,The goddess of death is much too busy to greet and row every elf who dies to their designated area. I am but a captain o
+merge,computer,,"guess: same nav computer (""YOU HAVE REACHED YOUR DESTINATION"")",,5350,ship_intercom,Ship intercom,Trey,1,1,ff4,0,f,0,"YOU HAVE REACHED YOUR DESTINATION: Lama'entria, Capitol city, Klek'li'more."
+merge,jessica,,wiki redirect Jess → Jessica (story prose only: lines live in StoryLine.segments),Jessica,5215,jess,Jess,Archivist,0,0,,18,f,0,
+merge,dakari_vatssel,,wiki redirect Dakari → Dakari Vatssel (story prose only: lines live in StoryLine.segments),Dakari Vatssel,5140,dakari,Dakari,Archivist,0,0,,17,f,0,
+persona,ameno,,"wiki: ""Ameno, also known as the Goddess of Death""",Ameno,5185,goddess_of_death,Goddess of Death,Sean,62,2,ff2 ff4,0,f,0,"Hmmmm, it says here you made a deal with me and the Goddess of Love that gave you invincibility, but made you insane and"
+persona,grass_stalker,,"wiki redirect Bee Emmett → Grass Stalker (""better known as Emmett or Bee Emmett"")",Grass Stalker,5109,bee_emmett,Bee Emmett,Zander,53,1,ff2,0,f,0,"Your planet needed to be exploded for the Demon Kingdom or something. You're a light elf, right?"
+persona,sonichu,,Shadow is revealed to be Sonichu later in the episode,Sonichu Crew,5346,shadow_the_hedgehog,Shadow the Hedgehog,Sean,18,1,ff4,0,f,0,"I am Shadow the Hedgehog. A research experiment, gone deadly wrong. I've caused so much destruction, I should have never"
+persona,sonichu,,"guess: same speaker, same player and season (Sean, ff4)",,5345,shadow,Shadow,Sean,13,2,ff4,0,f,0,"Unfortunately so, seems she got rather impatient of waiting for your time she decided to marry something that would give"
+persona,emmett_tawfeek,,,,5369,the_crave,The Crave,Zander,13,1,ff2,0,f,0,"But nothing. You have your whole life ahead of you. If you do what's best for me, you do what's best for you."
+persona,gretta,,generic name,,5268,mysterious_voice,Mysterious Voice,Zander,11,1,ff3,0,f,0,I've been watching you for a loooooooong time.
+persona,dread,,role description,,5336,sanyas_flower,Sanya's Flower,Brody,10,1,ff2,0,f,0,Emmett... Quickly...
+persona,vec,,,,5406,bucket_fungo,Bucket Fungo,Zander,7,1,ff4,0,f,0,Zion sad.
+persona,vec,,role description,,5407,dutchs_fungo,Dutch's Fungo,Zander,7,1,ff4,0,f,0,Sorry for eating the cream.
+persona,sanya_dreadflower,ff4,"your ruling: a persona of Sanya in FF4 (7 lines, all in 'Pilot')",Dread,5150,dread,Dread,Brody,7,1,ff4,37,f,0,"When a god communes with an individual, it's normally a big deal. Maybe not for others, but if, say, Sanya met with a gr"
+persona,wemmfort_jogganson,,"extends your ruling: disguise — Wemmfort's player narrates ""the masked figure"" right before the line",,5252,masked_stranger,Masked Stranger,Cooldude,5,1,ff3,0,f,0,"I found the lid on the ground. Therefore, it is not our toilet's toilet lid."
+persona,seth_imkinki,,"guess: Seth gender-swapped, same player (Sean)",,5172,female_seth,Female Seth,Sean,4,1,ff2,0,f,0,"Mmmm, the things she told me were right, you most certainly are the best kisser of all the land..."
+persona,zion_daybreaker,msg:dont_be_a_shitty_dad#422 msg:high_roll_on_d100#227 msg:wrong_answer#74,"context, per message: Zion over the ship's loudspeaker (he's in the cockpit/tactics room in each scene)",,5246,loudspeaker,Loudspeaker,Trey,3,3,ff4,0,f,0,"As I was saying before, we're going to the ADE. Planet is Gelfi-2, trying to get some kind of fuel. I'm sure we'll get a"
+persona,marv,,"your ruling: the hologram ""of a Black"" is Marv's projection (Marv Attacks!)",,5389,voice,Voice,Zander,2,1,ff4,0,f,0,YOU CAUSED THIS WAR.
+persona,zion_daybreaker,,guess: Zion in VR,,5388,virtual_zion,Virtual Zion,Trey,1,1,ff4,0,f,0,"Thanks. Dutch, Morra, get OFF OF ME."
+rename,squina_malreis,,wiki page Squina Malreis (bucket slug squina_malreis); Emmett's wife,Squina Malreis,5359,squina,Squina,Zander,29,4,ff4,8,f,0,"Given Emmett's whole deal with the GU, either Squorchy or I get to go to the nearest station for a few days. We have a c"
+rename,squorchy_vurkallus,,wiki page Squorchy Vurkallus (bucket slug squorchy_vurkallus); Emmett's wife,,5361,squorchy,Squorchy,Zander,16,2,ff4,11,f,0,"Okay, I know you're Squem's dad and all, but we need some boundaries. Or I will murder you. Repeatedly."
+rename,hanzi_mankait,,"guess: named one-off (≤20 lines, one season) — flip to keep if they matter — target hanzi_mankait doesn't exist in the DB or on the wiki, so this is a rename to 'Hanzi Mankait'",,5193,hanzi,Hanzi,Trey,16,3,ff4,0,f,0,"The, I, well, I needed to finish schematics in time, so I have t-taken no-sleep pills every 8 hours for week."
+rename,era,,"wiki: ""Era, also known as the Goddess of Love"" (bucket slug era)",,5186,goddess_of_love,Goddess of Love,Sean,3,1,ff2,0,f,0,I heard Seth needs to amend his contract?
+rename,llamanian_council_member,,"context: narration says ""A Llamanian Council Member""; Seth: ""I remember you""",,5230,lcm,LCM,Zander,2,1,ff4,0,f,0,"Be gone, you."
+npc,,,"your ruling: two different receptionists (FF2, FF4), both NPCs",,5323,receptionist,Receptionist,Zander,45,2,ff2 ff4,0,f,0,"Cyborgs should be fine within the quarters. However, we would need to confiscate any weaponry."
+npc,,,generic name,,5299,pirate_2,Pirate 2,Lili,27,1,ff2,0,f,0,"What are you doing here without a man to protect you, little lady?"
+npc,,,"guess: role, not a name",,5113,bouncer,Bouncer,Zander,19,1,ff4,0,f,0,"We'll take you to the lab. You were talking about the vaccines earlier, right?"
+npc,,,generic name,,5289,ovisaron_guard,Ovisaron Guard,Zander,19,1,ff2,0,f,0,"Seth, slavery is never an option. Whether it be on semi-permeable beings or not."
+npc,,,generic name,,5259,messenger,Messenger,Trey,19,1,ff4,0,f,0,"Please wait outside, everyone has urgent requests for the Goddess, I apologize for whatever ruler or loved one has passe"
+npc,,,generic name,,5300,pirate_3,Pirate 3,Bill,19,1,ff2,0,f,0,"Don't you dare be failing on me, dude! IN AND OUT LIKE WE DISCUSSED!"
+npc,,,"guess: role, not a name",,5423,server,Server,Hunt520,16,1,ff4,0,f,0,"We do have soups that have a vegetarian option. Even if we don't, I'll make the special request just for you."
+npc,,,generic name,,5332,sre_officer_3,SRE Officer 3,Silas,16,1,ff4,0,f,0,"My god, that's bad news. They're becoming smarter... Alright, come with me. We're gonna get you guys out of here."
+npc,,,generic name,,5408,elf_guard,Elf Guard,Zander,16,1,ff4,0,f,0,"IT IS FRECHELSI'S TEA TIME. YOU KNOW THE IMPORTANCE, SETH I'MKIN'KI!"
+npc,,,"guess: role, not a name",,5425,slumdweller,Slumdweller,Zander,14,1,ff4,0,f,0,Maybe you could talk with her about it?
+npc,,,"guess: role, not a name",,5181,giant,Giant,Zander,14,1,ff4,0,f,0,"I'M GLAD SOMEONE RESPONDED TO ME. IT IS NICE TO MEET YOU TOO, PUNY ELFMAN. I WILL BE ON MY WAY."
+npc,,,generic name,,5417,guard,Guard,Zander,14,1,ff1,0,f,0,"A ruler of a smaller vespoid colony is in use of it currently, I believe. I think they coincidentally have a name really"
+npc,,,"guess: role, not a name",,5236,llamanian_ship,Llamanian Ship,Zander,13,1,ff2,0,f,0,STOP IN THE NAME OF THE LLAMANIAN EMPIRE!
+npc,,,"guess: role, not a name",,5275,news_anchor,News Anchor,Zander,13,1,ff3,0,f,0,"The Llamanian Empire has established a large bounty on the head of Emmett Tawfeek, one of the last Squoatlings remaining"
+npc,,,"guess: role, not a name",,5131,coalition_human,Coalition Human,Zander,13,1,ff2,0,f,0,"Haha, no. Want me to tell you what kind of milk it is? You might be turned off..."
+npc,,,generic name,,5298,pirate_1,Pirate 1,Zander,12,1,ff2,0,f,0,"""Wait a moment guys, we got a Popstar homebody here!"
+npc,,,"guess: role, not a name",,5288,ottori_ringbearer,Ottori Ringbearer,Zander,11,1,ff2,0,f,0,"Only a couple have been used! But they've been washed, do not worry!"
+npc,,,generic name,,5235,lead_knight,Lead Knight,Zander,11,1,ff2,0,f,0,DEATH SLAP OF DEATHLY DEATH!
+npc,,,"guess: role, not a name",,5188,grass_salesman,Grass Salesman,Sean,10,1,ff2,0,f,0,"Alright alright alright, you can have it, just don't hurt me!"
+npc,,,"guess: role, not a name",,5156,dwarves,Dwarves,Sean,10,1,ff4,0,f,0,OPEN DIS HE' DOOR! WE NEED TO KILL THE KNIFE-EARRED BASTARD!
+npc,,,"guess: role, not a name",Goblin,5182,goblin,Goblin,Silas,10,2,ff4,0,f,0,LETMEINLETMEINLETMEINLETMEINLETMEINLETMEINLETMEINLETMEINLETMEINLETMEINLETMEIN!
+npc,,,"guess: role, not a name",,5138,contraband_cop,Contraband Cop,Zander,10,1,ff2,0,f,0,We won't take your arms. Just don't do anything suggestive with them.
+npc,,,"guess: role, not a name",,5261,minotaur,Minotaur,Zander,10,1,ff2,0,f,0,"Hey, it's your choice. We'll see who's the one in a puddle of their own puke later."
+npc,,,"guess: role, not a name",,5132,coalition_leader,Coalition Leader,Zander,10,1,ff2,0,f,0,We're the effect of a secret alliance between the llamas and goats. Just a few of each put away their differences.
+npc,,,"guess: role, not a name",,5414,goblin_king,Goblin King,Zander,9,1,ff4,0,f,0,IS THE TRUE WE NEED THE FASTER GUNS. EASY TO THE JAM.
+npc,,,generic name,,5398,worker,Worker,Zander,9,1,ff4,0,f,0,"Our bosses wanted to make sure we were safe, so they sent some of us to protect the factory. We had more, but an explosi"
+npc,,,"guess: role, not a name",,5194,head_of_security,Head of Security,Sean,8,1,ff2,0,f,0,"You are here to prevent that, if nothing happens and you stop the assassination you'll get 15,000 Ducketts."
+npc,,,generic name,,5191,guard_1,Guard 1,Zander,8,1,ff4,0,f,0,Halt! We just heard an explosion from your general direction!
+npc,,,"guess: role, not a name",,5179,gu_news_reporter,GU News reporter,Trey,7,1,ff4,1,f,0,"However, just this past semester we saw the assassination of GU Sargeant Major Ustrrot, and with tensions rising between"
+npc,,,"guess: role, not a name",,5152,dryad,Dryad,Sean,7,1,ff2,0,f,0,"Well luckily we're below GU jurisdiction, if you catch my drift..."
+npc,,,"guess: role, not a name",,5393,weapon_salesman,Weapon Salesman,Brody,7,1,ff2,0,f,0,"I know your race. Your bloodlust. And most importantly, I know that aura. I advise you leave quickly, for many of us are"
+npc,,,"guess: role, not a name",,5394,weapons_dealer,Weapons Dealer,Sean,7,1,ff2,0,f,0,You want a hammer with a rocket on it?
+npc,,,"guess: role, not a name",,5200,hospital_guy,Hospital Guy,Zander,7,2,ff2,0,f,0,"As far as you want it to be, cattle."
+npc,,,"guess: role, not a name",,5326,reptile,Reptile,Trey,7,1,ff4,0,f,0,"Heheheheh! I got no idea what you're saying, but I'm gonna enjoy this...!"
+npc,,,generic name,,5352,shopkeeper,Shopkeeper,Trey,7,1,ff4,0,f,0,"Aw come on, don't be such a turd. How bout Parkina Powder? You know, this system's known for it's grain."
+npc,,,generic name,,5281,officer,Officer,Zander,7,1,ff4,0,f,0,"I'ma' need you to move this ship, er, civilian, we have a big event t'day."
+npc,,,generic name,,5130,coalition_doctor,Coalition Doctor,Zander,7,1,ff2,0,f,0,I have a feeling this will take a while longer. I haven't done brain surgery in a while...
+npc,,,"guess: role, not a name",,5122,cephalopean,Cephalopean,Silas,6,1,ff4,0,f,0,Remember what Dr. Jingleheimer Schmidt said. Just breathe... and walk away.
+npc,,,"guess: role, not a name",,5266,mother,Mother,Zander,6,1,ff4,0,f,0,"MY WORD, THIS IS THE MOST OBSCENE MEDICAL CENTER I'VE BEEN IN! I'M LEAVING!"
+npc,,,"guess: role, not a name",,5431,winged_dwarf,Winged Dwarf,Zander,6,1,ff4,0,f,0,WHY YOU KILL ME!
+npc,,,generic name,,5286,old_ottori_woman,Old Ottori Woman,Lili,6,1,ff2,0,f,0,Ey'! Get outta my house! What'a you doin' here?! I ain't take kindly to no teresspassas!
+npc,,,generic name,,5365,stone_women,Stone Women,Zander,6,2,ff2,0,f,0,WEE WOO HEE HOO!
+npc,,,"guess: role, not a name",,5353,siren,Siren,Sean,5,1,ff2,0,f,0,"But big brother, I thought you loved me."
+npc,,,"guess: role, not a name",,5329,sre_control,SRE Control,Silas,5,1,ff4,0,f,0,"Sh-shut up! We have contacted authorities and informed them of the situation! Do no attempt to flee, as we will be unabl"
+npc,,,"guess: role, not a name",,5276,news_reporter,News Reporter,Zander,5,1,ff2,0,f,0,"Lastly, there have been rumors about a bounty hunting crew traveling through deep space currently. This crew is manned b"
+npc,,,numbered/lettered,,5319,raven_c,Raven C,Zander,5,1,ff4,0,f,0,"I'll shoot, fucker. Get your men out of here."
+npc,,,numbered/lettered,,5320,raven_d,Raven D,Trey,5,1,ff4,0,f,0,You think you're 'na stop the Ravens with THOSE lil things!?
+npc,,,generic name,,5269,npc,NPC,Zander,5,2,ff4,0,f,0,"Dude, I think that's what it was!"
+npc,,,generic name,,5148,doctor,Doctor,Brody,5,1,ff2,0,f,0,"Um, Ibraxas. We got your X-ray and... We have no idea what race you are."
+npc,,,generic name,,5333,sre_officer_4,SRE Officer 4,Silas,5,1,ff4,0,f,0,We have you surrounded from this side! Surrender now or we will use lethal force!
+npc,,,"guess: role, not a name",,5108,beanfrank_news_anchor,Beanfrank News Anchor,Zander,4,1,ff3,0,f,0,"It is presumed that Wes was murdered, given the huge amount of blood and petals that were found at the scene."
+npc,,,"guess: role, not a name",,5257,mechanic,Mechanic,TheBlade,4,1,ff2,0,f,0,"Thank you for your business, Janis will see you now."
+npc,,,"guess: role, not a name",,5133,coalition_navigation_crew,Coalition Navigation Crew,Zander,4,1,ff2,0,f,0,"We'll need to check your ship out for any forms of... contraband, however, hon'."
+npc,,,"guess: role, not a name",,5364,stock_broker,Stock Broker,Zander,4,1,ff2,0,f,0,What if I told you I could get you 700 million Ducketts just from buying into the Elven Expo stock?!
+npc,,,"guess: role, not a name",,5155,dwarf,Dwarf,Sean,4,1,ff4,0,f,0,T'ank ya very much sir. BOYS HE WENT THIS WAY!
+npc,,,"guess: role, not a name",,5195,heavenly_ferrywoman,Heavenly Ferrywoman,Sean,4,1,ff2,0,f,0,"Already gone into the river, as she had no soul to go to heaven or hell so she will be in the river for the rest of eter"
+npc,,,"guess: role, not a name",,5304,pocket_watch_guy,Pocket Watch Guy,Maxwell,4,1,ff2,0,f,0,"Great, you found one! These watches have energy tied to certain events in history, doing so will make your mark much mor"
+npc,,,"guess: role, not a name",,5115,burly_reptile,Burly Reptile,Trey,4,1,ff4,0,f,0,Think you should scurry out of here before it gets UGLY.
+npc,,,"guess: role, not a name",Panty Slingshot,5292,panty_slingshot,Panty Slingshot,Sean,4,1,ff2,0,f,0,
+npc,,,NPC; separate from the Receptionists,,5134,coalition_receptionist,Coalition Receptionist,Zander,4,1,ff2,0,f,0,"No need to be brash, sir. You'll need to wait in the medbay."
+npc,,,numbered/lettered,,5273,new_goblin_1,New Goblin 1,Sean,4,1,ff4,0,f,0,I'm Goblin 1! He's a bad man!
+npc,,,generic name,,5278,nurse,Nurse,TheBlade,4,1,ff2,0,f,0,"Sorry sir, we cant do anything for you unless you have any physical problems! We're very busy today!"
+npc,,,numbered/lettered,,5317,raven_a,Raven A,Trey,4,1,ff4,0,f,0,"You got a real nice vocabulary. Too bad y'all won't be needin' nothin' but ""HELP"" soon!"
+npc,,,generic name,,5285,old_ottori_man,Old Ottori Man,Lili,4,1,ff2,0,f,0,I'm sorry about my wife there. She's very territorial after we were attacked last year.
+npc,,,generic name,,5169,fat_man,Fat Man,Sean,4,2,ff2,0,f,0,Put it back! WAAAAAAAAAAAAAAAAAAAAAAAAAAAA! WAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+npc,,,generic name,,5270,nagavari_woman,Nagavari Woman,Trey,4,1,ff4,0,f,0,"Umm, yeah, we don't really like cops around the Xurgate bunch, get it?"
+npc,,,"guess: role, not a name",,5144,dentist,Dentist,Zander,3,1,ff2,0,f,0,Let's just say I'm a friend from long ago and leave it like that.
+npc,,,"guess: role, not a name",,5127,church_tax_accountant,Church Tax Accountant,Sean,3,1,ff2,0,f,0,"Ok Mr. Im'K'in'ki, that'll be 1,500 Dunaj."
+npc,,,"guess: role, not a name",,5428,trenchcoat_kids,Trenchcoat Kids,Zander,3,1,ff4,0,f,0,Ugh... Hello!
+npc,,,"guess: role, not a name",,5306,policeman,Policeman,Jonas,3,1,ff2,0,f,0,Lieutenant. the jewel is gone!
+npc,,,"guess: role, not a name",,5293,paramedic,Paramedic,Trey,3,1,ff4,0,f,0,Sure.
+npc,,,"guess: role, not a name",,5151,drow_assassin,Drow Assassin,Sean,3,1,ff2,0,f,0,"Come on Seth, just let it happen, this is what happens when you kill someone's dad."
+npc,,,"guess: role, not a name",,5297,phonebooth,Phonebooth,Sean,3,1,ff2,0,f,0,
+npc,,,"guess: role, not a name",,5354,skeleton,Skeleton,Sean,3,1,ff3,0,f,0,"Ah, there's my train. I'll see you some other time, perhaps."
+npc,,,"guess: role, not a name",,5234,launch_control,Launch Control,Sean,3,1,ff4,0,f,0,"I see, Captain Swanson. Do you think you could back away from the camera?"
+npc,,,"guess: role, not a name",,5147,dildus_comms,Dildus Comms,Zander,3,1,ff4,0,f,0,"BEGINNING DOCKING PROTOCOL. IF YOU MENTION 'PENIS' ONE MORE TIME, WE WILL REFUSE ENTRY."
+npc,,,generic name,,5237,llamanian_solder_2,Llamanian Solder 2,Zander,3,1,ff2,0,f,0,
+npc,,,generic name,,5238,llamanian_soldier_1,Llamanian Soldier 1,Zander,3,1,ff2,0,f,0,STOP! IN THE NAME OF THE LLAMANIAN EMPIRE!
+npc,,,generic name,,5334,sre_officer_5,SRE Officer 5,Silas,3,1,ff4,0,f,0,Let us in or we will be forced to knock louder!
+npc,,,generic name,,5422,second_guard,Second Guard,Zander,3,1,ff1,0,f,0,"Door's over there, Venus. You're a free woman."
+npc,,,generic name,,5331,sre_officer_2,SRE Officer 2,Silas,3,1,ff4,0,f,0,Ngh... You goblin scoundrels will pay.
+npc,,,numbered/lettered,,5379,torrid_a,Torrid A,Zander,3,1,ff4,0,f,0,"Y'arr, you're invadin' us!"
+npc,,,generic name,,5405,armor_speaker,Armor Speaker,Trey,3,1,ff4,0,f,0,Detonating in 30 seconds.
+npc,,,generic name,,5305,police,Police,Jonas,3,1,ff2,0,f,0,"If you want grass, go into the museum!"
+npc,,,generic name,,5330,sre_officer_1,SRE Officer 1,Silas,3,1,ff4,0,f,0,Dude. That's the worst crime of all. Space Rule -1. You're coming in with us. Penalty for that is like 20 GUYS.
+npc,,,generic name,,5303,pirate_6,Pirate 6,Bill,3,1,ff2,0,f,0,Maybe after I sell your petals on the black market...
+npc,,,numbered/lettered,,5183,goblin_1,Goblin 1,Sean,3,1,ff4,0,f,0,"GO AWAY, NO GOBLINS HERE!"
+npc,,,generic name,,5163,enemy_d,Enemy D,Trey,3,1,ff4,0,f,0,AAAAAAAGGGHHHH!!!!!
+npc,,,"these rows refer to a literal magic 8 ball that Seth is holding in that scene, not the FF bot",,5095,8ball,8ball,Sean,2,1,ff4,0,f,0,No.
+npc,,,"guess: role, not a name",,5349,ship_mechanic_owner,Ship Mechanic Owner,Brody,2,1,ff2,0,f,0,"Nav systems are normally more expensive. Plus, It's high quality."
+npc,,,"guess: role, not a name",,5429,vr_player,VR Player,Zander,2,1,ff4,0,f,0,"You really need to fix your callouts, bruhgingi."
+npc,,,"guess: role, not a name",,5114,brain_surgeon,Brain Surgeon,TheBlade,2,1,ff2,0,f,0,"Memory wipe will take an hour sir, please carry him this way."
+npc,,,"guess: role, not a name",,5096,ade_enforcer,ADE Enforcer,Silas,2,1,ff4,0,f,0,"THIS IS THE ADE, STEP OUT OF THE VEHIC-"
+npc,,,"guess: role, not a name",,5362,station_citizens,Station Citizens,Maxwell,2,1,ff2,0,f,0,Who are these guys? What's wrong with the President's Daughter?
+npc,,,"guess: role, not a name",,5366,super_starket_employee,Super Starket Employee,Jonas,2,1,ff2,0,f,0,"Alright, just calm down. Its over in the section labeled ship necessities."
+npc,,,"guess: role, not a name",,5250,mantis_ambassador,Mantis Ambassador,Sean,2,1,ff2,0,f,0,"HAVE FREE POTATOES, CITIZENS!"
+npc,,,"guess: role, not a name",,5223,kyl_crewmember,KYL Crewmember,Silas,2,1,ff2,0,f,0,"Look at that, we've got visitors!"
+npc,,,"guess: role, not a name",,5136,comms_system,Comms System,Sean,2,1,ff2,0,f,0,SPACE RULE 101: IF YOU BURN YOU GO INTO THE URN.
+npc,,,"guess: role, not a name",,5117,busboy,Busboy,Zander,2,1,ff4,0,f,0,You just made a b-b-big mistake...
+npc,,,generic name,,5412,enemy_c,Enemy C,Zander,2,1,ff4,0,f,0,
+npc,,,generic name,,5239,llamanian_soldier_2,Llamanian Soldier 2,Zander,2,1,ff2,0,f,0,REBEL SHIP! TAKE IT DOWN!
+npc,,,generic name,,5301,pirate_4,Pirate 4,Zander,2,1,ff2,0,f,0,
+npc,,,generic name,,5302,pirate_5,Pirate 5,Zander,2,1,ff2,0,f,0,S-such a klutz...
+npc,,,role description,,5409,emmetts_crewman,Emmett's Crewman,Zander,2,1,ff1,0,f,0,"Hey, a ship pulled up."
+npc,,,role description,,5205,ibraxass_arm,Ibraxas's Arm,Brody,2,1,ff2,0,f,0,{Race: Squoatling}
+npc,,,numbered/lettered,,5318,raven_b,Raven B,Zander,2,1,ff4,0,f,0,"Hey! Get off our turf, fuckers!"
+npc,,,generic name,,5192,guard_2,Guard 2,Zander,2,1,ff4,0,f,0,They just entered without our approval!
+npc,,,numbered/lettered,,5184,goblin_2,Goblin 2,Sean,2,1,ff4,0,f,0,"Hehe, Captain Seth treats us well."
+npc,,,numbered/lettered,,5166,enforcer_2,Enforcer 2,Silas,2,1,ff4,0,f,0,"Stop right there, Cybernetic Scum!"
+npc,,,numbered/lettered,,5165,enforcer_1,Enforcer 1,Silas,2,1,ff4,0,f,0,"Stay where you are, goblins!"
+npc,,,generic name,,5139,crowd,Crowd,Zander,2,1,ff4,0,f,0,BLOODSHED! GAMES! FREEDOM!
+npc,,,generic name,,5137,computer,Computer,Sean,2,2,ff4,0,f,0,YOU HAVE REACHED YOUR DESTINATION: Galcot's Beer & Fuel Station.
+npc,,,generic name,,5373,tic_tac_head_man,Tic-Tac Head Man,Sean,2,1,ff2,0,f,0,AAAAAAAAAAAAAAAAAAAAH!
+npc,,,numbered/lettered,,5381,torrid_c,Torrid C,Trey,2,1,ff4,0,f,0,
+npc,,,"guess: role, not a name",,5201,hostage,Hostage,Trey,1,1,ff4,0,f,0,Rghh... get off of me!
+npc,,,"guess: role, not a name",,5402,zarazoga_security,Zarazoga Security,Zander,1,1,ff3,0,f,0,You're in the clear. Park over in section I-66.
+npc,,,"guess: role, not a name",,5271,navigation_console,Navigation Console,Sean,1,1,ff2,0,f,0,The number you are trying to reach is not answering right now.
+npc,,,"guess: role, not a name",,5355,slave,Slave,Trey,1,1,ff2,0,f,0,Uimh.
+npc,,,"guess: role, not a name",,5277,note,Note,Zander,1,1,ff4,0,f,0,Dutch's diary is back in the common room. Dirty secrets. -Bellow
+npc,,,"guess: role, not a name",,5348,ship,Ship,Zander,1,1,ff4,0,f,0,AAAAAAAAAAAAAAAAAAAAAAAUUUUUUUUUUUUUUUUUUUUUUUUUUUGHHHHHH!!!!!!
+npc,,,"guess: role, not a name",,5226,karen,Karen,Trey,1,1,ff4,0,f,0,"YOU ANIMAL, YOU'RE GETTING FUR ALL OVER MY HUGE, LUXURIOUS MEAL!"
+npc,,,"guess: role, not a name",,5427,suburban_elf,Suburban Elf,Zander,1,1,ff4,0,f,0,WHAT IN TARNATION IS GOIN' ON?
+npc,,,"guess: role, not a name",,5291,pa_system,PA System,Zander,1,1,ff3,0,f,0,ANTI-SPECTRE ALARM INITIATED. BRING OUT THE LASERS.
+npc,,,numbered/lettered,,5380,torrid_b,Torrid B,Zander,1,1,ff4,0,f,0,
+npc,,,generic name,,5314,random_bystander,Random bystander,Zander,1,1,ff4,0,f,0,"No dip, we're all followers of the Goddess of Death."
+npc,,,generic name,,5315,random_minister,Random minister,Trey,1,1,ff4,0,f,0,"Some disgusting lowlives in here, hmm!"
+npc,,,generic name,,5410,enemy_a,Enemy A,Zander,1,1,ff4,0,f,0,
+npc,,,generic name,,5411,enemy_b,Enemy B,Zander,1,1,ff4,0,f,0,
+npc,,,generic name,,5295,park_attendees,Park attendees,Jonas,1,1,ff2,0,f,0,"Please, don't hurt us!"
+npc,,,generic name,,5309,race_announcer,Race Announcer,Silas,1,1,ff3,0,f,0,"And that's it! He's done it again! For his third gold in a row, the Scaled Speedster has won the photo finish!"
+npc,,,generic name,,5206,intercom,Intercom,Zander,1,1,ff4,0,f,0,Alert from Llamanian Strategy. Accept transmission.
+npc,,,generic name,,5311,random_driver,Random Driver,Sean,1,1,ff2,0,f,0,Get out the road asshole!
+npc,,,generic name,,5120,cashier,Cashier,Trey,1,1,ff2,0,f,0,"Please, take the money and go!"
+npc,,,generic name,,5296,passerby,Passerby,Silas,1,1,ff3,0,f,0,This is bullshit. I can't believe I bet Klaus's college funds on that stupid fucking bird.
+npc,,,generic name,,5312,random_partygoer,Random Partygoer,Sean,1,1,ff2,0,f,0,Go away creep.
+npc,,,generic name,,5387,villager,Villager,Zander,1,1,ff4,0,f,0,Freedom...
+npc,,,generic name,,5382,torrid_voice,Torrid Voice,Hunt520,1,1,ff4,0,f,0,"Did you find anything, you worthless human?"
+npc,,,generic name,,5161,elven_police,Elven Police,Sean,1,1,ff2,0,f,0,
+npc,,,guess: story group-speaker code (becomes plain speaker text),,5158,ea,EA,Archivist,0,0,,1,f,0,
+npc,,,guess: story group-speaker code (becomes plain speaker text),,5167,fw,F+W,Archivist,0,0,,1,f,0,
+npc,,,guess: story group-speaker code (becomes plain speaker text),,5202,iw,I+W,Archivist,0,0,,1,f,0,
+npc,,,guess: story group-speaker code (becomes plain speaker text),,5231,lp,LP,Archivist,0,0,,2,f,0,
+npc,,,guess: story group-speaker code (becomes plain speaker text),,5392,wi,W+I,Archivist,0,0,,1,f,0,
+delete,,,"duplicate of llashii; no lines, so nothing to move",Llashii,5135,commander_llashii,Commander Llashii,Trey,0,0,,0,f,0,
+delete,,,"duplicate of john_smith_iv; no lines, so nothing to move",,5211,jsiv,JSIV,Sean,0,0,,0,f,0,
+delete,,,"duplicate of the_joker; no lines, so nothing to move",,5222,joker,Joker,Sean,0,0,,0,f,0,
+delete,,,"duplicate of paramedic; no lines, so nothing to move",,5294,parametic,Parametic,Trey,0,0,,0,f,0,
+delete,,,"duplicate of seth_imkinki; no lines, so nothing to move",Seth Im'Kin'ki,5344,sethkinki,Sethkinki,Zander,0,0,,0,f,0,
+delete,,,"duplicate of squina; no lines, so nothing to move",,5358,squi,Squi,Zander,0,0,,0,f,0,
+delete,,,"duplicate of tiny_seth; no lines, so nothing to move",,5375,tiny_seth_on_the_comms,Tiny Seth on the comms,Sean,0,0,,0,f,0,
+delete,,,"duplicate of volentina_constantini; no lines, so nothing to move",,5383,valentina,Valentina,Archivist,0,0,,0,f,0,
+delete,,,"duplicate of llashii; no lines, so nothing to move",,5242,llashii_over_intercoms,Llashii over intercoms,Zander,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5178,gu_bank,GU Bank,Trey,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5102,ashley,Ashley,Trey,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5104,b,B,Zander,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5105,be,BE,Zander,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5121,caveat,Caveat,Zander,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5128,cleaveland_brown,Cleaveland Brown,Zander,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5157,e,E,Zander,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5177,gk,GK,Zander,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5248,mc,MC,Zander,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5258,merc,Merc,Trey,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5347,shadowy_figure,Shadowy Figure,Sean,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5374,tiny_seth,Tiny Seth,Sean,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5399,x,X,Zander,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5401,zander,Zander,Zander,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5343,seths_ballsack_2,Seth's ballsack,Sean,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5340,seths_ballsack,Seth's Ballsack,Sean,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5342,seths_balls,Seth's balls,Sean,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5164,enforcement_officer_1,Enforcement Officer 1,Zander,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5351,ship_speaker,Ship speaker,Trey,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5371,the_puppet,The Puppet,Sean,0,0,,0,f,0,
+delete,,,"no lines anywhere (no messages, no story lines)",,5101,armors_speaker,Armor's speaker,Trey,0,0,,0,f,0,
+keep,,,has wiki page,Seth Im'Kin'ki,5339,seth_imkinki,Seth Im'Kin'ki,Sean,7428,61,ff1 ff2 ff3 ff4,48,t,1,"""A double McSpanky with fries and a Flurp, that'll be $6.53. And $3.47 is your change,"" I hear Jimmy Neutron say. I neve"
+keep,,,has wiki page,Emmett Tawfeek,5162,emmett_tawfeek,Emmett Tawfeek,Zander,6074,50,ff2 ff3 ff4,878,t,0,"Ugh... Homely. I'm a happy father with two wives on a cozy little planet, with five squoatlings, as I have two kids. Liv"
+keep,,,has wiki page,Iris Bellatoria,5207,iris_bellatoria,Iris Bellatoria,Lili,2487,14,ff2 ff3,0,t,0,"He didn't like me all that much. I could tell. I mean, he tried to ignore that I wasn't just a regular elf, but... he wa"
+keep,,,has wiki page,Zion Daybreaker,5404,zion_daybreaker,Zion Daybreaker,Trey,2465,21,ff4,69,t,0,"ZION DAYBREAKER TO MISSION CONTROL. I don't know WHAT is going on back at HQ, but we just shook the goblins off, no than"
+keep,,,has wiki page,Sanya Dreadflower,5335,sanya_dreadflower,Sanya Dreadflower,Brody,2439,23,ff2 ff3 ff4,113,t,2,"The only reason you need is Vengeance. To prove them all wrong. Enemies, allies, all matters not. But right now, you eit"
+keep,,,has wiki page,Garrick,5180,garrick,Garrick,Trey,2332,24,ff2 ff3 ff4,84,t,0,This whole Crave thing only exists because of your withdrawals. The fact that it's happening at least proves that it's w
+keep,,,has wiki page,Dutch Elkins,5154,dutch_elkins,Dutch Elkins,Silas,2041,20,ff4,6,t,0,"What even is it? It certainly isn't 200 chicken nuggets, a burger the size of my shotgun, extra cheddar, put a squeeze o"
+keep,,,has wiki page,Bellow Brightlight,5110,bellow_brightlight,Bellow Brightlight,Jonas,1847,20,ff4,56,t,0,"But also... I hope my best bud is doing alright. We shared our whole childhoods together and he may seem big and tough, "
+keep,,,has art/persona/blurb,Jim Johnson,5219,jim_johnson,Jim Johnson,TheBlade,1493,14,ff2,0,t,0,"Humans, like me (mostly), believe in one true god that created the universe, people, everything. I myself, eh, never rea"
+keep,,,has wiki page,Vec,5385,vec,Vec,Zander,1483,21,ff4,0,f,11,It's idiotic names like that that prove what I mean. You guys all act like imbeciles and never respect Zion. Zion's the 
+keep,,,has wiki page,Victor Chomsky,5386,victor_chomsky,Victor Chomsky,Jonas,1439,13,ff2 ff3 ff4,132,t,0,"Ah. Sanya, you've arrived. You're much less insufferable than that forsaken flower on your head. But that's not importan"
+keep,,,has wiki page,Morra,5265,morra,Morra,Brody,1328,18,ff4,29,t,0,"The ship initially had 15 rooms: this includes 5 bedrooms, 5 bathrooms, a large captain's quarters, a living room, a kit"
+keep,,,has wiki page,Zacharias Smith,5400,zacharias_smith,Zacharias Smith,Hunt520,1184,16,ff4,151,f,0,God not you too... listen. I just want to say that thanks for not throwing me out the airlock and... It was my honor to 
+keep,,,has wiki page,Matthias Lewkey,5255,matthias_lewkey,Matthias Lewkey,Maxwell,797,12,ff1 ff2,0,t,0,AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+keep,,,wiki page 'Matieu',Matieu,5254,matieu,Matieu,Maxwell,782,8,ff2,0,f,0,"Space weed is a gateway drug, whether legal or not. Had a patient who started smoking bowls a while ago. Guess what?"
+keep,,,wiki page 'Hector Ler'wricki',Hector Ler'wricki,5197,hector,Hector,Bill,716,9,ff2,1,f,0,"It's the best I can do on short notice, but you'll heal up fine. Your arm's got the worst of it, so we'll probably need "
+keep,,,has wiki page,Asier,5103,asier,Asier,Jonas,689,6,ff2,0,t,0,"I didn't grow up on earth, I know that much, but I don't remember much before I was moved to earth. It was a very long t"
+keep,,,has wiki page,Ibraxas,5204,ibraxas,Ibraxas,Brody,554,6,ff2,0,t,0,"It never was your sister. There's no point in asking it any questions. It's just a cruel copy, set out to leech off the "
+keep,,,has art/persona/blurb,,5224,kyl300,KYL300,Silas,508,7,ff2,3,t,0,"Iris, you step one foot in here again and you'll lose the ability to think. Stay out; there's a monster trying to eat ev"
+keep,,,wiki page 'Vargas',Vargas,5384,vargas,Vargas,Charles,484,4,ff3,0,f,0,"I'm sorry for taking my anguish out on you. I'm just going through a lot, with my friend Badon dying."
+keep,,,wiki page 'Deyner Revathen',Deyner Revathen,5145,deyner_revathen,Deyner Revathen,Deyner,459,5,ff2,0,f,0,"It's simple. They fit on your wrist, and there's a lever inside. When you pull it, KAPOW, flames shoot out."
+keep,,,has wiki page,Maia,5249,maia,Maia,Mica,413,5,ff2,0,f,0,"I wasn't very close to anyone on this ship, except for you... and to be honest, I have very much enjoyed our companionsh"
+keep,,,has art/persona/blurb,Danny,5143,danny,Danny,Rashidi,376,5,ff2,0,t,0,"So, why exactly do we have a little Ottori girl on our ship? I thought we distinguished that kidnapping was only for dir"
+keep,,,has wiki page,Mateo Krovak,5253,mateo_krovak,Mateo Krovak,Maxwell,339,6,ff3 ff4,0,f,0,"Yeah, I guess when you spend sixteen semesters without anyone to talk to, you have a lot of time to think up some analog"
+keep,,,has art/persona/blurb,Grass Stalker,5415,grass_stalker,Grass Stalker,Zander,309,8,ff1,0,f,1,"Problem is, I can't do that. Admittedly, I did die in the past. But then some assholes transferred my consciousness to a"
+keep,,,wiki page 'Dakari Vatssel',Dakari Vatssel,5141,dakari_vatssel,Dakari Vatssel,Rashidi,269,3,ff3,0,f,0,How do we have no money if you're getting two Irish women to-go and a midget covered in hot sauce?!
+keep,,,"guess: named, substantial",,5159,edmin_kalvanzas,Edmin Kalvanzas,Maxwell,261,3,ff4,0,f,0,"Jungle biome. Heavy rainfall. Precipitation arriving in T-Minus 2:36 (MINUTES, SECONDS). Moderately dangerous flora and "
+keep,,,wiki page 'Wemmfort Jogganson',Wemmfort Jogganson,5395,wemmfort_jogganson,Wemmfort Jogganson,Cooldude,232,5,ff3,0,f,0,"Uhh, green person! The toilet lid turned into that slime! I need help finding the real toilet lid!"
+keep,,,has art/persona/blurb,Volentina Constantini,5390,volentina_constantini,Volentina Constantini,Preston,210,5,ff3,3,f,1,"I do apologize, but we don't have a double McSpelunker, extra Fortnite, dwarven rum, Caribeener-19, Irish women to go, m"
+keep,,ff2 ff3,keep in FF2/FF3 (separate character; wiki: the Floran god),Dread,5150,dread,Dread,Brody,194,9,ff2 ff3 ff4,37,f,0,"When a god communes with an individual, it's normally a big deal. Maybe not for others, but if, say, Sanya met with a gr"
+keep,,,has wiki page,Mickey Mouse's Ghost,5260,mickey_mouses_ghost,Mickey Mouse's Ghost,Tom Thompson,194,3,ff2,0,f,0,"Seth, shut up before I give a picture of your face to the most ugly man and say you want a blow job!"
+keep,,,has wiki page,Bail Starlight,5106,bail_starlight,Bail Starlight,Brody,171,2,ff2,0,t,0,"Alright I'm back, everything seems in order. Wait... Did you guys pick up another passenger?"
+keep,,,has wiki page,Theylin Revane,5372,theylin_revane,Theylin Revane,Michael,160,4,ff3,0,f,0,"This would have us require less fuel, and allow our engines to be partially powered by solar power. I would like your pe"
+keep,,,has wiki page,Llashii,5241,llashii,Llashii,Zander,145,7,ff4,0,f,0,"You are being assigned to Operation EVENT HORIZON. Your target is Ophiuchus D, a black hole in sector O-19. We have reas"
+keep,,,has wiki page,Serpile,5338,serpile,Serpile,Brody,141,6,ff1 ff2,0,t,1,"If you don't do what I say, I'm going to stick you in the main engine."
+keep,,,wiki page 'Diver and Burner',Diver and Burner,5116,burner,Burner,Bill,133,3,ff3,0,f,0,Finally. I was wondering how long it would take one of you to think of a light switch.
+keep,,,has wiki page,Chase Sandeep,5123,chase_sandeep,Chase Sandeep,Silas,127,1,ff2,0,f,0,"Your race, to be precise. I've been meaning to hold studies on the Squoatians for a couple GUYs."
+keep,,,"guess: named, substantial",,5245,los,Los,Zander,123,3,ff4,79,f,0,No idea who this was from. Letter that comes with it that tells you to go to some coordinates after the mission. We visi
+keep,,,has art/persona/blurb,Lucian Blackwater,5247,lucian_blackwater,Lucian Blackwater,Arky,123,4,ff2,0,t,0,"A proper teammate wouldnt leave his team to find something new, but would help his team upgrade!"
+keep,,,has art/persona/blurb,,5118,buzzcut,Buzzcut,Zander,113,3,ff4,0,f,1,Last thing I remember is tripping on the way back to the ship. You two got stuck in a... fridge... Where are we?
+keep,,,has art/persona/blurb,Olag,5282,olag,Olag,Sean,105,4,ff3 ff4,0,f,0,"This asteroid is rigged to go off in ten minutes. All other ships, except the ship I just recently repaired, a.k.a. Seth"
+keep,,,wiki page 'Steely',Steely,5363,steely,Steely,Finna Steel Christmas,102,1,ff2,0,f,0,I can't wait for Trump to add lasers back to Final Frontier.
+keep,,,wiki page 'Jacob',,5213,jacob_climm,Jacob Climm,Josh,98,1,ff2,0,f,0,As I approached the home all I could see was large puddles of dried urination on the ground and I was a little worried.
+keep,,,has wiki page,Wes Romaw,5397,wes_romaw,Wes Romaw,Silas,90,2,ff3,255,t,0,"What a hoot that owl was! Heh, get it? Anyway, I really am thankful for all of my wonderful fans. You people mean almost"
+keep,,,wiki page 'Lodas',,5244,lodas_ghostbringer,Lodas Ghostbringer,Nick,87,2,ff2,0,f,0,IN THE NAME OF THE HOLY GOD EMPEROR I SHALL SMITE YOU WITH RITCHEOUS FURY! FOR WE ARE THE EMPEROR'S WRATH!!!
+keep,,,wiki page 'Laav Rokk',Laav Rokk,5233,laav_rokk,Laav Rokk,Silas,80,2,ff2,0,f,0,"True, but a strong axe or hammer would be nice. Just because I've got rock-hard fists doesn't mean it doesn't hurt to pu"
+keep,,,has wiki page,Llawdon Brandanowitz,5243,llawdon_brandanowitz,Llawdon Brandanowitz,Michael,80,4,ff4,0,f,0,"Hopefully everyone was able to grab onto something, considering I said it twice... We are here. If you'd like to continu"
+keep,,,"guess: named, substantial",,5227,kluex,Kluex,Maxwell,76,1,ff2,0,f,0,"You can always follow me. Race is no matter to me. Although, you would be the first floran to follow our ways."
+keep,,,has art/persona/blurb,,5149,dr_jorpa,Dr. Jorpa,Trey,76,1,ff4,0,f,0,"Wehll, just keep taking it unteel it goes away. I can still see the mark a little bit. That kind of infection can be vee"
+keep,,,Real character,,5290,owner,Owner,Zander,72,1,ff4,0,f,0,"Welcome, welcome, all patrons of Boneyard, to the 136th performance of the GUY! This will be a great show tonight! Remem"
+keep,,,has wiki page,Sascha,5337,sascha,Sascha,Trey,64,3,ff4,9,f,0,"Oh, please. Marv was ignorant at best to go against orders like he did. If he had any sense, this would have been over d"
+keep,,,wiki page 'Sonichu Crew' (named member),Sonichu Crew,5357,sonichu,Sonichu,Zander,62,1,ff4,2,f,0,"If you all don't stop acting like idiots and don't stop this Llamanian quest, then I'll tell him to blow Bellow's parent"
+keep,,,"guess: named, substantial",,5421,meth,Meth,Thinh,58,1,ff1,0,f,0,"I may be asleep, but I am fully erect!"
+keep,,,has wiki page,,5321,ravens_leader,Ravens Leader,Trey,46,2,ff4,20,f,0,"Comedic and confident, like you always were. You found so much joy in destroying what was ours — BOTH of ours."
+keep,,,has wiki page,Marv,5251,marv,Marv,Trey,46,2,ff4,1,f,0,"Look, rodents. Your group is our one ticket to the Republic. They were dumb enough to send you out here with that elf, b"
+keep,,,has wiki page,Jessica,5216,jessica,Jessica,Trey,43,4,ff2 ff3 ff4,24,f,0,"I've been kinda stuck in darkness for, like, 17 years. Life before all that was pretty nice, though."
+keep,,,"guess: named, substantial",,5225,kambras,Kambras,Zander,42,2,ff2,0,f,0,I'm so sorry I didn't tell you beforehand... They were madly in love with each other...
+keep,,,"guess: named, substantial",,5328,robo_dog,Robo-Dog,Zander,41,2,ff2,0,f,0,"Abort? Like the thirty-four times you looked up 'abortion pill for sale online', Seth?"
+keep,,,wiki page 'Rachell',Rachell,5310,rachell,Rachell,Hunter,41,1,ff3,0,f,0,"Actually, I'm quite against it. Please do not attempt to approach me while covered with that."
+keep,,,"guess: named, substantial",,5176,frechelsi,Frechelsi,Zander,40,2,ff4,0,f,0,"It is the God of Death's duty to maintain order in Elf Heaven. Otherwise, the dead will have nowhere to go, and will be "
+keep,,,"guess: named, substantial",,5119,cali,Cali,Sean,39,3,ff3,0,f,0,"Oil change is needed. Parts in need of repair or replacement: Jognon Driver, Axel, Warp Drive, Extendo-Palendo, Pistons "
+keep,,,has wiki page,Jack Madison,5212,jack_madison,Jack Madison,Hunt520,39,5,ff4,104,f,0,"If that's what I'm known as then yes... it's nice to finally meet you though, Jack Madison by the way."
+keep,,,has wiki page,Odran,5280,odran,Odran,Trey,39,3,ff4,18,f,0,"The rumors have spread far and wide about the artifact you’re searching for. If you find it, the Republic will surely wi"
+keep,,,"guess: named, substantial",,5262,miny_seth,Miny Seth,Sean,38,6,ff4,0,f,0,"I'm Miny Seth, and I'm here to say: Give me the gun so we can have fun!"
+keep,,,"guess: named, substantial",,5368,terry,Terry,Hunt520,38,3,ff4,7,f,0,"Hm... While I am curious, I won't ask. But you do realize that if you wait a few weeks, it will repair itself... I'm gue"
+keep,,,"guess: named, substantial",,5403,ziga,Ziga,Trey,38,1,ff4,0,f,0,"Well, well, yes, I am going to bed, I have worked a long day. Good bye Llaman. Thank you for kind business, ok?"
+keep,,,"extends your ruling: prominent role character (36 lines), like Owner",,5378,toll_station_operator,Toll Station Operator,Sean,36,1,ff2,0,f,0,"Counterfeit Ducketts, sexual advances, and holding up traffic. You're getting arrested because of your captain."
+keep,,,"guess: named, substantial",,5327,richard_jamerez,Richard Jamerez,Zander,32,1,ff3,0,f,0,"I don't see any problems, aside from you acting odd. Come and have a seat. Drink."
+keep,,,guess: Sonichu Crew member,,5356,sonic,Sonic,Brody,30,1,ff4,0,f,0,"We were just here to stop y'all from pissing on our men! That's really fucking gross, my guy."
+keep,,,"extends your ruling: prominent role character (29 lines), like Mission Control",,5199,hooded_figure,Hooded Figure,Zander,29,1,ff2,0,f,0,"We need to stand up for what we believe in, Emmett."
+keep,,,"guess: named, substantial",,5229,kumdome,Kumdome,Michael,29,1,ff4,0,f,0,"Now that my cumweapon is loaded, I can now rob this pharmacy. Mwahahaha!"
+keep,,,"guess: named, substantial",Venus,5430,venus,Venus,Mica,29,1,ff1,0,f,0,"Did that just happen? Y'know what, I'm not even gonna question it. Let's go find my ship."
+keep,,,Real character,,5263,mission_control,Mission Control,Zander,27,3,ff4,0,f,0,"If you followed commands, you wouldn't be in this mess. You lost the ship to the Ravens and hesitated to kill the people"
+keep,,,"guess: named, substantial",,5142,damien,Damien,Lili,27,1,ff2,0,f,0,I still intend to fulfill my promise from the last time we saw each other.
+keep,,,"guess: named, substantial",,5264,mora_norap,Mora-Norap,Sean,26,2,ff2,0,f,0,"There's been a guy pushin' into my territory, push him out of the business and I'll give ya' the ship."
+keep,,,"guess: named, substantial",,5416,grasshopper,Grasshopper,Zander,24,1,ff1,0,f,0,They're traitors to the faith of the Grasshopper. They will pay for their misdeeds.
+keep,,,"guess: named, substantial",,5324,remmond,Remmond,Trey,24,1,ff4,0,f,0,"If you don't know, the Moldak have a confederation that combines all their DNA control, and the Republic wants to get th"
+keep,,,has wiki page,Squoat,5360,squoat,Squoat,Zander,22,2,ff3,0,f,0,The only reason the Tawfeeks were rich was because of their mass production of grass.
+keep,,,Real character,,5124,chilzor,Chilzor,Zander,19,1,ff4,0,f,0,YOUR IDENTIFICATION YOU GAVE FOR THE DRINK. IT HAS AN ULTRAVIOLET LR INSIGNIA.
+keep,,,"guess: named, substantial",,5129,clone_seth,Clone Seth,Sean,19,1,ff2,0,f,0,I'm Seth and you aren't Emmett! Emmett is a bee not a dumb...
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5099,angela,Angela,Sean,18,1,ff4,0,f,0,"It's true, We're now considered enemies of the GU and will be destroyed on sight, but hey! We got our freedom."
+keep,,,extends your ruling: relative of a named character (like Isaac's Mother),,5126,chomskys_boss,Chomsky's Boss,Jonas,18,1,ff2,14,f,0,"You're coming back a hero, Chomsky. They'll be happy to see you. Besides. I've got a new mission for you."
+keep,,,"guess: named one-off (≤20 lines, one season) — flip to keep if they matter",,5173,fione,Fione,Zander,17,1,ff2,0,f,0,You'll be seeing me in your dreams for the next month or so.
+keep,,,"guess: named one-off (≤20 lines, one season) — flip to keep if they matter",,5240,llao_khug,Llao Khug,Zander,16,1,ff4,0,f,0,"Well, you guys are quite efficient, then. Your next mission is to head to Barbona. Our last expedition there is noted to"
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5279,olanaraporf,O'lanara'porf,Zander,16,1,ff2,0,f,0,_Seth's raw masculinity has almost completely changed the monster's motives. Female Seth starts french kissing Seth to t
+keep,,,"extends your ruling: Boneyard bartender across 2 episodes, alongside Owner",,5107,bartender,Bartender,Zander,15,2,ff4,0,f,0,Want me to call security? Owner has a no costumes rule. Take it off.
+keep,,,has wiki page,John Smith,5220,john_smith,John Smith,Hunt520,15,1,ff4,22,f,0,"Now then, since Zacharias ruined my day by his presence already, mind telling me what is happening?"
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5272,neljis_boplily,Neljis Boplily,Trey,14,1,ff4,0,f,0,"HMPH. This council is now in session, by authority of the High Klumkloren of Ceumi, yours truly, Neljis Boplily. State y"
+keep,,,extends your ruling: relative of a named character (like Isaac's Mother),,5208,iriss_dad,Iris's Dad,Brody,14,1,ff2,0,f,0,"It's not important right now, my dear. What's important is that we're all together."
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5367,tacengi,Tacengi,Zander,12,1,ff4,0,f,0,"Umm, yeah, we don't really like copth around the Thurgate bunch, get ith?"
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5100,aris,Aris,Zander,12,1,ff2,0,f,0,Why would you order a gasoline product in the first place?
+keep,,,Real character,,5189,gretta,Gretta,Zander,11,1,ff3,0,f,0,"I licked myself, because I was drenched in piss."
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5370,the_joker,The Joker,Zander,11,1,ff4,0,f,0,"THE LAST ONE WAS MY FARTS, THIS ONE IS MORE DEADLYYYYY......"
+keep,,,has wiki page,Ameno,5098,ameno,Ameno,Sean,10,1,ff3,0,f,0,"Alright, alright. Everything seems in order. Just get on the Soul Train. It should arrive around five."
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5190,gruffy,Gruffy,Sean,9,1,ff2,0,f,0,Let me make some adjustments to the engine real quick.
+keep,,,real PC,,5418,heck,Heck,Jun,9,1,ff1,0,f,0,"No, sir. Gaston may know where it is, though."
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5153,duske,Duske,Deyner,9,1,ff2,0,f,0,"Deyner, don't pry into people's personal lives!"
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5125,chindle,Chindle,Sean,8,1,ff4,0,f,0,"Ah I see, other planets' cultures have always interested me, how was your marriage different from ours?"
+keep,,,extends your ruling: relative of a named character (like Isaac's Mother),,5341,seths_mother,Seth's Mother,Sean,8,1,ff2,0,f,0,How's that little goat boy doing? Have you been treating him well?
+keep,,,"guess: role, not a name",,5111,big,Big,Zander,7,1,ff4,0,f,0,"Dude, stop threatening them and actually say what he wants."
+keep,,,extends your ruling: relative of a named character (like Isaac's Mother),,5256,mayor,Mayor,Sean,6,1,ff4,0,f,0,"My daughter Chindle, will lead you to your home, you may follow her."
+keep,,,"guess: named one-off (≤20 lines, one season) — flip to keep if they matter",,5198,hellus,Hellus,Zander,6,1,ff4,0,f,0,Rest in peace.
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5146,dick,Dick,Zander,5,1,ff2,0,f,0,"Where I don't have the weaponry, I am practically invincible."
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5413,fuglestein,Fuglestein,Zander,5,1,ff4,0,f,0,"I wedded my ass, sir. It was a sinful decision, but he carried our family upon his back. I fell in love."
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5214,janis,Janis,Brody,5,1,ff2,0,f,0,"Well, the damage doesn't look too bad. Just leave the arm with me for half an hour, and it should be good to go."
+keep,,,guess: Sonichu Crew member,,5228,knuckles,Knuckles,Zander,5,1,ff4,0,f,0,Well we gotta do something and report back. Those suckers are as good as dead anyway.
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5175,fonda,Fonda,Zander,4,1,ff3,0,f,0,We need to get moving before we're captured. The American Dad Empire is hot on our tail.
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5308,qrow,Qrow,Lili,4,1,ff2,0,f,0,Hello.
+keep,,,extends your ruling: relative of a named character (like Isaac's Mother),,5283,olags_twin,Olag's Twin,Sean,4,1,ff3,0,f,0,THAT'S MY BLENDER!
+keep,,,extends your ruling: relative of a named character (like Isaac's Mother),,5187,grand_elders_daughter,Grand Elder's Daughter,Zander,4,1,ff2,0,f,0,I'm going to fucking kill you for disgracing my father!
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5221,john_smith_iv,John Smith IV,Sean,3,1,ff4,0,f,0,We prefer the term little people!
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5097,alli,Alli,Zander,3,1,ff2,0,f,0,"Get a room, you two!"
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5160,edwin,Edwin,Bill,2,1,ff2,0,f,0,"My name is Edwin, knight from Camelot, I am searching with this crew for my horse!"
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5376,todd,Todd,Zander,2,1,ff2,0,f,0,
+keep,,,"extends your ruling: named NPC, even if only for a scene",,5112,bobert,Bobert,Zander,2,1,ff4,0,f,0,HEY! GIVE THAT BACK!
+keep,,,extends your ruling: relative of a named character (like Isaac's Mother),,5217,jessicas_father,Jessica's Father,Lili,2,1,ff2,0,f,0,You! Young man! You say you'll love our daughter?
+keep,,,extends your ruling: relative of a named character (like Isaac's Mother),,5218,jessicas_mother,Jessica's Mother,Lili,1,1,ff2,0,f,0,"Jessica sweetheart, the nice man says he loves you!"
+keep,,,extends your ruling: relative of a named character (like Isaac's Mother),,5424,seths_wife,Seth's Wife,Zander,1,1,ff1,0,f,0,Mmmmmmmmmhmmmmmmmmmmmm.
+keep,,,extends your ruling: relative of a named character (like Isaac's Mother),,5307,presidents_daughter,President's Daughter,Sean,1,1,ff2,0,f,0,Sure.
+keep,,,has art/persona/blurb,,5322,rawley,Rawley,Jonas,1,1,ff2,0,t,0,Mrow?
+keep,,,Real character,,5210,isaacs_mother,Isaac's Mother,Archivist,0,0,,2,f,0,
+keep,,,guess: Vortox Machina story character,,5170,felic,Felic,Archivist,0,0,,124,f,0,
+keep,,,guess: Vortox Machina story character,,5171,felps,Felps,Archivist,0,0,,33,f,0,
+keep,,,guess: Vortox Machina story character,,5203,irene,IRENE,Archivist,0,0,,275,f,0,
+keep,,,guess: Vortox Machina story character,,5209,isaac,Isaac,Archivist,0,0,,9,f,0,
+keep,,,guess: Vortox Machina story character,,5391,vuroburo,Vuroburo,Archivist,0,0,,23,f,0,
+keep,,,has art/persona/blurb,,5168,ff_8_ball,FF 8 Ball,Archivist,0,0,,0,t,0,

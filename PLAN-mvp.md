@@ -48,19 +48,55 @@ trigger, so do it first. Use the current schema and an empty DB.
       `next start` daemon → proxies for `/` and `/api`.
 - [ ] Hit `/api/seasons` and the home page. Leave it unannounced.
 
-**In parallel (no code dependency):** generate the NPC classification CSV for
-Phase 2:
-`name, owner, message_count, episode_count, story_line_count, has_image, has_wiki_cache_row`.
-Strong NPC signals: no wiki_cache row, ≤ ~20 lines, generic names (Guard,
-Enemy B, Cashier, "Llamanian Soldier 1"). Mark each row `keep` / `npc`
-by hand.
+**In parallel (no code dependency):**
+- [x] NPC classification CSV: `prisma/scripts/seed-data/npc-speakers.csv`
+      (untracked until final). It got a wiki-backed merge pass, then the
+      user's review, then an extension of the user's rulings (2026-11-03).
+      Columns: `decision`, `target`, `scope`, `reason`, `wiki_page`, then the
+      data. `scope` limits a row to part of the character's lines. Empty
+      means all lines. Otherwise it's space-separated season slugs (`ff4`)
+      and/or single messages (`msg:<episode_slug>#<messageNo>`). A character
+      can have several scoped rows (Dread, Loudspeaker).
+      Reasons say who decided: the user's own text, `extends your ruling:`,
+      `context:` (read from the transcript), `guess:`, or a wiki citation.
+      Decision values:
+      - `keep`: a real character
+      - `npc`: becomes a character-less persona; story lines become plain
+        `speaker` text
+      - `merge` + target: a duplicate or a later reveal. Lines move to the
+        target and display its canonical name (the user is fine with
+        canonical over short names). The target may itself be an `npc` row,
+        in which case the lines join that NPC persona.
+      - `persona` + target: an alias or disguise of a real character. Lines
+        move to the target, stamped with a persona named after this row.
+      - `rename` + target: keep, but take this slug, plus the wiki title if
+        there is one. A slug that doesn't match the wiki's Bucket slug means
+        no infobox.
+      - `delete`: no lines anywhere
+      - `review`: unresolved (none left)
+
+      **The user's rulings:** keep named NPCs even for one scene; keep
+      prominent role characters when they're one recurring individual (Owner,
+      Mission Control; not the "Receptionist" rows, which are two different
+      NPCs); keep relatives of named characters (Isaac's Mother); a
+      disguise or hidden identity is a persona of the real character
+      (Mysterious Voice → Gretta, Shadow → Sonichu, Sanya's Flower → Dread,
+      Fungo hosts → Vec, The Crave → Emmett, Voice → Marv's projection,
+      LS → Mission Control). **Dread is two rows:** a character in FF2/FF3,
+      and a persona of Sanya in FF4. **Loudspeaker is split per message**
+      (each line checked in context): 3 lines are a persona of Zion and 2 are
+      the ship computer (merged into the `computer` NPC).
+
+      Wiki notes: the `wiki_cache` table only holds fetched pages (58), so
+      don't use it as an "is this on the wiki" check. Query the live wiki
+      instead: titles+redirects, `Category:Characters`, Bucket `characters`.
 
 ## Phase 1 — Archive lockdown (#3)
 
 Message/episode/season/story writes are already admin-only (402babc). One leak
 remains:
 
-- [ ] **Character delete rewrites history.** `messages_characterId_fkey` and
+- [x] **Character delete rewrites history.** `messages_characterId_fkey` and
       `story_lines_characterId_fkey` are `ON DELETE SET NULL`, so deleting a
       character silently strips attribution from its archived lines. The
       comment in `character.service.ts` `deleteCharacter` claims the opposite.
@@ -76,9 +112,10 @@ remains:
 - [ ] Persona delete is safe as-is: the message→persona FK is `RESTRICT`, so
       a persona still stamped on lines can't be deleted out from under them.
       Keep that through Phase 2's FK rewrite.
-- [ ] Close open registration for launch: accounts are pre-seeded. Either
-      remove `POST /register` from the site, or require an invite code.
-- [ ] Design doc edits: §2.2 Member row, §7 criterion 2 ("attach quotes to
+- [x] Close open registration for launch. `REGISTRATION_OPEN` env flag
+      (default closed): `POST /register` → 403, `GET /register` → `{open}`,
+      and the site's login page hides the Register tab unless it's open.
+- [x] Design doc edits (+ FR-AUTH-1, new FR-EP-2): §2.2 Member row, §7 criterion 2 ("attach quotes to
       it" → quotes come from admin-imported transcripts), plus a new principle
       under §3.8 stating the immutability rule and the stamping exception.
       FR-CHAR-3's owner-or-admin stamp rule stays as written.
@@ -130,6 +167,41 @@ remains:
       enough for the MVP. Owner stamping stays keyed on characterId, so NPC
       personas, which have no owner, are admin-only by construction.
 
+### Speaker operations (shared by the seed script and admin UI)
+
+The user will have missed some calls, so the CSV is a starting point, not the
+last word. Put each conversion in one service module (e.g.
+`src/speaker/speaker.service.ts`). The seed script applies the CSV through
+these functions, and admins get the same operations as buttons:
+
+- `demoteToNpc(characterId)`: character → NPC persona of the same name. Moves
+  messages (`characterId = null`, `personaId = npc`), turns story lines into
+  `speaker` text, then deletes the character. Folds into an existing NPC
+  persona of the same name if there is one.
+- `promoteNpc(personaId, ownerId)`: NPC persona → new character. The owner
+  defaults to the player who voiced most of its lines (usually the GM).
+  Moves messages back (`characterId = new`, `personaId = null`), then
+  deletes the NPC persona.
+- `mergeInto(sourceId, targetId, { asPersona?: boolean, seasons?: string[] })`:
+  covers `merge`, `persona` (asPersona creates or reuses a persona of the
+  target named after the source) and season-scoped splits like Dread's
+  FF4 lines.
+- `renameCharacter(id, { slug, name })`: before go-live only. Slugs are
+  permanent once public.
+- Per-message reassignment (e.g. Loudspeaker lines): extend admin
+  `AttributionControl` to pick a character + persona, or an NPC persona,
+  per line or block. Today it only switches personas within the line's
+  current character.
+
+All of these are admin-only. They change attribution, which FR-EP-2 allows
+admins and not members. Each runs in one transaction, refuses to leave a
+QUOTE without a voice, and returns counts moved. Endpoints:
+`POST /api/admin/speakers/{demote,promote,merge}`. Site: admin-only actions
+on the character page (Demote to NPC, Merge into…), plus a small NPC-voices
+list for admins (with Promote) under `/characters`. That stays inside
+§1.3's "admins use the same UI plus elevated rights", with no separate
+dashboard.
+
 ### Data conversion (script)
 - [ ] **It has to live in the seed pipeline, not only run once on dev.**
       `seed-legacy.ts` replays ff-site-old's JSON and would recreate every
@@ -139,6 +211,21 @@ remains:
       seed and a dev→prod dump end up with the same data.
 - [ ] Take a fresh `pg_dump` into `ff-server/backups/` before running it on
       dev.
+- [ ] `seed-npc-personas.ts` reads the CSV and calls the speaker operations
+      in this order: `rename`, then `merge`/`persona` (honoring `scope`,
+      including `msg:` refs, which fail loudly if the message isn't currently
+      attributed to the row's character;
+      merges into `npc` rows go after those rows are demoted), then `npc`,
+      then `delete`. Leave `review` rows alone.
+- [ ] **Story display after a merge:** the story reader prefers
+      `character.name` over `speaker` (`StoryReader.tsx:50,135`,
+      `stories.ts` `voiceName`). So Dakari's and Jess's prose would start
+      reading "Dakari Vatssel"/"Jessica". Keep the manuscript's names by
+      having the merge set `speaker` (and the segment's `speaker`) to the old
+      name, and flipping the reader to `speaker ?? character.name` when both
+      are set. This is presentation only, and the character link and quote
+      attribution still move. **User decision 2026-11-03: not needed**, since
+      the canonical name is fine. Skip it.
 - [ ] For each `npc` row in the CSV: find-or-create the persona by
       normalized name, merging duplicates across owners (`@@unique([creatorId,
       name])` allows Zander's "Guard" and Sean's "Guard"). Set
