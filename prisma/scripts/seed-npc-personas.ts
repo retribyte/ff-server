@@ -266,7 +266,7 @@ async function main() {
                   AND NOT EXISTS (SELECT 1 FROM characters c WHERE c.id = (seg->>'characterId')::int)
             `;
             if (dangling > 0n) throw new Error(`${dangling} story segment(s) point at a character that no longer exists`);
-            const voicelessDialogue = await tx.storyLine.count({ where: { type: "DIALOGUE", characterId: null, OR: [{ speaker: null }, { speaker: "" }] } });
+            const voicelessDialogue = await tx.storyLine.count({ where: { type: "DIALOGUE", characterId: null, npcVoice: false, OR: [{ speaker: null }, { speaker: "" }] } });
             if (voicelessDialogue) throw new Error(`${voicelessDialogue} DIALOGUE story line(s) left without a speaker`);
             const npcPersonas = await tx.persona.count({ where: { characterId: null } });
             const npcLines = await tx.message.count({ where: { characterId: null, personaId: { not: null } } });
