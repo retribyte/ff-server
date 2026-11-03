@@ -739,7 +739,7 @@ const spec = {
                 security: [], // public — no token needed
                 parameters: [
                     { name: "search", in: "query", schema: { type: "string" }, description: "Search by persona name" },
-                    { name: "npc", in: "query", schema: { type: "string", enum: ["true", "false"] }, description: "true: only NPC personas (sorted by name); false: only character personas" },
+                    { name: "npc", in: "query", schema: { type: "string", enum: ["true", "false"] }, description: "true: only NPC personas, sorted by name, each with messageCount; false: only character personas" },
                 ],
                 responses: { "200": { description: "Array of every persona" } },
             },

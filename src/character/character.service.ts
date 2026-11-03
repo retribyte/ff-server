@@ -197,7 +197,16 @@ async function getAllPersonas(search?: string, npc?: boolean) {
     const where: Prisma.PersonaWhereInput = {};
     if (search) where.name = { contains: search };
     if (npc !== undefined) where.characterId = npc ? null : { not: null };
-    return await prisma.persona.findMany({ where, orderBy: npc ? { name: "asc" } : { id: "asc" } });
+    if (npc) {
+        // The admin NPC-voices list shows how much each one speaks.
+        const personas = await prisma.persona.findMany({
+            where,
+            orderBy: { name: "asc" },
+            include: { _count: { select: { messages: true } } },
+        });
+        return personas.map(({ _count, ...p }) => ({ ...p, messageCount: _count.messages }));
+    }
+    return await prisma.persona.findMany({ where, orderBy: { id: "asc" } });
 }
 
 async function getPersonaById(id: number) {
