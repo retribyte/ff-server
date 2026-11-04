@@ -517,12 +517,11 @@ const spec = {
         "/users": {
             get: {
                 tags: ["Auth"],
-                summary: "List all users (admin only)",
+                summary: "List all users (full accounts for admins; {id, username, icon} for other members)",
                 security: [{ bearerAuth: [] }],
                 responses: {
                     "200": { description: "Array of users" },
                     "401": { description: "Unauthorized" },
-                    "403": { description: "Forbidden — not an admin" },
                 },
             },
         },
@@ -1275,7 +1274,7 @@ const spec = {
         "/stories/convert": {
             post: {
                 tags: ["Stories"],
-                summary: "Convert a Google Docs .docx export into a story import payload (admin only; writes nothing)",
+                summary: "Convert a Google Docs .docx export into a story import payload (any member; writes nothing)",
                 description:
                     "Without `meta`: an analysis for the color → speaker form (every ink color with samples, Title/Subtitle " +
                     "defaults, how many embedded pictures won't come across). With `meta`: the payload `{story, authors, chapters}` " +
@@ -1327,7 +1326,7 @@ const spec = {
         "/stories/import": {
             post: {
                 tags: ["Stories"],
-                summary: "Atomically import a whole story with its chapters and lines (admin only)",
+                summary: "Atomically import a whole story with its chapters and lines (any member, who is always credited as an author)",
                 description:
                     "One transaction: the story, every chapter, and every line (numbered 1..n per chapter). Either all of it " +
                     "lands or none does. Duplicate detection: 409 when the slug or title (case-insensitive) is taken, or when " +
@@ -1384,7 +1383,7 @@ const spec = {
         "/stories/{slug}/import": {
             put: {
                 tags: ["Stories"],
-                summary: "Atomically replace a story's chapters and lines with a revised draft (admin only)",
+                summary: "Atomically replace a story's chapters and lines with a revised draft (story authors or admins)",
                 description:
                     "One transaction: deletes every chapter and line, then writes the new ones (numbered 1..n per chapter). " +
                     "The story's id, slug, title, authors, season, blurb and theme are kept. Line numbers may shift. Body limit 10mb.",
@@ -1419,6 +1418,7 @@ const spec = {
                     "200": { description: "Story revised (same shape as GET /stories/{slug}, plus lineCount)" },
                     "400": { description: "Invalid draft — nothing was changed" },
                     "401": { description: "Unauthorized" },
+                    "403": { description: "Not one of this story's authors, and not an admin" },
                     "404": { description: "No story with that slug" },
                     "409": { description: "The draft's text is identical to a different story — nothing was changed" },
                 },

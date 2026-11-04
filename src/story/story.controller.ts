@@ -45,9 +45,16 @@ const initializeStoryRoutes = (): Router => {
 
     // POST /api/stories/import: Atomic whole-story import { story, chapters: [{ chapter_no, title?, lines }] }.
     // All or nothing; 409 when the slug/title is taken or the text duplicates an existing story.
-    router.post("/stories/import", authenticate, isAdmin, importJson, async (req: Request, res: Response) => {
+    // Any member may import; a member is always among the story's authors (added if missing).
+    router.post("/stories/import", authenticate, importJson, async (req: Request, res: Response) => {
         try {
-            const story = await storyService.importStory(req.body);
+            const user = req.user as { id: number; role: string };
+            const body = req.body ?? {};
+            if (user.role !== "ADMIN" && body.story && typeof body.story === "object") {
+                const ids = Array.isArray(body.story.authorIds) ? body.story.authorIds : [];
+                if (!ids.includes(user.id)) body.story.authorIds = [...ids, user.id];
+            }
+            const story = await storyService.importStory(body);
             res.status(201).json({ status: "success", data: story });
         } catch (error: any) {
             const { status, message } = importErrorResponse(error, "story");
@@ -59,8 +66,8 @@ const initializeStoryRoutes = (): Router => {
     // Without meta: an analysis (colors with samples, title/blurb defaults, picture count) for the
     // color -> speaker form. With meta {title, format, colors: {hex: name|null}, ...}: the import
     // payload {story, authors, chapters} (speakers as names) plus the manuscript and warnings.
-    // Writes nothing.
-    router.post("/stories/convert", authenticate, isAdmin, importJson, async (req: Request, res: Response) => {
+    // Writes nothing. Any member (it's the first step of an import).
+    router.post("/stories/convert", authenticate, importJson, async (req: Request, res: Response) => {
         const { docx, fileName, meta } = req.body ?? {};
         if (typeof docx !== "string" || !docx) {
             return res.status(400).json({ status: "error", message: "body must be { docx: <base64 .docx>, meta? }" });
@@ -80,9 +87,14 @@ const initializeStoryRoutes = (): Router => {
 
     // PUT /api/stories/:slug/import: Atomic revision { chapters: [...] } — replaces
     // every chapter and line, keeping the story's metadata. 404 unknown slug,
-    // 409 when the text duplicates a different story.
-    router.put("/stories/:slug/import", authenticate, isAdmin, importJson, async (req: Request, res: Response) => {
+    // 409 when the text duplicates a different story. The story's authors or an admin.
+    router.put("/stories/:slug/import", authenticate, importJson, async (req: Request, res: Response) => {
         try {
+            const allowed = await storyService.isAuthorOrAdmin(req.params.slug, req.user as { id: number; role: string });
+            if (allowed === null) return res.status(404).json({ status: "error", message: `Story '${req.params.slug}' not found` });
+            if (!allowed) {
+                return res.status(403).json({ status: "error", message: "Only this story's authors or an admin can replace its text" });
+            }
             const story = await storyService.replaceStoryContent(req.params.slug, req.body);
             res.status(200).json({ status: "success", data: story });
         } catch (error: any) {
@@ -103,7 +115,7 @@ const initializeStoryRoutes = (): Router => {
     router.patch("/stories/:slug/voices", authenticate, async (req: Request, res: Response) => {
         const { slug } = req.params;
         try {
-            const allowed = await storyService.canNameVoices(slug, req.user as { id: number; role: string });
+            const allowed = await storyService.isAuthorOrAdmin(slug, req.user as { id: number; role: string });
             if (allowed === null) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
             if (!allowed) {
                 return res.status(403).json({ status: "error", message: "Only this story's authors or an admin can name its voices" });

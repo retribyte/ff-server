@@ -5,8 +5,8 @@ import { Prisma } from "@prisma/client";
 // in one transaction (all or nothing). A long story or episode runs to a few
 // hundred KB, past express.json()'s 100kb default — so the global parser
 // skips these paths, and each import route mounts `importJson` itself,
-// *after* authenticate/isAdmin, so only admins can make the server buffer a
-// large body. (/api/episodes/import is retired and only answers 410, but stays
+// *after* authenticate, so only a logged-in member (story import is open to
+// members; registration is closed) can make the server buffer a large body. (/api/episodes/import is retired and only answers 410, but stays
 // listed so an oversized stray upload gets that 410 instead of a 413.)
 export const IMPORT_PATHS = new Set(["/api/stories/import", "/api/stories/convert", "/api/episodes/import"]);
 // PUT /api/stories/:slug/import (revision) carries a whole story too

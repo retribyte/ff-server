@@ -607,7 +607,8 @@ async function assignVoices(slug: string, assignments: VoiceAssignment[]) {
 }
 
 /** Story authors may name their story's NPC voices; admins may name any. */
-async function canNameVoices(slug: string, user: { id: number; role: string }): Promise<boolean | null> {
+/** An admin, or one of the story's authors (who may replace its text and name its NPC voices). null: no such story. */
+async function isAuthorOrAdmin(slug: string, user: { id: number; role: string }): Promise<boolean | null> {
     const story = await prisma.story.findUnique({ where: { slug }, select: { authors: { select: { id: true } } } });
     if (!story) return null;
     return user.role === "ADMIN" || story.authors.some((a) => a.id === user.id);
@@ -798,7 +799,7 @@ async function replaceStoryContent(slug: string, body: { chapters: ImportChapter
 
 export default {
     assignVoices,
-    canNameVoices,
+    isAuthorOrAdmin,
     getAllStories,
     getStoryBySlug,
     createStory,

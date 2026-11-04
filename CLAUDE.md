@@ -151,7 +151,16 @@ data. Don't add a species table back.
   import-time fingerprint, not updated by line edits; `npm run
   backfill:story-hashes` fills it for stories created any other way — the
   seed runs it). The route skips the global 100kb JSON parser and mounts a
-  10mb one *after* `authenticate, isAdmin` (`src/utils/import.ts`).
+  10mb one *after* `authenticate` (`src/utils/import.ts`).
+  - **Who may import** (the user's call, 2026-11-03): any member converts
+    (`POST /stories/convert`) and imports, and a member is always credited
+    among the authors (the route adds them). Stories go straight to the
+    shelf, with no drafts; the site's `/import` previews the story with the
+    real reader first. Replacing a story's text (`PUT .../import`) and naming
+    its NPC voices are for its **authors** and admins
+    (`storyService.isAuthorOrAdmin`). Every other story write (metadata,
+    delete, chapter/line edits) stays `isAdmin`. Members get only
+    `{id, username, icon}` from `GET /users`, for the author picker.
   - `PUT /api/stories/:slug/import` is the revision path: `{chapters}` replaces
     every chapter and line in one transaction, keeping the story row (id,
     slug, title, authors, season, blurb, theme) and recomputing `contentHash`.
@@ -160,9 +169,9 @@ data. Don't add a species table back.
     speaker) take the voice their text already had, matched by occurrence;
     placeholder voices ("NPC", "?", "Unknown") aren't carried.
   - **NPC voices**: `PATCH /api/stories/:slug/voices` names or un-names NPC
-    fragments. It's the one story write open to the story's **authors** as
-    well as admins, and it can only touch NPC-flagged fragments, never text or
-    character attribution.
+    fragments (authors or admins). It can only touch NPC-flagged fragments,
+    never text or character attribution. NPC voices are plain text, never
+    NPC `Persona` rows (the user's call): story NPCs aren't archive speakers.
   - `POST /api/episodes/import` (same idea for `{seasonTitle, episode,
     messages}`) is **retired and answers 410**: the archive is seeded, and
     episode re-imports go through ff-site's `archive-to-markdown/api-import.py`

@@ -161,9 +161,11 @@ const initializeUserRoutes = (): Router => {
         }
     });
 
-    // GET /api/users: List all users (admin only)
-    router.get("/users", authenticate, isAdmin, async (req: Request, res: Response) => {
-        const users = await userService.getAllUsers();
+    // GET /api/users: List all users. Admins get the full accounts; any other
+    // member gets {id, username, icon} (for pickers such as story authors).
+    router.get("/users", authenticate, async (req: Request, res: Response) => {
+        const isAdminUser = (req.user as { role: string }).role === "ADMIN";
+        const users = isAdminUser ? await userService.getAllUsers() : await userService.getUserDirectory();
         return res.status(200).json({ status: "success", data: users });
     });
 

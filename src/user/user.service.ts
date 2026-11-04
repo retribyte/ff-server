@@ -93,6 +93,11 @@ async function getAllUsers(): Promise<SafeUser[]> {
     return users.map(toSafe);
 }
 
+/** Every user's public identity, for pickers such as a story's authors (any member). */
+async function getUserDirectory() {
+    return await prisma.user.findMany({ orderBy: { id: "asc" }, select: { id: true, username: true, icon: true } });
+}
+
 async function getUserById(id: number): Promise<SafeUser | null> {
     const user = await prisma.user.findUnique({ where: { id } });
     return user ? toSafe(user) : null;
@@ -189,6 +194,7 @@ async function updateUserRole(id: number, role: UserRole): Promise<SafeUser> {
 export default {
     createUser,
     getAllUsers,
+    getUserDirectory,
     getUserById,
     getPublicProfile,
     getUserByUsername,
