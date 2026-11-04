@@ -539,6 +539,8 @@ The group looked at one another, with some excited, some worried, some hopeful, 
 
 With confidence in his eyes, Seth turned around to face everyone. “[Alright, Pummelers. Let’s kick some ass.]{Seth Im'Kin'ki}”
 
+![](booru:1127)
+
 ***
 
 ```transcript

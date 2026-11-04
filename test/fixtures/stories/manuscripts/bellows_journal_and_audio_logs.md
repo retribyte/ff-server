@@ -31,6 +31,8 @@ I’ll be prepared to come to his aid any time he needs.
 
 The stars are extra beautiful tonight. It’s amazing how much you can see from space…
 
+![](booru:1122)
+
 ***
 
 # Chapter 2: After Episode 3, A Little Later
@@ -67,6 +69,8 @@ Terry: “[O-Oh.]{Terry}”
 
 Bellow: “[Plus, me personally…I’d rather focus on my mission than a relationship…but, dinner still sounds nice.]{Bellow Brightlight}”
 
+![](booru:1123)
+
 Terry: “[Hey, it was worth a shot. See you there!]{Terry}”
 
 Bellow: “[Bye.]{Bellow Brightlight}”
@@ -97,6 +101,8 @@ I did get to destroy him in blackjack though.
 
 The reflection of the stars in the ocean waves is the only redeeming quality of this planet…
 
+![](booru:1124)
+
 ***
 
 # Chapter 4: After Episode 11
@@ -122,6 +128,8 @@ And I don’t know what to do about it.
 ***
 
 The stars burn fiercely tonight…
+
+![](booru:1125)
 
 ***
 
@@ -176,3 +184,5 @@ END OF AUDIO LOG
 ***
 
 In the night sky, a warrior declares his triumph despite all odds…
+
+![](booru:1126)

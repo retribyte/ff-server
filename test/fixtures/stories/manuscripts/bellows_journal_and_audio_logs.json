@@ -59,6 +59,11 @@
      "text": "The stars are extra beautiful tonight. It’s amazing how much you can see from space…"
     },
     {
+     "type": "IMAGE",
+     "text": "",
+     "booruId": 1122
+    },
+    {
      "type": "BREAK",
      "text": ""
     }
@@ -301,6 +306,11 @@
      ]
     },
     {
+     "type": "IMAGE",
+     "text": "",
+     "booruId": 1123
+    },
+    {
      "type": "NARRATION",
      "text": "Terry: “Hey, it was worth a shot. See you there!”",
      "segments": [
@@ -400,6 +410,11 @@
      "text": "The reflection of the stars in the ocean waves is the only redeeming quality of this planet…"
     },
     {
+     "type": "IMAGE",
+     "text": "",
+     "booruId": 1124
+    },
+    {
      "type": "BREAK",
      "text": ""
     }
@@ -452,6 +467,11 @@
     {
      "type": "NARRATION",
      "text": "The stars burn fiercely tonight…"
+    },
+    {
+     "type": "IMAGE",
+     "text": "",
+     "booruId": 1125
     },
     {
      "type": "BREAK",
@@ -656,6 +676,11 @@
     {
      "type": "NARRATION",
      "text": "In the night sky, a warrior declares his triumph despite all odds…"
+    },
+    {
+     "type": "IMAGE",
+     "text": "",
+     "booruId": 1126
     }
    ]
   }

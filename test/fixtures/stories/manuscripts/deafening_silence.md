@@ -160,3 +160,5 @@ He was taken aback by this comment, and turned away. “[It… it says…]{Zion 
 [Good and evil. I used to wonder, was there any real distinction? Or is it all fabricated from one’s perspective? Can you separate them, bring them to justice? I used to hear the deliberation in me. I used to feel the defense, and the justification. But I’ve made up my mind, and now I don’t hear anything anymore. I don’t feel anything anymore.]{Zion Daybreaker}
 
 [It’s nothing but silence.]{Zion Daybreaker}
+
+![](booru:118)
