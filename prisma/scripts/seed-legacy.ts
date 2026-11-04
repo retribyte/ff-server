@@ -446,6 +446,7 @@ async function main() {
                         : line.character && characterId === null
                           ? line.character
                           : null,
+                npcVoice: resolved !== null && "npc" in resolved,
             };
         });
         const CHUNK = 2000;
