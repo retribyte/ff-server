@@ -10,11 +10,15 @@ export class ManuscriptError extends Error {}
 // yet, written {?} / "> ?:" in the manuscript. It's named later in the reader.
 export type Segment = { text: string; speaker?: string; npc?: true; italic?: true; bold?: true };
 export type ManuscriptLine = {
-    type: "NARRATION" | "DIALOGUE" | "ACTION" | "TRANSCRIPT" | "BREAK" | "HEADING";
+    type: "NARRATION" | "DIALOGUE" | "ACTION" | "TRANSCRIPT" | "BREAK" | "HEADING" | "IMAGE";
     text: string;
     speaker?: string;
     npcVoice?: true;
     segments?: Segment[];
+    /** IMAGE: the booru post holding the picture (`![alt](booru:N)`) */
+    booruId?: number;
+    /** IMAGE: a picture still inside the imported .docx (`![alt](docx:N)`), awaiting a booru post */
+    docxPicture?: number;
 };
 
 /** The speaker name for an NPC voice with no name yet ({?} / "> ?:"). */
@@ -43,6 +47,9 @@ const EMPHASIS_RE = new RegExp(
 );
 // In-chapter section heading: "## Title" (distinct from "# Chapter N")
 const HEADING_RE = new RegExp(`^##${S}+([^\\n]+?)${S}*$`);
+// A picture on a line of its own: ![alt](booru:<post>) or, straight out of the
+// docx converter, ![alt](docx:<n>) until it has a booru post
+const IMAGE_RE = new RegExp(`^${S}*!\\[([^\\]\\n]*)\\]\\((booru|docx):(\\d+)\\)${S}*$`);
 const COMMENT_RE = new RegExp(`${S}#`);
 const VALID_FORMATS = new Set(["script", "prose"]);
 
@@ -213,6 +220,20 @@ function parseBody(lines: string[]): ManuscriptChapter[] {
             }
             current = { chapter_no: parseInt(heading[1], 10), title: heading[2] || null, lines: [] };
             chapters.push(current);
+            continue;
+        }
+        const image = IMAGE_RE.exec(line);
+        if (image) {
+            if (buffer.length) {
+                flushParagraph(buffer, chapter().lines);
+                buffer = [];
+            }
+            const ref = parseInt(image[3], 10);
+            chapter().lines.push(
+                image[2] === "booru"
+                    ? { type: "IMAGE", text: strip(image[1]), booruId: ref }
+                    : { type: "IMAGE", text: strip(image[1]), docxPicture: ref }
+            );
             continue;
         }
         const section = HEADING_RE.exec(line);

@@ -41,6 +41,7 @@ enum StoryLineType {
   TRANSCRIPT  // in-universe recording fragment (VCOMM etc.)
   BREAK       // scene break
   HEADING     // in-chapter section heading (prose sub-sections)
+  IMAGE       // a picture: a booru post (booruId), text = its alt text
 }
 
 enum StoryFormat {
@@ -242,6 +243,10 @@ model StoryLine {
   // NOTE: segment characterIds live in JSON — no FK, so Character.storyLines
   // does not capture in-paragraph speakers (nothing queries that relation).
   segments    Json?
+  // IMAGE lines: the booru.vortox.space post that holds the picture, and its
+  // file URL, resolved from the booru at import (served via the image proxy)
+  booruId     Int?
+  imageUrl    String?
 
   @@unique([chapterId, line_no])
   // Containment lookups (`segments @> '[{"characterId": N}]'`) for finding

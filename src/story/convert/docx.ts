@@ -12,6 +12,9 @@ export class DocxError extends Error {}
 
 const W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 const V_NS = "urn:schemas-microsoft-com:vml";
+const A_NS = "http://schemas.openxmlformats.org/drawingml/2006/main";
+const WP_NS = "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing";
+const R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 const O_NS = "urn:schemas-microsoft-com:office:office";
 
 const PAGE_BREAK = "\x0c"; // stand-in for <w:br w:type="page"/> inside run text
@@ -71,6 +74,54 @@ export function loadDocument(data: Uint8Array): El {
     const body = doc.documentElement ? find(doc.documentElement as unknown as El, W_NS, "body") : null;
     if (!body) throw new DocxError("document.xml has no body");
     return body;
+}
+
+/** Uncompressed bytes we'll inflate for one picture, and for all of them together. */
+const MAX_PICTURE_BYTES = 15 * 1024 * 1024;
+const MAX_PICTURES_BYTES = 40 * 1024 * 1024;
+const REL_NS = "http://schemas.openxmlformats.org/package/2006/relationships";
+
+/** Picture bytes by relationship id, for the given ids (word/media/* via word/_rels/document.xml.rels). */
+export function loadPictures(data: Uint8Array, rids: Set<string>): Map<string, Uint8Array> {
+    const rels = unzipSync(data, { filter: (file) => file.name === "word/_rels/document.xml.rels" && file.originalSize < 1024 * 1024 });
+    const relsXml = rels["word/_rels/document.xml.rels"];
+    if (!relsXml || rids.size === 0) return new Map();
+    const text = new TextDecoder("utf-8").decode(relsXml);
+    if (/<!DOCTYPE/i.test(text)) throw new DocxError("the document's relationships contain a DTD");
+    const doc = new DOMParser().parseFromString(text, "text/xml") as unknown as Document;
+    const targets = new Map<string, string>(); // rid -> zip path
+    for (const rel of Array.from(doc.getElementsByTagNameNS(REL_NS, "Relationship") as unknown as ArrayLike<El>)) {
+        const id = rel.getAttribute("Id");
+        const target = rel.getAttribute("Target");
+        if (!id || !target || !rids.has(id) || rel.getAttribute("TargetMode") === "External") continue;
+        const path = target.startsWith("/") ? target.slice(1) : `word/${target}`;
+        if (/^word\/media\/[^/]+$/.test(path)) targets.set(id, path);
+    }
+    const wanted = new Set(targets.values());
+    let total = 0;
+    const files = unzipSync(data, {
+        filter: (file) => {
+            if (!wanted.has(file.name)) return false;
+            total += file.originalSize;
+            if (file.originalSize > MAX_PICTURE_BYTES || total > MAX_PICTURES_BYTES) {
+                throw new DocxError("the document's pictures are too large");
+            }
+            return true;
+        },
+    });
+    const out = new Map<string, Uint8Array>();
+    for (const [id, path] of targets) if (files[path]) out.set(id, files[path]);
+    return out;
+}
+
+/** A picture's type from its leading bytes, or null for one a browser can't show (EMF, WMF...). */
+export function pictureType(bytes: Uint8Array): string | null {
+    const ascii = (start: number, end: number) => String.fromCharCode(...bytes.subarray(start, end));
+    if (bytes.length >= 8 && bytes[0] === 0x89 && ascii(1, 4) === "PNG") return "image/png";
+    if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
+    if (ascii(0, 4) === "GIF8") return "image/gif";
+    if (ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") return "image/webp";
+    return null;
 }
 
 function normalizeColor(value: string | null): string | null {
@@ -134,7 +185,24 @@ function paragraphRuns(p: El): [El, boolean][] {
     return runs;
 }
 
-export type Paragraph = { style: string | null; hr: boolean; page_break: boolean; runs: Run[] };
+/** An embedded picture: its relationship id (-> word/media/...) and alt text. */
+export type Picture = { rid: string; alt: string };
+export type Paragraph = { style: string | null; hr: boolean; page_break: boolean; runs: Run[]; pictures: Picture[] };
+
+/** The pictures a run draws (Insert ▸ Image), in order, with any alt text set in the Doc. */
+function runPictures(run: El): Picture[] {
+    const pictures: Picture[] = [];
+    for (const frame of iter(run)) {
+        if (!(is(frame, WP_NS, "inline") || is(frame, WP_NS, "anchor"))) continue;
+        const docPr = find(frame, WP_NS, "docPr");
+        const alt = docPr ? collapse(docPr.getAttribute("descr") || docPr.getAttribute("title") || "") : "";
+        for (const blip of iter(frame)) {
+            const rid = is(blip, A_NS, "blip") ? attr(blip, R_NS, "embed") : null;
+            if (rid) pictures.push({ rid, alt: strip(alt) });
+        }
+    }
+    return pictures;
+}
 
 /** Flatten the document into paragraphs; soft and page breaks split them. */
 export function readParagraphs(body: El): Paragraph[] {
@@ -152,17 +220,18 @@ export function readParagraphs(body: El): Paragraph[] {
         }
         // Google Docs' Insert ▸ Horizontal line exports as a VML rect flagged o:hr="t"
         hr = hr || [...iter(p)].some((el) => is(el, V_NS, "rect") && attr(el, O_NS, "hr") === "t");
-        const pieces: Paragraph[] = [{ style, hr, page_break: false, runs: [] }];
+        const pieces: Paragraph[] = [{ style, hr, page_break: false, runs: [], pictures: [] }];
         for (const [run, inLink] of paragraphRuns(p)) {
             const [text, ...props] = runProperties(run);
             if (inLink) props[0] = null; // link blue is link styling, not a speaker's ink
             for (const chunk of text.split(/(\n|\x0c)/)) {
                 if (chunk === "\n" || chunk === PAGE_BREAK) {
-                    pieces.push({ style, hr: false, page_break: chunk === PAGE_BREAK, runs: [] });
+                    pieces.push({ style, hr: false, page_break: chunk === PAGE_BREAK, runs: [], pictures: [] });
                 } else if (chunk) {
                     pieces[pieces.length - 1].runs.push([chunk, ...(props as [string | null, boolean, boolean, boolean])]);
                 }
             }
+            pieces[pieces.length - 1].pictures.push(...runPictures(run));
         }
         if (pieces.length > 1) for (const piece of pieces) piece.hr = false;
         paragraphs.push(...pieces);
@@ -213,6 +282,8 @@ export type StoryMeta = {
     themeColor2?: string | null;
     format?: string | null;
     colors: ColorMap;
+    /** Emit each picture as `![alt](docx:N)` (N counts from 1 in document order). Off for the CLI's output. */
+    images?: boolean;
 };
 
 function speakerFor(color: string | null, colorMap: ColorMap): string | null {
@@ -444,7 +515,23 @@ export function convert(paragraphs: Paragraph[], meta: StoryMeta): { lines: stri
     };
     const allMono = (p: Paragraph) => p.runs.length > 0 && p.runs.every((r) => r[3]);
 
+    let pictureNo = 0;
+    const emitPictures = (paragraph: Paragraph) => {
+        if (!meta.images || paragraph.pictures.length === 0) return;
+        flushTranscript();
+        for (const picture of paragraph.pictures) {
+            pictureNo += 1;
+            // alt text sits inside ![...]: keep it to one line without brackets
+            out.push(`![${collapse(picture.alt.replace(/[[\]]/g, ""))}](docx:${pictureNo})`, "");
+        }
+    };
+
     paragraphs.forEach((paragraph, index) => {
+        emitParagraph(paragraph, index);
+        emitPictures(paragraph);
+    });
+
+    function emitParagraph(paragraph: Paragraph, index: number) {
         const style = paragraph.style || "";
         const text = paragraphText(paragraph);
         if (style === "Title" || style === "Subtitle" || skip.has(index)) return;
@@ -528,7 +615,7 @@ export function convert(paragraphs: Paragraph[], meta: StoryMeta): { lines: stri
             }
             out.push("");
         }
-    });
+    }
 
     flushTranscript();
     // no BREAK at the end of the story or right before a heading

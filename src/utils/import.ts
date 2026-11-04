@@ -35,6 +35,10 @@ export class ImportConflictError extends Error {}
  */
 export function importErrorResponse(error: any, kind: string): { status: number; message: string } {
     if (error instanceof ImportConflictError) return { status: 409, message: error.message };
+    // A picture's booru post couldn't be checked: try again later, nothing was written
+    if (error?.name === "BooruUnavailableError") {
+        return { status: 502, message: "The booru isn't answering, so the story's pictures couldn't be checked; nothing was imported" };
+    }
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
             const target = (error.meta?.target as string[] | string | undefined) ?? "a unique field";

@@ -5,7 +5,19 @@
 // takes it from there: speaker → character matching, preview, then
 // POST /stories/import (or PUT /stories/:slug/import for a revision).
 
-import { collectColors, convert, frontmatter, loadDocument, paragraphText, readParagraphs, DocxError, type ColorMap, type StoryMeta } from "./docx.js";
+import {
+    collectColors,
+    convert,
+    frontmatter,
+    loadDocument,
+    loadPictures,
+    paragraphText,
+    pictureType,
+    readParagraphs,
+    DocxError,
+    type ColorMap,
+    type StoryMeta,
+} from "./docx.js";
 import { slugify as canonicalSlugify } from "../../utils/slug.js";
 import { parseManuscript, ManuscriptError, type ManuscriptPayload } from "./manuscript.js";
 import { rstrip } from "./py.js";
@@ -19,12 +31,17 @@ export type DocxAnalysis = {
     colors: { color: string; count: number; samples: string[] }[];
     /** Defaults for the form, from the doc's Title / Subtitle styles (or the file name). */
     defaults: { title: string | null; blurb: string | null; slug: string };
-    /** Embedded pictures — stories can't hold images yet, so these won't come across. */
+    /** Embedded pictures (each becomes an IMAGE line once it has a booru post). */
     pictures: number;
 };
 
+/** A picture from the .docx, numbered like its `![alt](docx:N)` line. */
+export type DocxPicture = { n: number; alt: string; contentType: string | null; data: string | null };
+
 export type DocxConversion = {
     payload: ManuscriptPayload;
+    /** With options.images: each picture's bytes (base64; null when unreadable), for the importer to show. */
+    pictures: DocxPicture[];
     /** The manuscript the payload was parsed from (what the CLI pipeline would have saved). */
     markdown: string;
     warnings: string[];
@@ -86,5 +103,22 @@ export function convertDocx(data: Uint8Array, options: ConvertOptions): DocxConv
     }
     const { lines, warnings } = convert(paragraphs, meta);
     const markdown = rstrip([...frontmatter(meta), ...lines].join("\n")) + "\n";
-    return { payload: parseManuscript(markdown), markdown, warnings };
+
+    const pictures: DocxPicture[] = [];
+    if (meta.images) {
+        const found = paragraphs.flatMap((p) => p.pictures);
+        const bytes = loadPictures(data, new Set(found.map((p) => p.rid)));
+        found.forEach((picture, i) => {
+            const raw = bytes.get(picture.rid) ?? null;
+            const contentType = raw ? pictureType(raw) : null;
+            if (!contentType) warnings.push(`picture ${i + 1} isn't a PNG, JPEG, GIF or WebP, so it can't be shown here`);
+            pictures.push({
+                n: i + 1,
+                alt: picture.alt,
+                contentType,
+                data: raw && contentType ? Buffer.from(raw).toString("base64") : null,
+            });
+        });
+    }
+    return { payload: parseManuscript(markdown), pictures, markdown, warnings };
 }

@@ -186,7 +186,7 @@ const spec = {
             },
             StoryLineType: {
                 type: "string",
-                enum: ["NARRATION", "DIALOGUE", "ACTION", "TRANSCRIPT", "BREAK", "HEADING"],
+                enum: ["NARRATION", "DIALOGUE", "ACTION", "TRANSCRIPT", "BREAK", "HEADING", "IMAGE"],
             },
             StoryFormat: {
                 type: "string",
@@ -267,6 +267,17 @@ const spec = {
                         nullable: true,
                         description: "Sub-paragraph dialogue spans (NARRATION lines only); concatenation equals text",
                         items: { $ref: "#/components/schemas/StorySegment" },
+                    },
+                    booruId: {
+                        type: "integer",
+                        nullable: true,
+                        description: "IMAGE only (required there): the booru.vortox.space post holding the picture; text is its alt text",
+                    },
+                    imageUrl: {
+                        type: "string",
+                        nullable: true,
+                        readOnly: true,
+                        description: "IMAGE only: the post's file URL, resolved from the booru at import (502 if it can't be reached)",
                     },
                 },
             },

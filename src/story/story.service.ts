@@ -3,6 +3,7 @@ import { SLUG_PATTERN } from "../utils/slug.js";
 import { parseImportMeta } from "./import-meta.js";
 import { IMPORT_TX_OPTIONS, ImportConflictError } from "../utils/import.js";
 import { storyContentHash } from "./story-hash.js";
+import booru from "../utils/booru.js";
 
 const prisma = new PrismaClient();
 
@@ -37,6 +38,8 @@ type LineData = {
     speaker?: string | null;
     npcVoice?: boolean; // DIALOGUE only: an NPC voice, named by `speaker` or unnamed
     segments?: StorySegment[] | null;
+    booruId?: number | null; // IMAGE only: the booru post holding the picture
+    imageUrl?: string | null; // set by resolveImages, never by the client
 };
 
 const VALID_LINE_TYPES = new Set<string>(Object.values(StoryLineType));
@@ -380,6 +383,17 @@ function validateLine(line: LineData, label: string) {
     if (line.type === StoryLineType.HEADING && line.text.trim().length === 0) {
         throw new Error(`${label}: HEADING lines require non-empty text`);
     }
+    // A picture is a booru post; its text is the alt text (may be empty)
+    if (line.type === StoryLineType.IMAGE) {
+        if (!Number.isInteger(line.booruId) || (line.booruId as number) <= 0) {
+            throw new Error(`${label}: IMAGE lines require booruId (a booru post number)`);
+        }
+        if (line.characterId || line.speaker || line.npcVoice || hasSegments(line)) {
+            throw new Error(`${label}: IMAGE lines take no speaker or segments`);
+        }
+    } else if (line.booruId !== undefined && line.booruId !== null) {
+        throw new Error(`${label}: booruId is only for IMAGE lines`);
+    }
     // Segment annotations describe sub-paragraph spans — NARRATION only
     if (hasSegments(line)) {
         if (line.type !== StoryLineType.NARRATION) {
@@ -400,6 +414,7 @@ async function createLines(slug: string, chapterNo: number, lines: LineData[]) {
     }
 
     const chapter = await requireChapter(slug, chapterNo);
+    await resolveImages(lines);
     return await prisma.$transaction(async (tx) => {
         const last = await tx.storyLine.findFirst({
             where: { chapterId: chapter.id },
@@ -412,6 +427,23 @@ async function createLines(slug: string, chapterNo: number, lines: LineData[]) {
 }
 
 /** The `text` a line is stored with: segmented lines derive it from the spans so the two can't desync. */
+/**
+ * Looks up every IMAGE line's booru post and sets its imageUrl (before any
+ * transaction: the booru is a network call). Throws on a post that doesn't
+ * exist or isn't an image, and BooruUnavailableError when the booru can't be
+ * reached, so nothing is written with a broken picture.
+ */
+async function resolveImages(lines: LineData[]): Promise<void> {
+    const images = lines.filter((line) => line.type === StoryLineType.IMAGE);
+    const urls = new Map<number, string>();
+    for (const id of new Set(images.map((line) => line.booruId as number))) {
+        const post = await booru.getBooruPost(id);
+        if (!post) throw new Error(`Booru post ${id} doesn't exist`);
+        urls.set(id, post.imageUrl);
+    }
+    for (const line of images) line.imageUrl = urls.get(line.booruId as number) ?? null;
+}
+
 function storedText(line: LineData): string {
     return hasSegments(line) ? textFromSegments(line.segments) : line.text;
 }
@@ -428,6 +460,8 @@ async function insertLines(tx: Prisma.TransactionClient, chapterId: number, firs
             speaker: line.speaker ?? null,
             npcVoice: line.npcVoice ?? false,
             segments: hasSegments(line) ? (line.segments as object[]) : undefined,
+            booruId: line.type === StoryLineType.IMAGE ? line.booruId : null,
+            imageUrl: line.type === StoryLineType.IMAGE ? line.imageUrl : null,
         })),
     });
 }
@@ -670,6 +704,7 @@ async function importStory(body: StoryImport) {
     if (story.authorIds !== undefined) authorRefs(story.authorIds);
     const { ordered, contentHash } = prepareChapters(chapters);
     const seasonTitle = await resolveSeasonTitle(story.season);
+    await resolveImages(ordered.flatMap((chapter) => chapter.lines));
 
     return await prisma.$transaction(async (tx) => {
         const bySlug = await tx.story.findUnique({ where: { slug: story.slug }, select: { slug: true } });
@@ -743,6 +778,7 @@ async function updateLine(slug: string, chapterNo: number, lineNo: number, data:
         characterId: data.characterId !== undefined ? data.characterId : existing.characterId,
         speaker: data.speaker !== undefined ? data.speaker : existing.speaker,
         segments: effectiveSegments,
+        booruId: existing.booruId, // a picture's post isn't changed through a line edit
     };
     validateLine(merged as LineData, `Line ${lineNo}`);
 
@@ -777,6 +813,7 @@ async function replaceStoryContent(slug: string, body: { chapters: ImportChapter
     // A revision from a Google Doc updates the remembered color map; one from
     // a CLI .json (no importMeta) leaves it as it was
     const importMeta = parseImportMeta(body?.importMeta);
+    await resolveImages(ordered.flatMap((chapter) => chapter.lines));
     return await prisma.$transaction(async (tx) => {
         const story = await tx.story.findUnique({ where: { slug }, select: { id: true } });
         if (!story) throw new Error(`Story '${slug}' not found`);
