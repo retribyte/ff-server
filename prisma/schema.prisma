@@ -197,6 +197,11 @@ model Story {
   // Fingerprints the manuscript at import time; later line edits don't update
   // it. Null for stories that predate it until backfill:story-hashes runs.
   contentHash   String?        @unique
+  // How the last Google Doc import read the doc: {format, colors: {"#rrggbb":
+  // speaker name | null (narration) | "?" (unnamed NPCs)}}. A revision of the
+  // story pre-fills its color form from this and only asks about new colors.
+  // Null for stories imported any other way.
+  importMeta    Json?
 
   @@map("stories")
 }

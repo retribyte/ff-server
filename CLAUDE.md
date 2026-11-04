@@ -168,6 +168,11 @@ data. Don't add a species table back.
     fragments in the revision (segment `npc: true` / line `npcVoice: true`, no
     speaker) take the voice their text already had, matched by occurrence;
     placeholder voices ("NPC", "?", "Unknown") aren't carried.
+  - `Story.importMeta` (`src/story/import-meta.ts`): the `{format, colors}`
+    a Google Doc import was converted with. Both import routes take it as an
+    optional top-level `importMeta` and store it. A PUT without it keeps the
+    stored one. `GET /stories/:slug` returns it, and the site's docx form
+    pre-fills a revision's colors from it, so only new colors need a pick.
   - **NPC voices**: `PATCH /api/stories/:slug/voices` names or un-names NPC
     fragments (authors or admins). It can only touch NPC-flagged fragments,
     never text or character attribution. NPC voices are plain text, never

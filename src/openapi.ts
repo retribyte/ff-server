@@ -1340,6 +1340,21 @@ const spec = {
                                 type: "object",
                                 required: ["story", "chapters"],
                                 properties: {
+                                    importMeta: {
+                                        type: "object",
+                                        nullable: true,
+                                        description:
+                                            "How a Google Doc import read the doc, remembered on the story (Story.importMeta) so a " +
+                                            "revision only asks about new colors. Omit it for other imports.",
+                                        properties: {
+                                            format: { type: "string", enum: ["prose", "script"] },
+                                            colors: {
+                                                type: "object",
+                                                additionalProperties: { type: "string", nullable: true },
+                                                description: "`#rrggbb` → speaker name, \"?\" for unnamed NPCs, or null for narration",
+                                            },
+                                        },
+                                    },
                                     story: {
                                         type: "object",
                                         required: ["slug", "title"],
@@ -1397,6 +1412,21 @@ const spec = {
                                 type: "object",
                                 required: ["chapters"],
                                 properties: {
+                                    importMeta: {
+                                        type: "object",
+                                        nullable: true,
+                                        description:
+                                            "How a Google Doc import read the doc, remembered on the story (Story.importMeta) so a " +
+                                            "revision only asks about new colors. Omit it to keep the stored one.",
+                                        properties: {
+                                            format: { type: "string", enum: ["prose", "script"] },
+                                            colors: {
+                                                type: "object",
+                                                additionalProperties: { type: "string", nullable: true },
+                                                description: "`#rrggbb` → speaker name, \"?\" for unnamed NPCs, or null for narration",
+                                            },
+                                        },
+                                    },
                                     chapters: {
                                         type: "array",
                                         items: {

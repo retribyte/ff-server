@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma, StoryLineType, StoryFormat } from "@prisma/client";
 import { SLUG_PATTERN } from "../utils/slug.js";
+import { parseImportMeta } from "./import-meta.js";
 import { IMPORT_TX_OPTIONS, ImportConflictError } from "../utils/import.js";
 import { storyContentHash } from "./story-hash.js";
 
@@ -615,7 +616,7 @@ async function isAuthorOrAdmin(slug: string, user: { id: number; role: string })
 }
 
 type ImportChapter = { chapter_no: number; title?: string | null; lines: LineData[] };
-type StoryImport = { story: StoryData; chapters: ImportChapter[] };
+type StoryImport = { story: StoryData; chapters: ImportChapter[]; importMeta?: unknown };
 
 /**
  * Atomic whole-story import: the story, every chapter and every line in one
@@ -665,6 +666,7 @@ async function importStory(body: StoryImport) {
     const { story, chapters } = body ?? ({} as StoryImport);
     if (!story || typeof story !== "object") throw new Error("body must be { story, chapters }");
     validateStoryData(story, true);
+    const importMeta = parseImportMeta(body.importMeta);
     if (story.authorIds !== undefined) authorRefs(story.authorIds);
     const { ordered, contentHash } = prepareChapters(chapters);
     const seasonTitle = await resolveSeasonTitle(story.season);
@@ -698,6 +700,7 @@ async function importStory(body: StoryImport) {
                 format: story.format ?? undefined,
                 seasonTitle: seasonTitle ?? null,
                 contentHash,
+                importMeta: importMeta ?? undefined,
             },
         });
 
@@ -769,8 +772,11 @@ async function updateLine(slug: string, chapterNo: number, lineNo: number, data:
  * rewrites it. Line numbers restart at 1 per chapter, so deep links into the
  * story may shift; nothing else hangs off story lines.
  */
-async function replaceStoryContent(slug: string, body: { chapters: ImportChapter[] }) {
+async function replaceStoryContent(slug: string, body: { chapters: ImportChapter[]; importMeta?: unknown }) {
     const { ordered, contentHash } = prepareChapters(body?.chapters);
+    // A revision from a Google Doc updates the remembered color map; one from
+    // a CLI .json (no importMeta) leaves it as it was
+    const importMeta = parseImportMeta(body?.importMeta);
     return await prisma.$transaction(async (tx) => {
         const story = await tx.story.findUnique({ where: { slug }, select: { id: true } });
         if (!story) throw new Error(`Story '${slug}' not found`);
@@ -788,7 +794,7 @@ async function replaceStoryContent(slug: string, body: { chapters: ImportChapter
         await tx.storyLine.deleteMany({ where: { chapter: { storyId: story.id } } });
         await tx.storyChapter.deleteMany({ where: { storyId: story.id } });
         const lineCount = await insertChapters(tx, story.id, ordered);
-        await tx.story.update({ where: { id: story.id }, data: { contentHash } });
+        await tx.story.update({ where: { id: story.id }, data: { contentHash, importMeta: importMeta ?? undefined } });
         const full = await tx.story.findUniqueOrThrow({
             where: { id: story.id },
             include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
