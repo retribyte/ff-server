@@ -22,6 +22,7 @@ with the session, and SSH sessions have a 180 s CPU limit.
 | `/home/private/jobs/` | job queue (see below) | me only |
 | `/home/protected/pgsock/` | Postgres unix socket, group `web` | me + web |
 | `/home/protected/ff-server/` | the API: deployed code, `.env`, `run.sh` | me + web |
+| `/home/protected/ff-site/` | the site: `app/` (deployed standalone build), `run.sh` | me + web |
 | `/home/logs/daemon_<tag>.log` | each daemon's stdout/stderr | |
 
 Postgres listens on the socket only (no TCP), with scram passwords. App
@@ -37,14 +38,19 @@ Tags can't contain hyphens (hence `ffserver`).
 | `postgres` | `/home/private/bin/postgres.sh` | `/home/private` | me |
 | `jobs` | `/home/private/bin/jobrunner.sh` | `/home/private` | me |
 | `ffserver` | `/home/protected/ff-server/run.sh` | `/home/protected/ff-server` | web |
+| `ffsite` | `/home/protected/ff-site/run.sh` | `/home/protected/ff-site` | web |
 
-The API (`ffserver`) listens on `127.0.0.1:41730` (`HOST`/`PORT` in its `.env`).
+The API (`ffserver`) listens on `127.0.0.1:41730` (`HOST`/`PORT` in its `.env`),
+the site (`ffsite`, Next.js standalone) on `127.0.0.1:41731` (set in its
+`run.sh`, which also points its server-side code at the API over loopback).
+Both run with `--max-old-space-size=128`: measured ~140-160 MB each warm.
 
 ## Proxies (site panel → Proxies)
 
 | Protocol | Base Path | Document Root | Target Port |
 |---|---|---|---|
 | HTTP | `/api/` | `/api/` | `41730` |
+| HTTP | `/` | `/` | `41731` |
 
 The API is public through this proxy: `https://<site>/api/...` serves the
 frontend, the bot and any other client alike, over NFSN's HTTPS. Binding
@@ -58,7 +64,13 @@ Write a shell script to `/home/private/jobs/<name>.tmp`, then rename it to
 once as `me`, and its output lands in `jobs/done/<name>.<UTC stamp>.log`. Use
 it for psql, pg_dump/pg_restore and one-off scripts.
 
-## Deploying ff-server
+## Deploying
+
+ff-site: `scripts/deploy-nfsn.sh` in ff-site (builds HEAD in a temp worktree,
+uploads the standalone server to `ff-site/app/`), then restart `ffsite`. Its
+own route handlers live under `/site/`, since `/api/` belongs to ff-server.
+
+ff-server:
 
 ```sh
 scripts/deploy-nfsn.sh     # from a clean, committed checkout on Linux
