@@ -76,10 +76,9 @@ actually there.
   rich text (character blurbs, species descriptions, item descriptions,
   commentary) goes through `sanitizeText()` before storage.
 - `prisma/scripts/seed.ts` is the orchestrator: wipes all data, then runs
-  `SEED_SCRIPTS` (`seed-legacy.ts`, `seed-8ball.ts`, `seed-galaxy.ts`) as
-  child processes, skipping (not aborting) any that fail or don't exist on
-  disk — `seed-galaxy.ts` is currently in that list but not present in the
-  repo, and is expected to just be skipped. `seed:legacy` replays the real
+  `SEED_SCRIPTS` (see `CLAUDE.md` for the current list) as child
+  processes, stopping at the first that fails or is missing (only
+  `seed-galaxy.ts`, not written yet, is optional). `seed:legacy` replays the real
   archive from `ff-site-old`'s bundled JSON (`FF_SITE_DIR`, default
   `../ff-site-old`) — **only safe against an empty DB**, don't rerun against a
   live dev database with user-authored content. `migrate-vm-to-story.ts` and

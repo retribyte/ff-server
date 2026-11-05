@@ -28,7 +28,7 @@
         "blurb": "Emmett's nice doctor."
     },
     "dutch_elkins": {
-        "color": "#0000FF",
+        "color": "#6666ff",
         "image": "/avatars/dutch.png",
         "blurb": "A country bumpkin bouncing baby bandit."
     },
@@ -146,7 +146,7 @@
         "image": "/avatars/zach.png"
     },
     "zion_daybreaker": {
-        "color": "#00D2F4",
+        "color": "#3aa5bd",
         "image": "/avatars/zion.png",
         "blurb": "A robotic angel with a chip on his shoulder."
     },
