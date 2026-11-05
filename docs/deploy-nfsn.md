@@ -145,3 +145,47 @@ psql -c ANALYZE
 Once players are using the site, prod is the source of truth: never restore
 over it, since that would wipe their changes (passwords, stories, edits).
 First restore: 2026-11-05, ff-server 18ab201 + ff-site 017b77e.
+
+## Backups (weekly, pulled by the home NAS)
+
+Nothing is backed up *on* NFSN (storage costs money there). The home NAS
+("watcher", UGOS Pro) runs `scripts/nas-backup.sh`, installed as
+`/home/trey/scripts/vortox-backup.sh`, from the user's crontab every Sunday at
+04:30 (US/Central). It pulls over SSH with its own key (`~/.ssh/nfsn_backup`,
+authorized in the NFSN member profile):
+
+- **site:** a `pg_dump -Fc` of `ff` (made by a jobs-queue job, pulled, then
+  deleted from the host) plus the host-only config (`.env`, run scripts,
+  Postgres config, DB passwords).
+- **booru:** a `sqlite3 .dump` of the Shimmie DB (streamed, consistent) plus an
+  rsync mirror of `/home/public`. That excludes the live `.sqlite` file (the
+  dump replaces it), cache/temp and `data/thumbs` (regenerable, and the web
+  user's thumbnails aren't readable over SSH).
+
+Latest mirror: `/home/trey/vortox/{site,booru}`. Dated archives:
+`/volume1/media/backup/vortox/{site,booru}/vortox-<name>-<date>.tar.gz` (26
+site, 8 booru). Log: `/home/trey/vortox/logs/`. Changing the NAS crontab needs
+`sudo` (`crontab` isn't setuid on UGOS).
+
+**Restoring the site DB** (into an empty `ff` database; for a fresh host,
+recreate the cluster, the `ff` role and the database first, as in "Building and
+restoring the database"): copy `site/db/ff.dump` from an archive to
+`/home/private/` and run, as a job:
+
+```sh
+export PGHOST=/home/protected/pgsock PGUSER=ff PGDATABASE=ff PGPASSWORD="$(cat /home/private/ff-db.pw)"
+pg_restore --no-owner --exit-on-error --single-transaction -d ff /home/private/ff.dump
+psql -c ANALYZE
+```
+
+Host config to put back is under `site/config/home/...`, at the same paths.
+
+**Restoring the booru:** stop writes (maintenance), then rsync
+`booru/public/` back to `/home/public/` and rebuild the DB at the filename the
+booru's `data/config` DSN expects (`data/shimmie.<hash>.sqlite`):
+`zcat booru/db/shimmie.sql.gz | sqlite3 data/shimmie.<hash>.sqlite` (move the
+old file aside first). Then regenerate thumbnails from Shimmie's admin page.
+
+Both restores were tested on 2026-11-05: the site dump restored into
+PostgreSQL 17 with every row count matching prod, and the booru dump rebuilt
+with a passing integrity check and every image's file present.
