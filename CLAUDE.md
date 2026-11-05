@@ -118,7 +118,14 @@ data. Don't add a species table back.
     accounts by username. Rename players in the archive's
     `meta/<season>.json` `usernames` map before seeding, not in the app.
   - Seeded player accounts get `mustChangePassword`; system accounts get
-    `loginDisabled`. `npm run golive:flag-accounts` applies the same flags to
+    `loginDisabled`. Players start on the guessable default password
+    (`src/user/default-password.ts`: username lowercased, whitespace removed,
+    plus "123"), so they claim accounts hands-off (the user's call). Admins
+    must never use it: prod gives them a random password, and `POST
+    /api/users/:id/password-reset` (admin; ff-site's button on a user's
+    page) refuses admin and system accounts. That reset puts a player back on
+    the default, forces a change and signs out every session: the fix when
+    someone else claims a player's account. `npm run golive:flag-accounts` applies the same flags to
     an existing DB (idempotent — skips anyone who already changed their
     password). In dev, clear the flag with SQL if you don't want the forced
     change: `UPDATE "User" SET "mustChangePassword" = false;`

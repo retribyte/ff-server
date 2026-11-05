@@ -5,6 +5,7 @@ import { hashSync, compareSync } from "bcryptjs";
 import { sanitizeText } from "../utils/sanitize.js";
 import booru from "../utils/booru.js";
 import characterService from "../character/character.service.js";
+import { defaultPassword } from "./default-password.js";
 
 
 const SALT_ROUNDS = process.env.SALT_ROUNDS ? parseInt(process.env.SALT_ROUNDS) : 12;
@@ -189,6 +190,30 @@ async function changePassword(id: number, currentPassword: string, newPassword: 
     });
 }
 
+/**
+ * Admin reset: puts a player account back on its default password (see
+ * default-password.ts) and makes them pick a new one at next login. Stamping
+ * passwordChangedAt signs out every existing session, including whoever
+ * claimed the account. Admin accounts are refused, since their default would
+ * be guessable, and so are system accounts, which can't log in at all.
+ * Returns null when there's no such user.
+ */
+async function resetPassword(id: number): Promise<SafeUser | null> {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) return null;
+    if (user.role === UserRole.ADMIN) throw new Error("Admin accounts can't be reset to the default password");
+    if (user.loginDisabled) throw new Error("System accounts can't log in, so there's nothing to reset");
+    const updated = await prisma.user.update({
+        where: { id },
+        data: {
+            password: hashSync(defaultPassword(user.username), SALT_ROUNDS),
+            mustChangePassword: true,
+            passwordChangedAt: new Date(),
+        },
+    });
+    return toSafe(updated);
+}
+
 async function updateUserRole(id: number, role: UserRole): Promise<SafeUser> {
     const updated = await prisma.user.update({ where: { id }, data: { role } });
     return toSafe(updated);
@@ -198,6 +223,7 @@ export default {
     createUser,
     getAllUsers,
     getUserDirectory,
+    resetPassword,
     getUserById,
     getPublicProfile,
     getUserByUsername,

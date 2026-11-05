@@ -576,6 +576,24 @@ const spec = {
                 },
             },
         },
+        "/users/{id}/password-reset": {
+            post: {
+                tags: ["Auth"],
+                summary: "Reset a player's password to the default (admin only)",
+                description:
+                    "Sets the account back to its default password (username lowercased, whitespace removed, plus \"123\"), " +
+                    "requires a password change at next login and signs out every existing session. " +
+                    "Refuses admin and system accounts.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: {
+                    "200": { description: "Reset: { id, username, mustChangePassword }" },
+                    "400": { description: "Admin or system account, or invalid id" },
+                    "403": { description: "Forbidden — not an admin" },
+                    "404": { description: "User not found" },
+                },
+            },
+        },
         "/characters": {
             get: {
                 tags: ["Characters"],

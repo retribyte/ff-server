@@ -30,6 +30,7 @@ import { existsSync, readdirSync, readFileSync } from "fs";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 import { slugify } from "../../src/utils/slug.js";
+import { defaultPassword } from "../../src/user/default-password.js";
 import { isUnknownSpeaker, resolveVmSpeaker } from "./vm-speakers.js";
 import { SYSTEM_ACCOUNTS } from "./system-accounts.js";
 
@@ -278,8 +279,9 @@ async function main() {
         const user = await prisma.user.create({
             data: {
                 username: name,
-                // Dev-only placeholder credentials, matching the demo seed's convention
-                password: hashSync(`${avatarShorthand(name)}123`, 10),
+                // The guessable default (default-password.ts): players claim their
+                // accounts hands-off. Prod gives admins a random password instead
+                password: hashSync(defaultPassword(name), 10),
                 role: name === "Trey" ? UserRole.ADMIN : UserRole.USER,
                 // Seeded passwords are placeholders — players pick their own on
                 // first login; system accounts (the bot) never log in

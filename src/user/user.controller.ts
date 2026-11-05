@@ -201,6 +201,25 @@ const initializeUserRoutes = (): Router => {
         }
     });
 
+    // POST /api/users/:id/password-reset: Put a player account back on its
+    // default password, force a change at next login and sign out its
+    // sessions (admin only; refuses admin and system accounts)
+    router.post("/users/:id/password-reset", authenticate, isAdmin, async (req: Request, res: Response) => {
+        const id = parseInt(req.params.id, 10);
+        if (Number.isNaN(id)) {
+            return res.status(400).json({ status: "error", message: "Invalid user id" });
+        }
+        try {
+            const user = await userService.resetPassword(id);
+            if (!user) {
+                return res.status(404).json({ status: "error", message: "User not found" });
+            }
+            return res.status(200).json({ status: "success", data: { id: user.id, username: user.username, mustChangePassword: user.mustChangePassword } });
+        } catch (err: any) {
+            return res.status(400).json({ status: "error", message: err.message });
+        }
+    });
+
     return router;
 };
 
