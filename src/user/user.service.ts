@@ -1,10 +1,10 @@
-import { PrismaClient, User, UserRole } from "@prisma/client";
+import { User, UserRole } from "@prisma/client";
+import { prisma } from "../db.js";
 export { UserRole };
 import { hashSync, compareSync } from "bcryptjs";
 import { sanitizeText } from "../utils/sanitize.js";
 import booru from "../utils/booru.js";
 
-const prisma = new PrismaClient();
 
 const SALT_ROUNDS = process.env.SALT_ROUNDS ? parseInt(process.env.SALT_ROUNDS) : 12;
 const PASSWORD_MIN_LENGTH = process.env.PASSWORD_MIN_LENGTH ? parseInt(process.env.PASSWORD_MIN_LENGTH) : 8;

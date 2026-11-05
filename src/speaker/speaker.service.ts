@@ -19,10 +19,10 @@
  * an NPC or a persona, their `speaker` text is set to the old character name,
  * which is what the reader was showing before.
  */
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { prisma } from "../db.js";
 import { isValidSlug, slugify } from "../utils/slug.js";
 
-const prisma = new PrismaClient();
 
 type Tx = Prisma.TransactionClient;
 

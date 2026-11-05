@@ -4,7 +4,11 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  // Rust-free client: the query compiler is wasm and queries go through
+  // @prisma/adapter-pg (see src/db.ts). Production runs on FreeBSD (NFSN),
+  // which has no native Prisma engines. Run the Prisma CLI on Linux only.
+  engineType = "client"
 }
 
 enum UserRole {

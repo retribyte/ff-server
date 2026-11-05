@@ -15,12 +15,12 @@
  * Dry run unless --apply. Lines are appended after the current last line_no,
  * and --apply advances the cursor to the newest message seen.
  */
-import { PrismaClient, StoryLineType } from "@prisma/client";
+import { StoryLineType } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 import { readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
-const prisma = new PrismaClient();
 const args = process.argv.slice(2);
 const apply = args.includes("--apply");
 const afterIdx = args.indexOf("--after");

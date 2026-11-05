@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../db.js";
 import { sanitizeText } from "../utils/sanitize.js";
 
-const prisma = new PrismaClient();
 
 const CREATOR_SELECT = { select: { id: true, username: true, icon: true } };
 

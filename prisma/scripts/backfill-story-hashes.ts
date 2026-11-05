@@ -13,10 +13,9 @@
  *
  * Run with: npm run backfill:story-hashes
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 import { storyContentHash } from "../../src/story/story-hash.js";
 
-const prisma = new PrismaClient();
 
 async function main() {
     const stories = await prisma.story.findMany({

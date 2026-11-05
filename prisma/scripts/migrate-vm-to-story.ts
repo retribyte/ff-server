@@ -13,12 +13,12 @@
  * Run with: npm run migrate:vm   (ff-site checkout expected at ../ff-site,
  * override with FF_SITE_DIR=/path/to/ff-site)
  */
-import { PrismaClient, StoryLineType, Prisma } from "@prisma/client";
+import { StoryLineType, Prisma } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 import { existsSync, readFileSync } from "fs";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
-const prisma = new PrismaClient();
 
 const FF_SITE_DIR = process.env.FF_SITE_DIR ?? resolve(dirname(fileURLToPath(import.meta.url)), "../../../ff-site");
 const CYOA_JSON = join(FF_SITE_DIR, "src/assets/json/cyoa.json");

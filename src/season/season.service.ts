@@ -1,7 +1,7 @@
-import { PrismaClient, SeasonKind } from "@prisma/client";
+import { SeasonKind } from "@prisma/client";
+import { prisma } from "../db.js";
 import { slugify } from "../utils/slug.js";
 
-const prisma = new PrismaClient();
 
 // Stories are summaries only — chapters/lines come from /api/stories/:slug.
 const SEASON_INCLUDE = {

@@ -17,9 +17,8 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 
-const prisma = new PrismaClient();
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 

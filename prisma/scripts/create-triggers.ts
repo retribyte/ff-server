@@ -25,9 +25,8 @@
  *
  * Run with: npm run db:triggers
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 
-const prisma = new PrismaClient();
 
 const STATEMENTS = [
     `CREATE OR REPLACE FUNCTION messages_persona_match() RETURNS trigger AS $$

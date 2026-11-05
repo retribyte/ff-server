@@ -8,10 +8,9 @@ import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const prisma = new PrismaClient();
 
 const SEED_SCRIPTS = [
     // DB guards first (idempotent), so every script below, the NPC

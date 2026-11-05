@@ -1,11 +1,11 @@
-import { PrismaClient, Prisma, StoryLineType, StoryFormat } from "@prisma/client";
+import { Prisma, StoryLineType, StoryFormat } from "@prisma/client";
+import { prisma } from "../db.js";
 import { SLUG_PATTERN } from "../utils/slug.js";
 import { parseImportMeta } from "./import-meta.js";
 import { IMPORT_TX_OPTIONS, ImportConflictError } from "../utils/import.js";
 import { storyContentHash } from "./story-hash.js";
 import booru from "../utils/booru.js";
 
-const prisma = new PrismaClient();
 
 type StorySegment = {
     text: string;

@@ -36,6 +36,7 @@
     },
     "author": "Trey R.",
     "dependencies": {
+        "@prisma/adapter-pg": "^6.19.3",
         "@prisma/client": "^6.19.0",
         "@redocly/cli": "^2.30.6",
         "@xmldom/xmldom": "^0.9.12",

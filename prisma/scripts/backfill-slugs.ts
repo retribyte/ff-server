@@ -18,13 +18,12 @@
  * already been applied before doing anything).
  * Run with: npm run backfill:slugs
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 import { writeFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { slugify } from "../../src/utils/slug.js";
 
-const prisma = new PrismaClient();
 
 const PRISMA_DIR = dirname(fileURLToPath(import.meta.url));
 

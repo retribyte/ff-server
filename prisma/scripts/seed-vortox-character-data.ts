@@ -45,10 +45,9 @@
  *
  * Run with: npm run seed:vortox-character-data
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 import { sanitizeText } from "../../src/utils/sanitize.js";
 
-const prisma = new PrismaClient();
 
 const BLURBS_BY_SLUG: Record<string, string> = {
     garrick: "A kleptomanic poltergeist.",

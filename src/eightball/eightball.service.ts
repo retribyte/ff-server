@@ -1,6 +1,6 @@
-import { PrismaClient, EightBallAnswerType } from "@prisma/client";
+import { EightBallAnswerType } from "@prisma/client";
+import { prisma } from "../db.js";
 
-const prisma = new PrismaClient();
 
 // Weighted odds for the shake, considering only answer types that currently
 // have at least one row. Weights are renormalized over the non-empty types.

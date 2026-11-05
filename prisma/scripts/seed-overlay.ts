@@ -13,12 +13,11 @@
  * `npm run export:overlay` after changing records in the site's editor.
  * Run with: npm run seed:overlay
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 import { existsSync, readFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
-const prisma = new PrismaClient();
 const DATA_DIR = join(dirname(fileURLToPath(import.meta.url)), "seed-data");
 
 function load<T>(file: string): Record<string, T> {

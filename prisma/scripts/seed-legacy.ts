@@ -23,7 +23,8 @@
  *   FF_SITE_DIR       — the Next.js rebuild (archive-to-markdown/api/*).
  *                       Default: ../ff-site, falling back to ../ff-site-new.
  */
-import { PrismaClient, UserRole, MessageType, StoryLineType, Prisma, SeasonKind } from "@prisma/client";
+import { UserRole, MessageType, StoryLineType, Prisma, SeasonKind } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 import { hashSync } from "bcryptjs";
 import { existsSync, readdirSync, readFileSync } from "fs";
 import { dirname, join, resolve } from "path";
@@ -32,7 +33,6 @@ import { slugify } from "../../src/utils/slug.js";
 import { isUnknownSpeaker, resolveVmSpeaker } from "./vm-speakers.js";
 import { SYSTEM_ACCOUNTS } from "./system-accounts.js";
 
-const prisma = new PrismaClient();
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 

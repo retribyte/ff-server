@@ -1,3 +1,6 @@
+// First import: load .env before any module reads process.env at import time
+// (token.service.ts reads JWT_SECRET then, falling back to "secret").
+import "dotenv/config";
 import App from "./app.js";
 
 // Choose the port number to run the app under

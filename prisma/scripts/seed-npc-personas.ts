@@ -40,7 +40,8 @@
  *   npm run seed:npc-personas               apply
  *   npm run seed:npc-personas -- --dry-run  apply, print, roll back
  */
-import { PrismaClient, MessageType } from "@prisma/client";
+import { MessageType } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 import { readFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
@@ -54,7 +55,6 @@ import {
     type SpeakerScope,
 } from "../../src/speaker/speaker.service.js";
 
-const prisma = new PrismaClient();
 const CSV_PATH = join(dirname(fileURLToPath(import.meta.url)), "seed-data", "npc-speakers.csv");
 const DRY_RUN = process.argv.includes("--dry-run");
 

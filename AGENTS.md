@@ -40,10 +40,18 @@ actually there.
 
 - **Feature-module layout**: `src/<feature>/<feature>.controller.ts` (routes)
   + `<feature>.service.ts` (Prisma access + business logic). Controllers never
-  call Prisma directly. Each service instantiates its own
-  `new PrismaClient()` — there is no shared `prisma.ts` singleton (despite
-  `docs/notes/NEW_STYLE_GUIDE.md` documenting one; that guide was carried over from a
-  different, unrelated project — see caveat below).
+  call Prisma directly. Services and `prisma/scripts/` import the shared
+  client from `src/db.ts` (`import { prisma } from ".../db.js"`). Never call
+  `new PrismaClient()` elsewhere: each client owns a pg pool, and prod
+  Postgres allows only 20 connections.
+- **Prisma runs Rust-free** (`engineType = "client"` + `@prisma/adapter-pg`,
+  set up in `src/db.ts`), because production is FreeBSD (NearlyFreeSpeech),
+  where Prisma has no native engines. Run the Prisma CLI (`generate`, `db
+  push`) on Linux only; it fails on FreeBSD. With the adapter, P2002/P2003
+  errors don't carry `meta.target`/`meta.field_name`; the constraint is in
+  `meta.driverAdapterError.cause.constraint` (see `constraintNames` in
+  `src/utils/import.ts`). `.env` is loaded by `dotenv/config`, the first
+  import in `src/server.ts` and `src/db.ts`. Don't rely on Prisma loading it.
 - All routers mount under `/api` in `src/app.ts`.
 - **Auth**: `Authorization: Bearer <JWT>` header, verified by `authenticate`
   (`src/auth/security.middleware.ts`), which sets `req.user`. `isAdmin` gates

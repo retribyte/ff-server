@@ -12,12 +12,11 @@
  * already produced by other seed sources are included too; that's harmless,
  * since the overlay just re-applies them.
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
-const prisma = new PrismaClient();
 const DATA_DIR = join(dirname(fileURLToPath(import.meta.url)), "seed-data");
 
 type Entry = Record<string, string>;

@@ -4,9 +4,9 @@
 // safe for characters/items, whose slugs come from DB rows, but species have
 // no table, so a miss here would let any request write a cache row.
 // `npm run refresh:wiki-cache` keeps the rows fresh.
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { prisma } from "../db.js";
 
-const prisma = new PrismaClient();
 
 const BUCKET = "species";
 

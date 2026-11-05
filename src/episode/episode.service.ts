@@ -1,9 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../db.js";
 import { slugify } from "../utils/slug.js";
 import { IMPORT_TX_OPTIONS, ImportConflictError } from "../utils/import.js";
 import { validateMessages, insertMessages, type MessageData } from "../message/message.service.js";
 
-const prisma = new PrismaClient();
 
 type EpisodeData = {
     title: string;

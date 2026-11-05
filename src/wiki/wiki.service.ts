@@ -1,9 +1,9 @@
 // Cache-aside read path over the wiki's Bucket data. See docs/notes/PLAN-wiki-cache.md.
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { prisma } from "../db.js";
 import { sanitizeText } from "../utils/sanitize.js";
 import { fetchBucketRow, WikiBucket, WikiFetchError } from "./wiki.client.js";
 
-const prisma = new PrismaClient();
 
 const POSITIVE_TTL_MS = 24 * 60 * 60 * 1000;
 const NEGATIVE_TTL_MS = 7 * 24 * 60 * 60 * 1000;

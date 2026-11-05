@@ -41,12 +41,29 @@ export function importErrorResponse(error: any, kind: string): { status: number;
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
-            const target = (error.meta?.target as string[] | string | undefined) ?? "a unique field";
-            return { status: 409, message: `Another ${kind} already uses that ${[target].flat().join(", ")}` };
+            const target = constraintNames(error, "target") ?? "a unique field";
+            return { status: 409, message: `Another ${kind} already uses that ${target}` };
         }
         if (error.code === "P2003") {
-            return { status: 400, message: `Import references a record that doesn't exist (${error.meta?.field_name ?? "foreign key"}) — nothing was imported` };
+            return { status: 400, message: `Import references a record that doesn't exist (${constraintNames(error, "field_name") ?? "foreign key"}) — nothing was imported` };
         }
     }
     return { status: 400, message: error?.message ?? `Invalid ${kind} import` };
+}
+
+/**
+ * The column(s) or constraint a P2002/P2003 error names, for messages. The
+ * Rust engine put them in `meta.target` / `meta.field_name`. The driver
+ * adapter (src/db.ts) leaves those out and reports the Postgres constraint
+ * under `meta.driverAdapterError.cause.constraint` instead, as `{ fields }`
+ * or `{ index }`.
+ */
+function constraintNames(error: Prisma.PrismaClientKnownRequestError, legacyKey: string): string | undefined {
+    const legacy = error.meta?.[legacyKey] as string[] | string | undefined;
+    if (legacy) return [legacy].flat().join(", ");
+    const constraint = (error.meta?.driverAdapterError as any)?.cause?.constraint;
+    if (Array.isArray(constraint?.fields)) {
+        return constraint.fields.map((field: string) => field.replace(/^"|"$/g, "")).join(", ");
+    }
+    return typeof constraint?.index === "string" ? constraint.index : undefined;
 }

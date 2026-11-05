@@ -8,11 +8,10 @@
  * fall out of the same pass. Standalone script; cron/schedule wiring is a
  * separate future decision.
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 import { fetchWholeBucket, WikiBucket } from "../../src/wiki/wiki.client.js";
 import { sanitizeRow, upsertCacheEntry } from "../../src/wiki/wiki.service.js";
 
-const prisma = new PrismaClient();
 
 const BUCKETS: { bucket: WikiBucket; getDbSlugs: () => Promise<string[]> }[] = [
     {

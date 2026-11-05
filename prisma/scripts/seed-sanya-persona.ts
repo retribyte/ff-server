@@ -19,9 +19,8 @@
  *
  * Run with: npm run seed:sanya-persona
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 
-const prisma = new PrismaClient();
 
 const EPISODE_TITLE = "Ups and Downs";
 

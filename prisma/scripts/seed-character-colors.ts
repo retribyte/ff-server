@@ -11,9 +11,8 @@
  *
  * Run with: npm run seed:character-colors
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 
-const prisma = new PrismaClient();
 
 const COLORS_BY_SLUG: Record<string, string> = {
     // Snapshot of the dev DB's colors, so they survive a reseed

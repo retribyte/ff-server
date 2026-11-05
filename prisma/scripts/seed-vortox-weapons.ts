@@ -23,11 +23,11 @@
  *
  * Run with: npm run seed:vortox-weapons
  */
-import { PrismaClient, ItemType } from "@prisma/client";
+import { ItemType } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 import { sanitizeText } from "../../src/utils/sanitize.js";
 import { slugify } from "../../src/utils/slug.js";
 
-const prisma = new PrismaClient();
 
 // creator is a username (the wielder's player, per the transcripts)
 const WEAPONS: { name: string; creator: string; description: string }[] = [

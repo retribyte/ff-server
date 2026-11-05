@@ -24,9 +24,8 @@
  *
  * Run with: npm run db:search-indexes
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 
-const prisma = new PrismaClient();
 
 const INDEXES = [
     { name: "messages_text_fts_idx", table: "messages", column: "text" },

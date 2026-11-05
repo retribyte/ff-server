@@ -1,9 +1,9 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { prisma } from "../db.js";
 import { sanitizeText } from "../utils/sanitize.js";
 import { normalizeSlug, slugify } from "../utils/slug.js";
 import { getWikiData } from "../wiki/wiki.service.js";
 
-const prisma = new PrismaClient();
 
 type CharacterData = {
     name: string;

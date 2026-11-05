@@ -11,10 +11,9 @@
  *
  * Run with: npm run golive:flag-accounts
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 import { SYSTEM_ACCOUNTS } from "./system-accounts.js";
 
-const prisma = new PrismaClient();
 
 async function main(): Promise<void> {
     const disabled = await prisma.user.updateMany({

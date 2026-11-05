@@ -1,6 +1,6 @@
-import { PrismaClient, MessageType, Prisma } from "@prisma/client";
+import { MessageType, Prisma } from "@prisma/client";
+import { prisma } from "../db.js";
 
-const prisma = new PrismaClient();
 
 const PERSONA_SELECT = { select: { id: true, name: true, image: true, color: true } };
 

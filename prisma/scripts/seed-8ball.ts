@@ -5,9 +5,9 @@
  * if the EightBallAnswer table already has rows.
  * Run with: npm run seed:8ball
  */
-import { PrismaClient, EightBallAnswerType } from "@prisma/client";
+import { EightBallAnswerType } from "@prisma/client";
+import { prisma } from "../../src/db.js";
 
-const prisma = new PrismaClient();
 
 const ANSWERS: { type: EightBallAnswerType; text: string }[] = [
     // YES
