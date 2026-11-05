@@ -132,9 +132,11 @@ const PLAYER_ALIASES: Record<string, string> = { Vortox: "FF 8 Ball" };
 const STORY_ONLY_AUTHORS = ["Eve"];
 
 // Characters whose slug isn't slugify(name). The name stays as the archive
-// has it; only the permanent identifier differs (the user's call, 2026-11-05:
-// "Los" is los_yelsi, as dev and the overlay already have it).
-const SLUG_OVERRIDES: Record<string, string> = { Los: "los_yelsi" };
+// has it; only the permanent identifier differs, matching the full name
+// (the user's calls, 2026-11-05): "Los" is los_yelsi, as dev and the overlay
+// already have it; "Hector" is hector_lerwricki, his wiki slug (page "Hector
+// Ler'wricki").
+const SLUG_OVERRIDES: Record<string, string> = { Los: "los_yelsi", Hector: "hector_lerwricki" };
 
 // Seasons with no archived episodes, which stories still file under. The
 // manuscripts name them in their `season:` frontmatter, so they must exist

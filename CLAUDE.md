@@ -230,7 +230,7 @@ data. Don't add a species table back.
   `seed-npc-personas.ts`, whose renames the slugs assume) from
   `seed-data/vm-appended-lines.json`: after appending to dev, run `npm run
   export:vm-appended` and commit. seed-legacy also holds `SLUG_OVERRIDES`
-  (characters whose slug isn't `slugify(name)`, e.g. Los → `los_yelsi`) and
+  (characters whose slug isn't `slugify(name)`: Los → `los_yelsi`, Hector → `hector_lerwricki`) and
   `STORY_ONLY_SEASONS` (T&L, FF5: no episodes, but stories file under them).
   `migrate-vm-to-story.ts` and `backfill-slugs.ts` are one-off historical
   migration scripts, already run against the live data; treat them as
