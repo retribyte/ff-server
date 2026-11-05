@@ -83,3 +83,28 @@ npx prisma migrate diff --from-schema-datasource <old schema> \
 Run `change.sql` on prod through a job (`psql -v ON_ERROR_STOP=1 -f`), then
 re-run the idempotent `db:search-indexes` and `db:triggers` SQL the same way.
 Deploy the code that needs the new schema after the SQL has run.
+
+## Building and restoring the database
+
+Prod data is built locally and restored on the host, never seeded there:
+
+```sh
+git -C ../ff-site worktree add --detach /tmp/ff-site-prod main
+scripts/build-prod-db.sh /tmp/ff-site-prod      # -> backups/prod-<date>.dump
+```
+
+The script runs the full seed into a scratch `ff_prod` DB, refreshes the wiki
+cache, uploads every story manuscript as the admin, gives admin accounts
+random passwords (printed to `~/ff-prod-admin-passwords-<date>.txt`, mode
+600; players keep the hands-off default) and dumps it. Copy the dump to
+`/home/private/` and restore it into an **empty** `ff` database with a job:
+
+```sh
+export PGHOST=/home/protected/pgsock PGUSER=ff PGDATABASE=ff PGPASSWORD="$(cat /home/private/ff-db.pw)"
+pg_restore --no-owner --no-privileges --exit-on-error --single-transaction -d ff /home/private/prod-<date>.dump
+psql -c ANALYZE
+```
+
+Once players are using the site, prod is the source of truth: never restore
+over it, since that would wipe their changes (passwords, stories, edits).
+First restore: 2026-11-05, ff-server 18ab201 + ff-site 017b77e.
