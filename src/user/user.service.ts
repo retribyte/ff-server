@@ -4,6 +4,7 @@ export { UserRole };
 import { hashSync, compareSync } from "bcryptjs";
 import { sanitizeText } from "../utils/sanitize.js";
 import booru from "../utils/booru.js";
+import characterService from "../character/character.service.js";
 
 
 const SALT_ROUNDS = process.env.SALT_ROUNDS ? parseInt(process.env.SALT_ROUNDS) : 12;
@@ -105,7 +106,7 @@ async function getUserById(id: number): Promise<SafeUser | null> {
 
 /** Public profile by id or username, with the user's characters and stories. */
 async function getPublicProfile(idOrUsername: number | string) {
-    return await prisma.user.findUnique({
+    const profile = await prisma.user.findUnique({
         where: typeof idOrUsername === "number" ? { id: idOrUsername } : { username: idOrUsername },
         select: {
             ...PUBLIC_SELECT,
@@ -120,6 +121,8 @@ async function getPublicProfile(idOrUsername: number | string) {
             _count: { select: { messages: true, commentaries: true } },
         },
     });
+    if (!profile) return null;
+    return { ...profile, characters: await characterService.withSeasons(profile.characters) };
 }
 
 function cleanOptionalText(value: unknown, field: string, maxLength: number): string | null {

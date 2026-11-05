@@ -25,6 +25,25 @@ type CharacterFilters = {
     lite?: boolean;
 };
 
+// Titles of the seasons each character speaks in (via messages), keyed by
+// character id. The site picks the earliest with its own campaign ordering.
+async function seasonsByCharacter(ids: number[]): Promise<Map<number, string[]>> {
+    const map = new Map<number, string[]>();
+    if (ids.length === 0) return map;
+    const rows = await prisma.$queryRaw<{ characterId: number; seasonTitle: string }[]>`
+        SELECT DISTINCT m."characterId", e."seasonTitle"
+        FROM messages m JOIN episodes e ON e.title = m."episodeTitle"
+        WHERE m."characterId" IN (${Prisma.join(ids)})
+    `;
+    for (const r of rows) map.set(r.characterId, [...(map.get(r.characterId) ?? []), r.seasonTitle]);
+    return map;
+}
+
+async function withSeasons<T extends { id: number }>(characters: T[]): Promise<(T & { seasons: string[] })[]> {
+    const seasons = await seasonsByCharacter(characters.map((c) => c.id));
+    return characters.map((c) => ({ ...c, seasons: seasons.get(c.id) ?? [] }));
+}
+
 async function getAllCharacters(filters: CharacterFilters = {}) {
     const { search, ownerId, season, limit, lite } = filters;
     const where: any = {};
@@ -43,8 +62,14 @@ async function getAllCharacters(filters: CharacterFilters = {}) {
     if (lite) {
         return await prisma.character.findMany({ where, select: { id: true, name: true, slug: true, image: true }, take: limit });
     }
-    return await prisma.character.findMany({ where, take: limit });
+    return await withSeasons(await prisma.character.findMany({ where, take: limit }));
 }
+
+// Character detail shape: personas plus the owning user's public identity.
+const detailInclude = {
+    personas: true,
+    creator: { select: { id: true, username: true } },
+} as const;
 
 // Attaches wiki-sourced fields under a nullable `wiki` key, keyed off the
 // character's own canonical slug — never the raw request param, which may
@@ -58,7 +83,7 @@ async function attachWikiData<T extends { slug: string }>(character: T): Promise
 }
 
 async function getCharacterById(id: number, options: { withWiki?: boolean } = {}) {
-    const character = await prisma.character.findUnique({ where: { id }, include: { personas: true } });
+    const character = await prisma.character.findUnique({ where: { id }, include: detailInclude });
     if (!character) return null;
     return options.withWiki ? await attachWikiData(character) : character;
 }
@@ -76,26 +101,26 @@ async function getCharacterBySlug(slug: string, options: { withWiki?: boolean } 
 }
 
 async function resolveCharacterBySlug(slug: string) {
-    const character = await prisma.character.findUnique({ where: { slug }, include: { personas: true } });
+    const character = await prisma.character.findUnique({ where: { slug }, include: detailInclude });
     if (character) return character;
     const normalized = normalizeSlug(slug);
     if (normalized !== slug) {
         const byNormalized = await prisma.character.findUnique({
             where: { slug: normalized },
-            include: { personas: true },
+            include: detailInclude,
         });
         if (byNormalized) return byNormalized;
     }
 
     const persona = await prisma.persona.findUnique({
         where: { slug },
-        include: { character: { include: { personas: true } } },
+        include: { character: { include: detailInclude } },
     });
     if (persona) return persona.character;
     if (normalized !== slug) {
         const personaByNormalized = await prisma.persona.findUnique({
             where: { slug: normalized },
-            include: { character: { include: { personas: true } } },
+            include: { character: { include: detailInclude } },
         });
         if (personaByNormalized) return personaByNormalized.character;
     }
@@ -263,6 +288,7 @@ async function deletePersona(id: number): Promise<void> {
 
 export default {
     getAllCharacters,
+    withSeasons,
     getCharacterById,
     getCharacterBySlug,
     createCharacter,
