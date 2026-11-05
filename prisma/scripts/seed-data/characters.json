@@ -40,6 +40,9 @@
         "image": "/avatars/emmett.png",
         "blurb": "The galaxy's scapesquoat."
     },
+    "jacob_climm": {
+        "image": "/avatars/jacob.png"
+    },
     "ff_8_ball": {
         "color": "#ce78ff",
         "image": "/avatars/ff8ball.png"
