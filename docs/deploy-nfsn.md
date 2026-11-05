@@ -30,14 +30,15 @@ Postgres listens on the socket only (no TCP), with scram passwords. App
 ## Daemons (site panel → Daemons)
 
 NFSN daemon command lines take no arguments, so each one is a run script.
+Tags can't contain hyphens (hence `ffserver`).
 
 | Tag | Command | Working dir | Run as |
 |---|---|---|---|
 | `postgres` | `/home/private/bin/postgres.sh` | `/home/private` | me |
 | `jobs` | `/home/private/bin/jobrunner.sh` | `/home/private` | me |
-| `ff-server` | `/home/protected/ff-server/run.sh` | `/home/protected/ff-server` | web |
+| `ffserver` | `/home/protected/ff-server/run.sh` | `/home/protected/ff-server` | web |
 
-`ff-server` listens on `127.0.0.1:41730` (`HOST`/`PORT` in its `.env`).
+The API (`ffserver`) listens on `127.0.0.1:41730` (`HOST`/`PORT` in its `.env`).
 
 ## Proxies (site panel → Proxies)
 
@@ -65,7 +66,7 @@ scripts/deploy-nfsn.sh     # from a clean, committed checkout on Linux
 
 It builds locally (the Prisma CLI can't run on FreeBSD), uploads `dist/` and
 the generated client, reinstalls prod dependencies on the host when the
-lockfile changed, and writes `REVISION`. Then restart the `ff-server` daemon
+lockfile changed, and writes `REVISION`. Then restart the `ffserver` daemon
 in the panel.
 
 ## Schema changes

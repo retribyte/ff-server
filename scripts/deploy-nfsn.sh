@@ -5,7 +5,7 @@
 #
 #   scripts/deploy-nfsn.sh            build, upload, install prod dependencies
 #
-# Then restart the "ff-server" daemon in the NFSN site panel (Daemons).
+# Then restart the "ffserver" daemon in the NFSN site panel (Daemons).
 #
 # On the host (see docs/deploy-nfsn.md):
 #   /home/protected/ff-server/   dist/, package*.json, node_modules/, REVISION
@@ -53,4 +53,4 @@ rsync -a --delete -e "$RSYNC_SSH" node_modules/.prisma/ "$SSH_TARGET:$DEST/node_
 # runs as web and needs group read
 "${SSH[@]}" "chgrp -R web $DEST && chmod -R g+rX,o-rwx $DEST"
 
-echo "== deployed $REVISION; restart the ff-server daemon in the NFSN panel"
+echo "== deployed $REVISION; restart the ffserver daemon in the NFSN panel"
