@@ -25,7 +25,7 @@ const args = process.argv.slice(2);
 const apply = args.includes("--apply");
 const afterIdx = args.indexOf("--after");
 const afterArg = afterIdx >= 0 ? args[afterIdx + 1] : undefined;
-const file = args.find((a, i) => !a.startsWith("--") && i !== afterIdx + 1);
+const file = args.find((a, i) => !a.startsWith("--") && (afterIdx < 0 || i !== afterIdx + 1));
 
 const CHANNEL_ID = "824134407496794162"; // #cyoa-vm
 const MCP_URL = process.env.DISCORD_MCP_URL ?? "http://localhost:8085/mcp";
@@ -84,16 +84,19 @@ async function fetchNewMessages(after: string): Promise<DiscordMsg[]> {
     return all.sort((a, b) => (BigInt(a.id) < BigInt(b.id) ? -1 : 1));
 }
 
-const SPEAKERS: Record<string, number | "npc"> = {
-    E: 5162, // Emmett Tawfeek
-    L: 5245, // Los
-    I: 5203, // IRENE
-    W: 5397, // Wes Romaw
-    FP: 5171, // Felps
-    F: 5171,
-    S: 5361, // Squorchy Vurkallus
+// Speaker prefix -> character slug. Slugs, not ids: ids differ between the
+// dev DB, a fresh seed and prod. main() resolves them before parsing.
+const SPEAKERS: Record<string, string | "npc"> = {
+    E: "emmett_tawfeek",
+    L: "los_yelsi",
+    I: "irene",
+    W: "wes_romaw",
+    FP: "felps",
+    F: "felps",
+    S: "squorchy_vurkallus",
     "?": "npc",
 };
+const speakerIds = new Map<string, number>(); // slug -> id, filled by main()
 
 interface Row { type: StoryLineType; text: string; characterId: number | null; npcVoice: boolean }
 
@@ -125,7 +128,7 @@ function parse(content: string): Row[] {
                     rows.push({
                         type: StoryLineType.DIALOGUE,
                         text: text.trim(),
-                        characterId: sp === "npc" ? null : sp,
+                        characterId: sp === "npc" ? null : speakerIds.get(sp)!,
                         npcVoice: sp === "npc",
                     });
                 } else if (rows.at(-1)?.type === StoryLineType.DIALOGUE) {
@@ -148,6 +151,12 @@ async function main() {
         messages = await fetchNewMessages(after);
         console.log(`fetched ${messages.length} messages after ${after}`);
     }
+    const slugs = Object.values(SPEAKERS).filter((s) => s !== "npc");
+    for (const c of await prisma.character.findMany({ where: { slug: { in: slugs } }, select: { id: true, slug: true } })) {
+        speakerIds.set(c.slug, c.id);
+    }
+    const missing = slugs.filter((s) => !speakerIds.has(s));
+    if (missing.length) throw new Error(`no character for speaker slug(s): ${[...new Set(missing)].join(", ")}`);
     const rows: Row[] = [];
     for (const msg of messages) {
         if (!GM_NAMES.has(msg.author) || !msg.content.includes("```")) continue;
@@ -170,7 +179,7 @@ async function main() {
     await prisma.storyLine.createMany({
         data: rows.map((r, i) => ({ chapterId: chapter.id, line_no: start + i, ...r, speaker: null })),
     });
-    console.log("written");
+    console.log("written; run `npm run export:vm-appended` and commit, so the seed has these lines too");
     if (!file && messages.length) {
         writeFileSync(CURSOR_FILE, JSON.stringify({ lastMessageId: messages.at(-1)!.id }, null, 4) + "\n");
         console.log(`cursor -> ${messages.at(-1)!.id}`);

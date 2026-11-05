@@ -22,11 +22,13 @@
         "seed:character-colors": "tsx prisma/scripts/seed-character-colors.ts",
         "seed:overlay": "tsx prisma/scripts/seed-overlay.ts",
         "export:overlay": "tsx prisma/scripts/export-overlay.ts",
+        "export:vm-appended": "tsx prisma/scripts/export-vm-appended.ts",
         "migrate:vm": "tsx prisma/scripts/migrate-vm-to-story.ts",
         "backfill:slugs": "tsx prisma/scripts/backfill-slugs.ts",
         "db:search-indexes": "tsx prisma/scripts/create-search-indexes.ts",
         "db:triggers": "tsx prisma/scripts/create-triggers.ts",
         "seed:npc-personas": "tsx prisma/scripts/seed-npc-personas.ts",
+        "seed:vm-appended": "tsx prisma/scripts/seed-vm-appended.ts",
         "golive:flag-accounts": "tsx prisma/scripts/flag-accounts-golive.ts",
         "refresh:wiki-cache": "tsx prisma/scripts/refresh-wiki-cache.ts",
         "test": "tsx --test test/*.test.ts"

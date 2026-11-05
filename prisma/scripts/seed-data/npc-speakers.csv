@@ -321,7 +321,7 @@ keep,,,extends your ruling: relative of a named character (like Isaac's Mother),
 keep,,,"extends your ruling: named NPC, even if only for a scene",,5221,john_smith_iv,John Smith IV,Sean,3,1,ff4,0,f,0,We prefer the term little people!
 keep,,,"extends your ruling: named NPC, even if only for a scene",,5097,alli,Alli,Zander,3,1,ff2,0,f,0,"Get a room, you two!"
 keep,,,"extends your ruling: named NPC, even if only for a scene",,5160,edwin,Edwin,Bill,2,1,ff2,0,f,0,"My name is Edwin, knight from Camelot, I am searching with this crew for my horse!"
-keep,,,"extends your ruling: named NPC, even if only for a scene",,5376,todd,Todd,Zander,2,1,ff2,0,f,0,
+npc,,,"your ruling 2026-11-05: Todd is an NPC",,5376,todd,Todd,Zander,2,1,ff2,0,f,0,
 keep,,,"extends your ruling: named NPC, even if only for a scene",,5112,bobert,Bobert,Zander,2,1,ff4,0,f,0,HEY! GIVE THAT BACK!
 keep,,,extends your ruling: relative of a named character (like Isaac's Mother),,5217,jessicas_father,Jessica's Father,Lili,2,1,ff2,0,f,0,You! Young man! You say you'll love our daughter?
 keep,,,extends your ruling: relative of a named character (like Isaac's Mother),,5218,jessicas_mother,Jessica's Mother,Lili,1,1,ff2,0,f,0,"Jessica sweetheart, the nice man says he loves you!"

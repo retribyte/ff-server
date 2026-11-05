@@ -189,9 +189,10 @@ data. Don't add a species table back.
   commentary) goes through `sanitizeText()` before storage.
 - `prisma/scripts/seed.ts` is the orchestrator: wipes all data, then runs
   `SEED_SCRIPTS` (`seed-legacy.ts`, persona/character-data scripts,
-  `seed-npc-personas.ts`, `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `backfill-story-hashes.ts`, `create-search-indexes.ts`, `create-triggers.ts`) as child processes, skipping (not aborting) any
-  that fail or don't exist on disk — `seed-galaxy.ts` is currently in that
-  list but not present in the repo, and is expected to just be skipped.
+  `seed-npc-personas.ts`, `seed-vm-appended.ts`, `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `backfill-story-hashes.ts`, `create-search-indexes.ts`, `create-triggers.ts`) as child processes. The first script that fails
+  or is missing stops the seed with a non-zero exit (the DB is then
+  incomplete: fix and re-seed). Only `OPTIONAL_SCRIPTS` may be absent:
+  `seed-galaxy.ts`, listed but not written yet.
   `seed:legacy` replays the real archive: episodes from ff-site's
   `archive-to-markdown/api/<season>/*.json` (`FF_SITE_DIR`), plus Vortox
   Machina and legacy colors/avatars from `ff-site-old` (`FF_SITE_OLD_DIR`) —
@@ -209,6 +210,13 @@ data. Don't add a species table back.
   other source live in `prisma/scripts/seed-data/{characters,users}.json`, applied by
   `seed-overlay.ts`; after editing records in the site, `npm run export:overlay`
   rewrites those files from the dev DB so the change can be committed.
+  Vortox Machina lines appended from Discord (`append-vm-from-discord.ts`,
+  speakers keyed by slug) are replayed by `seed-vm-appended.ts` (right after
+  `seed-npc-personas.ts`, whose renames the slugs assume) from
+  `seed-data/vm-appended-lines.json`: after appending to dev, run `npm run
+  export:vm-appended` and commit. seed-legacy also holds `SLUG_OVERRIDES`
+  (characters whose slug isn't `slugify(name)`, e.g. Los → `los_yelsi`) and
+  `STORY_ONLY_SEASONS` (T&L, FF5: no episodes, but stories file under them).
   `migrate-vm-to-story.ts` and `backfill-slugs.ts` are one-off historical
   migration scripts, already run against the live data; treat them as
   reference, not as repeatable tooling. `create-search-indexes.ts` (and

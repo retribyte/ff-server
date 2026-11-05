@@ -129,6 +129,21 @@ const PLAYER_ALIASES: Record<string, string> = { Vortox: "FF 8 Ball" };
 
 // Accounts for story authors with no transcript messages (see the Users block)
 const STORY_ONLY_AUTHORS = ["Eve"];
+
+// Characters whose slug isn't slugify(name). The name stays as the archive
+// has it; only the permanent identifier differs (the user's call, 2026-11-05:
+// "Los" is los_yelsi, as dev and the overlay already have it).
+const SLUG_OVERRIDES: Record<string, string> = { Los: "los_yelsi" };
+
+// Seasons with no archived episodes, which stories still file under. The
+// manuscripts name them in their `season:` frontmatter, so they must exist
+// before the stories are uploaded. T&L keeps its established slug "t&l"
+// (the user's call, 2026-11-05) rather than slugify's "tl".
+const STORY_ONLY_SEASONS: { title: string; slug: string; kind: SeasonKind }[] = [
+    { title: "T&L", slug: "t&l", kind: SeasonKind.SIDE },
+    { title: "FF5", slug: "ff5", kind: SeasonKind.PLANNED },
+];
+
 // Reverse direction -- cyoa.json (also an unconverted ff-site-old asset)
 // still names these speakers by their old short name, same as the color
 // table. Canonicalize any legacy short name seen in CYOA data up front so
@@ -320,7 +335,7 @@ async function main() {
                     (legacyName ? colors.dark[legacyName] : undefined) ??
                     null,
                 image: avatarFiles.has(`${shorthand}.png`) ? `/avatars/${shorthand}.png` : null,
-                slug: uniqueSlug(slugify(name), usedCharacterSlugs),
+                slug: uniqueSlug(SLUG_OVERRIDES[name] ?? slugify(name), usedCharacterSlugs),
             },
         });
         characterIds.set(name, character.id);
@@ -387,6 +402,11 @@ async function main() {
         }
     }
 
+    for (const { title, slug, kind } of STORY_ONLY_SEASONS) {
+        if (seasons.some((s) => s.seasonTitle === title)) continue; // episodes arrived; it's an archive season now
+        await prisma.season.create({ data: { title, slug, kind } });
+    }
+
     // -- Vortox Machina (CYOA) as a Story with a single chapter -------------
     // cyoa.json is flat, so one chapter keeps line 1..N identical to the
     // legacy numbering and old ?line=N deep links stay meaningful.
@@ -449,6 +469,7 @@ async function main() {
                 npcVoice: resolved !== null && "npc" in resolved,
             };
         });
+        // Lines appended from Discord since cyoa.json: seed-vm-appended.ts
         const CHUNK = 2000;
         for (let i = 0; i < cyoaRows.length; i += CHUNK) {
             await prisma.storyLine.createMany({ data: cyoaRows.slice(i, i + CHUNK) });
