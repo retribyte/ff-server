@@ -15,12 +15,21 @@ import searchController from "./search/search.controller.js";
 import speakerController from "./speaker/speaker.controller.js";
 import apiSpec from "./openapi.js";
 import { jsonExceptImports } from "./utils/import.js";
+import { canonicalRedirectUrl, requestHost } from "./utils/canonical-host.js";
 
 class App {
     public app: Application;
 
     constructor() {
         this.app = express();
+        // First: requests by the NFSN default name (or www.) go to the canonical
+        // host, behind Cloudflare. Off unless CANONICAL_HOST is set.
+        this.app.use((req: Request, res: Response, next: NextFunction) => {
+            const host = requestHost(req.get("x-forwarded-host"), req.get("host"));
+            const target = canonicalRedirectUrl(process.env.CANONICAL_HOST, host, req.originalUrl);
+            if (target) return res.redirect(308, target);
+            next();
+        });
         this.app.use(cors());
         // Import routes parse their own (larger) bodies — see utils/import.ts
         this.app.use(jsonExceptImports);
