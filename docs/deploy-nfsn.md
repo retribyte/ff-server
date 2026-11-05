@@ -1,8 +1,31 @@
 # Production on NearlyFreeSpeech.NET
 
-Site `vortox` (server type **Apache 2.4 Generic**), FreeBSD, Node 24,
-PostgreSQL 17. SSH: `ssh -i ~/.ssh/booru -o IdentitiesOnly=yes
-retri_vortox@ssh.nyc1.nearlyfreespeech.net`.
+**https://vortox.space** (behind Cloudflare). NFSN site `vortox` (server type
+**Apache 2.4 Generic**), FreeBSD, Node 24, PostgreSQL 17. SSH: `ssh -i
+~/.ssh/booru -o IdentitiesOnly=yes retri_vortox@ssh.nyc1.nearlyfreespeech.net`.
+The host's `nfsn` CLI (over SSH) can `stop-daemon`/`start-daemon <tag>`,
+`set-cron` (scheduled tasks) and `list-aliases`; TLS certificates come only from
+the panel.
+
+## Domain, Cloudflare and the canonical host
+
+The `vortox.space` zone (apex, `www`, `wiki`, `booru`) is proxied by Cloudflare,
+whose rules (a geoblock allowing only the US, with an `x-image-key` bypass;
+"Block AI bots"; a managed `robots.txt`) apply to every proxied name. The apex is
+a CNAME to `vortox.nfshost.com`; `vortox.space` and `www.vortox.space` are NFSN
+site aliases with Let's Encrypt certificates that NFSN issues and renews.
+
+- **Certificates need `/.well-known/acme-challenge/` to pass Cloudflare's WAF.**
+  Let's Encrypt validates from abroad, so the geoblock must skip that path
+  (a Skip rule at the top of the custom rules), or issuing and renewal fail. A
+  failed attempt "won't retry": remove and re-add the alias in the panel.
+- **The NFSN default names skip Cloudflare.** Both apps 308 any request by an
+  `*.nfshost.com` name or `www.` to `CANONICAL_HOST` (ff-server's `.env` and
+  the site's `run.sh` both set `vortox.space`; unset = off). Code:
+  ff-server `src/utils/canonical-host.ts`, ff-site `src/lib/canonicalHost.ts`.
+  The booru (separate NFSN site `vortox-booru`) does the same in its
+  `.htaccess`, right after `RewriteEngine On`; backups of that file are in the
+  booru's `/home/private/htaccess-backups/`.
 
 ## The one thing to know: SSH is a different machine
 
@@ -66,9 +89,12 @@ it for psql, pg_dump/pg_restore and one-off scripts.
 
 ## Deploying
 
+Both deploy scripts end by restarting their daemon through `nfsn` and waiting
+until https://vortox.space answers (~5 s of downtime).
+
 ff-site: `scripts/deploy-nfsn.sh` in ff-site (builds HEAD in a temp worktree,
-uploads the standalone server to `ff-site/app/`), then restart `ffsite`. Its
-own route handlers live under `/site/`, since `/api/` belongs to ff-server.
+uploads the standalone server to `ff-site/app/`, restarts `ffsite`). Its own
+route handlers live under `/site/`, since `/api/` belongs to ff-server.
 
 ff-server:
 
@@ -78,8 +104,7 @@ scripts/deploy-nfsn.sh     # from a clean, committed checkout on Linux
 
 It builds locally (the Prisma CLI can't run on FreeBSD), uploads `dist/` and
 the generated client, reinstalls prod dependencies on the host when the
-lockfile changed, and writes `REVISION`. Then restart the `ffserver` daemon
-in the panel.
+lockfile changed, writes `REVISION` and restarts `ffserver`.
 
 ## Schema changes
 

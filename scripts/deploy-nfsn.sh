@@ -5,7 +5,8 @@
 #
 #   scripts/deploy-nfsn.sh            build, upload, install prod dependencies
 #
-# Then restart the "ffserver" daemon in the NFSN site panel (Daemons).
+# It ends by restarting the "ffserver" daemon (the host's `nfsn` CLI) and waiting
+# until https://vortox.space/api/register answers again (~5 s of downtime).
 #
 # On the host (see docs/deploy-nfsn.md):
 #   /home/protected/ff-server/   dist/, package*.json, node_modules/, REVISION
@@ -53,4 +54,11 @@ rsync -a --delete -e "$RSYNC_SSH" node_modules/.prisma/ "$SSH_TARGET:$DEST/node_
 # runs as web and needs group read
 "${SSH[@]}" "chgrp -R web $DEST && chmod -R g+rX,o-rwx $DEST"
 
-echo "== deployed $REVISION; restart the ffserver daemon in the NFSN panel"
+echo "== restart ffserver"
+"${SSH[@]}" "nfsn stop-daemon ffserver > /dev/null; sleep 2; nfsn start-daemon ffserver > /dev/null"
+for _ in $(seq 1 30); do
+    [ "$(curl -s -o /dev/null -w '%{http_code}' https://vortox.space/api/register)" = 200 ] && { echo "== deployed $REVISION, live"; exit 0; }
+    sleep 2
+done
+echo "deployed $REVISION, but https://vortox.space/api/register isn't answering 200; check /home/logs/daemon_ffserver.log" >&2
+exit 1
