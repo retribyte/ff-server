@@ -10,4 +10,5 @@ console.log("Starting server...");
 
 // Create a new app instance, tell it to start listening
 const app = new App();
-app.listen(port, "0.0.0.0");
+// HOST: 0.0.0.0 by default (Docker); production binds 127.0.0.1 behind its proxy
+app.listen(port, process.env.HOST || "0.0.0.0");
