@@ -49,5 +49,8 @@ fi"
 # The generated client (npm ci on the host wipes it, so always copy)
 rsync -a --delete -e "$RSYNC_SSH" node_modules/.prisma/ "$SSH_TARGET:$DEST/node_modules/.prisma/"
 "${SSH[@]}" "echo $REVISION > $DEST/REVISION"
+# New files take the uploader's group here, not the directory's; the daemon
+# runs as web and needs group read
+"${SSH[@]}" "chgrp -R web $DEST && chmod -R g+rX,o-rwx $DEST"
 
 echo "== deployed $REVISION; restart the ff-server daemon in the NFSN panel"
