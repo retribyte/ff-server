@@ -42,7 +42,12 @@ const COLORS_BY_SLUG: Record<string, string> = {
     zion_daybreaker: "#3aa5bd",
     morra: "#ff00ff",
     dutch_elkins: "#6666ff",
-    bellow_brightlight: "#70a89d",
+    bellow_brightlight: "#0e748a",
+    // "Color Codes.docx" (Los, Squorchy, Squina): the doc ink is the light-mode
+    // value (ff-site characterColors.json); these are the same hues lightened for dark mode.
+    los_yelsi: "#ED583B",
+    squorchy_vurkallus: "#F89630",
+    squina_malreis: "#64C487",
     // Ravens: ink colors from "Any Means Necessary." (Odran, Sascha; the leader is
     // uncolored black) and "Everything Was Okay." (Marv). Used as-is, not lightened.
     ravens_leader: "#000000",

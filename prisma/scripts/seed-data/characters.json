@@ -11,7 +11,7 @@
         "image": "/avatars/grass_stalker.png"
     },
     "bellow_brightlight": {
-        "color": "#2D377A",
+        "color": "#0e748a",
         "image": "/avatars/bellow.png"
     },
     "buzzcut": {
@@ -149,5 +149,14 @@
         "color": "#00D2F4",
         "image": "/avatars/zion.png",
         "blurb": "A robotic angel with a chip on his shoulder."
+    },
+    "los_yelsi": {
+        "color": "#ED583B"
+    },
+    "squina_malreis": {
+        "color": "#64C487"
+    },
+    "squorchy_vurkallus": {
+        "color": "#F89630"
     }
 }
