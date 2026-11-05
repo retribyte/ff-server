@@ -33,17 +33,22 @@ BOORU_USER=
 BOORU_PASSWORD=
 ```
 
-3. Start the Postgres container (requires Docker):
+3. Start the Postgres container (requires Docker). Only the `db` service: the
+   compose file's `ff-api` service would fight `npm run dev` for port 3000.
 
 ```bash
-sudo docker compose up -d
+npm run docker:up -- db
 ```
 
-4. Generate the Prisma client and apply the schema:
+4. Generate the Prisma client and apply the schema (this project uses
+   `db push`, not migrations), then the search indexes and triggers that
+   `db push` can't express:
 
 ```bash
 npx prisma generate
-npx prisma migrate dev --name init
+npx prisma db push
+npm run db:search-indexes
+npm run db:triggers
 ```
 
 **Updating an existing database** (e.g. after pulling onto another machine):
@@ -51,10 +56,12 @@ some schema changes need a one-shot SQL script in `prisma/scripts/` run
 *before* `npx prisma db push`, or `db push` drops data. See "Schema changes" in
 `CLAUDE.md` for the list and the run command.
 
-5. (Optional) Seed the database with sample data:
+5. (Optional) Seed the database with the real archive. This wipes it first.
+   The episodes come from ff-site's build step, so run that first:
 
 ```bash
-npx prisma db seed
+(cd ../ff-site/archive-to-markdown && python3 md-to-api.py --all)
+npm run seed
 ```
 
 6. Start the dev server:
@@ -64,3 +71,27 @@ npm run dev
 ```
 
 The API is accessible at `http://localhost:3000/api/`. API docs are served at `http://localhost:3000/api/docs`.
+
+## Production
+
+The live site is https://vortox.space (NearlyFreeSpeech.NET, FreeBSD, behind
+Cloudflare). **Read [`docs/deploy-nfsn.md`](docs/deploy-nfsn.md) first**: it has
+the host layout, daemons, proxies, and how to run anything that touches the
+production database.
+
+Deploying an update, from a clean, committed, pushed checkout on Linux (needs
+the NFSN SSH key, `~/.ssh/booru` by default, or set `NFSN_KEY`):
+
+```bash
+scripts/deploy-nfsn.sh               # ff-server: build, upload, restart, health check
+(cd ../ff-site && scripts/deploy-nfsn.sh)   # the site, if it changed too
+```
+
+- **Schema changes go first,** as reviewed SQL run on the host (see "Schema
+  changes" in the deploy notes), never `prisma db push`. The Prisma CLI can't
+  run on FreeBSD, and the production database is the source of truth.
+- Prisma runs without native engines (`engineType = "client"` +
+  `@prisma/adapter-pg`, in `src/db.ts`), which is why it works on FreeBSD.
+- Production-only env (in the host's `.env`, not deployed): `HOST=127.0.0.1`,
+  `PORT=41730`, `CANONICAL_HOST=vortox.space` (308s requests by any other
+  host name to it), plus fresh secrets.
