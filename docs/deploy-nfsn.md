@@ -37,8 +37,18 @@ NFSN daemon command lines take no arguments, so each one is a run script.
 | `jobs` | `/home/private/bin/jobrunner.sh` | `/home/private` | me |
 | `ff-server` | `/home/protected/ff-server/run.sh` | `/home/protected/ff-server` | web |
 
-`ff-server` listens on `127.0.0.1:41730` (`HOST`/`PORT` in its `.env`). The
-site's proxy sends `/api` to it.
+`ff-server` listens on `127.0.0.1:41730` (`HOST`/`PORT` in its `.env`).
+
+## Proxies (site panel → Proxies)
+
+| Protocol | Base Path | Document Root | Target Port |
+|---|---|---|---|
+| HTTP | `/api/` | `/api/` | `41730` |
+
+The API is public through this proxy: `https://<site>/api/...` serves the
+frontend, the bot and any other client alike, over NFSN's HTTPS. Binding
+`127.0.0.1` only closes the side door of reaching the port directly and
+skipping Apache. NFSN only admits HTTP(S) on 80/443 from outside anyway.
 
 ## Jobs: running things on the daemon machine
 
