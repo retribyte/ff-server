@@ -290,6 +290,7 @@ model Item {
 }
 
 model EightBallAnswer {
+  throwawayRequired String
   throwawayNote String?
   id   Int                 @id @default(autoincrement())
   type EightBallAnswerType
