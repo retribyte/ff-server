@@ -129,7 +129,15 @@ data. Don't add a species table back.
     an existing DB (idempotent — skips anyone who already changed their
     password). In dev, clear the flag with SQL if you don't want the forced
     change: `UPDATE "User" SET "mustChangePassword" = false;`
-  - Avatars come from booru.vortox.space (Shimmie2): users pick a post ID
+  - Character and persona avatars can be uploaded: a `data:` URL sent as `image`
+    on the normal create/update routes (so those routes' permissions apply) is
+    validated by `src/utils/avatar-image.ts` (PNG, at most 14x14, 16 KB), stored in
+    `avatar_images` by `src/character/avatar.service.ts`, and replaced with
+    `/api/avatars/<sha256>.png`. The bytes never go in `image` itself: every
+    transcript message embeds its character's `image`. Only uploads are checked
+    (existing paths aren't), and `export:overlay` carries the path but not the
+    bytes, so a fresh seed shows the letter tile for an uploaded avatar.
+  - User avatars come from booru.vortox.space (Shimmie2): users pick a post ID
     (`iconBooruId`), and `src/utils/booru.ts` resolves it to an image URL via
     the Danbooru-compatible API, stored in `icon`. `BOORU_URL` configures it
     (optional `BOORU_USER`/`BOORU_PASSWORD` go along as Basic auth — Shimmie

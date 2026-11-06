@@ -22,6 +22,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
 import { isValidSlug, slugify } from "../utils/slug.js";
+import { storeAvatarUpload } from "../character/avatar.service.js";
 
 
 type Tx = Prisma.TransactionClient;
@@ -330,7 +331,8 @@ export async function deleteUnusedCharacterTx(tx: Tx, characterId: number) {
 
 /** Admin "create an NPC voice" (for per-line reassignment before any line uses it). */
 async function createNpcPersona(data: { name: string; image?: string; color?: string }) {
-    return prisma.$transaction((tx) => findOrCreateNpcPersona(tx, data.name, data), TX_OPTIONS);
+    const image = await storeAvatarUpload(data.image);
+    return prisma.$transaction((tx) => findOrCreateNpcPersona(tx, data.name, { ...data, image }), TX_OPTIONS);
 }
 
 // Each operation on its own transaction, for the admin endpoints. The *Tx

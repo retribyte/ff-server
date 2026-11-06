@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { Prisma } from "@prisma/client";
 import characterService, { CharacterInArchiveError } from "./character.service.js";
+import { getAvatarImage } from "./avatar.service.js";
 import messageService from "../message/message.service.js";
 import storyService from "../story/story.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
@@ -37,6 +38,26 @@ async function canEditPersona(characterId: number | null, user: Request["user"])
 
 const initializeCharacterRoutes = (): Router => {
     const router: Router = Router();
+
+    // GET /api/avatars/<sha256>.png: An uploaded avatar. Public (avatars render
+    // for logged-out readers) and immutable, since the name is the content hash.
+    // Uploads arrive through the character and persona edit routes.
+    router.get("/avatars/:file", async (req: Request, res: Response) => {
+        const sha256 = /^([0-9a-f]{64})\.png$/.exec(req.params.file)?.[1];
+        try {
+            const png = sha256 ? await getAvatarImage(sha256) : null;
+            if (!png) return res.status(404).json({ status: "error", message: "No such avatar" });
+            res.set({
+                "Content-Type": "image/png",
+                "Cache-Control": "public, max-age=31536000, immutable",
+                "X-Content-Type-Options": "nosniff",
+            });
+            return res.status(200).send(png);
+        } catch (error) {
+            console.error("Error fetching avatar:", error);
+            return res.status(500).json({ status: "error", message: "Failed to fetch avatar" });
+        }
+    });
 
     // GET /api/characters: Return all characters, optionally filtered/searched (public)
     router.get("/characters", async (req: Request, res: Response) => {

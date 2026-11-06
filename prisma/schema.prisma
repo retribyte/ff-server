@@ -93,6 +93,19 @@ model Character {
   @@map("characters")
 }
 
+// Uploaded avatar PNGs (see src/character/avatar.service.ts). Content-addressed:
+// Character.image / Persona.image hold /api/avatars/<sha256>.png, so the bytes
+// stay out of the per-message payloads that embed those columns, and a replaced
+// avatar gets a new URL past the immutable cache. Replaced images stay in the
+// table (a few hundred bytes each, and another record may share them).
+model AvatarImage {
+  sha256    String   @id
+  data      Bytes
+  createdAt DateTime @default(now())
+
+  @@map("avatar_images")
+}
+
 // How a character is presented for some stretch of the archive
 model Persona {
   id          Int       @id @unique @default(autoincrement())

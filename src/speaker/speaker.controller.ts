@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { Prisma } from "@prisma/client";
 import speakerService, { SpeakerError, SpeakerScope } from "./speaker.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
+import { AvatarImageError } from "../utils/avatar-image.js";
 
 // Admin-only speaker operations (FR-EP-2: changing attribution is an admin
 // right). See speaker.service.ts for what each one moves.
@@ -29,6 +30,9 @@ function parseScope(raw: unknown): SpeakerScope | undefined | Error {
 function sendError(res: Response, error: unknown, what: string) {
     if (error instanceof SpeakerError) {
         return res.status(error.status).json({ status: "error", message: error.message });
+    }
+    if (error instanceof AvatarImageError) {
+        return res.status(400).json({ status: "error", message: error.message });
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
         return res.status(409).json({ status: "error", message: "That name or slug is already taken" });

@@ -495,6 +495,19 @@ const spec = {
                 },
             },
         },
+        "/avatars/{file}": {
+            get: {
+                tags: ["Characters", "Personas"],
+                summary: "An uploaded avatar PNG (public)",
+                description: "Content-addressed, so responses are immutable. To upload, send a `data:image/png;base64,...` value as `image` when creating or updating a character or persona (with that route's permissions): at most 14x14 pixels and 16 KB. The record then stores this path.",
+                security: [],
+                parameters: [{ name: "file", in: "path", required: true, schema: { type: "string", pattern: "^[0-9a-f]{64}\\.png$" } }],
+                responses: {
+                    "200": { description: "The PNG", content: { "image/png": { schema: { type: "string", format: "binary" } } } },
+                    "404": { description: "No such avatar" },
+                },
+            },
+        },
         "/booru/image": {
             get: {
                 tags: ["Auth"],

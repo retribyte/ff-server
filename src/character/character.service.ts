@@ -3,6 +3,7 @@ import { prisma } from "../db.js";
 import { sanitizeText } from "../utils/sanitize.js";
 import { normalizeSlug, slugify } from "../utils/slug.js";
 import { getWikiData } from "../wiki/wiki.service.js";
+import { storeAvatarUpload } from "./avatar.service.js";
 
 
 type CharacterData = {
@@ -133,7 +134,7 @@ async function createCharacter(data: CharacterData) {
         data: {
             name: data.name,
             blurb: data.blurb !== undefined ? sanitizeText(data.blurb) : undefined,
-            image: data.image,
+            image: await storeAvatarUpload(data.image),
             color: data.color,
             slug: data.slug ?? slugify(data.name),
             creatorId: data.creatorId,
@@ -147,7 +148,7 @@ async function updateCharacter(id: number, data: Partial<CharacterData>) {
         data: {
             name: data.name,
             blurb: data.blurb !== undefined ? sanitizeText(data.blurb) : undefined,
-            image: data.image,
+            image: await storeAvatarUpload(data.image),
             color: data.color,
             slug: data.slug,
         },
@@ -238,7 +239,7 @@ async function createPersona(characterId: number, data: PersonaData) {
         data: {
             name: data.name,
             label: data.label,
-            image: data.image,
+            image: await storeAvatarUpload(data.image),
             color: data.color,
             slug: data.name ? data.slug ?? `${slugify(character.name)}_${slugify(data.name)}` : undefined,
             characterId,
@@ -273,7 +274,7 @@ async function updatePersona(id: number, data: Partial<PersonaData>) {
         data: {
             name: data.name,
             label: data.label,
-            image: data.image,
+            image: await storeAvatarUpload(data.image),
             color: data.color,
             slug: data.slug,
         },
