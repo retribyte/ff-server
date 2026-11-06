@@ -4,9 +4,10 @@ name: CI / Deploy
 # with scripts/deploy-nfsn.sh (see docs/deploy-nfsn.md).
 #
 # SCHEMA CHANGES: a PR that changes prisma/schema.prisma adds a SQL file under
-# prisma/prod-sql/. The `schema` job proves on a scratch Postgres that the SQL
-# gives exactly the new schema; the deploy then applies it on the host (through
-# the jobs queue) before uploading the new code. See prisma/prod-sql/README.md.
+# prisma/prod-sql/. The `schema` job lints it and proves on a scratch Postgres that
+# it gives exactly the new schema; the deploy then backs up the database and applies
+# it on the host (through the jobs queue) before uploading the new code. See
+# prisma/prod-sql/README.md.
 on:
   pull_request:
   push:
@@ -19,6 +20,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,12 +32,13 @@ jobs:
       - run: npx tsc --noEmit
       - run: npm test
 
-  # PRs only: does prisma/prod-sql/ turn the base branch's schema into this
-  # branch's schema? (scripts/verify-schema-sql.sh; skips fast when neither the
-  # schema nor the SQL changed.) Make this a required check next to `test`.
+  # PRs only, and a required check: does prisma/prod-sql/ turn the base branch's
+  # schema into this branch's schema? (scripts/verify-schema-sql.sh; skips fast
+  # when neither the schema nor the SQL changed.)
   schema:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     services:
       postgres:
         image: postgres:17
@@ -61,6 +64,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - run: scripts/test-apply-prod-sql.sh
       - run: scripts/verify-schema-sql.sh "origin/${{ github.base_ref }}"
 
   deploy:
@@ -68,6 +72,9 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production
+    # Longer than the slowest real path: a migration's 10-minute wait, plus npm ci
+    # on the host when the lockfile changes.
+    timeout-minutes: 30
     # One deploy at a time; a newer push waits rather than cancelling mid-upload
     concurrency:
       group: deploy-nfsn-ff-server

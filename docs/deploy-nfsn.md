@@ -44,6 +44,7 @@ with the session, and SSH sessions have a 180 s CPU limit.
 | `/home/private/postgres-superuser.pw`, `ff-db.pw` | DB passwords (role `ff`, db `ff`) | me only |
 | `/home/private/bin/postgres.sh`, `jobrunner.sh` | daemon run scripts | me only |
 | `/home/private/jobs/` | job queue (see below) | me only |
+| `/home/private/prod-sql/` | `files/` and the applier (deploy copies), `backups/` (last 3 pre-migration dumps) | me only |
 | `/home/protected/pgsock/` | Postgres unix socket, group `web` | me + web |
 | `/home/protected/ff-server/` | the API: deployed code, `.env`, `run.sh` | me + web |
 | `/home/protected/ff-site/` | the site: `app/` (deployed standalone build), `run.sh` | me + web |
@@ -85,8 +86,9 @@ skipping Apache. NFSN only admits HTTP(S) on 80/443 from outside anyway.
 
 Write a shell script to `/home/private/jobs/<name>.tmp`, then rename it to
 `<name>.sh` (so a half-written file is never picked up). Within ~5 s it runs
-once as `me`, and its output lands in `jobs/done/<name>.<UTC stamp>.log`. Use
-it for psql, pg_dump/pg_restore and one-off scripts.
+once as `me`, and its output (stdout and stderr) lands in
+`jobs/done/<name>.<UTC stamp>.log`. Jobs run one at a time. Use it for psql,
+pg_dump/pg_restore and one-off scripts.
 
 ## Deploying
 
@@ -108,18 +110,21 @@ and goes to `main` by PR (`main` is protected; there is no `dev` branch).
   (the host's ed25519 key, pinned, from `ssh-keyscan -t ed25519
   ssh.nyc1.nearlyfreespeech.net`). Rotate by replacing both ends. Optional
   variable `NFSN_SSH` overrides the user@host.
-- **The health check uses `https://vortox.nfshost.com/...`, not vortox.space.**
-  Cloudflare's Bot Fight Mode challenges GitHub's runners (`403`,
+- **The health check has two steps.** First `https://vortox.nfshost.com/...`, not
+  vortox.space: Cloudflare's Bot Fight Mode challenges GitHub's runners (`403`,
   `cf-mitigated: challenge`), and custom-rule skips don't cover that toggle. The
   NFSN name skips Cloudflare, and the app answers it with a 308 to the canonical
-  host (200 if `CANONICAL_HOST` is unset), so a 308 means the daemon is up.
-  Override with `HEALTH_URL`.
+  host (200 if `CANONICAL_HOST` is unset), so a 308 means the daemon is up, and
+  nothing more: it comes from the first middleware. Override with `HEALTH_URL`.
+  Then a job on the daemon machine GETs real routes over loopback, which skips the
+  redirect, and wants a 200 from each: ff-server's read the database, and ff-site's
+  render pages. If this fails, **the new code is live**: see "Rolling back".
 - **Schema changes are automatic too** (ff-server): a PR that changes
-  `prisma/schema.prisma` includes a SQL file in `prisma/prod-sql/`, CI proves it
-  on a scratch Postgres, and the deploy applies it on the host *before* uploading
-  the new code (see "Schema changes"). Keep it backward-compatible with the code
-  that is live until the deploy lands. A change that needs both repos merges
-  ff-server first.
+  `prisma/schema.prisma` includes a SQL file in `prisma/prod-sql/`, CI checks it
+  on a scratch Postgres, and the deploy backs up the database and applies the SQL on
+  the host *before* uploading the new code (see "Schema changes"). Keep it
+  backward-compatible with the code that is live until the deploy lands. A change
+  that needs both repos merges ff-server first.
 - **Still by hand:** new environment variables. Add them to the host's `.env`
   (ff-server) or `run.sh` (ff-site) before merging; CI never touches those.
 - A push to `main` is a deploy, so everything on `main` goes live, not just your
@@ -162,29 +167,80 @@ production only gets reviewed SQL. Develop with `db push` on dev as usual, then:
        > prisma/prod-sql/$(date -u +%Y%m%d%H%M)_what-it-does.sql
    ```
    Read it. A `DROP`, a `NOT NULL` without a default, or a rename (which Prisma
-   writes as drop + add) needs hand-written SQL that keeps the data.
+   writes as drop + add) needs hand-written SQL that keeps the data. Delete any
+   `BEGIN;`/`COMMIT;` lines, which Prisma generates when an enum loses a value:
+   the file already runs in one transaction, and the applier refuses them.
 2. **Check it locally** (optional; CI does the same): with a throwaway Postgres
    reachable via `PGHOST`/`PGUSER`/`PGPASSWORD`, run
-   `scripts/verify-schema-sql.sh origin/main`. It builds the base schema in a
-   scratch database, applies the PR's new SQL and fails if the result differs from
-   `schema.prisma`.
-3. **Commit it in the same PR.** The `schema` job runs that check on the PR (make
-   it a required check); it also fails if an already-merged file was edited.
+   `scripts/verify-schema-sql.sh origin/main`. It builds the base schema and the
+   hand-written triggers and indexes in a scratch database, applies the PR's new SQL
+   and fails if the result differs from `schema.prisma` or lost one of those.
+3. **Commit it in the same PR.** The `schema` job (a required check) runs that
+   check on the PR, and fails if an already-merged file was edited or removed.
+   It also runs `scripts/lint-prod-sql.sh`, because **the scratch database has no
+   rows** and so can't show what the SQL does to real data. The lint fails on
+   statements that lose data and on `NOT NULL` without a `DEFAULT`, until the file
+   has a `-- reviewed: why` comment; it warns about constraints that existing rows
+   might break. A trigger whose body uses a dropped column is still caught by
+   nobody: Postgres doesn't track those.
 4. **Merge.** `scripts/deploy-nfsn.sh` rsyncs `prisma/prod-sql/` and
    `scripts/apply-prod-sql.sh` to `/home/private/prod-sql/` and queues a job
-   (`migrate-<stamp>-<rev>`) that applies each pending file in order, as role `ff`,
-   each in a transaction together with its row in `_sql_migrations` (filename +
-   sha256). The job's log is printed in the deploy output. **If a file fails, the
-   deploy stops before uploading:** prod keeps the old code against the old schema
-   and the file is retried on the next deploy. An applied file that was edited
-   later is refused. The first file, `0000_tracker-smoke.sql`, does nothing; it
-   marks the baseline. Everything before it was applied by hand.
+   (`migrate-<stamp>-<rev>`). If anything is pending, the job dumps the database
+   to `backups/<job>.dump` (the last 3 are kept), then applies each pending file in
+   order, as role `ff`, each in a transaction together with its row in
+   `_sql_migrations` (filename + sha256). The job's log is printed in the deploy
+   output. **If a file fails, the deploy stops before uploading,** with the old code
+   still live. That file rolled back, but files before it stay applied. An applied
+   file that was edited later is refused. The first file,
+   `0000_tracker-smoke.sql`, does nothing; it marks the baseline. Everything before
+   it was applied by hand.
 
 Rules for these files: backward-compatible with the code that is live until the
 deploy lands (add columns, don't rename or drop in one step; drop in a later PR
 once nothing reads them); no `CONCURRENTLY` and nothing else that can't run in a
-transaction; no `CREATE EXTENSION` (role `ff` isn't a superuser); never edit a file
-after it has merged, add a new one.
+transaction, including `BEGIN`/`COMMIT`; no `CREATE EXTENSION` (role `ff` isn't a
+superuser); never edit a file after it has merged, add a new one.
+
+### When a migration fails
+
+A merged file that fails on prod fails again on every deploy, so nothing in ff-server
+ships until it's dealt with, hotfixes included. Prod is fine meanwhile: old code,
+and the file rolled back. Fixing it in a PR doesn't work the obvious ways: a new file
+can't get past the failing one (the applier stops there), and editing or deleting
+the failing one is refused by the required `schema` check. So:
+
+1. Find the file name and sha256 in the deploy log (`== applying <file> (<sha256>)`)
+   and work out why it failed. To try the fix on real data, restore a backup locally.
+2. Mark that file as dealt with, with a job, so the applier skips it (the `PG*`
+   exports are in the restore example below):
+   ```sh
+   psql -v ON_ERROR_STOP=1 -c "INSERT INTO _sql_migrations (filename, sha256) VALUES ('<file>', '<sha256>')"
+   ```
+   Do this only for a file whose log shows it failed: it changed nothing, and it now
+   never will.
+3. Open a PR with a new file that does what the failed one should have. `main`'s
+   `schema.prisma` already includes the change, so CI starts from a database that
+   has it and prod doesn't. **Write the new file to work on both**:
+   ```sql
+   ALTER TABLE items ADD COLUMN IF NOT EXISTS note TEXT NOT NULL DEFAULT '';
+   ALTER TABLE items ALTER COLUMN note DROP DEFAULT;
+   ```
+   Merging it deploys everything held up since the failure.
+
+### Rolling back
+
+- **Code only, no SQL in the PR:** revert the PR. Merging the revert deploys it.
+- **A PR with SQL:** the revert PR fails `schema`, since it removes a merged file.
+  Keep the file and revert the rest by hand, adding a new file that undoes the SQL if
+  `schema.prisma` goes back too (it must keep matching the database; if that drops a
+  column, the `-- reviewed:` rule applies).
+- **Prod is down right now:** in Actions, re-run the last good run on `main`. That
+  deploys its commit, which works because migrations stay backward-compatible with
+  the code before them. It warns about any applied file that commit doesn't have, and
+  leaves the database alone. Revert on `main` too: the next merge deploys `main`.
+- **A migration damaged data:** take the site down (`nfsn stop-daemon ffserver`),
+  then restore the job's `/home/private/prod-sql/backups/<job>.dump` as in "Restoring
+  the site DB" below, into an empty `ff`. Anything written since the dump is lost.
 
 **Not automated:**
 - The hand-written triggers and GIN indexes (`npm run db:triggers`,
