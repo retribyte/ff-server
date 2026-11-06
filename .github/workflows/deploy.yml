@@ -1,0 +1,62 @@
+name: CI / Deploy
+
+# PRs: typecheck + tests. Push to main: the same, then deploy to NearlyFreeSpeech
+# with scripts/deploy-nfsn.sh (see docs/deploy-nfsn.md).
+#
+# SCHEMA CHANGES: this deploys code only. If a PR needs new SQL, run it on the
+# host (jobs queue) BEFORE merging, and keep it backward-compatible with the
+# currently-live code.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx prisma generate
+      - run: npx tsc --noEmit
+      - run: npm test
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    # One deploy at a time; a newer push waits rather than cancelling mid-upload
+    concurrency:
+      group: deploy-nfsn-ff-server
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: SSH key and pinned host key
+        env:
+          NFSN_DEPLOY_KEY: ${{ secrets.NFSN_DEPLOY_KEY }}
+          NFSN_KNOWN_HOSTS: ${{ secrets.NFSN_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$NFSN_DEPLOY_KEY" > ~/.ssh/nfsn_deploy
+          chmod 600 ~/.ssh/nfsn_deploy
+          printf '%s\n' "$NFSN_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Deploy
+        env:
+          NFSN_SSH: ${{ vars.NFSN_SSH }}
+        run: |
+          export NFSN_KEY="$HOME/.ssh/nfsn_deploy"
+          [ -n "$NFSN_SSH" ] || unset NFSN_SSH
+          scripts/deploy-nfsn.sh

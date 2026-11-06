@@ -89,6 +89,13 @@ it for psql, pg_dump/pg_restore and one-off scripts.
 
 ## Deploying
 
+**Automatic:** a push to `main` in either repo runs GitHub Actions
+(`.github/workflows/deploy.yml`): typecheck/tests, then the same
+`scripts/deploy-nfsn.sh`. The SSH key and pinned host key are Environment
+secrets (`NFSN_DEPLOY_KEY`, `NFSN_KNOWN_HOSTS`) in each repo's `production`
+environment; revoke the key in the NFSN member profile. Run schema SQL on the
+host *before* merging, since CI deploys code only.
+
 Both deploy scripts end by restarting their daemon through `nfsn` and waiting
 until https://vortox.space answers (~5 s of downtime).
 
