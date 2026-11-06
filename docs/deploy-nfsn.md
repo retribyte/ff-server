@@ -10,7 +10,8 @@ the panel.
 ## Domain, Cloudflare and the canonical host
 
 The `vortox.space` zone (apex, `www`, `wiki`, `booru`) is proxied by Cloudflare,
-whose rules (a geoblock allowing only the US, with an `x-image-key` bypass;
+whose rules (a geoblock allowing only the US, with an `x-bypass-key` bypass that accepts two keys, the app's
+`IMAGE_KEY` and a separate CI key;
 "Block AI bots"; a managed `robots.txt`) apply to every proxied name. The apex is
 a CNAME to `vortox.nfshost.com`; `vortox.space` and `www.vortox.space` are NFSN
 site aliases with Let's Encrypt certificates that NFSN issues and renews.

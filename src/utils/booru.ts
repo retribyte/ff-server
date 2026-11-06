@@ -9,7 +9,7 @@
 // ever stops serving posts anonymously, set BOORU_USER / BOORU_PASSWORD and
 // they go along as HTTP Basic auth, which its Danbooru API accepts.
 // The booru sits behind a Cloudflare bot challenge; IMAGE_KEY, sent as the
-// `x-image-key` header, is what Cloudflare lets through.
+// `x-bypass-key` header, is what Cloudflare lets through.
 
 const BOORU_URL = (process.env.BOORU_URL ?? "https://booru.vortox.space").replace(/\/+$/, "");
 const BOORU_USER = process.env.BOORU_USER;
@@ -64,7 +64,7 @@ function extensionOf(attributes: Record<string, string>): string | null {
 
 function booruHeaders(): Record<string, string> {
     const headers: Record<string, string> = {};
-    if (IMAGE_KEY) headers["x-image-key"] = IMAGE_KEY;
+    if (IMAGE_KEY) headers["x-bypass-key"] = IMAGE_KEY;
     if (BOORU_USER && BOORU_PASSWORD) {
         headers.Authorization = `Basic ${Buffer.from(`${BOORU_USER}:${BOORU_PASSWORD}`).toString("base64")}`;
     }

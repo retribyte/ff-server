@@ -142,7 +142,7 @@ data. Don't add a species table back.
     the Danbooru-compatible API, stored in `icon`. `BOORU_URL` configures it
     (optional `BOORU_USER`/`BOORU_PASSWORD` go along as Basic auth — Shimmie
     has no API keys). The live booru sits behind a Cloudflare bot challenge;
-    `IMAGE_KEY` is sent as the `x-image-key` header, which Cloudflare lets
+    `IMAGE_KEY` is sent as the `x-bypass-key` header, which Cloudflare lets
     through. Without it, lookups fail (502).
   - System accounts (`prisma/scripts/system-accounts.ts`: the Archivist, the FF 8 Ball
     bot) are `loginDisabled` in the seed and the go-live script.

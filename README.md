@@ -26,7 +26,7 @@ SALT_ROUNDS=12
 REGISTRATION_OPEN=false
 PASSWORD_MIN_LENGTH=8
 BOORU_URL="https://booru.vortox.space"
-# Sent as the x-image-key header to get past the booru's Cloudflare bot challenge
+# Sent as the x-bypass-key header to get past the booru's Cloudflare bot challenge
 IMAGE_KEY=
 # Only if the booru stops serving posts anonymously (HTTP Basic auth)
 BOORU_USER=
