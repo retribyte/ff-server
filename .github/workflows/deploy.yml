@@ -56,6 +56,7 @@ jobs:
       - name: Deploy
         env:
           NFSN_SSH: ${{ vars.NFSN_SSH }}
+          CF_BYPASS_KEY: ${{ secrets.CF_BYPASS_KEY }}
         run: |
           export NFSN_KEY="$HOME/.ssh/nfsn_deploy"
           [ -n "$NFSN_SSH" ] || unset NFSN_SSH

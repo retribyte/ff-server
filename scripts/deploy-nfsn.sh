@@ -56,9 +56,12 @@ rsync -a --delete -e "$RSYNC_SSH" node_modules/.prisma/ "$SSH_TARGET:$DEST/node_
 
 echo "== restart ffserver"
 "${SSH[@]}" "nfsn stop-daemon ffserver > /dev/null; sleep 2; nfsn start-daemon ffserver > /dev/null"
+# CI runs outside the US, so Cloudflare blocks it; CF_BYPASS_KEY (the x-image-key
+# value its rules let through) gets the health check past
+CURL_AUTH=(); [ -n "${CF_BYPASS_KEY:-}" ] && CURL_AUTH=(-H "x-image-key: $CF_BYPASS_KEY")
 code=000
 for _ in $(seq 1 30); do
-    code="$(curl -s -o /dev/null -w '%{http_code}' https://vortox.space/api/register)"
+    code="$(curl -s -o /dev/null -w '%{http_code}' "${CURL_AUTH[@]}" https://vortox.space/api/register)"
     [ "$code" = 200 ] && { echo "== deployed $REVISION, live"; exit 0; }
     sleep 2
 done
