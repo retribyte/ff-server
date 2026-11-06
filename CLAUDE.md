@@ -41,6 +41,10 @@ data. Don't add a species table back.
   **both** — since `ff-api` also binds host `:3000`, that collides with a
   locally-run `npm run dev`. When running the API locally, start only
   Postgres: `npm run docker:up -- db`. `npm run docker:down` stops both.
+- **Prod gets schema changes as SQL files in `prisma/prod-sql/`** (generated with
+  `prisma migrate diff`, committed in the same PR, applied by the deploy; see
+  `prisma/prod-sql/README.md` and the runbook's "Schema changes"). `db push` below
+  is for dev only.
 - Schema changes go through **`npx prisma db push`** — `prisma/migrations/` is
   present but empty; this project isn't using versioned migrations day to day
   despite NFR-REL-2's aspiration. Run `npx prisma generate` after any schema

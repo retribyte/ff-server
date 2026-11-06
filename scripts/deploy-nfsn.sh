@@ -3,7 +3,7 @@
 # host. Prisma's CLI can't run on FreeBSD, so the client is generated here and
 # copied over; everything the server runs is plain JS + wasm.
 #
-#   scripts/deploy-nfsn.sh            build, upload, install prod dependencies
+#   scripts/deploy-nfsn.sh            build, run pending SQL, upload, install deps
 #
 # It ends by restarting the "ffserver" daemon (the host's `nfsn` CLI) and waiting
 # until the daemon answers again (~5 s of downtime).
@@ -32,6 +32,36 @@ npm ci --no-audit --no-fund
 npx prisma generate
 rm -rf dist
 npx tsc
+
+echo "== database migrations"
+# Pending SQL from prisma/prod-sql/ runs on the host (through the jobs queue, as
+# `me`: SSH can't reach Postgres) BEFORE the new code goes up. If it fails we stop
+# here, with the old code still live against the old schema (each file runs in a
+# transaction that rolled back).
+SQL_DIR=/home/private/prod-sql
+"${SSH[@]}" "mkdir -p $SQL_DIR/files"
+rsync -a --delete --include='*.sql' --exclude='*' -e "$RSYNC_SSH" prisma/prod-sql/ "$SSH_TARGET:$SQL_DIR/files/"
+rsync -a -e "$RSYNC_SSH" scripts/apply-prod-sql.sh "$SSH_TARGET:$SQL_DIR/"
+JOB="migrate-$(date -u +%Y%m%d%H%M%S)-$REVISION"
+# (write .tmp, then rename: the job runner only picks up complete *.sh files)
+"${SSH[@]}" "cat > /home/private/jobs/$JOB.tmp && mv /home/private/jobs/$JOB.tmp /home/private/jobs/$JOB.sh" <<JOBEOF || { echo "couldn't queue the migration job" >&2; exit 1; }
+set -e
+export PGHOST=/home/protected/pgsock PGUSER=ff PGDATABASE=ff PGPASSWORD="\$(cat /home/private/ff-db.pw)"
+sh $SQL_DIR/apply-prod-sql.sh $SQL_DIR/files
+JOBEOF
+status=""
+for _ in $(seq 1 200); do      # the job starts within ~5 s; allow ~10 min
+    sleep 3
+    status="$("${SSH[@]}" "tail -1 /home/private/jobs/done/$JOB.*.log 2>/dev/null" || true)"
+    case "$status" in "== exit"*) break ;; esac
+done
+# nobody will log in to read it, so always put the job's log in the output
+"${SSH[@]}" "cat /home/private/jobs/done/$JOB.*.log 2>/dev/null" || true
+case "$status" in
+    "== exit 0"*) ;;
+    "") echo "migration job never finished (is the jobs daemon running?); NOT deploying" >&2; exit 1 ;;
+    *) echo "migration job failed ($status); NOT deploying. Prod is still on the previous code." >&2; exit 1 ;;
+esac
 
 echo "== upload"
 "${SSH[@]}" "mkdir -p $DEST"

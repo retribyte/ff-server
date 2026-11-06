@@ -3,9 +3,10 @@ name: CI / Deploy
 # PRs: typecheck + tests. Push to main: the same, then deploy to NearlyFreeSpeech
 # with scripts/deploy-nfsn.sh (see docs/deploy-nfsn.md).
 #
-# SCHEMA CHANGES: this deploys code only. If a PR needs new SQL, run it on the
-# host (jobs queue) BEFORE merging, and keep it backward-compatible with the
-# currently-live code.
+# SCHEMA CHANGES: a PR that changes prisma/schema.prisma adds a SQL file under
+# prisma/prod-sql/. The `schema` job proves on a scratch Postgres that the SQL
+# gives exactly the new schema; the deploy then applies it on the host (through
+# the jobs queue) before uploading the new code. See prisma/prod-sql/README.md.
 on:
   pull_request:
   push:
@@ -28,6 +29,39 @@ jobs:
       - run: npx prisma generate
       - run: npx tsc --noEmit
       - run: npm test
+
+  # PRs only: does prisma/prod-sql/ turn the base branch's schema into this
+  # branch's schema? (scripts/verify-schema-sql.sh; skips fast when neither the
+  # schema nor the SQL changed.) Make this a required check next to `test`.
+  schema:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: scripts/verify-schema-sql.sh "origin/${{ github.base_ref }}"
 
   deploy:
     needs: test

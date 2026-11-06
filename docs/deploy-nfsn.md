@@ -114,10 +114,14 @@ and goes to `main` by PR (`main` is protected; there is no `dev` branch).
   NFSN name skips Cloudflare, and the app answers it with a 308 to the canonical
   host (200 if `CANONICAL_HOST` is unset), so a 308 means the daemon is up.
   Override with `HEALTH_URL`.
-- **Schema changes still go first, by hand.** CI deploys code only. Run the SQL on
-  the host (see "Schema changes") *before* merging the PR, and keep it
-  backward-compatible with the code that is live until the deploy lands. A change
-  that needs both repos merges ff-server first.
+- **Schema changes are automatic too** (ff-server): a PR that changes
+  `prisma/schema.prisma` includes a SQL file in `prisma/prod-sql/`, CI proves it
+  on a scratch Postgres, and the deploy applies it on the host *before* uploading
+  the new code (see "Schema changes"). Keep it backward-compatible with the code
+  that is live until the deploy lands. A change that needs both repos merges
+  ff-server first.
+- **Still by hand:** new environment variables. Add them to the host's `.env`
+  (ff-server) or `run.sh` (ff-site) before merging; CI never touches those.
 - A push to `main` is a deploy, so everything on `main` goes live, not just your
   commit. Check unreleased commits (`REVISION` on the host) before the first push
   after a manual deploy.
@@ -146,18 +150,57 @@ lockfile changed, writes `REVISION` and restarts `ffserver`.
 
 ## Schema changes
 
-`prisma db push` can't reach prod (no TCP, and no Prisma CLI on FreeBSD).
-Develop with `db push` on dev as usual, then generate the SQL for prod and
-review it:
+`prisma db push` can't reach prod (no TCP, and no Prisma CLI on FreeBSD), so
+production only gets reviewed SQL. Develop with `db push` on dev as usual, then:
 
-```sh
-npx prisma migrate diff --from-schema-datasource <old schema> \
-    --to-schema-datamodel prisma/schema.prisma --script > change.sql
-```
+1. **Generate the SQL** from the old to the new schema, into
+   `prisma/prod-sql/`, named `YYYYMMDDHHMM_what-it-does.sql`:
+   ```sh
+   git show origin/main:prisma/schema.prisma > /tmp/old.prisma
+   npx prisma migrate diff --from-schema-datamodel /tmp/old.prisma \
+       --to-schema-datamodel prisma/schema.prisma --script \
+       > prisma/prod-sql/$(date -u +%Y%m%d%H%M)_what-it-does.sql
+   ```
+   Read it. A `DROP`, a `NOT NULL` without a default, or a rename (which Prisma
+   writes as drop + add) needs hand-written SQL that keeps the data.
+2. **Check it locally** (optional; CI does the same): with a throwaway Postgres
+   reachable via `PGHOST`/`PGUSER`/`PGPASSWORD`, run
+   `scripts/verify-schema-sql.sh origin/main`. It builds the base schema in a
+   scratch database, applies the PR's new SQL and fails if the result differs from
+   `schema.prisma`.
+3. **Commit it in the same PR.** The `schema` job runs that check on the PR (make
+   it a required check); it also fails if an already-merged file was edited.
+4. **Merge.** `scripts/deploy-nfsn.sh` rsyncs `prisma/prod-sql/` and
+   `scripts/apply-prod-sql.sh` to `/home/private/prod-sql/` and queues a job
+   (`migrate-<stamp>-<rev>`) that applies each pending file in order, as role `ff`,
+   each in a transaction together with its row in `_sql_migrations` (filename +
+   sha256). The job's log is printed in the deploy output. **If a file fails, the
+   deploy stops before uploading:** prod keeps the old code against the old schema
+   and the file is retried on the next deploy. An applied file that was edited
+   later is refused. The first file, `0000_tracker-smoke.sql`, does nothing; it
+   marks the baseline. Everything before it was applied by hand.
 
-Run `change.sql` on prod through a job (`psql -v ON_ERROR_STOP=1 -f`), then
-re-run the idempotent `db:search-indexes` and `db:triggers` SQL the same way.
-Deploy the code that needs the new schema after the SQL has run.
+Rules for these files: backward-compatible with the code that is live until the
+deploy lands (add columns, don't rename or drop in one step; drop in a later PR
+once nothing reads them); no `CONCURRENTLY` and nothing else that can't run in a
+transaction; no `CREATE EXTENSION` (role `ff` isn't a superuser); never edit a file
+after it has merged, add a new one.
+
+**Not automated:**
+- The hand-written triggers and GIN indexes (`npm run db:triggers`,
+  `db:search-indexes`). They live outside `schema.prisma`, and additive changes
+  don't touch them. A migration that rebuilds `messages`, `story_lines` or
+  `personas` must re-create the affected ones in its own SQL (copy the statements
+  from `prisma/scripts/create-triggers.ts` / `create-search-indexes.ts`).
+- Data backfills that need the app (e.g. `npm run backfill:*`). Write those as
+  SQL in the migration, or run them by hand through a job.
+- Restores, seeds, and anything else that touches data wholesale: prod is the
+  source of truth.
+
+Running the migrator by hand on the host (e.g. Actions is down and you deploy
+manually): the deploy script does it; otherwise queue a job that exports the `PG*`
+variables as in the restore example below and runs
+`sh /home/private/prod-sql/apply-prod-sql.sh /home/private/prod-sql/files`.
 
 ## Building and restoring the database
 

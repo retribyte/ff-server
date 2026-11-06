@@ -90,9 +90,11 @@ scripts/deploy-nfsn.sh               # ff-server: build, upload, restart, health
 (cd ../ff-site && scripts/deploy-nfsn.sh)   # the site, if it changed too
 ```
 
-- **Schema changes go first,** as reviewed SQL run on the host (see "Schema
-  changes" in the deploy notes), never `prisma db push`. The Prisma CLI can't
-  run on FreeBSD, and the production database is the source of truth.
+- **Schema changes ship as reviewed SQL** in `prisma/prod-sql/`, in the same PR as
+  the `schema.prisma` change (see "Schema changes" in the deploy notes). CI checks
+  it, and the deploy applies it on the host before the new code. Never `prisma db
+  push` against prod: the Prisma CLI can't run on FreeBSD, and the production
+  database is the source of truth.
 - Prisma runs without native engines (`engineType = "client"` +
   `@prisma/adapter-pg`, in `src/db.ts`), which is why it works on FreeBSD.
 - Production-only env (in the host's `.env`, not deployed): `HOST=127.0.0.1`,
