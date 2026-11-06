@@ -290,6 +290,7 @@ model Item {
 }
 
 model EightBallAnswer {
+  throwawayNote String?
   id   Int                 @id @default(autoincrement())
   type EightBallAnswerType
   text String
