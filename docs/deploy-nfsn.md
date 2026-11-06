@@ -90,15 +90,45 @@ it for psql, pg_dump/pg_restore and one-off scripts.
 
 ## Deploying
 
-**Automatic:** a push to `main` in either repo runs GitHub Actions
-(`.github/workflows/deploy.yml`): typecheck/tests, then the same
-`scripts/deploy-nfsn.sh`. The SSH key and pinned host key are Environment
-secrets (`NFSN_DEPLOY_KEY`, `NFSN_KNOWN_HOSTS`) in each repo's `production`
-environment; revoke the key in the NFSN member profile. Run schema SQL on the
-host *before* merging, since CI deploys code only.
+### Automatic (GitHub Actions): the normal way
+
+Both repos have `.github/workflows/deploy.yml`. Work happens on feature branches
+and goes to `main` by PR (`main` is protected; there is no `dev` branch).
+
+- **On a PR:** `test` runs. ff-server: `prisma generate`, `tsc --noEmit`,
+  `npm test`. ff-site: lint, tests, `tsc --noEmit`, `next build`. None need a
+  database or a `.env`.
+- **On a push to `main`:** `test`, then `deploy`, which runs the same
+  `scripts/deploy-nfsn.sh` described below, from the runner. It only runs for
+  `main` (a manual "Run workflow" from another branch does not deploy), one deploy
+  at a time per repo, never cancelled midway. "Run workflow" on `main` redeploys.
+- **Secrets** are in each repo's `production` Environment: `NFSN_DEPLOY_KEY` (a
+  CI-only SSH private key, public half in the NFSN member profile; NFSN keys are
+  per member, so it can reach every site on the account) and `NFSN_KNOWN_HOSTS`
+  (the host's ed25519 key, pinned, from `ssh-keyscan -t ed25519
+  ssh.nyc1.nearlyfreespeech.net`). Rotate by replacing both ends. Optional
+  variable `NFSN_SSH` overrides the user@host.
+- **The health check uses `https://vortox.nfshost.com/...`, not vortox.space.**
+  Cloudflare's Bot Fight Mode challenges GitHub's runners (`403`,
+  `cf-mitigated: challenge`), and custom-rule skips don't cover that toggle. The
+  NFSN name skips Cloudflare, and the app answers it with a 308 to the canonical
+  host (200 if `CANONICAL_HOST` is unset), so a 308 means the daemon is up.
+  Override with `HEALTH_URL`.
+- **Schema changes still go first, by hand.** CI deploys code only. Run the SQL on
+  the host (see "Schema changes") *before* merging the PR, and keep it
+  backward-compatible with the code that is live until the deploy lands. A change
+  that needs both repos merges ff-server first.
+- A push to `main` is a deploy, so everything on `main` goes live, not just your
+  commit. Check unreleased commits (`REVISION` on the host) before the first push
+  after a manual deploy.
+
+### Manual
+
+The scripts still work from a Linux checkout with the SSH key (`~/.ssh/booru` by
+default, or `NFSN_KEY`), for emergencies or when Actions is down.
 
 Both deploy scripts end by restarting their daemon through `nfsn` and waiting
-until https://vortox.space answers (~5 s of downtime).
+until the daemon answers on the NFSN name (~5 s of downtime).
 
 ff-site: `scripts/deploy-nfsn.sh` in ff-site (builds HEAD in a temp worktree,
 uploads the standalone server to `ff-site/app/`, restarts `ffsite`). Its own

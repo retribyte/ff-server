@@ -79,8 +79,11 @@ Cloudflare). **Read [`docs/deploy-nfsn.md`](docs/deploy-nfsn.md) first**: it has
 the host layout, daemons, proxies, and how to run anything that touches the
 production database.
 
-Deploying an update, from a clean, committed, pushed checkout on Linux (needs
-the NFSN SSH key, `~/.ssh/booru` by default, or set `NFSN_KEY`):
+Merging to `main` deploys automatically (GitHub Actions: tests, then
+`scripts/deploy-nfsn.sh`; see "Deploying" in the runbook, including the PR flow
+and the secrets). To deploy by hand instead, from a clean, committed, pushed
+checkout on Linux (needs the NFSN SSH key, `~/.ssh/booru` by default, or set
+`NFSN_KEY`):
 
 ```bash
 scripts/deploy-nfsn.sh               # ff-server: build, upload, restart, health check
