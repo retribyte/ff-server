@@ -125,6 +125,9 @@ and goes to `main` by PR (`main` is protected; there is no `dev` branch).
   the host *before* uploading the new code (see "Schema changes"). Keep it
   backward-compatible with the code that is live until the deploy lands. A change
   that needs both repos merges ff-server first.
+- **Releases are tagged by the workflow:** a `version` job runs before `deploy`; a
+  merged PR with `[minor]` or `[major]` in its title or description gets the next
+  `vX.Y.0` tag, and the build bakes in the version. See `docs/versioning.md`.
 - **Still by hand:** new environment variables. Add them to the host's `.env`
   (ff-server) or `run.sh` (ff-site) before merging; CI never touches those.
 - A push to `main` is a deploy, so everything on `main` goes live, not just your
