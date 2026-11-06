@@ -58,12 +58,14 @@ echo "== restart ffserver"
 "${SSH[@]}" "nfsn stop-daemon ffserver > /dev/null; sleep 2; nfsn start-daemon ffserver > /dev/null"
 # CI runs outside the US, so Cloudflare blocks it; CF_BYPASS_KEY (the x-bypass-key
 # value its rules let through) gets the health check past
-CURL_AUTH=(); [ -n "${CF_BYPASS_KEY:-}" ] && CURL_AUTH=(-H "x-bypass-key: $CF_BYPASS_KEY")
+CF_BYPASS_KEY="$(printf %s "${CF_BYPASS_KEY:-}" | tr -d '[:space:]')"   # a pasted secret may carry a newline
+CURL_AUTH=(); [ -n "$CF_BYPASS_KEY" ] && CURL_AUTH=(-H "x-bypass-key: $CF_BYPASS_KEY")
 code=000
 for _ in $(seq 1 30); do
     code="$(curl -s -o /dev/null -w '%{http_code}' "${CURL_AUTH[@]}" https://vortox.space/api/register)"
     [ "$code" = 200 ] && { echo "== deployed $REVISION, live"; exit 0; }
     sleep 2
 done
+[ "$code" != 200 ] && curl -s -D - -o /dev/null "${CURL_AUTH[@]}" https://vortox.space/api/register | grep -iE '^(HTTP|server|cf-mitigated|cf-ray)' >&2
 echo "deployed $REVISION, but https://vortox.space/api/register answered $code, not 200; check /home/logs/daemon_ffserver.log" >&2
 exit 1
