@@ -56,9 +56,11 @@ rsync -a --delete -e "$RSYNC_SSH" node_modules/.prisma/ "$SSH_TARGET:$DEST/node_
 
 echo "== restart ffserver"
 "${SSH[@]}" "nfsn stop-daemon ffserver > /dev/null; sleep 2; nfsn start-daemon ffserver > /dev/null"
+code=000
 for _ in $(seq 1 30); do
-    [ "$(curl -s -o /dev/null -w '%{http_code}' https://vortox.space/api/register)" = 200 ] && { echo "== deployed $REVISION, live"; exit 0; }
+    code="$(curl -s -o /dev/null -w '%{http_code}' https://vortox.space/api/register)"
+    [ "$code" = 200 ] && { echo "== deployed $REVISION, live"; exit 0; }
     sleep 2
 done
-echo "deployed $REVISION, but https://vortox.space/api/register isn't answering 200; check /home/logs/daemon_ffserver.log" >&2
+echo "deployed $REVISION, but https://vortox.space/api/register answered $code, not 200; check /home/logs/daemon_ffserver.log" >&2
 exit 1
