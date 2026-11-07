@@ -39,58 +39,59 @@ enum EightBallAnswerType {
 }
 
 enum StoryLineType {
-  NARRATION   // prose paragraph
-  DIALOGUE    // spoken line, colored by character
-  ACTION      // a reader/protagonist choice
-  TRANSCRIPT  // in-universe recording fragment (VCOMM etc.)
-  BREAK       // scene break
-  HEADING     // in-chapter section heading (prose sub-sections)
-  IMAGE       // a picture: a booru post (booruId), text = its alt text
+  NARRATION // prose paragraph
+  DIALOGUE // spoken line, colored by character
+  ACTION // a reader/protagonist choice
+  TRANSCRIPT // in-universe recording fragment (VCOMM etc.)
+  BREAK // scene break
+  HEADING // in-chapter section heading (prose sub-sections)
+  IMAGE // a picture: a booru post (booruId), text = its alt text
 }
 
 enum StoryFormat {
-  SCRIPT      // narration and dialogue alternate as whole paragraphs (Vortox Machina)
-  PROSE       // novel-style: dialogue embedded inside narration paragraphs
+  SCRIPT // narration and dialogue alternate as whole paragraphs (Vortox Machina)
+  PROSE // novel-style: dialogue embedded inside narration paragraphs
 }
 
 model User {
-  id            Int         @id @unique @default(autoincrement())
-  username      String      @unique
-  email         String?     @unique
-  password      String      // hashed using bcrypt?
-  role          UserRole
-  icon          String?     // Resolved booru image URL; if null, use identicon?
-  iconBooruId   Int?        // booru.vortox.space post the icon was taken from
-  color         String?     // dark-mode display color for characterless messages (e.g. the Vortox bot); hex
-  bio           String?
-  wikiUser      String?
+  id                 Int          @id @unique @default(autoincrement())
+  username           String       @unique
+  email              String?      @unique
+  password           String // hashed using bcrypt?
+  role               UserRole
+  icon               String? // Resolved booru image URL; if null, use identicon?
+  iconBooruId        Int? // booru.vortox.space post the icon was taken from
+  color              String? // dark-mode display color for characterless messages (e.g. the Vortox bot); hex
+  bio                String?
+  wikiUser           String?
   passwordChangedAt  DateTime? // Tokens issued before this are rejected
-  mustChangePassword Boolean   @default(false) // Seeded/reset accounts pick their own password
-  loginDisabled      Boolean   @default(false) // System accounts, suspended users
-  characters    Character[]
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  messages      Message[]
-  items         Item[]
-  commentaries  Commentary[]
-  stories       Story[]
+  mustChangePassword Boolean      @default(false) // Seeded/reset accounts pick their own password
+  loginDisabled      Boolean      @default(false) // System accounts, suspended users
+  characters         Character[]
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  messages           Message[]
+  items              Item[]
+  commentaries       Commentary[]
+  stories            Story[]
+  jobRuns            JobRun[]
 }
 
 model Character {
-  id            Int       @id @unique @default(autoincrement())
-  name          String
-  creator       User      @relation(fields: [creatorId], references: [id])
-  creatorId     Int
-  messages      Message[]
-  image         String?
-  color         String?
-  colorLight    String?
-  blurb         String?
-  storyLines    StoryLine[]
-  personas      Persona[]
-  slug          String    @unique
+  id         Int         @id @unique @default(autoincrement())
+  name       String
+  creator    User        @relation(fields: [creatorId], references: [id])
+  creatorId  Int
+  messages   Message[]
+  image      String?
+  color      String?
+  colorLight String?
+  blurb      String?
+  storyLines StoryLine[]
+  personas   Persona[]
+  slug       String      @unique
   // campaigns an admin added this character to the cast of
-  mainIn        Season[]  @relation("MainCharacters")
+  mainIn     Season[]    @relation("MainCharacters")
 
   @@unique([creatorId, name])
   @@map("characters")
@@ -111,10 +112,10 @@ model AvatarImage {
 
 // How a character is presented for some stretch of the archive
 model Persona {
-  id          Int       @id @unique @default(autoincrement())
-  name        String?   // null -> canonical name shows
-  label       String?   // admin-facing handle; never rendered in transcripts
-  slug        String?   @unique // null for unnamed personas
+  id          Int        @id @unique @default(autoincrement())
+  name        String? // null -> canonical name shows
+  label       String? // admin-facing handle; never rendered in transcripts
+  slug        String?    @unique // null for unnamed personas
   image       String?
   color       String?
   // null -> an NPC persona: a named voice with no Character behind it
@@ -137,50 +138,50 @@ enum SeasonKind {
 }
 
 model Season {
-  title    String         @id @unique
-  episodes Episode[]
-  stories  Story[]
-  slug     String         @unique
-  kind     SeasonKind     @default(SIDE)
+  title          String      @id @unique
+  episodes       Episode[]
+  stories        Story[]
+  slug           String      @unique
+  kind           SeasonKind  @default(SIDE)
   mainCharacters Character[] @relation("MainCharacters")
 
   @@map("seasons")
 }
 
 model Episode {
-  title         String      @unique
-  season        Season      @relation(fields: [seasonTitle], references: [title])
+  title         String    @unique
+  season        Season    @relation(fields: [seasonTitle], references: [title])
   episode_no    Int
   messages      Message[]
   seasonTitle   String
   summary       String?
   playedDate    DateTime?
-  slug          String      @unique
+  slug          String    @unique
   // rewritten from memory, not recovered from logs
-  reconstructed Boolean     @default(false)
+  reconstructed Boolean   @default(false)
 
   @@id([seasonTitle, episode_no])
   @@map("episodes")
 }
 
 model Message {
-  episode       Episode    @relation(fields: [episodeTitle], references: [title])
-  messageNo     Int
-  episodeTitle  String
-  player        User       @relation(fields: [playerId], references: [id])
-  playerId      Int
-  character     Character? @relation(fields: [characterId], references: [id], onDelete: Restrict) // archive immutability: a character in the archive can't be deleted out from under its lines
-  characterId   Int?
+  episode      Episode      @relation(fields: [episodeTitle], references: [title])
+  messageNo    Int
+  episodeTitle String
+  player       User         @relation(fields: [playerId], references: [id])
+  playerId     Int
+  character    Character?   @relation(fields: [characterId], references: [id], onDelete: Restrict) // archive immutability: a character in the archive can't be deleted out from under its lines
+  characterId  Int?
   // Single-column FK. That the persona belongs to this message's character
   // (both null for an NPC line) is enforced by the messages_persona_match
   // trigger from prisma/scripts/create-triggers.ts, not by a composite FK:
   // a composite FK skips the check whenever characterId is null (MATCH SIMPLE).
-  persona       Persona?   @relation(fields: [personaId], references: [id], onDelete: Restrict)
-  personaId     Int?
-  timestamp     DateTime?
-  type          MessageType
-  text          String
-  commentaries  Commentary[]
+  persona      Persona?     @relation(fields: [personaId], references: [id], onDelete: Restrict)
+  personaId    Int?
+  timestamp    DateTime?
+  type         MessageType
+  text         String
+  commentaries Commentary[]
 
   @@id([episodeTitle, messageNo])
   @@map("messages")
@@ -206,8 +207,8 @@ model Story {
   slug          String         @unique
   title         String         @unique
   blurb         String?
-  authors       User[]         // co-written stories have several
-  publishedDate DateTime?      // real-world publication; an in-universe date would be a GUY Int
+  authors       User[] // co-written stories have several
+  publishedDate DateTime? // real-world publication; an in-universe date would be a GUY Int
   themeColor    String?
   themeColor2   String?
   format        StoryFormat    @default(PROSE) // dialogue presentation: script vs novel-style prose
@@ -248,12 +249,12 @@ model StoryLine {
   id          Int           @id @unique @default(autoincrement())
   chapter     StoryChapter  @relation(fields: [chapterId], references: [id])
   chapterId   Int
-  line_no     Int           // 1-based within chapter; deep-link anchor
+  line_no     Int // 1-based within chapter; deep-link anchor
   type        StoryLineType
   text        String
   character   Character?    @relation(fields: [characterId], references: [id], onDelete: Restrict) // same as Message.character
   characterId Int?
-  speaker     String?       // display-name fallback when no Character row exists
+  speaker     String? // display-name fallback when no Character row exists
   // An NPC voice (a DIALOGUE line): speaker is the NPC's name, or null while
   // it's unnamed. Authors/admins name it from the reader (PATCH .../voices);
   // only lines with this flag can be named that way.
@@ -283,16 +284,16 @@ model StoryLine {
 }
 
 model Item {
-  id            Int         @id @unique @default(autoincrement())
-  name          String
-  itemType      ItemType
-  description   String
-  image         String?
-  creator       User        @relation(fields: [creatorId], references: [id])
-  creatorId     Int
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  slug          String      @unique
+  id          Int      @id @unique @default(autoincrement())
+  name        String
+  itemType    ItemType
+  description String
+  image       String?
+  creator     User     @relation(fields: [creatorId], references: [id])
+  creatorId   Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  slug        String   @unique
 
   @@map("items")
 }
@@ -317,4 +318,27 @@ model WikiCache {
 
   @@id([bucket, slug])
   @@map("wiki_cache")
+}
+
+enum JobStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+// One run of an admin job (the /admin page): what ran, who ran it, its log
+model JobRun {
+  id         Int       @id @default(autoincrement())
+  job        String
+  dryRun     Boolean   @default(false)
+  status     JobStatus @default(RUNNING)
+  summary    String?
+  log        String    @default("")
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId     Int?
+
+  @@index([job, startedAt])
+  @@map("job_runs")
 }

@@ -8,7 +8,13 @@ import { Prisma } from "@prisma/client";
 // *after* authenticate, so only a logged-in member (story import is open to
 // members; registration is closed) can make the server buffer a large body. (/api/episodes/import is retired and only answers 410, but stays
 // listed so an oversized stray upload gets that 410 instead of a 413.)
-export const IMPORT_PATHS = new Set(["/api/stories/import", "/api/stories/convert", "/api/episodes/import"]);
+export const IMPORT_PATHS = new Set([
+    "/api/stories/import",
+    "/api/stories/convert",
+    "/api/episodes/import",
+    "/api/admin/episode-import",
+    "/api/admin/episode-import/preview",
+]);
 // PUT /api/stories/:slug/import (revision) carries a whole story too
 const REVISION_PATH = /^\/api\/stories\/[^/]+\/import$/;
 export const importJson = express.json({ limit: "10mb" });

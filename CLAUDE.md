@@ -204,11 +204,19 @@ data. Don't add a species table back.
     fragments (authors or admins). It can only touch NPC-flagged fragments,
     never text or character attribution. NPC voices are plain text, never
     NPC `Persona` rows (the user's call): story NPCs aren't archive speakers.
-  - `POST /api/episodes/import` (same idea for `{seasonTitle, episode,
-    messages}`) is **retired and answers 410**: the archive is seeded, and
-    episode re-imports go through ff-site's `archive-to-markdown/api-import.py`
-    via the chunked append endpoints. `episodeService.importEpisode` (atomic,
-    409 on title/slug/season+number) is kept for re-enabling.
+  - `POST /api/episodes/import` is **retired and answers 410**. Admins import
+    *new* episodes with `POST /api/admin/episode-import` (the site's /admin
+    page): md-to-api.py's JSON as is, speakers resolved like api-import.py,
+    every episode in one transaction (`importEpisodeTx`), never replacing one.
+    Re-imports (`--replace`) still go through ff-site's
+    `archive-to-markdown/api-import.py` via the chunked append endpoints.
+- **Admin jobs** (`src/jobs/`, `src/admin/`): idempotent, database-only
+  maintenance jobs (`JOBS` in `src/jobs/registry.ts`) and the episode import
+  run through `runJob`: one transaction (a dry run rolls back), recorded as a
+  `JobRun` with its log. A job's CLI script (`npm run backfill:story-hashes`)
+  is a thin wrapper over the same function. One-off data fixes aren't jobs:
+  they go in a prod-sql migration. Don't add
+  a job that reads files outside `dist/` (prod only has the compiled `src/`).
   - The append endpoints (`.../chapters/:n/lines`, `.../messages`) remain for
     incremental API use and the CLI episode uploaders.
 - **HTML sanitization** (`src/utils/sanitize.ts`, NFR-SEC-3): user-submitted

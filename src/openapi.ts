@@ -1458,6 +1458,109 @@ const spec = {
                 },
             },
         },
+        "/admin/jobs": {
+            get: {
+                tags: ["Admin"],
+                summary: "The maintenance jobs, each with its latest run (admin)",
+                security: [{ bearerAuth: [] }],
+                responses: {
+                    "200": { description: "[{name, title, description, lastRun: JobRun (no log) | null}]" },
+                    "403": { description: "Not an admin" },
+                },
+            },
+        },
+        "/admin/jobs/{name}/run": {
+            post: {
+                tags: ["Admin"],
+                summary: "Run a maintenance job (admin)",
+                description: "Runs in one transaction; a dry run rolls back. A failed run is still a 200, with status FAILED.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "name", in: "path", required: true, schema: { type: "string" } }],
+                requestBody: {
+                    content: { "application/json": { schema: { type: "object", properties: { dryRun: { type: "boolean", default: false } } } } },
+                },
+                responses: {
+                    "200": { description: "The JobRun, with its log" },
+                    "403": { description: "Not an admin" },
+                    "404": { description: "No such job" },
+                    "409": { description: "That job is already running" },
+                },
+            },
+        },
+        "/admin/job-runs": {
+            get: {
+                tags: ["Admin"],
+                summary: "Recent job runs, newest first, without logs (admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "job", in: "query", schema: { type: "string" } },
+                    { name: "limit", in: "query", schema: { type: "integer", default: 25, maximum: 100 } },
+                ],
+                responses: { "200": { description: "JobRun[]" }, "403": { description: "Not an admin" } },
+            },
+        },
+        "/admin/job-runs/{id}": {
+            get: {
+                tags: ["Admin"],
+                summary: "One job run with its log (admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: { "200": { description: "JobRun" }, "403": { description: "Not an admin" }, "404": { description: "Not found" } },
+            },
+        },
+        "/admin/episode-import/preview": {
+            post: {
+                tags: ["Admin", "Episodes"],
+                summary: "What an episode import would do; writes nothing (admin)",
+                description:
+                    "Body: {episodes: [md-to-api.py episode JSON]}. Speakers resolve as api-import.py does. Returns, per episode, " +
+                    "its conflicts (already in the archive, slug or number taken, duplicated in the batch), plus the players with " +
+                    "no account, the NPC voices and personas it would create, and case-insensitive character matches.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: { type: "object", required: ["episodes"], properties: { episodes: { type: "array", items: { type: "object" } } } },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "{episodes: [{title, seasonTitle, episodeNo, reconstructed, messages, newSeason, conflicts}], missingPlayers, newNpcVoices, newPersonas, caseMatches, ok}" },
+                    "400": { description: "Malformed episodes" },
+                    "403": { description: "Not an admin" },
+                },
+            },
+        },
+        "/admin/episode-import": {
+            post: {
+                tags: ["Admin", "Episodes"],
+                summary: "Import new episodes, all or nothing (admin)",
+                description:
+                    "Same body as the preview, plus dryRun. Creates the new NPC voices and personas, then every episode and its " +
+                    "messages in one transaction. Refuses the whole batch if a player has no account or any episode conflicts " +
+                    "(recorded as a FAILED run). Never replaces an episode; re-imports go through api-import.py.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["episodes"],
+                                properties: { episodes: { type: "array", items: { type: "object" } }, dryRun: { type: "boolean", default: false } },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "The JobRun, with its log" },
+                    "400": { description: "Malformed episodes" },
+                    "403": { description: "Not an admin" },
+                    "409": { description: "An episode import is already running" },
+                },
+            },
+        },
         "/stories/import": {
             post: {
                 tags: ["Stories"],

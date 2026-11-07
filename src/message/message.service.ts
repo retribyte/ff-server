@@ -159,8 +159,13 @@ async function createMessages(episodeTitle: string, messages: MessageData[]) {
     });
 }
 
-/** Rejects a bulk message batch before anything is written (shared by append and atomic episode import). */
-export async function validateMessages(messages: MessageData[]): Promise<void> {
+/**
+ * Rejects a bulk message batch before anything is written (shared by append and
+ * atomic episode import). `checkPersonas: false` skips the persona lookup, for a
+ * caller whose personas were created in its own uncommitted transaction (the
+ * messages_persona_match trigger still enforces the rule on insert).
+ */
+export async function validateMessages(messages: MessageData[], { checkPersonas = true } = {}): Promise<void> {
     for (const [index, msg] of messages.entries()) {
         if (!VALID_TYPES.has(msg.type)) {
             throw new Error(`Message ${index + 1}: invalid type '${msg.type}'`);
@@ -172,7 +177,7 @@ export async function validateMessages(messages: MessageData[]): Promise<void> {
             throw new Error(`Message ${index + 1}: text is required`);
         }
         assertQuoteHasVoice(msg.type, msg.characterId, msg.personaId, `Message ${index + 1}: `);
-        await assertPersonaMatchesCharacter(msg.personaId, msg.characterId, `Message ${index + 1}: `);
+        if (checkPersonas) await assertPersonaMatchesCharacter(msg.personaId, msg.characterId, `Message ${index + 1}: `);
     }
 }
 
