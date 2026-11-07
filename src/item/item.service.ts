@@ -40,7 +40,7 @@ async function attachWikiData<T extends { slug: string }>(item: T): Promise<T & 
 async function getItemById(id: number, options: { withWiki?: boolean } = {}) {
     const item = await prisma.item.findUnique({
         where: { id },
-        include: { creator: { select: { id: true, username: true } } },
+        include: { creator: { select: { id: true, username: true, icon: true } } },
     });
     if (!item) return null;
     return options.withWiki ? await attachWikiData(item) : item;
@@ -57,14 +57,14 @@ async function getItemBySlug(slug: string, options: { withWiki?: boolean } = {})
 async function resolveItemBySlug(slug: string) {
     const item = await prisma.item.findUnique({
         where: { slug },
-        include: { creator: { select: { id: true, username: true } } },
+        include: { creator: { select: { id: true, username: true, icon: true } } },
     });
     if (item) return item;
     const normalized = normalizeSlug(slug);
     return normalized !== slug
         ? await prisma.item.findUnique({
               where: { slug: normalized },
-              include: { creator: { select: { id: true, username: true } } },
+              include: { creator: { select: { id: true, username: true, icon: true } } },
           })
         : null;
 }

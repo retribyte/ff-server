@@ -118,6 +118,21 @@ const initializeCharacterRoutes = (): Router => {
         }
     });
 
+    // GET /api/characters/:id/appearances: Per-campaign transcript stats and
+    // the characters it shares the most episodes/stories with (public)
+    router.get("/characters/:id/appearances", async (req: Request, res: Response) => {
+        if (!/^\d+$/.test(req.params.id)) {
+            return res.status(400).json({ status: "error", message: "Character id must be an integer" });
+        }
+        try {
+            const data = await characterService.getAppearances(parseInt(req.params.id, 10));
+            res.status(200).json({ status: "success", data });
+        } catch (error) {
+            console.error("Error fetching appearances:", error);
+            res.status(500).json({ status: "error", message: "Failed to fetch appearances" });
+        }
+    });
+
     // GET /api/characters/:id/personas: List a character's personas (public)
     router.get("/characters/:id/personas", async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);

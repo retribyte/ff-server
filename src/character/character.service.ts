@@ -171,7 +171,7 @@ const MAIN_IN = { select: { title: true, slug: true }, orderBy: { title: "asc" a
 // Character detail shape: personas plus the owning user's public identity.
 const detailInclude = {
     personas: true,
-    creator: { select: { id: true, username: true } },
+    creator: { select: { id: true, username: true, icon: true } },
     mainIn: MAIN_IN,
 } as const;
 
@@ -314,6 +314,111 @@ type PersonaData = {
     color?: string;
 };
 
+// Archive episode a character speaks in, as a link target
+type EpisodeRef = { title: string; slug: string; episodeNo: number; messageNo: number; reconstructed: boolean };
+
+type CampaignAppearance = {
+    season: string;
+    slug: string;
+    kind: string;
+    /** Episodes the character speaks in, of the campaign's `seasonEpisodes` */
+    episodes: number;
+    seasonEpisodes: number;
+    messages: number;
+    /** Archived episodes first, as in statsByCharacter; reconstructed only as a fallback */
+    first: EpisodeRef;
+    last: EpisodeRef;
+};
+
+type CoStar = {
+    id: number;
+    name: string;
+    slug: string;
+    image: string | null;
+    color: string | null;
+    colorLight: string | null;
+    /** Episodes both speak in */
+    episodes: number;
+    /** Stories both speak in (a line or a segmented span) */
+    stories: number;
+};
+
+const COSTAR_LIMIT = 6;
+
+// The character page's appearance record: per-campaign transcript stats and
+// the characters it shares the most episodes and stories with.
+async function getAppearances(characterId: number): Promise<{ campaigns: CampaignAppearance[]; costars: CoStar[] }> {
+    const [campaigns, costarRows] = await Promise.all([
+        prisma.$queryRaw<CampaignAppearance[]>`
+            WITH mine AS (
+                SELECT m."episodeTitle", m."messageNo", e."seasonTitle", e.episode_no, e.reconstructed, e.slug
+                FROM messages m JOIN episodes e ON e.title = m."episodeTitle"
+                WHERE m."characterId" = ${characterId}
+            ),
+            per AS (
+                SELECT "seasonTitle",
+                    COUNT(DISTINCT "episodeTitle")::int AS episodes,
+                    COUNT(*)::int AS messages,
+                    (array_agg(json_build_object('title', "episodeTitle", 'slug', slug, 'episodeNo', episode_no,
+                        'messageNo', "messageNo", 'reconstructed', reconstructed)
+                        ORDER BY reconstructed, episode_no, "messageNo"))[1] AS first,
+                    (array_agg(json_build_object('title', "episodeTitle", 'slug', slug, 'episodeNo', episode_no,
+                        'messageNo', "messageNo", 'reconstructed', reconstructed)
+                        ORDER BY reconstructed DESC, episode_no DESC, "messageNo" DESC))[1] AS last
+                FROM mine GROUP BY "seasonTitle"
+            )
+            SELECT p."seasonTitle" AS season, s.slug, s.kind::text AS kind, p.episodes, p.messages, p.first, p.last,
+                (SELECT COUNT(*)::int FROM episodes e WHERE e."seasonTitle" = p."seasonTitle") AS "seasonEpisodes"
+            FROM per p JOIN seasons s ON s.title = p."seasonTitle"
+        `,
+        prisma.$queryRaw<{ id: number; episodes: number; stories: number }[]>`
+            WITH my_eps AS (
+                SELECT DISTINCT "episodeTitle" FROM messages WHERE "characterId" = ${characterId}
+            ),
+            ep_shared AS (
+                SELECT m."characterId" AS id, COUNT(DISTINCT m."episodeTitle")::int AS n
+                FROM messages m JOIN my_eps USING ("episodeTitle")
+                WHERE m."characterId" IS NOT NULL AND m."characterId" <> ${characterId}
+                GROUP BY 1
+            ),
+            -- (story, speaker) pairs: whole lines plus segmented spans
+            speakers AS (
+                SELECT DISTINCT sc."storyId", x.cid
+                FROM story_lines sl
+                JOIN story_chapters sc ON sc.id = sl."chapterId"
+                CROSS JOIN LATERAL (
+                    SELECT sl."characterId" AS cid WHERE sl."characterId" IS NOT NULL
+                    UNION
+                    SELECT (seg->>'characterId')::int
+                    FROM jsonb_array_elements(CASE WHEN jsonb_typeof(sl.segments) = 'array' THEN sl.segments ELSE '[]'::jsonb END) seg
+                    WHERE jsonb_typeof(seg->'characterId') = 'number'
+                ) x
+            ),
+            story_shared AS (
+                SELECT o.cid AS id, COUNT(*)::int AS n
+                FROM speakers me JOIN speakers o ON o."storyId" = me."storyId" AND o.cid <> me.cid
+                WHERE me.cid = ${characterId}
+                GROUP BY 1
+            )
+            SELECT COALESCE(e.id, s.id) AS id, COALESCE(e.n, 0) AS episodes, COALESCE(s.n, 0) AS stories
+            FROM ep_shared e FULL JOIN story_shared s ON s.id = e.id
+            ORDER BY COALESCE(e.n, 0) + COALESCE(s.n, 0) DESC, COALESCE(e.id, s.id)
+            LIMIT ${COSTAR_LIMIT}
+        `,
+    ]);
+
+    const characters = await prisma.character.findMany({
+        where: { id: { in: costarRows.map((r) => r.id) } },
+        select: { id: true, name: true, slug: true, image: true, color: true, colorLight: true },
+    });
+    const byId = new Map(characters.map((c) => [c.id, c]));
+    const costars = costarRows.flatMap((r) => {
+        const c = byId.get(r.id);
+        return c ? [{ ...c, episodes: r.episodes, stories: r.stories }] : [];
+    });
+    return { campaigns, costars };
+}
+
 async function getPersonasByCharacter(characterId: number) {
     return await prisma.persona.findMany({ where: { characterId }, orderBy: { id: "asc" } });
 }
@@ -419,6 +524,7 @@ export default {
     updateCharacter,
     setMainIn,
     deleteCharacter,
+    getAppearances,
     getPersonasByCharacter,
     getAllPersonas,
     getPersonaById,
