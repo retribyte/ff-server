@@ -13,6 +13,7 @@ import commentaryController from "./commentary/commentary.controller.js";
 import eightballController from "./eightball/eightball.controller.js";
 import searchController from "./search/search.controller.js";
 import speakerController from "./speaker/speaker.controller.js";
+import adminController from "./admin/admin.controller.js";
 import apiSpec from "./openapi.js";
 import { jsonExceptImports } from "./utils/import.js";
 import { canonicalRedirectUrl, requestHost } from "./utils/canonical-host.js";
@@ -55,6 +56,7 @@ class App {
         this.app.use("/api", eightballController.initializeEightballRoutes());
         this.app.use("/api", searchController.initializeSearchRoutes());
         this.app.use("/api", speakerController.initializeSpeakerRoutes());
+        this.app.use("/api", adminController.initializeAdminRoutes());
     }
 
     private errorHandlers(): void {

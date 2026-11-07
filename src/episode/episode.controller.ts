@@ -44,13 +44,9 @@ const initializeEpisodeRoutes = (): Router => {
         }
     });
 
-    // POST /api/episodes/import: RETIRED — 410 Gone. Once production is seeded
-    // the transcript archive is closed to web imports; (re)imports go through
-    // ff-site/archive-to-markdown/api-import.py, which uses POST /episodes +
-    // /episodes/:title/messages. Answered before auth or body parsing so a
-    // large stray upload gets the 410, not a 413. To bring it back, mount
-    // `authenticate, isAdmin, importJson` and call episodeService.importEpisode
-    // (atomic, 409 on title/slug/season+number conflicts) — see git history.
+    // POST /api/episodes/import: RETIRED, 410 Gone. Admins import new episodes
+    // with POST /api/admin/episode-import (the site's /admin page), which takes
+    // md-to-api.py's JSON as is; re-imports still go through api-import.py.
     router.post("/episodes/import", (_req: Request, res: Response) => {
         res.status(410).json({
             status: "error",

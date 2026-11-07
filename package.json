@@ -15,6 +15,7 @@
         "seed:galaxy": "tsx prisma/scripts/seed-galaxy.ts",
         "seed:8ball": "tsx prisma/scripts/seed-8ball.ts",
         "seed:sanya-persona": "tsx prisma/scripts/seed-sanya-persona.ts",
+        "seed:story-shelf": "tsx prisma/scripts/seed-story-shelf.ts",
         "seed:vortox-character-data": "tsx prisma/scripts/seed-vortox-character-data.ts",
         "seed:vortox-weapons": "tsx prisma/scripts/seed-vortox-weapons.ts",
         "backfill:story-authors": "tsx prisma/scripts/backfill-story-authors.ts",

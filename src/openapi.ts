@@ -95,7 +95,12 @@ const spec = {
                     id: { type: "integer" },
                     name: { type: "string" },
                     image: { type: "string", nullable: true },
-                    color: { type: "string", nullable: true },
+                    color: { type: "string", nullable: true, description: "Dark-mode display color, #rrggbb" },
+                    colorLight: {
+                        type: "string",
+                        nullable: true,
+                        description: "Light-mode display color, #rrggbb; null = the site derives one from `color`",
+                    },
                     blurb: { type: "string", nullable: true },
                     creatorId: { type: "integer" },
                     slug: { type: "string" },
@@ -133,6 +138,7 @@ const spec = {
                     summary: { type: "string", nullable: true },
                     playedDate: { type: "string", format: "date-time", nullable: true },
                     slug: { type: "string" },
+                    reconstructed: { type: "boolean", description: "Rewritten from memory, not recovered from logs" },
                 },
             },
             Message: {
@@ -229,11 +235,24 @@ const spec = {
                     themeColor: { type: "string", nullable: true },
                     themeColor2: { type: "string", nullable: true },
                     format: { $ref: "#/components/schemas/StoryFormat" },
+                    canon: {
+                        type: "boolean",
+                        description: "false for a story outside the universe's continuity (a joke, a what-if). Defaults to true",
+                    },
                     seasonTitle: { type: "string", nullable: true },
                     season: {
                         type: "object",
                         nullable: true,
-                        properties: { title: { type: "string" }, slug: { type: "string" } },
+                        properties: {
+                            title: { type: "string" },
+                            slug: { type: "string" },
+                            kind: { type: "string", enum: ["MAINLINE", "SIDE", "PLANNED"] },
+                        },
+                    },
+                    wordCount: {
+                        type: "integer",
+                        readOnly: true,
+                        description: "Words in the story's prose (every line but breaks and pictures). GET /stories and GET /stories/{slug} only",
                     },
                     chapters: { type: "array", items: { $ref: "#/components/schemas/StoryChapter" } },
                 },
@@ -245,6 +264,7 @@ const spec = {
                     storyId: { type: "integer" },
                     chapter_no: { type: "integer" },
                     title: { type: "string", nullable: true },
+                    wordCount: { type: "integer", readOnly: true, description: "As Story.wordCount, for this chapter" },
                 },
             },
             StoryLine: {
@@ -627,7 +647,16 @@ const spec = {
                     { name: "ownerId", in: "query", schema: { type: "integer" } },
                     { name: "season", in: "query", schema: { type: "string" } },
                 ],
-                responses: { "200": { description: "Array of characters" } },
+                responses: {
+                    "200": {
+                        description:
+                            "Array of characters, each with `seasons` (titles of the seasons it has messages in), " +
+                            "`quoteCount` (what GET /characters/{id}/quotes lists: QUOTE messages plus story lines it speaks), " +
+                            "`quoteWordCount` (words across those quotes; a segmented story paragraph counts only the character's own spans) and " +
+                            "`appearances`: its first appearance in each campaign, `{season, episodeNo, messageNo}`, " +
+                            "where episodeNo/messageNo are null for a story-only appearance and season is null for a story outside any campaign",
+                    },
+                },
             },
             post: {
                 tags: ["Characters"],
@@ -643,7 +672,8 @@ const spec = {
                                 properties: {
                                     name: { type: "string" },
                                     image: { type: "string" },
-                                    color: { type: "string" },
+                                    color: { type: "string", description: "Dark-mode display color, #rrggbb" },
+                                    colorLight: { type: "string", nullable: true, description: "Light-mode color, #rrggbb; null or omitted = derived from color" },
                                     blurb: { type: "string" },
                                     slug: {
                                         type: "string",
@@ -705,8 +735,58 @@ const spec = {
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 responses: {
                     "200": {
-                        description: "{ messages: Message[], storyQuotes: StoryLine[] } — two arrays, no shared sort key between sources",
+                        description: "{ messages: Message[], storyQuotes: StoryLine[] } — two arrays, no shared sort key between sources. Each story quote also carries storySlug, storyTitle, storySeason (its season title, or null) and chapterNo",
                     },
+                },
+            },
+        },
+        "/seasons/{season}/cast": {
+            get: {
+                tags: ["Seasons", "Characters"],
+                summary: "A campaign's player characters, and the ones that led each episode",
+                description:
+                    "Found from the transcripts: in each episode, every player's most active character (QUOTE + ACTION " +
+                    "messages); plus characters admins added (PUT /characters/{id}/main-in). In a campaign with a GM, the NPC " +
+                    "the GM voiced most in an episode counts too.",
+                security: [], // public — no token needed
+                parameters: [{ name: "season", in: "path", required: true, schema: { type: "string" }, description: "Season title or slug" }],
+                responses: {
+                    "200": {
+                        description:
+                            "{ season, characters: [{id, name, slug, image, color, messageCount, topEpisodes, manual}] (most messages first), " +
+                            "byEpisode: { [episode title]: character ids, most messages first } }",
+                    },
+                    "404": { description: "Unknown season" },
+                },
+            },
+        },
+        "/characters/{id}/main-in": {
+            put: {
+                tags: ["Characters", "Seasons"],
+                summary: "Add a character to campaigns' casts by hand (admin)",
+                description:
+                    "Replaces the list; [] clears it. These are added to the campaign's cast (GET /seasons/{season}/cast) " +
+                    "on top of the characters found from its transcripts; for a story-only campaign they're the whole cast. " +
+                    "Character reads carry `mainIn`.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["seasons"],
+                                properties: { seasons: { type: "array", items: { type: "string" }, description: "Season titles or slugs" } },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "The character, with mainIn: [{title, slug}]" },
+                    "400": { description: "seasons isn't an array of strings, or names an unknown season" },
+                    "403": { description: "Not an admin" },
+                    "404": { description: "Not found" },
                 },
             },
         },
@@ -1101,6 +1181,7 @@ const spec = {
                                         pattern: "^[a-z0-9]+(_[a-z0-9]+)*$",
                                         description: "Defaults to `<slugified_title>`",
                                     },
+                                    reconstructed: { type: "boolean", default: false },
                                 },
                             },
                         },
@@ -1315,6 +1396,7 @@ const spec = {
                                     themeColor2: { type: "string" },
                                     season: { type: "string", nullable: true, description: "Season title or slug; null clears" },
                                     format: { $ref: "#/components/schemas/StoryFormat" },
+                                    canon: { type: "boolean", default: true, description: "false = outside continuity" },
                                 },
                             },
                         },
@@ -1356,6 +1438,7 @@ const spec = {
                                             season: { type: "string" },
                                             themeColor: { type: "string" },
                                             themeColor2: { type: "string" },
+                                            canon: { type: "boolean", description: "false writes `canon: no` into the manuscript" },
                                             colors: {
                                                 type: "object",
                                                 additionalProperties: { type: "string", nullable: true },
@@ -1372,6 +1455,109 @@ const spec = {
                     "200": { description: "Analysis, or { payload, markdown, warnings }" },
                     "400": { description: "Not a usable .docx, or invalid meta" },
                     "401": { description: "Unauthorized" },
+                },
+            },
+        },
+        "/admin/jobs": {
+            get: {
+                tags: ["Admin"],
+                summary: "The maintenance jobs, each with its latest run (admin)",
+                security: [{ bearerAuth: [] }],
+                responses: {
+                    "200": { description: "[{name, title, description, lastRun: JobRun (no log) | null}]" },
+                    "403": { description: "Not an admin" },
+                },
+            },
+        },
+        "/admin/jobs/{name}/run": {
+            post: {
+                tags: ["Admin"],
+                summary: "Run a maintenance job (admin)",
+                description: "Runs in one transaction; a dry run rolls back. A failed run is still a 200, with status FAILED.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "name", in: "path", required: true, schema: { type: "string" } }],
+                requestBody: {
+                    content: { "application/json": { schema: { type: "object", properties: { dryRun: { type: "boolean", default: false } } } } },
+                },
+                responses: {
+                    "200": { description: "The JobRun, with its log" },
+                    "403": { description: "Not an admin" },
+                    "404": { description: "No such job" },
+                    "409": { description: "That job is already running" },
+                },
+            },
+        },
+        "/admin/job-runs": {
+            get: {
+                tags: ["Admin"],
+                summary: "Recent job runs, newest first, without logs (admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "job", in: "query", schema: { type: "string" } },
+                    { name: "limit", in: "query", schema: { type: "integer", default: 25, maximum: 100 } },
+                ],
+                responses: { "200": { description: "JobRun[]" }, "403": { description: "Not an admin" } },
+            },
+        },
+        "/admin/job-runs/{id}": {
+            get: {
+                tags: ["Admin"],
+                summary: "One job run with its log (admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: { "200": { description: "JobRun" }, "403": { description: "Not an admin" }, "404": { description: "Not found" } },
+            },
+        },
+        "/admin/episode-import/preview": {
+            post: {
+                tags: ["Admin", "Episodes"],
+                summary: "What an episode import would do; writes nothing (admin)",
+                description:
+                    "Body: {episodes: [md-to-api.py episode JSON]}. Speakers resolve as api-import.py does. Returns, per episode, " +
+                    "its conflicts (already in the archive, slug or number taken, duplicated in the batch), plus the players with " +
+                    "no account, the NPC voices and personas it would create, and case-insensitive character matches.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: { type: "object", required: ["episodes"], properties: { episodes: { type: "array", items: { type: "object" } } } },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "{episodes: [{title, seasonTitle, episodeNo, reconstructed, messages, newSeason, conflicts}], missingPlayers, newNpcVoices, newPersonas, caseMatches, ok}" },
+                    "400": { description: "Malformed episodes" },
+                    "403": { description: "Not an admin" },
+                },
+            },
+        },
+        "/admin/episode-import": {
+            post: {
+                tags: ["Admin", "Episodes"],
+                summary: "Import new episodes, all or nothing (admin)",
+                description:
+                    "Same body as the preview, plus dryRun. Creates the new NPC voices and personas, then every episode and its " +
+                    "messages in one transaction. Refuses the whole batch if a player has no account or any episode conflicts " +
+                    "(recorded as a FAILED run). Never replaces an episode; re-imports go through api-import.py.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["episodes"],
+                                properties: { episodes: { type: "array", items: { type: "object" } }, dryRun: { type: "boolean", default: false } },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "The JobRun, with its log" },
+                    "400": { description: "Malformed episodes" },
+                    "403": { description: "Not an admin" },
+                    "409": { description: "An episode import is already running" },
                 },
             },
         },
@@ -1420,6 +1606,7 @@ const spec = {
                                             themeColor2: { type: "string" },
                                             season: { type: "string", nullable: true, description: "Season title or slug" },
                                             format: { $ref: "#/components/schemas/StoryFormat" },
+                                            canon: { type: "boolean", default: true, description: "false = outside continuity" },
                                         },
                                     },
                                     chapters: {

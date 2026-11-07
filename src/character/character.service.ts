@@ -11,9 +11,20 @@ type CharacterData = {
     blurb?: string;
     image?: string;
     color?: string;
+    colorLight?: string | null;
     slug?: string;
     creatorId: number;
 };
+
+const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
+
+/** A light-mode color as stored: a #rrggbb hex, or null ("" clears it too). */
+function lightColor(value: unknown): string | null | undefined {
+    if (value === undefined) return undefined;
+    if (value === null || value === "") return null;
+    if (typeof value !== "string" || !HEX_COLOR.test(value)) throw new Error("colorLight must be a #rrggbb color");
+    return value;
+}
 
 type CharacterFilters = {
     search?: string;
@@ -40,9 +51,97 @@ async function seasonsByCharacter(ids: number[]): Promise<Map<number, string[]>>
     return map;
 }
 
-async function withSeasons<T extends { id: number }>(characters: T[]): Promise<(T & { seasons: string[] })[]> {
-    const seasons = await seasonsByCharacter(characters.map((c) => c.id));
-    return characters.map((c) => ({ ...c, seasons: seasons.get(c.id) ?? [] }));
+// First appearance in a campaign. episodeNo/messageNo null = story-only;
+// season null = a story outside any campaign.
+type Appearance = { season: string | null; episodeNo: number | null; messageNo: number | null; reconstructed?: boolean };
+
+// quoteWordCount: non-whitespace runs; in a story paragraph, only the character's own spans
+type CharacterStats = { quoteCount: number; quoteWordCount: number; appearances: Appearance[] };
+
+// Quote counts, word counts and first appearances for many characters at once.
+// Quotes are QUOTE messages plus story lines the character speaks.
+async function statsByCharacter(ids: number[]): Promise<Map<number, CharacterStats>> {
+    const map = new Map<number, CharacterStats>(ids.map((id) => [id, { quoteCount: 0, quoteWordCount: 0, appearances: [] }]));
+    if (ids.length === 0) return map;
+    const idList = Prisma.join(ids);
+    const [messageQuotes, firstMessages, storyLines] = await Promise.all([
+        prisma.$queryRaw<{ characterId: number; n: bigint; words: bigint }[]>`
+            SELECT m."characterId", COUNT(*) AS n,
+                   SUM((SELECT COUNT(*) FROM regexp_matches(m.text, '[^[:space:]]+', 'g'))) AS words
+            FROM messages m
+            WHERE m.type = 'QUOTE' AND m."characterId" IN (${idList})
+            GROUP BY m."characterId"
+        `,
+        // Archived episodes first; a reconstructed one is only a fallback
+        prisma.$queryRaw<{ characterId: number; season: string; episodeNo: number; messageNo: number; reconstructed: boolean }[]>`
+            SELECT DISTINCT ON (m."characterId", e."seasonTitle")
+                m."characterId", e."seasonTitle" AS season, e.episode_no AS "episodeNo", m."messageNo", e.reconstructed
+            FROM messages m JOIN episodes e ON e.title = m."episodeTitle"
+            WHERE m."characterId" IN (${idList})
+            ORDER BY m."characterId", e."seasonTitle", e.reconstructed, e.episode_no, m."messageNo"
+        `,
+        prisma.$queryRaw<{ characterId: number; lines: bigint; words: bigint; seasons: (string | null)[] }[]>`
+            WITH spoken AS (
+                SELECT sl.id, sl."characterId" AS cid
+                FROM story_lines sl
+                WHERE sl."characterId" IN (${idList})
+                UNION
+                SELECT sl.id, (seg->>'characterId')::int AS cid
+                FROM story_lines sl, jsonb_array_elements(sl.segments) seg
+                WHERE jsonb_typeof(sl.segments) = 'array'
+                  AND jsonb_typeof(seg->'characterId') = 'number'
+                  AND (seg->>'characterId')::int IN (${idList})
+            ),
+            -- one row per (line, speaker): a segmented line quotes only that
+            -- speaker's spans, any other line its whole text
+            quoted AS (
+                SELECT sp.cid, sl.id, sl."chapterId",
+                    CASE WHEN jsonb_typeof(sl.segments) = 'array' THEN (
+                        SELECT COUNT(*)
+                        FROM jsonb_array_elements(sl.segments) seg,
+                             regexp_matches(seg->>'text', '[^[:space:]]+', 'g')
+                        WHERE jsonb_typeof(seg->'characterId') = 'number'
+                          AND (seg->>'characterId')::int = sp.cid
+                    ) ELSE (
+                        SELECT COUNT(*) FROM regexp_matches(sl.text, '[^[:space:]]+', 'g')
+                    ) END AS words
+                FROM spoken sp JOIN story_lines sl ON sl.id = sp.id
+            )
+            SELECT q.cid AS "characterId", COUNT(*) AS lines, SUM(q.words) AS words,
+                   array_agg(DISTINCT s."seasonTitle") AS seasons
+            FROM quoted q
+            JOIN story_chapters sc ON sc.id = q."chapterId"
+            JOIN stories s ON s.id = sc."storyId"
+            GROUP BY q.cid
+        `,
+    ]);
+    for (const r of messageQuotes) {
+        const stats = map.get(r.characterId)!;
+        stats.quoteCount += Number(r.n);
+        stats.quoteWordCount += Number(r.words);
+    }
+    for (const r of firstMessages) {
+        map.get(r.characterId)!.appearances.push({ season: r.season, episodeNo: r.episodeNo, messageNo: r.messageNo, reconstructed: r.reconstructed });
+    }
+    for (const r of storyLines) {
+        const stats = map.get(r.characterId)!;
+        stats.quoteCount += Number(r.lines);
+        stats.quoteWordCount += Number(r.words);
+        for (const season of r.seasons) {
+            if (!stats.appearances.some((a) => a.season === season)) {
+                stats.appearances.push({ season, episodeNo: null, messageNo: null });
+            }
+        }
+    }
+    return map;
+}
+
+async function withSeasons<T extends { id: number }>(
+    characters: T[]
+): Promise<(T & { seasons: string[] } & CharacterStats)[]> {
+    const ids = characters.map((c) => c.id);
+    const [seasons, stats] = await Promise.all([seasonsByCharacter(ids), statsByCharacter(ids)]);
+    return characters.map((c) => ({ ...c, seasons: seasons.get(c.id) ?? [], ...stats.get(c.id)! }));
 }
 
 async function getAllCharacters(filters: CharacterFilters = {}) {
@@ -63,13 +162,17 @@ async function getAllCharacters(filters: CharacterFilters = {}) {
     if (lite) {
         return await prisma.character.findMany({ where, select: { id: true, name: true, slug: true, image: true }, take: limit });
     }
-    return await withSeasons(await prisma.character.findMany({ where, take: limit }));
+    return await withSeasons(await prisma.character.findMany({ where, take: limit, include: { mainIn: MAIN_IN } }));
 }
+
+// A character's cast campaigns, by title and slug
+const MAIN_IN = { select: { title: true, slug: true }, orderBy: { title: "asc" as const } };
 
 // Character detail shape: personas plus the owning user's public identity.
 const detailInclude = {
     personas: true,
     creator: { select: { id: true, username: true } },
+    mainIn: MAIN_IN,
 } as const;
 
 // Attaches wiki-sourced fields under a nullable `wiki` key, keyed off the
@@ -136,6 +239,7 @@ async function createCharacter(data: CharacterData) {
             blurb: data.blurb !== undefined ? sanitizeText(data.blurb) : undefined,
             image: await storeAvatarUpload(data.image),
             color: data.color,
+            colorLight: lightColor(data.colorLight),
             slug: data.slug ?? slugify(data.name),
             creatorId: data.creatorId,
         },
@@ -150,8 +254,27 @@ async function updateCharacter(id: number, data: Partial<CharacterData>) {
             blurb: data.blurb !== undefined ? sanitizeText(data.blurb) : undefined,
             image: await storeAvatarUpload(data.image),
             color: data.color,
+            colorLight: lightColor(data.colorLight),
             slug: data.slug,
         },
+    });
+}
+
+/** Replaces a character's cast campaigns (titles or slugs). An unknown one throws; nothing changes. */
+async function setMainIn(id: number, seasons: unknown) {
+    if (!Array.isArray(seasons) || !seasons.every((s) => typeof s === "string")) {
+        throw new Error("seasons must be an array of season titles or slugs");
+    }
+    const found = await prisma.season.findMany({
+        where: { OR: [{ title: { in: seasons } }, { slug: { in: seasons } }] },
+        select: { title: true, slug: true },
+    });
+    const unknown = seasons.filter((s) => !found.some((f) => f.title === s || f.slug === s));
+    if (unknown.length) throw new Error(`Unknown season(s): ${unknown.join(", ")}`);
+    return await prisma.character.update({
+        where: { id },
+        data: { mainIn: { set: found.map((f) => ({ title: f.title })) } },
+        include: detailInclude,
     });
 }
 
@@ -294,6 +417,7 @@ export default {
     getCharacterBySlug,
     createCharacter,
     updateCharacter,
+    setMainIn,
     deleteCharacter,
     getPersonasByCharacter,
     getAllPersonas,

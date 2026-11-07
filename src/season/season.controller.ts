@@ -20,6 +20,20 @@ const initializeSeasonRoutes = (): Router => {
         }
     });
 
+    // GET /api/seasons/:season/cast: a campaign's cast and each episode's leads. :season = title or slug (public)
+    router.get("/seasons/:season/cast", async (req: Request, res: Response) => {
+        try {
+            const cast = await seasonService.getSeasonCast(req.params.season);
+            if (!cast) {
+                return res.status(404).json({ status: "error", message: `Season '${req.params.season}' not found` });
+            }
+            res.status(200).json({ status: "success", data: cast });
+        } catch (error) {
+            console.error("Error fetching season cast:", error);
+            res.status(500).json({ status: "error", message: "Failed to fetch season cast" });
+        }
+    });
+
     // GET /api/seasons/:title: Return a season by title with its episodes (public)
     router.get("/seasons/:title", async (req: Request, res: Response) => {
         const { title } = req.params;
