@@ -740,6 +740,25 @@ const spec = {
                 },
             },
         },
+        "/characters/{id}/appearances": {
+            get: {
+                tags: ["Characters", "Seasons"],
+                summary: "A character's campaign appearances and most frequent co-stars",
+                security: [], // public — no token needed
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: {
+                    "200": {
+                        description:
+                            "{ campaigns: [{season, slug, kind, episodes, seasonEpisodes, messages, first, last}], " +
+                            "costars: [{id, name, slug, image, color, colorLight, episodes, stories}] }. " +
+                            "campaigns counts every message type the character speaks in; first/last are " +
+                            "{title, slug, episodeNo, messageNo, reconstructed}, archived episodes before reconstructed ones. " +
+                            "costars are the (up to 6) characters sharing the most episodes plus stories with it, most first",
+                    },
+                    "400": { description: "id isn't an integer" },
+                },
+            },
+        },
         "/seasons/{season}/cast": {
             get: {
                 tags: ["Seasons", "Characters"],
