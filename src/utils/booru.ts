@@ -11,6 +11,8 @@
 // The booru sits behind a Cloudflare bot challenge; IMAGE_KEY, sent as the
 // `x-bypass-key` header, is what Cloudflare lets through.
 
+import { logger } from "./logger.js";
+
 const BOORU_URL = (process.env.BOORU_URL ?? "https://booru.vortox.space").replace(/\/+$/, "");
 const BOORU_USER = process.env.BOORU_USER;
 const BOORU_PASSWORD = process.env.BOORU_PASSWORD;
@@ -91,15 +93,18 @@ async function getBooruPost(id: number): Promise<BooruPost | null> {
             // Anything that isn't the API's XML (a bot challenge, an error
             // page) means we never reached Shimmie.
             if (response.ok && body.includes("<posts")) break;
-            console.warn(`booru: post ${id} attempt ${attempt} got HTTP ${response.status}: ${body.slice(0, 200).replace(/\s+/g, " ")}`);
+            logger.debug("booru.retry", { post: id, attempt, httpStatus: response.status, body: body.slice(0, 200).replace(/\s+/g, " ") });
         } catch (err) {
             // fetch's own message is just "fetch failed"; the reason (DNS,
             // refused, reset, TLS) is on its cause.
             const detail = err instanceof Error && err.cause instanceof Error ? ` <- ${err.cause.message}` : "";
             const cause = err instanceof Error ? `${err.name}: ${err.message}${detail}` : String(err);
-            console.warn(`booru: post ${id} attempt ${attempt} failed (${cause})`);
+            logger.debug("booru.retry", { post: id, attempt, cause });
         }
-        if (attempt >= ATTEMPTS) throw new BooruUnavailableError();
+        if (attempt >= ATTEMPTS) {
+            logger.warn("booru.unavailable", { post: id, attempts: ATTEMPTS });
+            throw new BooruUnavailableError();
+        }
         await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
     }
 
@@ -263,13 +268,16 @@ async function fetchBooruImage(url: URL): Promise<BooruImage | null> {
                 }
             }
             // A bot challenge or error page comes back as HTML, not an image
-            console.warn(`booru: image ${url.pathname} attempt ${attempt} got HTTP ${response.status} (${declared || "no type"})`);
+            logger.debug("booru.retry", { image: url.pathname, attempt, httpStatus: response.status, type: declared || "no type" });
         } catch (err) {
             const detail = err instanceof Error && err.cause instanceof Error ? ` <- ${err.cause.message}` : "";
             const cause = err instanceof Error ? `${err.name}: ${err.message}${detail}` : String(err);
-            console.warn(`booru: image ${url.pathname} attempt ${attempt} failed (${cause})`);
+            logger.debug("booru.retry", { image: url.pathname, attempt, cause });
         }
-        if (attempt >= ATTEMPTS) throw new BooruUnavailableError();
+        if (attempt >= ATTEMPTS) {
+            logger.warn("booru.unavailable", { image: url.pathname, attempts: ATTEMPTS });
+            throw new BooruUnavailableError();
+        }
         await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
     }
 }

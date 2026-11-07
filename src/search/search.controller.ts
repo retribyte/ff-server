@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import searchService from "./search.service.js";
+import { logger } from "../utils/logger.js";
 
 const initializeSearchRoutes = (): Router => {
     const router: Router = Router();
@@ -27,7 +28,7 @@ const initializeSearchRoutes = (): Router => {
             const results = await searchService.searchAll(q, limitParam);
             res.status(200).json({ status: "success", data: results });
         } catch (error) {
-            console.error("Error running search:", error);
+            logger.caught("Error running search", error);
             res.status(500).json({ status: "error", message: "Search failed" });
         }
     });

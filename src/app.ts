@@ -14,16 +14,21 @@ import eightballController from "./eightball/eightball.controller.js";
 import searchController from "./search/search.controller.js";
 import speakerController from "./speaker/speaker.controller.js";
 import adminController from "./admin/admin.controller.js";
+import viewController from "./view/view.controller.js";
 import apiSpec from "./openapi.js";
 import { jsonExceptImports } from "./utils/import.js";
 import { canonicalRedirectUrl, requestHost } from "./utils/canonical-host.js";
 import { getVersion } from "./utils/version.js";
+import { requestLogger } from "./utils/request-log.js";
+import { logger, errorFields } from "./utils/logger.js";
 
 class App {
     public app: Application;
 
     constructor() {
         this.app = express();
+        // First, so every response (redirects included) gets a log line
+        this.app.use(requestLogger);
         // First: requests by the NFSN default name (or www.) go to the canonical
         // host, behind Cloudflare. Off unless CANONICAL_HOST is set.
         this.app.use((req: Request, res: Response, next: NextFunction) => {
@@ -57,12 +62,13 @@ class App {
         this.app.use("/api", searchController.initializeSearchRoutes());
         this.app.use("/api", speakerController.initializeSpeakerRoutes());
         this.app.use("/api", adminController.initializeAdminRoutes());
+        this.app.use("/api", viewController.initializeViewRoutes());
     }
 
     private errorHandlers(): void {
         this.app.use(
             (err: Error, req: Request, res: Response, next: NextFunction) => {
-                console.error(err.stack);
+                logger.error("http.unhandled", errorFields(err));
                 res.status(500).send("L, 500 server error");
             }
         );
@@ -74,7 +80,7 @@ class App {
 
     public listen(port: number, host: string = "0.0.0.0"): void {
         this.app.listen(port, host, () => {
-            console.log(`Server is running on port ${port}`);
+            logger.info("server.listening", { port, host, version: getVersion().version, commit: getVersion().commit, node: process.version });
         });
     }
 }

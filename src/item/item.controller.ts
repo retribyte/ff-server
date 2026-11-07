@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import itemService from "./item.service.js";
 import { authenticate } from "../auth/security.middleware.js";
 import { UserRole } from "@prisma/client";
+import { logger } from "../utils/logger.js";
 
 const initializeItemRoutes = (): Router => {
     const router: Router = Router();
@@ -12,7 +13,7 @@ const initializeItemRoutes = (): Router => {
             const items = await itemService.getAllItems(req.query.search as string | undefined);
             res.status(200).json({ status: "success", data: items });
         } catch (error) {
-            console.error("Error fetching items:", error);
+            logger.caught("Error fetching items", error);
             res.status(500).json({ status: "error", message: "Failed to fetch items" });
         }
     });
@@ -36,7 +37,7 @@ const initializeItemRoutes = (): Router => {
             }
             res.status(200).json({ status: "success", data: item });
         } catch (error) {
-            console.error("Error fetching item:", error);
+            logger.caught("Error fetching item", error);
             res.status(500).json({ status: "error", message: "Failed to fetch item" });
         }
     });

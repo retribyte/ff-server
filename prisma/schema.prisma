@@ -342,3 +342,23 @@ model JobRun {
   @@index([job, startedAt])
   @@map("job_runs")
 }
+
+enum ViewKind {
+  EPISODE
+  STORY
+}
+
+// Daily page-view counters, aggregate only (no per-user rows): `member` counts
+// views by signed-in users, `anonymous` the rest. `slug` is the episode's or
+// story's permanent slug; there's no FK because it spans two tables.
+model ViewCount {
+  kind      ViewKind
+  slug      String
+  day       DateTime @db.Date // UTC
+  member    Int      @default(0)
+  anonymous Int      @default(0)
+
+  @@id([kind, slug, day])
+  @@index([day])
+  @@map("view_counts")
+}

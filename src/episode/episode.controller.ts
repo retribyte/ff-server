@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import episodeService from "./episode.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
+import { logger } from "../utils/logger.js";
 
 const initializeEpisodeRoutes = (): Router => {
     const router: Router = Router();
@@ -11,7 +12,7 @@ const initializeEpisodeRoutes = (): Router => {
             const episodes = await episodeService.getAllEpisodes(req.query.search as string | undefined);
             res.status(200).json({ status: "success", data: episodes });
         } catch (error) {
-            console.error("Error fetching episodes:", error);
+            logger.caught("Error fetching episodes", error);
             res.status(500).json({ status: "error", message: "Failed to fetch episodes" });
         }
     });
@@ -29,7 +30,7 @@ const initializeEpisodeRoutes = (): Router => {
             }
             res.status(200).json({ status: "success", data: episode });
         } catch (error) {
-            console.error("Error fetching episode:", error);
+            logger.caught("Error fetching episode", error);
             res.status(500).json({ status: "error", message: "Failed to fetch episode" });
         }
     });

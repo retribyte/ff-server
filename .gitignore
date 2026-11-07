@@ -43,3 +43,5 @@ prisma/migrations/
 
 # Python bytecode cache (ff4_score_editor.py etc., kept untracked)
 __pycache__/
+# Server log files (LOG_DIR)
+/logs/

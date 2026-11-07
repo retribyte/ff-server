@@ -2,11 +2,23 @@
 // (token.service.ts reads JWT_SECRET then, falling back to "secret").
 import "dotenv/config";
 import App from "./app.js";
+import { initLogging, logger, errorFields } from "./utils/logger.js";
 
 // Choose the port number to run the app under
 const port: number = Number(process.env.PORT) || 3000;
 
-console.log("Starting server...");
+initLogging();
+
+// Node's default for either of these is to crash; keep that (the daemon
+// restarts us), but leave the reason in the log first.
+process.on("unhandledRejection", (reason) => {
+    logger.error("process.unhandled_rejection", errorFields(reason));
+    process.exit(1);
+});
+process.on("uncaughtException", (error) => {
+    logger.error("process.uncaught_exception", errorFields(error));
+    process.exit(1);
+});
 
 // Create a new app instance, tell it to start listening
 const app = new App();

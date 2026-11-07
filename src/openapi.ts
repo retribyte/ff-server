@@ -583,6 +583,7 @@ const spec = {
             get: {
                 tags: ["Auth"],
                 summary: "Get a user's public profile by ID or username (public)",
+                description: "`inactive` is true for a player who is still on the seeded or admin-reset password (they have never signed in as themselves).",
                 security: [], // public — no token needed
                 parameters: [{ name: "id", in: "path", required: true, description: "Numeric id, or username", schema: { type: "string" } }],
                 responses: {
@@ -1504,6 +1505,61 @@ const spec = {
                     "404": { description: "No such job" },
                     "409": { description: "That job is already running" },
                 },
+            },
+        },
+        "/views": {
+            post: {
+                tags: ["Views"],
+                summary: "Count one view of an episode or story (public)",
+                description:
+                    "Aggregate daily counters only; nothing per user is stored. Counted as a member view when the bearer token is valid, " +
+                    "otherwise as anonymous (a bad token is not an error).",
+                security: [],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["kind", "slug"],
+                                properties: { kind: { type: "string", enum: ["episode", "story"] }, slug: { type: "string" } },
+                            },
+                        },
+                    },
+                },
+                responses: { "200": { description: "Counted" }, "400": { description: "Bad kind or slug" }, "404": { description: "No such episode or story" } },
+            },
+        },
+        "/admin/views": {
+            get: {
+                tags: ["Admin", "Views"],
+                summary: "Views per episode and story, most viewed first (admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "days", in: "query", description: "Window, in UTC days including today", schema: { type: "integer", default: 30, maximum: 365 } },
+                    { name: "kind", in: "query", schema: { type: "string", enum: ["episode", "story"] } },
+                    { name: "limit", in: "query", schema: { type: "integer", default: 50, maximum: 200 } },
+                ],
+                responses: { "200": { description: "{kind, slug, title, member, anonymous}[]" }, "403": { description: "Not an admin" } },
+            },
+        },
+        "/admin/logs": {
+            get: {
+                tags: ["Admin"],
+                summary: "Recent log entries, newest first (admin)",
+                description:
+                    "From the server's in-memory buffer (last 2000 entries; a restart refills it from the last day's log file). " +
+                    "Each entry is {time, level, event, reqId?, userId?, username?, ...fields}.",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "level", in: "query", description: "Minimum level", schema: { type: "string", enum: ["debug", "info", "warn", "error"] } },
+                    { name: "event", in: "query", description: "Event name or prefix, e.g. auth", schema: { type: "string" } },
+                    { name: "user", in: "query", description: "Username or user id", schema: { type: "string" } },
+                    { name: "q", in: "query", description: "Case-insensitive text search over the whole entry", schema: { type: "string" } },
+                    { name: "since", in: "query", schema: { type: "string", format: "date-time" } },
+                    { name: "limit", in: "query", schema: { type: "integer", default: 200, maximum: 2000 } },
+                ],
+                responses: { "200": { description: "LogEntry[]" }, "400": { description: "Bad since" }, "403": { description: "Not an admin" } },
             },
         },
         "/admin/job-runs": {

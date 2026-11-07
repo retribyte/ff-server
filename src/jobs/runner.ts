@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
 import { IMPORT_TX_OPTIONS } from "../utils/import.js";
+import { logger } from "../utils/logger.js";
 
 export type Tx = Prisma.TransactionClient;
 
@@ -30,6 +31,7 @@ export async function runJob(job: string, userId: number | null, dryRun: boolean
     if (busy) throw new JobBusyError(`'${job}' is already running (run #${busy.id})`);
 
     const run = await prisma.jobRun.create({ data: { job, dryRun, userId } });
+    logger.info("admin.job_started", { job, dryRun, runId: run.id });
     const lines: string[] = [];
     const log = (line: string) => void lines.push(line);
     let status: "SUCCEEDED" | "FAILED" = "SUCCEEDED";
@@ -49,6 +51,7 @@ export async function runJob(job: string, userId: number | null, dryRun: boolean
             log(`FAILED: ${summary}`);
         }
     }
+    logger[status === "FAILED" ? "error" : "info"]("admin.job_finished", { job, dryRun, runId: run.id, status, summary: summary.slice(0, 200) });
     return await prisma.jobRun.update({
         where: { id: run.id },
         data: { status, summary, log: lines.join("\n"), finishedAt: new Date() },
