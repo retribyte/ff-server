@@ -4,6 +4,8 @@ import tokenService from "../auth/token.service.js";
 import { authenticate, authenticateAllowingPasswordChange, isAdmin } from "../auth/security.middleware.js";
 import booru, { BooruUnavailableError } from "../utils/booru.js";
 import { UserRole } from "@prisma/client";
+import { logger } from "../utils/logger.js";
+import { clientIp } from "../utils/request-log.js";
 
 const initializeUserRoutes = (): Router => {
     const router: Router = Router();
@@ -34,6 +36,7 @@ const initializeUserRoutes = (): Router => {
 
         try {
             const user = await userService.createUser(username, email, password);
+            logger.info("user.registered", { newUserId: user.id, newUsername: user.username });
             const { password: _, ...userWithoutPassword } = user;
             return res
                 .status(201)
@@ -57,19 +60,23 @@ const initializeUserRoutes = (): Router => {
         try {
             const user = await userService.authenticateUser(username, password);
             if (!user) {
+                // Which half was wrong stays in the server's hands: the response is the same either way
+                logger.warn("auth.login_failed", { attempted: String(username).slice(0, 64), reason: "bad_credentials", ip: clientIp(req) });
                 return res
                     .status(400)
                     .json({ status: "error", message: "Invalid credentials" });
             }
             if (user.loginDisabled) {
+                logger.warn("auth.login_failed", { attempted: user.username, reason: "login_disabled", ip: clientIp(req) });
                 return res
                     .status(403)
                     .json({ status: "error", message: "This account can't log in" });
             }
             const token = await tokenService.generateAccessToken(user);
+            logger.info("auth.login", { loginUserId: user.id, loginUsername: user.username, ip: clientIp(req) });
             return res.status(200).json({ status: "success", data: { token } });
         } catch (error) {
-            console.error("Login error:", error);
+            logger.caught("Login error", error);
             return res
                 .status(500)
                 .json({ status: "error", message: "Internal server error" });
@@ -112,8 +119,10 @@ const initializeUserRoutes = (): Router => {
         try {
             const user = await userService.changePassword(req.user!.id, currentPassword, newPassword);
             const token = await tokenService.generateAccessToken(user);
+            logger.info("user.password_changed", {});
             return res.status(200).json({ status: "success", data: { token } });
         } catch (err: any) {
+            logger.warn("user.password_change_failed", { reason: String(err.message).slice(0, 120) });
             return res.status(400).json({ status: "error", message: err.message });
         }
     });
@@ -181,7 +190,7 @@ const initializeUserRoutes = (): Router => {
             }
             return res.status(200).json({ status: "success", data: user });
         } catch (error) {
-            console.error("Error fetching user:", error);
+            logger.caught("Error fetching user", error);
             return res.status(500).json({ status: "error", message: "Failed to fetch user" });
         }
     });
@@ -214,6 +223,7 @@ const initializeUserRoutes = (): Router => {
             if (!user) {
                 return res.status(404).json({ status: "error", message: "User not found" });
             }
+            logger.info("admin.password_reset", { targetUserId: user.id, targetUsername: user.username });
             return res.status(200).json({ status: "success", data: { id: user.id, username: user.username, mustChangePassword: user.mustChangePassword } });
         } catch (err: any) {
             return res.status(400).json({ status: "error", message: err.message });

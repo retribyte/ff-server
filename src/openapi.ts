@@ -1506,6 +1506,25 @@ const spec = {
                 },
             },
         },
+        "/admin/logs": {
+            get: {
+                tags: ["Admin"],
+                summary: "Recent log entries, newest first (admin)",
+                description:
+                    "From the server's in-memory buffer (last 2000 entries; a restart refills it from the last day's log file). " +
+                    "Each entry is {time, level, event, reqId?, userId?, username?, ...fields}.",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "level", in: "query", description: "Minimum level", schema: { type: "string", enum: ["debug", "info", "warn", "error"] } },
+                    { name: "event", in: "query", description: "Event name or prefix, e.g. auth", schema: { type: "string" } },
+                    { name: "user", in: "query", description: "Username or user id", schema: { type: "string" } },
+                    { name: "q", in: "query", description: "Case-insensitive text search over the whole entry", schema: { type: "string" } },
+                    { name: "since", in: "query", schema: { type: "string", format: "date-time" } },
+                    { name: "limit", in: "query", schema: { type: "integer", default: 200, maximum: 2000 } },
+                ],
+                responses: { "200": { description: "LogEntry[]" }, "400": { description: "Bad since" }, "403": { description: "Not an admin" } },
+            },
+        },
         "/admin/job-runs": {
             get: {
                 tags: ["Admin"],

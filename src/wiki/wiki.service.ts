@@ -2,6 +2,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
 import { sanitizeText } from "../utils/sanitize.js";
+import { logger, errorFields } from "../utils/logger.js";
 import { fetchBucketRow, WikiBucket, WikiFetchError } from "./wiki.client.js";
 
 
@@ -67,7 +68,7 @@ async function refreshSlug(bucket: WikiBucket, slug: string): Promise<void> {
         await upsertCacheEntry(bucket, slug, row ? sanitizeRow(row) : null);
     } catch (err) {
         if (err instanceof WikiFetchError) {
-            console.error(`Wiki refresh failed for ${bucket}/${slug}: ${err.message}`);
+            logger.warn("wiki.refresh_failed", { bucket, slug, ...errorFields(err, false) });
             return;
         }
         throw err;
@@ -85,7 +86,7 @@ export async function getWikiData(bucket: WikiBucket, slug: string): Promise<Rec
 
     if (cached) {
         if (isStale(cached.fetchedAt, cached.data === null)) {
-            refreshSlug(bucket, slug).catch((err) => console.error(`Unexpected error refreshing ${bucket}/${slug}:`, err));
+            refreshSlug(bucket, slug).catch((err) => logger.error("wiki.refresh_unexpected", { bucket, slug, ...errorFields(err) }));
         }
         return cached.data as Record<string, unknown> | null;
     }
@@ -97,7 +98,7 @@ export async function getWikiData(bucket: WikiBucket, slug: string): Promise<Rec
         return data;
     } catch (err) {
         if (err instanceof WikiFetchError) {
-            console.error(`Wiki fetch failed for ${bucket}/${slug}: ${err.message}`);
+            logger.warn("wiki.fetch_failed", { bucket, slug, ...errorFields(err, false) });
             return null;
         }
         throw err;

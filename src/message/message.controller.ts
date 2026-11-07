@@ -3,6 +3,7 @@ import { UserRole } from "@prisma/client";
 import messageService from "./message.service.js";
 import characterService from "../character/character.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
+import { logger } from "../utils/logger.js";
 
 // Shared body validation + ownership check for the two bulk persona-stamp
 // routes below. Returns the resolved character on success, or writes an
@@ -44,7 +45,7 @@ const initializeMessageRoutes = (): Router => {
             }
             res.status(200).json({ status: "success", data: quote });
         } catch (error) {
-            console.error("Error fetching random quote:", error);
+            logger.caught("Error fetching random quote", error);
             res.status(500).json({ status: "error", message: "Failed to fetch quote" });
         }
     });
@@ -60,7 +61,7 @@ const initializeMessageRoutes = (): Router => {
             const result = await messageService.getMessagesByEpisode(episodeTitle, page, limit, search);
             res.status(200).json({ status: "success", ...result });
         } catch (error) {
-            console.error("Error fetching messages:", error);
+            logger.caught("Error fetching messages", error);
             res.status(500).json({ status: "error", message: "Failed to fetch messages" });
         }
     });
@@ -79,7 +80,7 @@ const initializeMessageRoutes = (): Router => {
             }
             res.status(200).json({ status: "success", data: message });
         } catch (error) {
-            console.error("Error fetching message:", error);
+            logger.caught("Error fetching message", error);
             res.status(500).json({ status: "error", message: "Failed to fetch message" });
         }
     });

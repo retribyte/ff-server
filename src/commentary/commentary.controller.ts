@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import commentaryService from "./commentary.service.js";
 import { authenticate } from "../auth/security.middleware.js";
 import { UserRole } from "@prisma/client";
+import { logger } from "../utils/logger.js";
 
 const initializeCommentaryRoutes = (): Router => {
     const router: Router = Router();
@@ -32,7 +33,7 @@ const initializeCommentaryRoutes = (): Router => {
                 }
                 res.status(201).json({ status: "success", data: commentary });
             } catch (error) {
-                console.error("Error creating commentary:", error);
+                logger.caught("Error creating commentary", error);
                 res.status(500).json({ status: "error", message: "Failed to create commentary" });
             }
         }
@@ -56,7 +57,7 @@ const initializeCommentaryRoutes = (): Router => {
             const updated = await commentaryService.updateCommentary(id, req.body.content.trim());
             res.status(200).json({ status: "success", data: updated });
         } catch (error) {
-            console.error("Error updating commentary:", error);
+            logger.caught("Error updating commentary", error);
             res.status(500).json({ status: "error", message: "Failed to update commentary" });
         }
     });
@@ -76,7 +77,7 @@ const initializeCommentaryRoutes = (): Router => {
             await commentaryService.deleteCommentary(id);
             res.status(204).send();
         } catch (error) {
-            console.error("Error deleting commentary:", error);
+            logger.caught("Error deleting commentary", error);
             res.status(500).json({ status: "error", message: "Failed to delete commentary" });
         }
     });

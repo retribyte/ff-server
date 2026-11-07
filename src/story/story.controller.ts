@@ -3,6 +3,7 @@ import storyService from "./story.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { importJson, importErrorResponse } from "../utils/import.js";
 import { analyzeDocx, convertDocx, DocxError, ManuscriptError } from "./convert/index.js";
+import { logger } from "../utils/logger.js";
 
 const initializeStoryRoutes = (): Router => {
     const router: Router = Router();
@@ -13,7 +14,7 @@ const initializeStoryRoutes = (): Router => {
             const stories = await storyService.getAllStories(req.query.search as string | undefined, req.query.season as string | undefined);
             res.status(200).json({ status: "success", data: stories });
         } catch (error) {
-            console.error("Error fetching stories:", error);
+            logger.caught("Error fetching stories", error);
             res.status(500).json({ status: "error", message: "Failed to fetch stories" });
         }
     });
@@ -28,7 +29,7 @@ const initializeStoryRoutes = (): Router => {
             }
             res.status(200).json({ status: "success", data: story });
         } catch (error) {
-            console.error("Error fetching story:", error);
+            logger.caught("Error fetching story", error);
             res.status(500).json({ status: "error", message: "Failed to fetch story" });
         }
     });
@@ -80,7 +81,7 @@ const initializeStoryRoutes = (): Router => {
             if (error instanceof DocxError || error instanceof ManuscriptError) {
                 return res.status(400).json({ status: "error", message: error.message });
             }
-            console.error("Story conversion failed:", error);
+            logger.caught("Story conversion failed", error);
             res.status(500).json({ status: "error", message: "Conversion failed" });
         }
     });
@@ -199,7 +200,7 @@ const initializeStoryRoutes = (): Router => {
             if (/not found/.test(error.message ?? "")) {
                 return res.status(404).json({ status: "error", message: error.message });
             }
-            console.error("Error fetching story lines:", error);
+            logger.caught("Error fetching story lines", error);
             res.status(500).json({ status: "error", message: "Failed to fetch story lines" });
         }
     });

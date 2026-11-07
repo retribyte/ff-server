@@ -2,6 +2,7 @@
 // wiki.vortox.space). See docs/notes/PLAN-wiki-cache.md for the reverse-engineered wire
 // format. Reads are anonymous — no bot credentials needed.
 import { isValidSlug } from "../utils/slug.js";
+import { logger, errorFields } from "../utils/logger.js";
 
 const WIKI_API_URL = "https://wiki.vortox.space/w/api.php";
 const FETCH_TIMEOUT_MS = 4000;
@@ -84,7 +85,7 @@ async function getBucketFields(bucket: WikiBucket): Promise<string[]> {
         return fields;
     } catch (err) {
         if (cached) {
-            console.warn(`Using last known fields for bucket '${bucket}': ${(err as Error).message}`);
+            logger.warn("wiki.fields_stale", { bucket, ...errorFields(err, false) });
             return cached.fields;
         }
         throw err;
