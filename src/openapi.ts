@@ -583,6 +583,7 @@ const spec = {
             get: {
                 tags: ["Auth"],
                 summary: "Get a user's public profile by ID or username (public)",
+                description: "`inactive` is true for a player who is still on the seeded or admin-reset password (they have never signed in as themselves).",
                 security: [], // public — no token needed
                 parameters: [{ name: "id", in: "path", required: true, description: "Numeric id, or username", schema: { type: "string" } }],
                 responses: {
