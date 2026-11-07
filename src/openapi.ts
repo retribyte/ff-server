@@ -1533,7 +1533,9 @@ const spec = {
                 summary: "What an episode import would do; writes nothing (admin)",
                 description:
                     "Body: {episodes: [md-to-api.py episode JSON]}. Speakers resolve as api-import.py does. Returns, per episode, " +
-                    "its conflicts (already in the archive, slug or number taken, duplicated in the batch), plus the players with " +
+                    "whether it's new, an update of the episode with that season and number (with how its messages and commentary " +
+                    "notes change) or unchanged, and its conflicts (title or slug taken by another episode, duplicated in the batch), " +
+                    "plus the players with " +
                     "no account, the NPC voices and personas it would create, and case-insensitive character matches.",
                 security: [{ bearerAuth: [] }],
                 requestBody: {
@@ -1545,7 +1547,7 @@ const spec = {
                     },
                 },
                 responses: {
-                    "200": { description: "{episodes: [{title, seasonTitle, episodeNo, reconstructed, messages, newSeason, conflicts}], missingPlayers, newNpcVoices, newPersonas, caseMatches, ok}" },
+                    "200": { description: "{episodes: [{title, seasonTitle, episodeNo, reconstructed, messages, newSeason, action: new|update|unchanged, changes: {unchanged, edited, added, removed, notesKept, notesMoved, renamedFrom} | null, conflicts}], missingPlayers, newNpcVoices, newPersonas, caseMatches, ok}" },
                     "400": { description: "Malformed episodes" },
                     "403": { description: "Not an admin" },
                 },
@@ -1554,11 +1556,14 @@ const spec = {
         "/admin/episode-import": {
             post: {
                 tags: ["Admin", "Episodes"],
-                summary: "Import new episodes, all or nothing (admin)",
+                summary: "Import or update episodes, all or nothing (admin)",
                 description:
                     "Same body as the preview, plus dryRun. Creates the new NPC voices and personas, then every episode and its " +
                     "messages in one transaction. Refuses the whole batch if a player has no account or any episode conflicts " +
-                    "(recorded as a FAILED run). Never replaces an episode; re-imports go through api-import.py.",
+                    "(recorded as a FAILED run). An episode whose season and number are already in the archive is updated in place: " +
+                    "its details and messages come from the file, a line whose file names no persona keeps its persona stamp, and " +
+                    "commentary notes follow their message (a removed message's notes go to the nearest kept one). Unchanged " +
+                    "episodes are skipped.",
                 security: [{ bearerAuth: [] }],
                 requestBody: {
                     required: true,
