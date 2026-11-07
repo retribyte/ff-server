@@ -16,6 +16,7 @@ import speakerController from "./speaker/speaker.controller.js";
 import apiSpec from "./openapi.js";
 import { jsonExceptImports } from "./utils/import.js";
 import { canonicalRedirectUrl, requestHost } from "./utils/canonical-host.js";
+import { getVersion } from "./utils/version.js";
 
 class App {
     public app: Application;
@@ -39,6 +40,9 @@ class App {
 
     private routes(): void {
         this.app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(apiSpec));
+        this.app.get("/api/version", (req: Request, res: Response) => {
+            res.json({ status: "success", data: getVersion() });
+        });
         this.app.use("/api", userController.initializeUserRoutes());
         this.app.use("/api", characterController.initializeCharacterRoutes());
         this.app.use("/api", seasonController.initializeSeasonRoutes());

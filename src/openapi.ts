@@ -361,6 +361,16 @@ const spec = {
         },
     },
     paths: {
+        "/version": {
+            get: {
+                tags: ["Meta"],
+                summary: "The running API's version (from git tags; see docs/versioning.md)",
+                security: [], // public — no token needed
+                responses: {
+                    "200": { description: "{ status, data: { version: \"1.1.14\", commit: \"3fa9c2e\" } }" },
+                },
+            },
+        },
         "/register": {
             get: {
                 tags: ["Auth"],

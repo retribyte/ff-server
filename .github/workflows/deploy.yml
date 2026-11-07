@@ -31,6 +31,7 @@ jobs:
       - run: npx prisma generate
       - run: npx tsc --noEmit
       - run: npm test
+      - run: scripts/test-tag-release.sh
 
   # PRs only, and a required check: does prisma/prod-sql/ turn the base branch's
   # schema into this branch's schema? (scripts/verify-schema-sql.sh; skips fast
@@ -67,8 +68,36 @@ jobs:
       - run: scripts/test-apply-prod-sql.sh
       - run: scripts/verify-schema-sql.sh "origin/${{ github.base_ref }}"
 
-  deploy:
+  # Main only, before the deploy so the build sees the tag: a merged PR whose title
+  # or description says [minor] or [major] gets the next release tag. Anything else
+  # is a patch, which `git describe` counts on its own. See docs/versioning.md.
+  version:
     needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # push the tag
+      pull-requests: read
+    concurrency:
+      group: tag-release-ff-server
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the tags
+      - name: Tag a release if the merged PR asks for one
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The PR that produced this commit (empty for a direct push)
+          PR_TEXT="$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" \
+            --jq '[.[] | select(.merged_at != null)][0] // empty | "\(.title)\n\n\(.body // "")"')"
+          export PR_TEXT
+          scripts/tag-release.sh
+
+  deploy:
+    needs: [test, version]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production
@@ -81,6 +110,8 @@ jobs:
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tags, for the version in the build (scripts/write-version.mjs)
       - uses: actions/setup-node@v4
         with:
           node-version: 24

@@ -58,6 +58,7 @@ npm ci --no-audit --no-fund
 npx prisma generate
 rm -rf dist
 npx tsc
+node scripts/write-version.mjs   # dist/version.json: the host has no git
 
 echo "== database migrations"
 # Pending SQL from prisma/prod-sql/ runs on the host, as `me`, BEFORE the new code
