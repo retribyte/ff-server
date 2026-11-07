@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parsePayloads } from "../src/jobs/episodeImport.js";
+import { parsePayloads } from "../src/jobs/episodePayload.js";
 
 const episode = (over: Record<string, unknown> = {}) => ({
     seasonTitle: "FF1",
