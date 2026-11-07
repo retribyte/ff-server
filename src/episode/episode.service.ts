@@ -11,6 +11,7 @@ type EpisodeData = {
     summary?: string;
     playedDate?: string;
     slug?: string;
+    reconstructed?: boolean;
 };
 
 async function getAllEpisodes(search?: string) {
@@ -39,6 +40,7 @@ async function createEpisode(data: EpisodeData) {
             summary: data.summary,
             playedDate: data.playedDate ? new Date(data.playedDate) : undefined,
             slug: data.slug ?? `${slugify(data.title)}`,
+            reconstructed: data.reconstructed ?? false,
         },
         include: { season: true, messages: true },
     });
@@ -54,6 +56,7 @@ async function updateEpisode(title: string, data: Partial<EpisodeData>) {
             summary: data.summary,
             playedDate: data.playedDate ? new Date(data.playedDate) : undefined,
             slug: data.slug,
+            reconstructed: data.reconstructed,
         },
         include: { season: true, messages: true },
     });

@@ -80,6 +80,7 @@ export function convertDocx(data: Uint8Array, options: ConvertOptions): DocxConv
     if (!options.title || typeof options.title !== "string") throw new ManuscriptError("title is required");
     const format = (options.format || "prose").toLowerCase();
     if (format !== "prose" && format !== "script") throw new ManuscriptError("format must be 'prose' or 'script'");
+    if (options.canon != null && typeof options.canon !== "boolean") throw new ManuscriptError("canon must be true or false");
     const paragraphs = readParagraphs(loadDocument(data));
     const colors: ColorMap = {};
     const given = options.colors ?? {};

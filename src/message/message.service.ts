@@ -8,7 +8,7 @@ export type MessageData = {
     playerId: number;
     characterId?: number | null;
     personaId?: number | null;
-    timestamp: string;
+    timestamp: string | null;
     type: MessageType;
     text: string;
 };
@@ -214,7 +214,7 @@ async function createMessage(episodeTitle: string, data: MessageData) {
             playerId: data.playerId,
             characterId: data.characterId,
             personaId: data.personaId,
-            timestamp: new Date(data.timestamp),
+            timestamp: data.timestamp ? new Date(data.timestamp) : null,
             type: data.type,
             text: data.text,
         },

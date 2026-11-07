@@ -84,10 +84,13 @@ model Character {
   messages      Message[]
   image         String?
   color         String?
+  colorLight    String?
   blurb         String?
   storyLines    StoryLine[]
   personas      Persona[]
   slug          String    @unique
+  // campaigns an admin added this character to the cast of
+  mainIn        Season[]  @relation("MainCharacters")
 
   @@unique([creatorId, name])
   @@map("characters")
@@ -139,6 +142,7 @@ model Season {
   stories  Story[]
   slug     String         @unique
   kind     SeasonKind     @default(SIDE)
+  mainCharacters Character[] @relation("MainCharacters")
 
   @@map("seasons")
 }
@@ -152,6 +156,8 @@ model Episode {
   summary       String?
   playedDate    DateTime?
   slug          String      @unique
+  // rewritten from memory, not recovered from logs
+  reconstructed Boolean     @default(false)
 
   @@id([seasonTitle, episode_no])
   @@map("episodes")
@@ -205,6 +211,8 @@ model Story {
   themeColor    String?
   themeColor2   String?
   format        StoryFormat    @default(PROSE) // dialogue presentation: script vs novel-style prose
+  // false = outside the universe's continuity
+  canon         Boolean        @default(true)
   // Campaign this story belongs to, if any (FF3 short stories etc.). Same
   // title FK as Episode.seasonTitle; a season can hold stories but no episodes.
   season        Season?        @relation(fields: [seasonTitle], references: [title], onDelete: SetNull)

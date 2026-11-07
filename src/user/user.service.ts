@@ -112,7 +112,7 @@ async function getPublicProfile(idOrUsername: number | string) {
         select: {
             ...PUBLIC_SELECT,
             characters: {
-                select: { id: true, name: true, slug: true, image: true, color: true },
+                select: { id: true, name: true, slug: true, image: true, color: true, colorLight: true },
                 orderBy: { name: "asc" },
             },
             stories: {

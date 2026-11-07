@@ -281,6 +281,7 @@ export type StoryMeta = {
     themeColor?: string | null;
     themeColor2?: string | null;
     format?: string | null;
+    canon?: boolean | null; // false writes `canon: no`
     colors: ColorMap;
     /** Emit each picture as `![alt](docx:N)` (N counts from 1 in document order). Off for the CLI's output. */
     images?: boolean;
@@ -633,6 +634,7 @@ export function frontmatter(meta: StoryMeta): string[] {
         const value = meta[key];
         if (value) lines.push(`${key}: ${value}`);
     }
+    if (meta.canon === false) lines.push("canon: no");
     lines.push("---", "");
     return lines;
 }

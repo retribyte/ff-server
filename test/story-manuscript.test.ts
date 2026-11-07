@@ -28,3 +28,10 @@ test("errors are ManuscriptErrors", () => {
     assert.throws(() => parseManuscript("no frontmatter"), ManuscriptError);
     assert.throws(() => parseManuscript("---\nslug: x\ntitle: T\n---\n# Chapter 1\nA\n# Chapter 1\nB\n"), /duplicate chapter number 1/);
 });
+
+test("canon: no marks a story non-canon; omitted leaves it out of the payload", () => {
+    assert.equal(parseManuscript("---\nslug: x\ntitle: T\ncanon: no\n---\n\nHi.\n").story.canon, false);
+    assert.equal(parseManuscript("---\nslug: x\ntitle: T\ncanon: Yes\n---\n\nHi.\n").story.canon, true);
+    assert.equal("canon" in parseManuscript("---\nslug: x\ntitle: T\n---\n\nHi.\n").story, false);
+    assert.throws(() => parseManuscript("---\nslug: x\ntitle: T\ncanon: maybe\n---\n\nHi.\n"), /canon must be one of/);
+});

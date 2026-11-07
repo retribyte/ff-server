@@ -5,7 +5,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { zipSync, strToU8 } from "fflate";
-import { docxToManuscript, DocxError, loadDocument } from "../src/story/convert/docx.js";
+import { docxToManuscript, DocxError, frontmatter, loadDocument } from "../src/story/convert/docx.js";
 import { parseManuscript } from "../src/story/convert/manuscript.js";
 
 const DIR = new URL("./fixtures/stories/docx/", import.meta.url);
@@ -30,4 +30,12 @@ test("refuses things that aren't a usable docx", () => {
     assert.throws(() => loadDocument(zipSync({ "hello.txt": strToU8("hi") })), /not a \.docx/);
     const dtd = '<?xml version="1.0"?><!DOCTYPE x [<!ENTITY a "aaaa">]><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body/></w:document>';
     assert.throws(() => loadDocument(zipSync({ "word/document.xml": strToU8(dtd) })), /DTD/);
+});
+
+test("frontmatter writes canon: no only for a non-canon story, and it round-trips", () => {
+    const canon = frontmatter({ slug: "x", title: "T", colors: {} });
+    assert.ok(!canon.some((line) => line.startsWith("canon")));
+    const nonCanon = frontmatter({ slug: "x", title: "T", canon: false, colors: {} });
+    assert.ok(nonCanon.includes("canon: no"));
+    assert.equal(parseManuscript([...nonCanon, "Hi."].join("\n")).story.canon, false);
 });

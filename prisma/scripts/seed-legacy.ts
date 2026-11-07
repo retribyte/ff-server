@@ -67,6 +67,7 @@ interface ImportPayload {
         episode_no: number;
         summary: string | null;
         playedDate: string | null;
+        reconstructed?: boolean;
     };
     messages: ImportMessage[];
 }
@@ -144,6 +145,7 @@ const SLUG_OVERRIDES: Record<string, string> = { Los: "los_yelsi", Hector: "hect
 // (the user's call, 2026-11-05) rather than slugify's "tl".
 const STORY_ONLY_SEASONS: { title: string; slug: string; kind: SeasonKind }[] = [
     { title: "T&L", slug: "t&l", kind: SeasonKind.SIDE },
+    { title: "VM", slug: "vm", kind: SeasonKind.SIDE }, // the Vortox Machina story below
     { title: "FF5", slug: "ff5", kind: SeasonKind.PLANNED },
 ];
 
@@ -375,6 +377,7 @@ async function main() {
                     summary: payload.episode.summary ?? undefined,
                     playedDate: payload.episode.playedDate ? new Date(payload.episode.playedDate) : undefined,
                     slug: uniqueSlug(slugify(payload.episode.title), usedEpisodeSlugs),
+                    reconstructed: payload.episode.reconstructed ?? false,
                 },
             });
 
@@ -420,6 +423,7 @@ async function main() {
             data: {
                 slug: "vm",
                 title: "Vortox Machina",
+                seasonTitle: "VM",
                 blurb:
                     "A VCOMM broadcast from Emmett, last known Squoatling, lost in space. The choose-your-own-adventure chronicle.",
                 // CYOA built collaboratively in the chronicle; Zander ran it

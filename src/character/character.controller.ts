@@ -257,6 +257,21 @@ const initializeCharacterRoutes = (): Router => {
         }
     });
 
+    // PUT /api/characters/:id/main-in: Replace a character's cast campaigns
+    // with { seasons: [title or slug] }. Admin only
+    router.put("/characters/:id/main-in", authenticate, isAdmin, async (req: Request, res: Response) => {
+        const id = parseInt(req.params.id, 10);
+        try {
+            if (!(await characterService.getCharacterById(id))) {
+                return res.status(404).json({ status: "error", message: `Character with id '${id}' not found` });
+            }
+            const updated = await characterService.setMainIn(id, req.body?.seasons);
+            res.status(200).json({ status: "success", data: updated });
+        } catch (error: any) {
+            res.status(400).json({ status: "error", message: error.message });
+        }
+    });
+
     // DELETE /api/characters/:id: Delete a character by id
     router.delete("/characters/:id", authenticate, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);

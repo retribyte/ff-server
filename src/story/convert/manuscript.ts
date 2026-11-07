@@ -26,7 +26,7 @@ export const UNNAMED_NPC = "?";
 type Voice = { speaker?: string; npc?: true };
 export type ManuscriptChapter = { chapter_no: number; title: string | null; lines: ManuscriptLine[] };
 export type ManuscriptPayload = {
-    story: Record<string, string>;
+    story: Record<string, string | boolean>;
     authors: string[];
     chapters: ManuscriptChapter[];
 };
@@ -52,6 +52,8 @@ const HEADING_RE = new RegExp(`^##${S}+([^\\n]+?)${S}*$`);
 const IMAGE_RE = new RegExp(`^${S}*!\\[([^\\]\\n]*)\\]\\((booru|docx):(\\d+)\\)${S}*$`);
 const COMMENT_RE = new RegExp(`${S}#`);
 const VALID_FORMATS = new Set(["script", "prose"]);
+// `canon: no` = non-canon; omitted = canon
+const CANON_VALUES = new Map([["yes", true], ["true", true], ["no", false], ["false", false]]);
 
 /** Returns [meta, remaining lines]. */
 function parseFrontmatter(lines: string[]): [Record<string, string>, string[]] {
@@ -273,7 +275,7 @@ export function parseManuscript(markdown: string): ManuscriptPayload {
     if (!SLUG_RE.test(meta.slug)) {
         throw new ManuscriptError(`slug '${meta.slug}' must match ^[a-z0-9]+(_[a-z0-9]+)*$`);
     }
-    const story: Record<string, string> = { slug: meta.slug, title: meta.title };
+    const story: Record<string, string | boolean> = { slug: meta.slug, title: meta.title };
     if (meta.blurb) story.blurb = meta.blurb;
     if (meta.published) story.publishedDate = meta.published;
     for (const key of ["themeColor", "themeColor2", "season"]) {
@@ -284,6 +286,13 @@ export function parseManuscript(markdown: string): ManuscriptPayload {
         throw new ManuscriptError(`format must be one of ['prose', 'script'], got '${meta.format}'`);
     }
     if (format === "prose") story.format = "PROSE";
+    if (meta.canon) {
+        const canon = strip(meta.canon).toLowerCase();
+        if (!CANON_VALUES.has(canon)) {
+            throw new ManuscriptError(`canon must be one of ['yes', 'no'], got '${meta.canon}'`);
+        }
+        story.canon = CANON_VALUES.get(canon)!;
+    }
     const authors = (meta.authors || meta.author || "").split(",").map(strip).filter(Boolean);
     return { story, authors, chapters: parseBody(body) };
 }

@@ -29,6 +29,7 @@ type StoryData = {
     themeColor2?: string | null;
     format?: StoryFormat;
     season?: string | null; // season title or slug; null clears it
+    canon?: boolean; // default true
 };
 
 type LineData = {
@@ -46,7 +47,7 @@ const VALID_LINE_TYPES = new Set<string>(Object.values(StoryLineType));
 const VALID_FORMATS = new Set<string>(Object.values(StoryFormat));
 
 const AUTHORS_LIST = { orderBy: { username: "asc" as const }, select: { id: true, username: true, icon: true } };
-const SEASON_SELECT = { select: { title: true, slug: true } };
+const SEASON_SELECT = { select: { title: true, slug: true, kind: true } };
 const CHAPTER_LIST = {
     orderBy: { chapter_no: "asc" as const },
     select: {
@@ -73,6 +74,31 @@ async function requireChapter(slug: string, chapterNo: number) {
     return chapter;
 }
 
+// Line types counted in word counts (not BREAK or IMAGE)
+const WORD_LINE_TYPES = ["NARRATION", "DIALOGUE", "ACTION", "TRANSCRIPT", "HEADING"];
+
+/** Words per chapter (whitespace-separated runs in each prose line's text), keyed by chapter id. */
+async function wordCountsByChapter(chapterIds: number[]): Promise<Map<number, number>> {
+    if (chapterIds.length === 0) return new Map();
+    const rows = await prisma.$queryRaw<{ chapterId: number; words: bigint }[]>`
+        SELECT sl."chapterId", COUNT(*) AS words
+        FROM story_lines sl, regexp_matches(sl.text, '[^[:space:]]+', 'g')
+        WHERE sl."chapterId" IN (${Prisma.join(chapterIds)})
+          AND sl.type::text IN (${Prisma.join(WORD_LINE_TYPES)})
+        GROUP BY sl."chapterId"
+    `;
+    return new Map(rows.map((r) => [r.chapterId, Number(r.words)]));
+}
+
+/** Adds `wordCount` to each story and to each of its chapters. */
+async function withWordCounts<T extends { chapters: { id: number }[] }>(stories: T[]) {
+    const counts = await wordCountsByChapter(stories.flatMap((s) => s.chapters.map((c) => c.id)));
+    return stories.map((story) => {
+        const chapters = story.chapters.map((c) => ({ ...c, wordCount: counts.get(c.id) ?? 0 }));
+        return { ...story, chapters, wordCount: chapters.reduce((sum, c) => sum + c.wordCount, 0) };
+    });
+}
+
 async function getAllStories(search?: string, season?: string) {
     const where: Prisma.StoryWhereInput = {};
     if (search) {
@@ -84,18 +110,20 @@ async function getAllStories(search?: string, season?: string) {
     if (season) {
         where.season = { OR: [{ title: season }, { slug: season }] };
     }
-    return await prisma.story.findMany({
+    const stories = await prisma.story.findMany({
         where,
         orderBy: { title: "asc" },
         include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
     });
+    return await withWordCounts(stories);
 }
 
 async function getStoryBySlug(slug: string) {
-    return await prisma.story.findUnique({
+    const story = await prisma.story.findUnique({
         where: { slug },
         include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
     });
+    return story ? (await withWordCounts([story]))[0] : null;
 }
 
 function validateStoryData(data: StoryData, requireAll: boolean) {
@@ -109,6 +137,9 @@ function validateStoryData(data: StoryData, requireAll: boolean) {
     }
     if (data.format !== undefined && !VALID_FORMATS.has(data.format)) {
         throw new Error(`format must be one of ${[...VALID_FORMATS].join(", ")}`);
+    }
+    if (data.canon !== undefined && typeof data.canon !== "boolean") {
+        throw new Error("canon must be true or false");
     }
 }
 
@@ -144,6 +175,7 @@ async function createStory(data: StoryData) {
             themeColor2: data.themeColor2 ?? null,
             format: data.format ?? undefined,
             seasonTitle: seasonTitle ?? null,
+            canon: data.canon ?? undefined,
         },
         include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
     });
@@ -167,6 +199,7 @@ async function updateStory(slug: string, data: Partial<StoryData>) {
             themeColor2: data.themeColor2,
             format: data.format,
             seasonTitle,
+            canon: data.canon,
         },
         include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
     });
@@ -264,6 +297,7 @@ type CharacterQuote = {
     segments: StorySegment[] | null;
     storySlug: string;
     storyTitle: string;
+    storySeason: string | null; // the story's season title, if it's filed under one
     chapterNo: number;
 };
 
@@ -281,7 +315,7 @@ async function getStoryQuotesByCharacter(characterId: number): Promise<Character
         SELECT
             sl.id, sl."chapterId", sl.line_no, sl.type, sl.text,
             sl."characterId", sl.speaker, sl.segments,
-            s.slug AS "storySlug", s.title AS "storyTitle", sc.chapter_no AS "chapterNo"
+            s.slug AS "storySlug", s.title AS "storyTitle", s."seasonTitle" AS "storySeason", sc.chapter_no AS "chapterNo"
         FROM story_lines sl
         JOIN story_chapters sc ON sc.id = sl."chapterId"
         JOIN stories s ON s.id = sc."storyId"
@@ -734,6 +768,7 @@ async function importStory(body: StoryImport) {
                 themeColor2: story.themeColor2 ?? null,
                 format: story.format ?? undefined,
                 seasonTitle: seasonTitle ?? null,
+                canon: story.canon ?? undefined,
                 contentHash,
                 importMeta: importMeta ?? undefined,
             },
