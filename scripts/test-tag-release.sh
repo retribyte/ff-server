@@ -17,19 +17,25 @@ check() { # name, expected output fragment, PR text
     if printf '%s' "$out" | grep -qF -- "$2"; then echo "ok   $1"; else echo "FAIL $1: want '$2', got: $out"; fail=1; fi
 }
 
-check "no marker"            "patch release, no tag"  $'Fix a typo\n\nSmall.'
+check "no marker"            "patch release: v1.1.0 -> v1.1.1"  $'Fix a typo\n\nSmall.'
 check "minor in title"       "v1.1.0 -> v1.2.0"       $'Avatars [minor]\n\nBody'
 check "minor in body"        "v1.1.0 -> v1.2.0"       $'Avatars\n\nThis is a [Minor] release'
 check "major in body"        "v1.1.0 -> v2.0.0"       $'Reset\n\n[major]'
 check "major beats minor"    "v1.1.0 -> v2.0.0"       $'Reset [minor]\n\n[major]'
-check "comment is ignored"   "patch release, no tag"  $'Fix\n\n<!-- Add [minor] or [major] if this is a release. -->'
-check "multiline comment"    "patch release, no tag"  $'Fix\n\n<!--\n[major]\n[minor]\n-->'
-check "unbracketed ignored"  "patch release, no tag"  $'Minor fix\n\nA major cleanup'
+check "comment is ignored"   "patch release: v1.1.0 -> v1.1.1"  $'Fix\n\n<!-- Add [minor] or [major] if this is a release. -->'
+check "multiline comment"    "patch release: v1.1.0 -> v1.1.1"  $'Fix\n\n<!--\n[major]\n[minor]\n-->'
+check "unbracketed ignored"  "patch release: v1.1.0 -> v1.1.1"  $'Minor fix\n\nA major cleanup'
 
 # A minor bump zeroes the patch of the nearest tag
 git commit -q --allow-empty -m three
 git tag -a v1.1.5 -m x HEAD~1
 check "minor from 1.1.5"     "v1.1.5 -> v1.2.0"       $'x [minor]'
+git tag -d v1.1.5 > /dev/null
+
+# A patch bump increments the nearest tag's patch
+git tag -a v1.1.5 -m x HEAD~1
+check "patch from 1.1.5"     "patch release: v1.1.5 -> v1.1.6" $'Fix'
+check "empty PR text (push)" "patch release: v1.1.5 -> v1.1.6" ''
 git tag -d v1.1.5 > /dev/null
 
 git tag -a v1.2.0 -m x

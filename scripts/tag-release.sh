@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Tags a release when a merged PR asks for one. Runs in CI on pushes to main,
+# Tags a release for every merge to main. Runs in CI on pushes to main,
 # before the deploy, so the build sees the new tag (see docs/versioning.md).
 #
-#   [minor] or [major] in the PR's title or description -> tag the next version;
-#   neither -> nothing (the commit just counts as a patch via `git describe`).
+#   [major] in the PR's title or description -> next major (vX+1.0.0);
+#   [minor]                                   -> next minor (vX.Y+1.0);
+#   neither                                   -> next patch (vX.Y.Z+1).
+# So each merge is exactly one release, and `git describe` is always 0 commits ahead.
 #
 # Text inside <!-- comments --> is ignored, so the PR template can mention the
 # markers without triggering them. [major] beats [minor].
@@ -21,8 +23,7 @@ if printf '%s' "$text" | grep -qiF '[major]'; then
 elif printf '%s' "$text" | grep -qiF '[minor]'; then
     bump=minor
 else
-    echo "no [minor] or [major] marker: patch release, no tag"
-    exit 0
+    bump=patch
 fi
 
 # Re-running a workflow on a commit that already carries a release tag is a no-op
@@ -36,10 +37,11 @@ if [ -z "$latest" ]; then
     echo "no vX.Y.Z tag reachable from HEAD (is this a shallow checkout?)" >&2
     exit 1
 fi
-IFS=. read -r major minor _patch <<< "${latest#v}"
+IFS=. read -r major minor patch <<< "${latest#v}"
 case "$bump" in
     major) next="v$((major + 1)).0.0" ;;
     minor) next="v$major.$((minor + 1)).0" ;;
+    patch) next="v$major.$minor.$((patch + 1))" ;;
 esac
 
 title="$(printf '%s' "${PR_TEXT:-}" | head -n1)"

@@ -6,30 +6,28 @@ footer and at `GET /api/version`. It comes from git tags, not `package.json`
 
 ## How it's computed
 
-A release is an annotated tag `vMAJOR.MINOR.PATCH`. The version of any commit is
-the nearest tag, plus one patch for every commit since it (`git describe`):
+A release is an annotated tag `vMAJOR.MINOR.PATCH`, and **every merge to `main` is
+one release**: CI tags it (patch by default), so each merge bumps the version by
+exactly one step, however many commits the PR had or how it was merged. A deployed
+build sits on its tag (`v1.2.4-0-g3fa9c2e` is `1.2.4`).
 
-| `git describe` says  | Version  |
-| -------------------- | -------- |
-| `v1.1.0-0-g3fa9c2e`  | `1.1.0`  |
-| `v1.1.0-14-g3fa9c2e` | `1.1.14` |
-| after a `v1.2.0` tag | `1.2.0`  |
-
-So **patches are automatic**: every merge to `main` is a new number. A new minor or
-major tag zeroes what follows it. Locally, uncommitted changes add `-dirty`.
+Between releases (a PR branch, a local checkout) the version is the nearest tag plus
+one patch per commit since it (`git describe`: `v1.2.4-3-g3fa9c2e` is `1.2.7`), and
+uncommitted changes add `-dirty`. That's a build identifier, not a release.
 
 ## Bumping minor or major
 
 Put **`[minor]`** (a feature you'd announce) or **`[major]`** (a breaking change) in
 the PR's **title or description**. When the PR merges to `main`, the `version` job
 in `.github/workflows/deploy.yml` (`scripts/tag-release.sh`) pushes the next tag,
-and `deploy` builds with it. `[major]` beats `[minor]`; neither means a patch.
+and `deploy` builds with it. `[major]` beats `[minor]`; with neither, the tag is the
+next patch (`v1.2.3` -> `v1.2.4`). A `[minor]` goes `v1.2.4` -> `v1.3.0`.
 
 - The brackets are required (`[minor]`, case-insensitive). Text inside HTML comments
   is ignored, which is how the PR template mentions the markers safely.
 - Both repos version separately: a feature spanning both needs the marker in both PRs.
 - A `[skip ci]` commit skips the whole workflow, tagging included.
-- Forgot the marker? Tag by hand: `git tag -a v1.2.0 -m "1.2.0 - what shipped" <commit>
+- Forgot the marker? Tag by hand (a manual tag on `main` is the base for the next merge): `git tag -a v1.2.0 -m "1.2.0 - what shipped" <commit>
   && git push origin v1.2.0`. Tagging an older commit renumbers everything after it;
   no history is rewritten.
 
