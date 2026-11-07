@@ -1506,6 +1506,42 @@ const spec = {
                 },
             },
         },
+        "/views": {
+            post: {
+                tags: ["Views"],
+                summary: "Count one view of an episode or story (public)",
+                description:
+                    "Aggregate daily counters only; nothing per user is stored. Counted as a member view when the bearer token is valid, " +
+                    "otherwise as anonymous (a bad token is not an error).",
+                security: [],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["kind", "slug"],
+                                properties: { kind: { type: "string", enum: ["episode", "story"] }, slug: { type: "string" } },
+                            },
+                        },
+                    },
+                },
+                responses: { "200": { description: "Counted" }, "400": { description: "Bad kind or slug" }, "404": { description: "No such episode or story" } },
+            },
+        },
+        "/admin/views": {
+            get: {
+                tags: ["Admin", "Views"],
+                summary: "Views per episode and story, most viewed first (admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "days", in: "query", description: "Window, in UTC days including today", schema: { type: "integer", default: 30, maximum: 365 } },
+                    { name: "kind", in: "query", schema: { type: "string", enum: ["episode", "story"] } },
+                    { name: "limit", in: "query", schema: { type: "integer", default: 50, maximum: 200 } },
+                ],
+                responses: { "200": { description: "{kind, slug, title, member, anonymous}[]" }, "403": { description: "Not an admin" } },
+            },
+        },
         "/admin/logs": {
             get: {
                 tags: ["Admin"],

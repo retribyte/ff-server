@@ -35,6 +35,20 @@ async function verifyRequest(req: Request, res: Response): Promise<SafeUser | nu
     return user;
 }
 
+/**
+ * The signed-in user for a route that works logged out too: null when there is
+ * no token or it is no good. Never responds.
+ */
+export async function optionalUser(req: Request): Promise<SafeUser | null> {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return null;
+    const decoded = await tokenService.verifyAccessToken(token);
+    const user = decoded && typeof decoded.id === "number" ? await userService.getUserById(decoded.id) : null;
+    if (!user || user.loginDisabled) return null;
+    if (user.passwordChangedAt && (decoded!.iat ?? 0) < Math.floor(user.passwordChangedAt.getTime() / 1000)) return null;
+    return user;
+}
+
 export async function authenticate(
     req: Request,
     res: Response,

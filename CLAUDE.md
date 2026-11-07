@@ -172,6 +172,15 @@ data. Don't add a species table back.
   On NFSN stdout/stderr also land in `/home/logs/daemon_ffserver.log`; the file sink
   needs a `LOG_DIR` the `web` user can write (unset it there and a failed write is
   reported once, not fatal).
+- **View counters** (`src/view/`, table `view_counts`): aggregate daily counts of
+  episode and story page views, split into `member` (signed-in) and `anonymous`
+  columns. Nothing per user is stored (the user's call, 2026-11-07: counts only, no
+  who-read-what). The site calls `POST /api/views {kind, slug}` after rendering an
+  episode page or a story page/chapter (ff-site's `recordView`, in `after()`); the
+  bearer token, if valid, makes it a member view, and a bad token is just anonymous.
+  No dedupe: a refresh counts again. `GET /api/admin/views?days=30` feeds the
+  /admin page's Views panel. The key is the permanent `slug` with no FK (it spans
+  two tables), so deleting an episode or story leaves its old counts behind.
 - **Response envelope**, every JSON response: `{ status: "success", data }` or
   `{ status: "error", message }`. Never leak raw Prisma objects or stack
   traces.
