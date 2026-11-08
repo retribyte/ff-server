@@ -45,13 +45,13 @@ const initializeEpisodeRoutes = (): Router => {
         }
     });
 
-    // POST /api/episodes/import: RETIRED, 410 Gone. Admins import new episodes
-    // with POST /api/admin/episode-import (the site's /admin page), which takes
-    // md-to-api.py's JSON as is; re-imports still go through api-import.py.
+    // POST /api/episodes/import: RETIRED, 410 Gone. Admins import and update
+    // episodes with POST /api/admin/episode-import (the site's /admin page),
+    // which takes md-to-api.py's JSON as is.
     router.post("/episodes/import", (_req: Request, res: Response) => {
         res.status(410).json({
             status: "error",
-            message: "Episode import is retired — the transcript archive is seeded. Use archive-to-markdown/api-import.py for re-imports.",
+            message: "Episode import is retired — the transcript archive is seeded. Use the /admin page's episode import.",
         });
     });
 

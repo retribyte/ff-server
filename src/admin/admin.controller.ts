@@ -118,7 +118,7 @@ const initializeAdminRoutes = (): Router => {
         }
     });
 
-    // POST /api/admin/episode-import {episodes, dryRun?}: import new episodes, all or nothing; answers with the JobRun
+    // POST /api/admin/episode-import {episodes, dryRun?}: import new episodes or update existing ones, all or nothing; answers with the JobRun
     router.post("/admin/episode-import", authenticate, isAdmin, importJson, async (req: Request, res: Response) => {
         let payloads;
         try {
