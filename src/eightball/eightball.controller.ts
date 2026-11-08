@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import eightballService from "./eightball.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { EightBallAnswerType } from "@prisma/client";
+import { logger } from "../utils/logger.js";
 
 const initializeEightballRoutes = (): Router => {
     const router: Router = Router();
@@ -18,7 +19,7 @@ const initializeEightballRoutes = (): Router => {
             }
             res.status(200).json({ status: "success", data: answer });
         } catch (error) {
-            console.error("Error shaking the 8-ball:", error);
+            logger.caught("Error shaking the 8-ball", error);
             res.status(500).json({ status: "error", message: "Failed to shake the 8-ball" });
         }
     });
@@ -29,7 +30,7 @@ const initializeEightballRoutes = (): Router => {
             const answers = await eightballService.getAllAnswers();
             res.status(200).json({ status: "success", data: answers });
         } catch (error) {
-            console.error("Error fetching 8-ball answers:", error);
+            logger.caught("Error fetching 8-ball answers", error);
             res.status(500).json({ status: "error", message: "Failed to fetch 8-ball answers" });
         }
     });

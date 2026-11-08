@@ -153,6 +153,34 @@ data. Don't add a species table back.
   - `npm run docs` lints the OpenAPI spec (`scripts/lint-openapi.ts` dumps
     `src/openapi.ts` to JSON for Redocly). Public operations declare
     `security: []` explicitly.
+- **Logging** (`src/utils/logger.ts`, `src/utils/request-log.ts`): never `console.*`
+  in `src/` (CLI scripts in `prisma/` may). `logger.info|warn|error|debug(event, fields)`
+  writes one JSON line to stdout/stderr, a 2000-entry in-memory ring buffer
+  (`GET /api/admin/logs`, shown on the site's /admin page) and a daily file
+  `$LOG_DIR/app-YYYY-MM-DD.log` (default `./logs`, gitignored; `LOG_DIR=` empty turns
+  files off; files older than `LOG_RETENTION_DAYS`, default 90, are deleted;
+  `LOG_LEVEL` default info). `requestLogger` (first middleware) logs every request as
+  event `http` and sets `req.id` / `X-Request-Id`; any line logged during a request
+  carries its `reqId` and the signed-in user automatically (AsyncLocalStorage).
+  In a route's catch block use `logger.caught("what failed", error)`: it records the
+  error's type, code and last message line plus stack frames, **not** the full message
+  (Prisma's quotes the values being written). Event names are `area.thing`
+  (`auth.login`, `auth.login_failed`, `auth.denied`, `user.password_changed`,
+  `admin.password_reset`, `admin.job_started`/`finished`, `wiki.*`, `booru.unavailable`,
+  `process.*`); `GET /admin/logs?event=auth` matches the prefix. Never put passwords,
+  tokens or request bodies in fields (secret-looking keys are redacted as a backstop).
+  On NFSN stdout/stderr also land in `/home/logs/daemon_ffserver.log`; the file sink
+  needs a `LOG_DIR` the `web` user can write (unset it there and a failed write is
+  reported once, not fatal).
+- **View counters** (`src/view/`, table `view_counts`): aggregate daily counts of
+  episode and story page views, split into `member` (signed-in) and `anonymous`
+  columns. Nothing per user is stored (the user's call, 2026-11-07: counts only, no
+  who-read-what). The site calls `POST /api/views {kind, slug}` after rendering an
+  episode page or a story page/chapter (ff-site's `recordView`, in `after()`); the
+  bearer token, if valid, makes it a member view, and a bad token is just anonymous.
+  No dedupe: a refresh counts again. `GET /api/admin/views?days=30` feeds the
+  /admin page's Views panel. The key is the permanent `slug` with no FK (it spans
+  two tables), so deleting an episode or story leaves its old counts behind.
 - **Response envelope**, every JSON response: `{ status: "success", data }` or
   `{ status: "error", message }`. Never leak raw Prisma objects or stack
   traces.

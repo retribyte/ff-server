@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import speciesService from "./species.service.js";
+import { logger } from "../utils/logger.js";
 
 // Read-only species, served from the wiki cache (see species.service.ts).
 // The wiki owns species lore; there's no write path here.
@@ -12,7 +13,7 @@ const initializeSpeciesRoutes = (): Router => {
             const species = await speciesService.getAllSpecies(req.query.search as string | undefined);
             res.status(200).json({ status: "success", data: species });
         } catch (error) {
-            console.error("Error fetching species:", error);
+            logger.caught("Error fetching species", error);
             res.status(500).json({ status: "error", message: "Failed to fetch species" });
         }
     });
@@ -27,7 +28,7 @@ const initializeSpeciesRoutes = (): Router => {
             }
             res.status(200).json({ status: "success", data: species });
         } catch (error) {
-            console.error("Error fetching species:", error);
+            logger.caught("Error fetching species", error);
             res.status(500).json({ status: "error", message: "Failed to fetch species" });
         }
     });

@@ -120,10 +120,19 @@ async function getPublicProfile(idOrUsername: number | string) {
                 orderBy: { title: "asc" },
             },
             _count: { select: { messages: true, commentaries: true } },
+            mustChangePassword: true,
+            loginDisabled: true,
         },
     });
     if (!profile) return null;
-    return { ...profile, characters: await characterService.withSeasons(profile.characters) };
+    const { mustChangePassword, loginDisabled, ...rest } = profile;
+    return {
+        ...rest,
+        // Still on the seeded/reset password, so never signed in as themselves. System
+        // accounts can't sign in at all, which isn't the same as being inactive.
+        inactive: mustChangePassword && !loginDisabled,
+        characters: await characterService.withSeasons(profile.characters),
+    };
 }
 
 function cleanOptionalText(value: unknown, field: string, maxLength: number): string | null {

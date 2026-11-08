@@ -6,6 +6,7 @@ import messageService from "../message/message.service.js";
 import storyService from "../story/story.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { UserRole } from "@prisma/client";
+import { logger } from "../utils/logger.js";
 
 // Maps a Prisma error to a friendly {status, message} for persona mutations.
 // P2002: unique constraint (duplicate name/slug for the character).
@@ -54,7 +55,7 @@ const initializeCharacterRoutes = (): Router => {
             });
             return res.status(200).send(png);
         } catch (error) {
-            console.error("Error fetching avatar:", error);
+            logger.caught("Error fetching avatar", error);
             return res.status(500).json({ status: "error", message: "Failed to fetch avatar" });
         }
     });
@@ -70,7 +71,7 @@ const initializeCharacterRoutes = (): Router => {
             });
             res.status(200).json({ status: "success", data: characters });
         } catch (error) {
-            console.error("Error fetching characters:", error);
+            logger.caught("Error fetching characters", error);
             res.status(500).json({ status: "error", message: "Failed to fetch characters" });
         }
     });
@@ -95,7 +96,7 @@ const initializeCharacterRoutes = (): Router => {
             }
             res.status(200).json({ status: "success", data: character });
         } catch (error) {
-            console.error("Error fetching character:", error);
+            logger.caught("Error fetching character", error);
             res.status(500).json({ status: "error", message: "Failed to fetch character" });
         }
     });
@@ -113,7 +114,7 @@ const initializeCharacterRoutes = (): Router => {
             ]);
             res.status(200).json({ status: "success", data: { messages, storyQuotes } });
         } catch (error) {
-            console.error("Error fetching quotes:", error);
+            logger.caught("Error fetching quotes", error);
             res.status(500).json({ status: "error", message: "Failed to fetch quotes" });
         }
     });
@@ -128,7 +129,7 @@ const initializeCharacterRoutes = (): Router => {
             const data = await characterService.getAppearances(parseInt(req.params.id, 10));
             res.status(200).json({ status: "success", data });
         } catch (error) {
-            console.error("Error fetching appearances:", error);
+            logger.caught("Error fetching appearances", error);
             res.status(500).json({ status: "error", message: "Failed to fetch appearances" });
         }
     });
@@ -140,7 +141,7 @@ const initializeCharacterRoutes = (): Router => {
             const personas = await characterService.getPersonasByCharacter(id);
             res.status(200).json({ status: "success", data: personas });
         } catch (error) {
-            console.error("Error fetching personas:", error);
+            logger.caught("Error fetching personas", error);
             res.status(500).json({ status: "error", message: "Failed to fetch personas" });
         }
     });
@@ -187,7 +188,7 @@ const initializeCharacterRoutes = (): Router => {
             );
             res.status(200).json({ status: "success", data: personas });
         } catch (error) {
-            console.error("Error fetching personas:", error);
+            logger.caught("Error fetching personas", error);
             res.status(500).json({ status: "error", message: "Failed to fetch personas" });
         }
     });

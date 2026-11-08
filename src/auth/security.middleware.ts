@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { UserRole } from "@prisma/client";
 import tokenService from "./token.service.js";
+import { logger } from "../utils/logger.js";
 import userService, { type SafeUser } from "../user/user.service.js";
 
 /**
@@ -12,6 +13,7 @@ import userService, { type SafeUser } from "../user/user.service.js";
 async function verifyRequest(req: Request, res: Response): Promise<SafeUser | null> {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
+        logger.debug("auth.denied", { reason: "no_authorization_header" });
         res.status(401).json({ status: "error", message: "No authorization header" });
         return null;
     }
@@ -23,9 +25,27 @@ async function verifyRequest(req: Request, res: Response): Promise<SafeUser | nu
     const revoked = user?.passwordChangedAt
         && (decoded!.iat ?? 0) < Math.floor(user.passwordChangedAt.getTime() / 1000);
     if (!user || user.loginDisabled || revoked) {
+        logger.warn("auth.denied", {
+            reason: !user ? "invalid_token" : user.loginDisabled ? "login_disabled" : "token_revoked",
+            ...(user ? { tokenUserId: user.id, tokenUsername: user.username } : {}),
+        });
         res.status(401).json({ status: "error", message: "Invalid or expired token" });
         return null;
     }
+    return user;
+}
+
+/**
+ * The signed-in user for a route that works logged out too: null when there is
+ * no token or it is no good. Never responds.
+ */
+export async function optionalUser(req: Request): Promise<SafeUser | null> {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return null;
+    const decoded = await tokenService.verifyAccessToken(token);
+    const user = decoded && typeof decoded.id === "number" ? await userService.getUserById(decoded.id) : null;
+    if (!user || user.loginDisabled) return null;
+    if (user.passwordChangedAt && (decoded!.iat ?? 0) < Math.floor(user.passwordChangedAt.getTime() / 1000)) return null;
     return user;
 }
 
@@ -39,6 +59,7 @@ export async function authenticate(
     // Seeded/reset accounts can read, but must pick their own password before
     // writing anything
     if (user.mustChangePassword && req.method !== "GET") {
+        logger.info("auth.denied", { reason: "must_change_password", tokenUserId: user.id, tokenUsername: user.username });
         res.status(403).json({ status: "error", message: "Change your password before continuing" });
         return;
     }
@@ -60,6 +81,7 @@ export async function authenticateAllowingPasswordChange(
 
 export function isAdmin(req: Request, res: Response, next: NextFunction): void {
     if (!req.user || req.user.role !== UserRole.ADMIN) {
+        logger.warn("auth.denied", { reason: "not_admin" });
         res.status(403).json({ status: "error", message: "Forbidden" });
         return;
     }

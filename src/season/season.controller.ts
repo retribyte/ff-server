@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { SeasonKind } from "@prisma/client";
 import seasonService from "./season.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
+import { logger } from "../utils/logger.js";
 
 const isSeasonKind = (v: unknown): v is SeasonKind =>
     typeof v === "string" && (Object.values(SeasonKind) as string[]).includes(v);
@@ -15,7 +16,7 @@ const initializeSeasonRoutes = (): Router => {
             const seasons = await seasonService.getAllSeasons(req.query.search as string | undefined);
             res.status(200).json({ status: "success", data: seasons });
         } catch (error) {
-            console.error("Error fetching seasons:", error);
+            logger.caught("Error fetching seasons", error);
             res.status(500).json({ status: "error", message: "Failed to fetch seasons" });
         }
     });
@@ -29,7 +30,7 @@ const initializeSeasonRoutes = (): Router => {
             }
             res.status(200).json({ status: "success", data: cast });
         } catch (error) {
-            console.error("Error fetching season cast:", error);
+            logger.caught("Error fetching season cast", error);
             res.status(500).json({ status: "error", message: "Failed to fetch season cast" });
         }
     });
@@ -47,7 +48,7 @@ const initializeSeasonRoutes = (): Router => {
             }
             res.status(200).json({ status: "success", data: season });
         } catch (error) {
-            console.error("Error fetching season:", error);
+            logger.caught("Error fetching season", error);
             res.status(500).json({ status: "error", message: "Failed to fetch season" });
         }
     });
