@@ -6,7 +6,17 @@ import { JOBS, EPISODE_IMPORT_JOB } from "../jobs/registry.js";
 import { runJob, JobBusyError, type JobContext } from "../jobs/runner.js";
 import { parsePayloads, previewEpisodeImport, importEpisodes } from "../jobs/episodeImport.js";
 import { logger, queryLogs, type Level } from "../utils/logger.js";
-import { MESSAGE_REASSIGN_JOB, OWNER_CHANGE_JOB, changeOwner, parseOwner, parseReassign, reassignMessages } from "./archiveFixes.js";
+import {
+    MESSAGE_REASSIGN_JOB,
+    OWNER_CHANGE_JOB,
+    STORY_VOICE_JOB,
+    changeOwner,
+    parseOwner,
+    parseReassign,
+    parseStoryVoice,
+    reassignMessages,
+    reassignStoryVoices,
+} from "./archiveFixes.js";
 
 const RUN_LIST_SELECT = {
     id: true,
@@ -163,6 +173,11 @@ const initializeAdminRoutes = (): Router => {
     // POST /api/admin/owner {kind: character|item|story, id, userIds, dryRun?}: change who plays a
     // character, owns an item, or wrote a story (its authors); answers with the JobRun
     router.post("/admin/owner", authenticate, isAdmin, fixRoute(OWNER_CHANGE_JOB, parseOwner, changeOwner));
+
+    // POST /api/admin/story-voices/reassign {from, to, stories?, seasons?, dryRun?}: move story dialogue
+    // (whole lines and in-paragraph quotes) between a character and/or plain speaker text; answers with
+    // the JobRun, whose log lists every change with its before-values. A dry run is the preview.
+    router.post("/admin/story-voices/reassign", authenticate, isAdmin, fixRoute(STORY_VOICE_JOB, parseStoryVoice, reassignStoryVoices));
 
     return router;
 };

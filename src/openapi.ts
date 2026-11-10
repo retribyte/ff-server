@@ -1709,6 +1709,43 @@ const spec = {
                 },
             },
         },
+        "/admin/story-voices/reassign": {
+            post: {
+                tags: ["Admin", "Stories"],
+                summary: "Move story dialogue between a character and/or plain speaker text, all or nothing (admin)",
+                description:
+                    "from/to are each {characterId} or {speaker} (plain text, matched case-insensitively). Rewrites whole lines " +
+                    "(characterId, speaker; npcVoice cleared when moving to a character) and in-paragraph quotes in the segments " +
+                    "JSON, in the stories in scope (stories and/or seasons slugs; neither means every story). Transcript messages are " +
+                    "not touched. Recorded as 'story-voice-fix'; the log lists per-story counts, then every changed line with its " +
+                    "values before (the run's own snapshot). Use dryRun as the preview.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["from", "to"],
+                                properties: {
+                                    from: { type: "object", description: "{characterId: int} or {speaker: string}" },
+                                    to: { type: "object", description: "{characterId: int} or {speaker: string}" },
+                                    stories: { type: "array", items: { type: "string" } },
+                                    seasons: { type: "array", items: { type: "string" } },
+                                    dryRun: { type: "boolean", default: false },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "The JobRun, with its log" },
+                    "400": { description: "Bad input or unknown slugs; nothing changed" },
+                    "403": { description: "Not an admin" },
+                    "409": { description: "A story voice fix is already running" },
+                },
+            },
+        },
         "/admin/owner": {
             post: {
                 tags: ["Admin"],
@@ -1882,7 +1919,7 @@ const spec = {
                 description:
                     "Names (or, with a null/blank speaker, un-names) NPC voice fragments: a segment of a NARRATION line " +
                     "(`segment` = its index), or a whole `npcVoice` DIALOGUE line (`segment` omitted). Only NPC-flagged " +
-                    "fragments can be named here, so the text and character attributions never change. One transaction: " +
+                    "fragments can be named here, so the text never changes; only an admin's characterId changes attribution. One transaction: " +
                     "any invalid assignment rejects them all. A later revision (PUT /stories/{slug}/import) keeps these " +
                     "names for fragments whose text is unchanged.",
                 security: [{ bearerAuth: [] }],
@@ -1907,6 +1944,12 @@ const spec = {
                                                 lineNo: { type: "integer" },
                                                 segment: { type: "integer", nullable: true },
                                                 speaker: { type: "string", nullable: true, maxLength: 80 },
+                                                characterId: {
+                                                    type: "integer",
+                                                    nullable: true,
+                                                    description:
+                                                        "Admins only: the voice is this character. The fragment stops being an NPC voice, and the request is recorded in the job history as 'story-voice-name'.",
+                                                },
                                             },
                                         },
                                     },

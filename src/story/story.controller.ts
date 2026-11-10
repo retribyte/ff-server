@@ -4,6 +4,9 @@ import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { importJson, importErrorResponse } from "../utils/import.js";
 import { analyzeDocx, convertDocx, DocxError, ManuscriptError } from "./convert/index.js";
 import { logger } from "../utils/logger.js";
+import { UserRole } from "@prisma/client";
+import { runJob, JobBusyError } from "../jobs/runner.js";
+import { STORY_VOICE_NAME_JOB } from "../admin/archiveFixes.js";
 
 const initializeStoryRoutes = (): Router => {
     const router: Router = Router();
@@ -111,7 +114,8 @@ const initializeStoryRoutes = (): Router => {
     // Body { assignments: [{ chapterNo, lineNo, segment?, speaker }] } — segment
     // indexes a NARRATION line's spans; omit it for a whole npcVoice DIALOGUE
     // line. speaker null/blank un-names it. Only NPC-flagged fragments can be
-    // named, so text and character attribution can't change through here.
+    // named, so text can't change through here. An admin may send characterId
+    // instead: the fragment becomes that character's (a 'story-voice-name' job).
     // Story authors or admins; returns the updated lines.
     router.patch("/stories/:slug/voices", authenticate, async (req: Request, res: Response) => {
         const { slug } = req.params;
@@ -121,10 +125,27 @@ const initializeStoryRoutes = (): Router => {
             if (!allowed) {
                 return res.status(403).json({ status: "error", message: "Only this story's authors or an admin can name its voices" });
             }
+            // Linking a real character changes attribution: admins only, and
+            // recorded in the admin History like the other data fixes
+            if (storyService.linksCharacters(req.body?.assignments)) {
+                if ((req.user as { role: string }).role !== UserRole.ADMIN) {
+                    return res.status(403).json({ status: "error", message: "Only an admin can link a voice to a character" });
+                }
+                const story = await storyService.getStoryBySlug(slug);
+                if (!story) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
+                let updated: unknown = [];
+                const run = await runJob(STORY_VOICE_NAME_JOB, (req.user as { id: number }).id, false, async ({ tx, log }) => {
+                    updated = await storyService.assignVoicesTx(tx, story.id, req.body.assignments, log);
+                    return `${story.title}: linked ${(req.body.assignments as unknown[]).length} NPC quote(s) to a character`;
+                });
+                if (run.status === "FAILED") return res.status(400).json({ status: "error", message: run.summary ?? "Linking failed" });
+                return res.status(200).json({ status: "success", data: updated });
+            }
             const updated = await storyService.assignVoices(slug, req.body?.assignments);
             if (updated === null) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
             res.status(200).json({ status: "success", data: updated });
         } catch (error: any) {
+            if (error instanceof JobBusyError) return res.status(409).json({ status: "error", message: error.message });
             res.status(400).json({ status: "error", message: error.message });
         }
     });

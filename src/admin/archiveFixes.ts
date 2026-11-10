@@ -159,3 +159,171 @@ export async function changeOwner(input: OwnerInput, { tx, log }: JobContext): P
     log(`item '${item.name}' (#${item.id}) owner: ${item.creator.username} -> ${next[0]}`);
     return `Item '${item.name}' now owned by ${next[0]}`;
 }
+
+// --- Story voices: who speaks story lines and in-paragraph quotes ---------
+
+export const STORY_VOICE_JOB = "story-voice-fix";
+/** An admin linking NPC quotes to a character from the story reader (PATCH /stories/:slug/voices) */
+export const STORY_VOICE_NAME_JOB = "story-voice-name";
+
+/** A voice in a story: a Character, or plain speaker text (a name with no Character row) */
+export type VoiceRef = { characterId: number } | { speaker: string };
+
+export type StoryVoiceInput = {
+    from: VoiceRef;
+    to: VoiceRef;
+    /** Story slugs; empty means every story (narrowed by seasons if given) */
+    stories: string[];
+    /** Season slugs: stories filed under these campaigns */
+    seasons: string[];
+};
+
+function parseVoice(v: any, label: string): VoiceRef {
+    if (Number.isInteger(v?.characterId)) return { characterId: v.characterId };
+    if (typeof v?.speaker === "string" && v.speaker.trim()) {
+        const speaker = v.speaker.trim();
+        if (speaker.length > 100) throw new Error(`${label}: names are at most 100 characters`);
+        return { speaker };
+    }
+    throw new Error(`${label} must be {characterId} or {speaker}`);
+}
+
+export function parseStoryVoice(body: any): StoryVoiceInput {
+    const slugs = (v: unknown, label: string) => {
+        if (v === undefined || v === null) return [];
+        if (!Array.isArray(v) || !v.every((s) => typeof s === "string")) throw new Error(`${label} must be a list of slugs`);
+        return [...new Set(v.map((s: string) => s.trim().toLowerCase()).filter(Boolean))];
+    };
+    const input = {
+        from: parseVoice(body?.from, "from"),
+        to: parseVoice(body?.to, "to"),
+        stories: slugs(body?.stories, "stories"),
+        seasons: slugs(body?.seasons, "seasons"),
+    };
+    const same =
+        ("characterId" in input.from && "characterId" in input.to && input.from.characterId === input.to.characterId) ||
+        ("speaker" in input.from && "speaker" in input.to && input.from.speaker === input.to.speaker);
+    if (same) throw new Error("from and to are the same voice");
+    return input;
+}
+
+type Segment = { text: string; characterId?: number | null; speaker?: string | null; npc?: boolean; [key: string]: unknown };
+
+/**
+ * Moves story dialogue from one voice to another, in the stories in scope:
+ * whole lines (characterId / speaker) and in-paragraph quotes (the segments
+ * JSON, which has no FK). Moving to a character clears the speaker text and
+ * the NPC flag; moving to plain text clears the character and keeps the flag.
+ * The log keeps every changed line's before-values, standing in for a dump.
+ * Transcript messages aren't touched (the attribution control and merge do those).
+ */
+export async function reassignStoryVoices(input: StoryVoiceInput, { tx, log }: JobContext): Promise<string> {
+    const names = new Map<number, string>();
+    const describe = async (v: VoiceRef) => {
+        if ("speaker" in v) return `"${v.speaker}"`;
+        const c = await tx.character.findUnique({ where: { id: v.characterId }, select: { name: true } });
+        if (!c) throw new Error(`Character with id '${v.characterId}' not found`);
+        names.set(v.characterId, c.name);
+        return c.name;
+    };
+    const fromName = await describe(input.from);
+    const toName = await describe(input.to);
+
+    // Stories in scope
+    const storyWhere: Prisma.StoryWhereInput = {};
+    if (input.stories.length) {
+        const found = await tx.story.findMany({ where: { slug: { in: input.stories } }, select: { slug: true } });
+        const unknown = input.stories.filter((s) => !found.some((f) => f.slug === s));
+        if (unknown.length) throw new Error(`Unknown story slug(s): ${unknown.join(", ")}`);
+        storyWhere.slug = { in: input.stories };
+    }
+    if (input.seasons.length) {
+        const found = await tx.season.findMany({ where: { slug: { in: input.seasons } }, select: { slug: true, title: true } });
+        const unknown = input.seasons.filter((s) => !found.some((f) => f.slug === s));
+        if (unknown.length) throw new Error(`Unknown season slug(s): ${unknown.join(", ")}`);
+        storyWhere.seasonTitle = { in: found.map((f) => f.title) };
+    }
+
+    const matchesSegment = (seg: Segment) =>
+        "characterId" in input.from
+            ? seg.characterId === input.from.characterId
+            : !seg.characterId && typeof seg.speaker === "string" && seg.speaker.toLowerCase() === input.from.speaker.toLowerCase();
+    const lineWhere: Prisma.StoryLineWhereInput =
+        "characterId" in input.from
+            ? { characterId: input.from.characterId }
+            : { characterId: null, speaker: { equals: input.from.speaker, mode: "insensitive" } };
+    // Segment candidates: containment for a character; a text match narrowed in JS for a name
+    const segmentFilter: Prisma.StoryLineWhereInput =
+        "characterId" in input.from
+            ? { segments: { array_contains: [{ characterId: input.from.characterId }] } }
+            : { segments: { not: Prisma.AnyNull } };
+
+    const lines = await tx.storyLine.findMany({
+        where: { chapter: { story: storyWhere }, OR: [lineWhere, segmentFilter] },
+        include: { chapter: { select: { chapter_no: true, story: { select: { title: true } } } } },
+        orderBy: [{ chapterId: "asc" }, { line_no: "asc" }],
+    });
+
+    const perStory = new Map<string, { lines: number; segments: number }>();
+    let wholeLines = 0;
+    let segmentCount = 0;
+    // Per-line detail goes after the per-story totals, so the log reads top-down
+    const details: string[] = [];
+    for (const line of lines) {
+        const where = `${line.chapter.story.title}, ch. ${line.chapter.chapter_no}, line ${line.line_no}`;
+        const data: Prisma.StoryLineUpdateInput = {};
+        const before: Record<string, unknown> = {};
+        const lineHit =
+            "characterId" in input.from
+                ? line.characterId === input.from.characterId
+                : line.characterId === null && (line.speaker ?? "").toLowerCase() === input.from.speaker.toLowerCase();
+        if (lineHit) {
+            Object.assign(before, { characterId: line.characterId, speaker: line.speaker, npcVoice: line.npcVoice });
+            if ("characterId" in input.to) {
+                Object.assign(data, { character: { connect: { id: input.to.characterId } }, speaker: null, npcVoice: false });
+            } else {
+                Object.assign(data, { character: { disconnect: true }, speaker: input.to.speaker });
+            }
+        }
+        let hits = 0;
+        if (Array.isArray(line.segments)) {
+            const segments = (line.segments as Segment[]).map((seg) => {
+                if (!matchesSegment(seg)) return seg;
+                hits += 1;
+                const { characterId: _c, speaker: _s, npc, ...rest } = seg;
+                return "characterId" in input.to
+                    ? { ...rest, characterId: input.to.characterId }
+                    : { ...rest, speaker: input.to.speaker, ...(npc ? { npc } : {}) };
+            });
+            if (hits) {
+                before.segments = line.segments;
+                data.segments = segments as Prisma.InputJsonValue;
+            }
+        }
+        if (!lineHit && !hits) continue;
+        await tx.storyLine.update({ where: { id: line.id }, data });
+        const tally = perStory.get(line.chapter.story.title) ?? { lines: 0, segments: 0 };
+        if (lineHit) {
+            tally.lines += 1;
+            wholeLines += 1;
+        }
+        tally.segments += hits;
+        segmentCount += hits;
+        perStory.set(line.chapter.story.title, tally);
+        details.push(`${where}: ${lineHit ? "whole line" : `${hits} quote(s)`}; before ${JSON.stringify(before)}`);
+    }
+
+    if (perStory.size === 0) {
+        return `No story lines in scope are spoken by ${fromName}`;
+    }
+    log("Per story:");
+    for (const [title, t] of perStory) log(`  ${title}: ${t.lines} whole line(s), ${t.segments} in-paragraph quote(s)`);
+    if ("characterId" in input.from) {
+        const messages = await tx.message.count({ where: { characterId: input.from.characterId } });
+        if (messages) log(`(${fromName} also speaks ${messages} transcript line(s); those are unchanged)`);
+    }
+    log("");
+    log("Each line changed, with its values before:");
+    details.forEach((d) => log(d));
+    return `${fromName} -> ${toName}: ${wholeLines} whole line(s) and ${segmentCount} quote(s) in ${perStory.size} stor${perStory.size === 1 ? "y" : "ies"}`;
+}

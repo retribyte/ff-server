@@ -634,7 +634,14 @@ function carryVoices(chapters: ImportChapter[], voices: Map<string, KnownVoice[]
     return filled;
 }
 
-type VoiceAssignment = { chapterNo: number; lineNo: number; segment?: number | null; speaker: string | null };
+type VoiceAssignment = {
+    chapterNo: number;
+    lineNo: number;
+    segment?: number | null;
+    speaker: string | null;
+    /** Admins only: the voice is a real character. The fragment stops being an NPC voice. */
+    characterId?: number | null;
+};
 
 /**
  * Names (or un-names, with a null/blank speaker) NPC voice fragments: a
@@ -644,31 +651,69 @@ type VoiceAssignment = { chapterNo: number; lineNo: number; segment?: number | n
  * One transaction; any bad assignment rejects them all.
  */
 async function assignVoices(slug: string, assignments: VoiceAssignment[]) {
+    validateAssignments(assignments);
+    if (assignments.some((a) => a.characterId !== undefined && a.characterId !== null)) {
+        throw new Error("Linking a character goes through assignVoicesTx (admins only)");
+    }
+    const story = await prisma.story.findUnique({ where: { slug }, select: { id: true } });
+    if (!story) return null;
+    return await prisma.$transaction((tx) => assignVoicesTx(tx, story.id, assignments));
+}
+
+function validateAssignments(assignments: VoiceAssignment[]) {
     if (!Array.isArray(assignments) || assignments.length === 0) {
         throw new Error("assignments must be a non-empty array");
     }
     if (assignments.length > 500) throw new Error("at most 500 assignments per request");
-    const story = await prisma.story.findUnique({ where: { slug }, select: { id: true } });
-    if (!story) return null;
+}
 
-    return await prisma.$transaction(async (tx) => {
+/** True when any assignment links a real character (admin only, logged as a job) */
+function linksCharacters(assignments: unknown): boolean {
+    return Array.isArray(assignments) && assignments.some((a) => a?.characterId !== undefined && a?.characterId !== null);
+}
+
+/**
+ * The work of assignVoices inside a caller's transaction. With a characterId
+ * (admins), the fragment gets that character and stops being an NPC voice:
+ * a segment loses `npc` and `speaker`, a whole line loses `npcVoice` and
+ * `speaker`. `log` gets one line per change (for the job history).
+ */
+async function assignVoicesTx(tx: Prisma.TransactionClient, storyId: number, assignments: VoiceAssignment[], log?: (line: string) => void) {
+    validateAssignments(assignments);
+    const story = { id: storyId };
+    {
         const updated: { chapterNo: number; lineNo: number; speaker: string | null; segments: StorySegment[] | null }[] = [];
         // several assignments may target one line (two fragments in a paragraph)
-        const pending = new Map<number, { line: { id: number; type: StoryLineType; npcVoice: boolean; speaker: string | null; segments: StorySegment[] | null }; chapterNo: number; lineNo: number }>();
+        const pending = new Map<
+            number,
+            {
+                line: { id: number; type: StoryLineType; npcVoice: boolean; speaker: string | null; segments: StorySegment[] | null; characterId: number | null };
+                chapterNo: number;
+                lineNo: number;
+            }
+        >();
         for (const [i, a] of assignments.entries()) {
             const label = `Assignment ${i + 1}`;
             if (!Number.isInteger(a?.chapterNo) || !Number.isInteger(a?.lineNo)) {
                 throw new Error(`${label}: chapterNo and lineNo must be whole numbers`);
             }
-            if (a.speaker !== null && typeof a.speaker !== "string") throw new Error(`${label}: speaker must be a string or null`);
+            if (a.speaker !== null && a.speaker !== undefined && typeof a.speaker !== "string") throw new Error(`${label}: speaker must be a string or null`);
             const speaker = a.speaker?.trim() || null;
+            const characterId = a.characterId ?? null;
+            let to = speaker ?? "(unnamed)";
+            if (characterId !== null) {
+                if (!Number.isInteger(characterId)) throw new Error(`${label}: characterId must be an id`);
+                const character = await tx.character.findUnique({ where: { id: characterId }, select: { name: true } });
+                if (!character) throw new Error(`${label}: character with id '${characterId}' not found`);
+                to = `character ${character.name}`;
+            }
             if (speaker && speaker.length > NPC_NAME_MAX) throw new Error(`${label}: names are at most ${NPC_NAME_MAX} characters`);
 
             let entry = [...pending.values()].find((p) => p.chapterNo === a.chapterNo && p.lineNo === a.lineNo);
             if (!entry) {
                 const line = await tx.storyLine.findFirst({
                     where: { line_no: a.lineNo, chapter: { storyId: story.id, chapter_no: a.chapterNo } },
-                    select: { id: true, type: true, npcVoice: true, speaker: true, segments: true },
+                    select: { id: true, type: true, npcVoice: true, speaker: true, segments: true, characterId: true },
                 });
                 if (!line) throw new Error(`${label}: no line ${a.lineNo} in chapter ${a.chapterNo}`);
                 entry = {
@@ -681,23 +726,37 @@ async function assignVoices(slug: string, assignments: VoiceAssignment[]) {
             const { line } = entry;
             if (a.segment === undefined || a.segment === null) {
                 if (!line.npcVoice) throw new Error(`${label}: line ${a.lineNo} isn't an NPC voice`);
-                line.speaker = speaker;
+                log?.(`ch. ${a.chapterNo}, line ${a.lineNo}: NPC ${line.speaker ?? "(unnamed)"} -> ${to}`);
+                if (characterId !== null) {
+                    line.speaker = null;
+                    line.npcVoice = false;
+                    line.characterId = characterId;
+                } else {
+                    line.speaker = speaker;
+                }
             } else {
                 const seg = Number.isInteger(a.segment) ? line.segments?.[a.segment] : undefined;
                 if (!seg?.npc) throw new Error(`${label}: segment ${a.segment} of line ${a.lineNo} isn't an NPC voice`);
-                if (speaker) seg.speaker = speaker;
+                log?.(`ch. ${a.chapterNo}, line ${a.lineNo}, quote ${a.segment}: NPC ${seg.speaker ?? "(unnamed)"} -> ${to}`);
+                if (characterId !== null) {
+                    delete seg.npc;
+                    delete seg.speaker;
+                    seg.characterId = characterId;
+                } else if (speaker) seg.speaker = speaker;
                 else delete seg.speaker;
             }
         }
         for (const [id, { line, chapterNo, lineNo }] of pending) {
             await tx.storyLine.update({
                 where: { id },
-                data: line.segments ? { segments: line.segments as object[] } : { speaker: line.speaker },
+                data: line.segments
+                    ? { segments: line.segments as object[] }
+                    : { speaker: line.speaker, npcVoice: line.npcVoice, characterId: line.characterId ?? null },
             });
             updated.push({ chapterNo, lineNo, speaker: line.speaker, segments: line.segments });
         }
         return updated;
-    });
+    }
 }
 
 /** Story authors may name their story's NPC voices; admins may name any. */
@@ -902,6 +961,8 @@ async function replaceStoryContent(slug: string, body: { chapters: ImportChapter
 
 export default {
     assignVoices,
+    assignVoicesTx,
+    linksCharacters,
     isAuthorOrAdmin,
     getAllStories,
     getStoryBySlug,

@@ -230,7 +230,8 @@ data. Don't add a species table back.
     pre-fills a revision's colors from it, so only new colors need a pick.
   - **NPC voices**: `PATCH /api/stories/:slug/voices` names or un-names NPC
     fragments (authors or admins). It can only touch NPC-flagged fragments,
-    never text or character attribution. NPC voices are plain text, never
+    never text. Only an admin's `characterId` changes attribution (the quote
+    becomes that character's, a logged `story-voice-name` job). NPC voices are plain text, never
     NPC `Persona` rows (the user's call): story NPCs aren't archive speakers.
   - `POST /api/episodes/import` is **retired and answers 410**. Admins import
     *new* episodes with `POST /api/admin/episode-import` (the site's /admin
@@ -250,7 +251,12 @@ data. Don't add a species table back.
     `POST /admin/messages/reassign` (job `message-reassign`: lines of one episode to
     another character/persona/NPC voice; the site's per-block attribution control uses
     it) and `POST /admin/owner` (job `owner-change`: character "played by", item owner,
-    story authors). A FAILED run answers 400. Write only through `ctx.tx` in them.
+    story authors), `POST /admin/story-voices/reassign` (job `story-voice-fix`: story
+    dialogue between a character and/or plain speaker text, whole lines and segments
+    JSON; the log keeps before-values, standing in for a dump; dry run = preview) and,
+    from `PATCH /stories/:slug/voices` with `characterId` (admins only), job
+    `story-voice-name` (an NPC quote becomes a character's). A FAILED run answers 400.
+    Write only through `ctx.tx` in them.
   - The append endpoints (`.../chapters/:n/lines`, `.../messages`) remain for
     incremental API use and the CLI episode uploaders.
 - **HTML sanitization** (`src/utils/sanitize.ts`, NFR-SEC-3): user-submitted
