@@ -6,19 +6,23 @@ import { parseImportMeta } from "./import-meta.js";
 import { IMPORT_TX_OPTIONS, ImportConflictError } from "../utils/import.js";
 import { storyContentHash } from "./story-hash.js";
 import booru from "../utils/booru.js";
+import { deleteNpcPersonasIfUnused } from "../speaker/speaker.service.js";
+import {
+    LINE_INCLUDE,
+    hasVoice,
+    isUnnamed,
+    personasUsedBy,
+    storedText,
+    toWireLine,
+    validateVoice,
+    voiceResolver,
+    writeLines,
+    type LineInput,
+    type SegmentInput,
+    type VoiceInput,
+    type WireLine,
+} from "./story-voices.js";
 
-
-type StorySegment = {
-    text: string;
-    characterId?: number | null;
-    speaker?: string | null;
-    // An NPC voice: `speaker` is its name, absent while unnamed (still dialogue)
-    npc?: boolean;
-    italic?: boolean;
-    bold?: boolean;
-};
-
-const NPC_NAME_MAX = 80;
 
 type StoryData = {
     slug: string;
@@ -33,16 +37,8 @@ type StoryData = {
     canon?: boolean; // default true
 };
 
-type LineData = {
-    type: StoryLineType;
-    text: string;
-    characterId?: number | null;
-    speaker?: string | null;
-    npcVoice?: boolean; // DIALOGUE only: an NPC voice, named by `speaker` or unnamed
-    segments?: StorySegment[] | null;
-    booruId?: number | null; // IMAGE only: the booru post holding the picture
-    imageUrl?: string | null; // set by resolveImages, never by the client
-};
+// A line as clients send it (see story-voices.ts for the voice fields)
+type LineData = LineInput;
 
 const VALID_LINE_TYPES = new Set<string>(Object.values(StoryLineType));
 const VALID_FORMATS = new Set<string>(Object.values(StoryFormat));
@@ -116,10 +112,11 @@ async function castByStory(storyIds: number[]) {
             FROM story_lines sl JOIN story_chapters ch ON ch.id = sl."chapterId"
             WHERE sl."characterId" IS NOT NULL
             UNION
-            SELECT ch."storyId", sl.id, (seg ->> 'characterId')::int
-            FROM story_lines sl JOIN story_chapters ch ON ch.id = sl."chapterId",
-                 jsonb_array_elements(CASE WHEN jsonb_typeof(sl.segments::jsonb) = 'array' THEN sl.segments::jsonb ELSE '[]'::jsonb END) seg
-            WHERE seg ->> 'characterId' IS NOT NULL
+            SELECT ch."storyId", sl.id, ss."characterId"
+            FROM story_segments ss
+            JOIN story_lines sl ON sl.id = ss."lineId"
+            JOIN story_chapters ch ON ch.id = sl."chapterId"
+            WHERE ss."characterId" IS NOT NULL
         ) sp("storyId", "lineId", "characterId")
         JOIN (SELECT id AS "storyId" FROM stories WHERE id IN (${Prisma.join(storyIds)})) c USING ("storyId")
         GROUP BY c."storyId", sp."characterId"
@@ -247,13 +244,16 @@ async function updateStory(slug: string, data: Partial<StoryData>) {
     });
 }
 
+/** Deletes a story with its chapters and lines, and the NPC personas only it used. */
 async function deleteStory(slug: string): Promise<void> {
     const story = await requireStory(slug);
-    await prisma.$transaction([
-        prisma.storyLine.deleteMany({ where: { chapter: { storyId: story.id } } }),
-        prisma.storyChapter.deleteMany({ where: { storyId: story.id } }),
-        prisma.story.delete({ where: { id: story.id } }),
-    ]);
+    await prisma.$transaction(async (tx) => {
+        const personas = await personasUsedBy(tx, { chapter: { storyId: story.id } });
+        await tx.storyLine.deleteMany({ where: { chapter: { storyId: story.id } } });
+        await tx.storyChapter.deleteMany({ where: { storyId: story.id } });
+        await tx.story.delete({ where: { id: story.id } });
+        await deleteNpcPersonasIfUnused(tx, personas);
+    });
 }
 
 async function createChapter(slug: string, data: { title?: string | null; chapter_no?: number }) {
@@ -283,10 +283,12 @@ async function updateChapter(slug: string, chapterNo: number, data: { title?: st
 
 async function deleteChapter(slug: string, chapterNo: number): Promise<void> {
     const chapter = await requireChapter(slug, chapterNo);
-    await prisma.$transaction([
-        prisma.storyLine.deleteMany({ where: { chapterId: chapter.id } }),
-        prisma.storyChapter.delete({ where: { id: chapter.id } }),
-    ]);
+    await prisma.$transaction(async (tx) => {
+        const personas = await personasUsedBy(tx, { chapterId: chapter.id });
+        await tx.storyLine.deleteMany({ where: { chapterId: chapter.id } });
+        await tx.storyChapter.delete({ where: { id: chapter.id } });
+        await deleteNpcPersonasIfUnused(tx, personas);
+    });
 }
 
 async function getLinesByChapter(slug: string, chapterNo: number, page = 1, limit = 100, search?: string) {
@@ -294,33 +296,26 @@ async function getLinesByChapter(slug: string, chapterNo: number, page = 1, limi
     const skip = (page - 1) * limit;
     const where: any = { chapterId: chapter.id };
     if (search) where.text = { contains: search };
-    const [data, total] = await Promise.all([
+    const [lines, total] = await Promise.all([
         prisma.storyLine.findMany({
             where,
             orderBy: { line_no: "asc" },
             skip,
             take: limit,
-            include: { character: true },
+            include: LINE_INCLUDE,
         }),
         prisma.storyLine.count({ where }),
     ]);
+    const data = lines.map(toWireLine);
 
-    // Characters referenced only inside segment JSON aren't hydrated by the
-    // line-level `character` include — fetch them so the reader can resolve
-    // names/colors for in-paragraph dialogue spans.
-    const lineCharacterIds = new Set(
-        data.map((l) => l.characterId).filter((id): id is number => id != null),
+    // Characters speaking only inside segments aren't hydrated by the
+    // line-level `character` include: fetch them so the reader can resolve
+    // names/colors for in-paragraph dialogue spans. (Segment personas come
+    // inline on each segment.)
+    const lineCharacterIds = new Set(lines.map((l) => l.characterId).filter((id): id is number => id != null));
+    const segmentCharacterIds = new Set(
+        lines.flatMap((l) => l.segments.map((seg) => seg.characterId)).filter((id): id is number => id != null && !lineCharacterIds.has(id))
     );
-    const segmentCharacterIds = new Set<number>();
-    for (const line of data) {
-        const segments = line.segments as StorySegment[] | null;
-        if (!Array.isArray(segments)) continue;
-        for (const seg of segments) {
-            if (typeof seg.characterId === "number" && !lineCharacterIds.has(seg.characterId)) {
-                segmentCharacterIds.add(seg.characterId);
-            }
-        }
-    }
     const characters = segmentCharacterIds.size
         ? await prisma.character.findMany({ where: { id: { in: [...segmentCharacterIds] } } })
         : [];
@@ -328,15 +323,7 @@ async function getLinesByChapter(slug: string, chapterNo: number, page = 1, limi
     return { data, total, page, limit, characters };
 }
 
-type CharacterQuote = {
-    id: number;
-    chapterId: number;
-    line_no: number;
-    type: StoryLineType;
-    text: string;
-    characterId: number | null;
-    speaker: string | null;
-    segments: StorySegment[] | null;
+type CharacterQuote = WireLine & {
     storySlug: string;
     storyTitle: string;
     storySeason: string | null; // the story's season title, if it's filed under one
@@ -344,27 +331,23 @@ type CharacterQuote = {
 };
 
 /**
- * Lines where a character speaks — either as the line's own `characterId`
- * (a whole DIALOGUE line) or as a segment's `characterId` (an inline quote
- * inside a NARRATION paragraph). The segment match relies on the `segments`
- * GIN(jsonb_path_ops) index via containment (`@>`); Prisma's JSON filter API
- * can't express "object key match inside an array" on PostgreSQL, so this
- * goes through $queryRaw.
+ * Lines where a character speaks: as the line's own voice (a whole DIALOGUE
+ * line) or in a segment (an inline quote inside a NARRATION paragraph), under
+ * any of its personas.
  */
 async function getStoryQuotesByCharacter(characterId: number): Promise<CharacterQuote[]> {
-    const containment = JSON.stringify([{ characterId }]);
-    return prisma.$queryRaw<CharacterQuote[]>`
-        SELECT
-            sl.id, sl."chapterId", sl.line_no, sl.type, sl.text,
-            sl."characterId", sl.speaker, sl.segments,
-            s.slug AS "storySlug", s.title AS "storyTitle", s."seasonTitle" AS "storySeason", sc.chapter_no AS "chapterNo"
-        FROM story_lines sl
-        JOIN story_chapters sc ON sc.id = sl."chapterId"
-        JOIN stories s ON s.id = sc."storyId"
-        WHERE sl."characterId" = ${characterId}
-           OR sl.segments @> ${containment}::jsonb
-        ORDER BY s.id, sc.chapter_no, sl.line_no
-    `;
+    const lines = await prisma.storyLine.findMany({
+        where: { OR: [{ characterId }, { segments: { some: { characterId } } }] },
+        include: { ...LINE_INCLUDE, chapter: { select: { chapter_no: true, story: { select: { slug: true, title: true, seasonTitle: true } } } } },
+        orderBy: [{ chapter: { story: { id: "asc" } } }, { chapter: { chapter_no: "asc" } }, { line_no: "asc" }],
+    });
+    return lines.map(({ chapter, ...line }) => ({
+        ...toWireLine(line),
+        storySlug: chapter.story.slug,
+        storyTitle: chapter.story.title,
+        storySeason: chapter.story.seasonTitle,
+        chapterNo: chapter.chapter_no,
+    }));
 }
 
 type StoryLineHit = {
@@ -380,7 +363,7 @@ type StoryLineHit = {
 // stemmed keyword search via to_tsvector/plainto_tsquery, ranked by ts_rank
 // and backed by the GIN expression index from prisma/scripts/create-search-indexes.ts
 // (Prisma's @@index can't express an expression index, so this can't live in
-// schema.prisma, unlike the segments GIN index above). The 'english' regconfig
+// schema.prisma). The 'english' regconfig
 // literal here must byte-match the index's expression for Postgres to use it.
 // ts_rank ties are otherwise Postgres-arbitrary, which would make OFFSET/
 // LIMIT paging duplicate or skip rows across pages — sl.id ASC breaks ties
@@ -428,16 +411,11 @@ async function searchStoryLines(
 }
 
 /** True when a segment array is present (not null/undefined) on a line. */
-function hasSegments(line: { segments?: StorySegment[] | null }): line is { segments: StorySegment[] } {
+function hasSegments(line: { segments?: SegmentInput[] | null }): line is { segments: SegmentInput[] } {
     return Array.isArray(line.segments);
 }
 
-/** The verbatim concatenation of segment texts — the canonical `text` for a segmented line. */
-function textFromSegments(segments: StorySegment[]): string {
-    return segments.map((s) => s.text).join("");
-}
-
-function validateSegments(segments: StorySegment[], label: string) {
+function validateSegments(segments: SegmentInput[], label: string) {
     if (!Array.isArray(segments) || segments.length === 0) {
         throw new Error(`${label}: segments must be a non-empty array`);
     }
@@ -445,16 +423,18 @@ function validateSegments(segments: StorySegment[], label: string) {
     // a plain array with no voice and no style should just be sent as text.
     let annotated = false;
     for (const [i, segment] of segments.entries()) {
-        if (typeof segment.text !== "string") {
-            throw new Error(`${label}: segment ${i + 1} needs a string text`);
+        const segLabel = `${label}, segment ${i + 1}`;
+        if (typeof segment?.text !== "string") {
+            throw new Error(`${segLabel} needs a string text`);
         }
         if (segment.npc !== undefined && typeof segment.npc !== "boolean") {
-            throw new Error(`${label}: segment ${i + 1} npc must be a boolean`);
+            throw new Error(`${segLabel}: npc must be a boolean`);
         }
-        if (segment.npc && segment.characterId) {
-            throw new Error(`${label}: segment ${i + 1} is an NPC voice, so it can't link a character`);
+        if (segment.npc && (segment.characterId || segment.personaId)) {
+            throw new Error(`${segLabel} is an NPC voice, so it can't link a character or persona`);
         }
-        if (segment.characterId || segment.speaker || segment.npc || segment.italic || segment.bold) annotated = true;
+        validateVoice(segment, segLabel);
+        if (hasVoice(segment, segment.npc) || segment.italic || segment.bold) annotated = true;
     }
     if (!annotated) {
         throw new Error(`${label}: segments need at least one dialogue or styled span; send plain text otherwise`);
@@ -462,6 +442,7 @@ function validateSegments(segments: StorySegment[], label: string) {
 }
 
 function validateLine(line: LineData, label: string) {
+    if (!line || typeof line !== "object") throw new Error(`${label}: must be an object`);
     if (!VALID_LINE_TYPES.has(line.type)) {
         throw new Error(`${label}: invalid type '${line.type}'`);
     }
@@ -471,13 +452,14 @@ function validateLine(line: LineData, label: string) {
     if (line.npcVoice !== undefined && typeof line.npcVoice !== "boolean") {
         throw new Error(`${label}: npcVoice must be a boolean`);
     }
-    if (line.npcVoice && (line.type !== StoryLineType.DIALOGUE || line.characterId)) {
-        throw new Error(`${label}: npcVoice is for DIALOGUE lines without a linked character`);
+    if (line.npcVoice && (line.type !== StoryLineType.DIALOGUE || line.characterId || line.personaId)) {
+        throw new Error(`${label}: npcVoice is for DIALOGUE lines without a linked character or persona`);
     }
-    // Dialogue needs a speaking voice — a linked character, a display name, or
-    // an NPC voice (which may be unnamed until someone names it in the reader)
-    if (line.type === StoryLineType.DIALOGUE && !line.characterId && !line.speaker && !line.npcVoice) {
-        throw new Error(`${label}: DIALOGUE lines require characterId, speaker or npcVoice`);
+    validateVoice(line, label);
+    // Dialogue needs a speaking voice: a character, a persona, or an NPC name
+    // (or, in a draft, an unnamed NPC voice that the naming step fills)
+    if (line.type === StoryLineType.DIALOGUE && !hasVoice(line, line.npcVoice)) {
+        throw new Error(`${label}: DIALOGUE lines require characterId, personaId or speaker`);
     }
     // Headings are a short block line — no voice, no segments
     if (line.type === StoryLineType.HEADING && line.text.trim().length === 0) {
@@ -488,7 +470,7 @@ function validateLine(line: LineData, label: string) {
         if (!Number.isInteger(line.booruId) || (line.booruId as number) <= 0) {
             throw new Error(`${label}: IMAGE lines require booruId (a booru post number)`);
         }
-        if (line.characterId || line.speaker || line.npcVoice || hasSegments(line)) {
+        if (hasVoice(line, line.npcVoice) || hasSegments(line)) {
             throw new Error(`${label}: IMAGE lines take no speaker or segments`);
         }
     } else if (line.booruId !== undefined && line.booruId !== null) {
@@ -521,12 +503,11 @@ async function createLines(slug: string, chapterNo: number, lines: LineData[]) {
             orderBy: { line_no: "desc" },
         });
         const firstLineNo = (last?.line_no ?? 0) + 1;
-        await insertLines(tx, chapter.id, firstLineNo, lines);
+        await writeLines(tx, chapter.id, firstLineNo, lines);
         return { count: lines.length, firstLineNo, lastLineNo: firstLineNo + lines.length - 1 };
-    });
+    }, IMPORT_TX_OPTIONS);
 }
 
-/** The `text` a line is stored with: segmented lines derive it from the spans so the two can't desync. */
 /**
  * Looks up every IMAGE line's booru post and sets its imageUrl (before any
  * transaction: the booru is a network call). Throws on a post that doesn't
@@ -544,55 +525,43 @@ async function resolveImages(lines: LineData[]): Promise<void> {
     for (const line of images) line.imageUrl = urls.get(line.booruId as number) ?? null;
 }
 
-function storedText(line: LineData): string {
-    return hasSegments(line) ? textFromSegments(line.segments) : line.text;
-}
-
-/** Writes already-validated lines into a chapter with sequential line_nos, inside the caller's transaction. */
-async function insertLines(tx: Prisma.TransactionClient, chapterId: number, firstLineNo: number, lines: LineData[]) {
-    await tx.storyLine.createMany({
-        data: lines.map((line, index) => ({
-            chapterId,
-            line_no: firstLineNo + index,
-            type: line.type,
-            text: storedText(line),
-            characterId: line.characterId ?? null,
-            speaker: line.speaker ?? null,
-            npcVoice: line.npcVoice ?? false,
-            segments: hasSegments(line) ? (line.segments as object[]) : undefined,
-            booruId: line.type === StoryLineType.IMAGE ? line.booruId : null,
-            imageUrl: line.type === StoryLineType.IMAGE ? line.imageUrl : null,
-        })),
-    });
-}
-
-// ---- NPC voices -------------------------------------------------------------
-// An NPC voice (gray text in a Google Doc, `{?}` in a manuscript) can't be
-// mapped to one speaker by color, so it imports unnamed and is named later,
-// fragment by fragment, by a story author or an admin reading the story.
+// ---- Carrying voices across a revision --------------------------------------
+// The converter can't tell NPCs apart (they share the gray ink, `{?}` in a
+// manuscript), so a revised draft's NPC quotes arrive unnamed. The quotes whose
+// text didn't change take the voice they had: the importer pre-fills its naming
+// step through POST .../voices/carry, and a revision PUT applies the same
+// carry-over before checking that every voice has a name.
 
 /** Comparison key for carrying a voice across a re-import: letters and digits only. */
 function voiceKey(text: string): string {
     return text.normalize("NFKD").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
 }
 
-type KnownVoice = { characterId: number | null; speaker: string | null };
+/** A voice a fragment had: a character (and persona), or an NPC persona by its name. null: none worth carrying. */
+type KnownVoice = { characterId: number; personaId: number | null } | { npc: string } | null;
 
 // Stand-in voices that say "some NPC" rather than who: carrying one over would
 // just re-label a quote as "NPC", so they count as unnamed.
-const PLACEHOLDER_VOICES = ["npc", "npcs", "?", "unknown", "unnamed"];
+const PLACEHOLDER_VOICES = ["npc", "npcs", "?", "unknown", "unnamed", "unnamed npc"];
 const isPlaceholder = (name: string | null | undefined) => !!name && PLACEHOLDER_VOICES.includes(name.trim().toLowerCase());
 
 /**
- * Every voiced fragment of a story (DIALOGUE lines and segment spans), keyed
- * by its text, in reading order — so a revised draft's unnamed NPC fragments
- * can take the voice their unchanged text already had.
+ * Every voiced fragment of a story (whole lines and segments), keyed by its
+ * text, in reading order, so a revised draft's unnamed NPC fragments can take
+ * the voice their unchanged text already had.
  */
 async function knownVoices(tx: Prisma.TransactionClient, storyId: number): Promise<Map<string, KnownVoice[]>> {
     const lines = await tx.storyLine.findMany({
         where: { chapter: { storyId } },
         orderBy: [{ chapter: { chapter_no: "asc" } }, { line_no: "asc" }],
-        select: { type: true, text: true, characterId: true, speaker: true, npcVoice: true, segments: true },
+        select: {
+            type: true,
+            text: true,
+            characterId: true,
+            personaId: true,
+            persona: { select: { name: true } },
+            segments: { orderBy: { position: "asc" }, select: { text: true, characterId: true, personaId: true, persona: { select: { name: true } } } },
+        },
     });
     // characters standing in for "some NPC" (the legacy generic NPC character)
     const placeholderIds = new Set(
@@ -604,96 +573,106 @@ async function knownVoices(tx: Prisma.TransactionClient, storyId: number): Promi
         ).map((c) => c.id)
     );
     const voices = new Map<string, KnownVoice[]>();
-    // unnamed NPC fragments are listed too (as no voice), so occurrence numbers line up
-    const add = (text: string, characterId: number | null | undefined, speaker: string | null | undefined, npc?: boolean) => {
-        if (!characterId && !speaker && !npc) return;
-        const key = voiceKey(text);
+    const add = (f: { text: string; characterId: number | null; personaId: number | null; persona: { name: string | null } | null }) => {
+        if (!f.characterId && !f.personaId) return;
+        const key = voiceKey(f.text);
         if (!key) return;
         const list = voices.get(key) ?? [];
-        const placeholder = (characterId && placeholderIds.has(characterId)) || (!characterId && isPlaceholder(speaker));
-        list.push(
-            placeholder
-                ? { characterId: null, speaker: null }
-                : { characterId: characterId ?? null, speaker: characterId ? null : (speaker ?? null) }
-        );
+        // placeholders are listed too (as no voice), so occurrence numbers line up
+        if (f.characterId) list.push(placeholderIds.has(f.characterId) ? null : { characterId: f.characterId, personaId: f.personaId });
+        else list.push(isPlaceholder(f.persona?.name) || !f.persona?.name ? null : { npc: f.persona.name });
         voices.set(key, list);
     };
     for (const line of lines) {
-        if (line.type === StoryLineType.DIALOGUE) add(line.text, line.characterId, line.speaker, line.npcVoice);
-        const segments = line.segments as StorySegment[] | null;
-        if (Array.isArray(segments)) for (const seg of segments) add(seg.text, seg.characterId, seg.speaker, seg.npc);
+        if (line.type === StoryLineType.DIALOGUE) add(line);
+        for (const seg of line.segments) add(seg);
     }
     return voices;
 }
 
 /**
- * Fills a revised draft's unnamed NPC fragments from the story's current
- * voices, matching on text by occurrence: the n-th voiced "Fire!" in the draft
- * takes the voice of the n-th voiced "Fire!" in the story as it stands (so an
- * NPC's "Yes." never inherits the character who said "Yes." earlier). A match
- * on a linked character becomes that character; a match on a name stays an
- * NPC voice with that name. Returns how many fragments it filled.
+ * Fills a draft's unnamed NPC fragments from the story's current voices,
+ * matching on text by occurrence: the n-th voiced "Fire!" in the draft takes
+ * the voice of the n-th voiced "Fire!" in the story as it stands (so an NPC's
+ * "Yes." never inherits the character who said "Yes." earlier). A match on a
+ * character becomes that character (and persona); a match on an NPC names it.
+ * Returns how many fragments it filled.
  */
 function carryVoices(chapters: ImportChapter[], voices: Map<string, KnownVoice[]>): number {
     const seen = new Map<string, number>();
     // the old voice at this fragment's occurrence of its text, counting every voiced fragment
-    const occurrence = (text: string): KnownVoice | null => {
+    const occurrence = (text: string): KnownVoice => {
         const key = voiceKey(text);
         if (!key) return null;
         const n = seen.get(key) ?? 0;
         seen.set(key, n + 1);
         return voices.get(key)?.[n] ?? null;
     };
-    const voiced = (characterId: number | null | undefined, speaker: string | null | undefined, npc: boolean | undefined) =>
-        !!characterId || !!speaker || !!npc;
     let filled = 0;
+    const fill = (fragment: VoiceInput, known: KnownVoice): boolean => {
+        if (!known) return false;
+        if ("npc" in known) fragment.speaker = known.npc;
+        else {
+            fragment.characterId = known.characterId;
+            fragment.personaId = known.personaId;
+        }
+        filled++;
+        return true;
+    };
     for (const chapter of chapters) {
         for (const line of chapter.lines) {
-            if (line.type === StoryLineType.DIALOGUE && voiced(line.characterId, line.speaker, line.npcVoice)) {
+            if (line.type === StoryLineType.DIALOGUE && hasVoice(line, line.npcVoice)) {
                 const known = occurrence(line.text);
-                if (line.npcVoice && !line.speaker && (known?.characterId || known?.speaker)) {
-                    if (known.characterId) {
-                        line.characterId = known.characterId;
-                        line.npcVoice = false;
-                    } else line.speaker = known.speaker;
-                    filled++;
-                }
+                if (isUnnamed(line, line.npcVoice) && fill(line, known) && known && !("npc" in known)) line.npcVoice = false;
             }
             if (!hasSegments(line)) continue;
             for (const seg of line.segments) {
-                if (!voiced(seg.characterId, seg.speaker, seg.npc)) continue;
+                if (!hasVoice(seg, seg.npc)) continue;
                 const known = occurrence(seg.text);
-                if (!seg.npc || seg.speaker || !(known?.characterId || known?.speaker)) continue;
-                if (known!.characterId) {
-                    seg.characterId = known!.characterId;
-                    delete seg.npc;
-                } else seg.speaker = known!.speaker;
-                filled++;
+                if (isUnnamed(seg, seg.npc) && fill(seg, known) && known && !("npc" in known)) delete seg.npc;
             }
         }
     }
     return filled;
 }
 
+/**
+ * For the importer's naming step: a revision draft with its unnamed NPC
+ * fragments filled from the story's current voices. Writes nothing.
+ */
+async function carryStoryVoices(slug: string, body: { chapters: ImportChapter[] }) {
+    const { ordered } = prepareChapters(body?.chapters);
+    const story = await prisma.story.findUnique({ where: { slug }, select: { id: true } });
+    if (!story) return null;
+    const filled = carryVoices(ordered, await knownVoices(prisma, story.id));
+    return { chapters: ordered, filled };
+}
+
+// ---- Re-voicing fragments from the reader -----------------------------------
+
 type VoiceAssignment = {
     chapterNo: number;
     lineNo: number;
+    /** 0-based span of a NARRATION line; omitted for a whole DIALOGUE line */
     segment?: number | null;
-    speaker: string | null;
-    /** The voice is a real character (authors and admins; logged as a job). The fragment stops being an NPC voice. */
+    /** An NPC by name (found or created) */
+    speaker?: string | null;
+    /** A character (story authors and admins; logged as a job), optionally as one of its personas */
     characterId?: number | null;
+    /** A persona: one of `characterId`'s, or an NPC persona alone */
+    personaId?: number | null;
 };
 
 /**
- * Names (or un-names, with a null/blank speaker) NPC voice fragments: a
- * segment of a NARRATION line, or a whole npcVoice DIALOGUE line when
- * `segment` is omitted. Only NPC-flagged fragments can be named this way, so
- * the story's text and its character attributions can't change through here.
- * One transaction; any bad assignment rejects them all.
+ * Re-voices fragments of a story that already have a voice: a segment of a
+ * NARRATION line, or a whole line when `segment` is omitted. A fragment can
+ * move between NPCs, characters and personas, but narration can't become
+ * dialogue (nor the reverse) and text never changes through here. One
+ * transaction; any bad assignment rejects them all.
  */
 async function assignVoices(slug: string, assignments: VoiceAssignment[]) {
     validateAssignments(assignments);
-    if (assignments.some((a) => a.characterId !== undefined && a.characterId !== null)) {
+    if (linksCharacters(assignments)) {
         throw new Error("Linking a character goes through assignVoicesTx (logged as a job)");
     }
     const story = await prisma.story.findUnique({ where: { slug }, select: { id: true } });
@@ -708,100 +687,78 @@ function validateAssignments(assignments: VoiceAssignment[]) {
     if (assignments.length > 500) throw new Error("at most 500 assignments per request");
 }
 
-/** True when any assignment links a real character (admin only, logged as a job) */
+/** True when any assignment links a character or a persona by id (logged as a job) */
 function linksCharacters(assignments: unknown): boolean {
-    return Array.isArray(assignments) && assignments.some((a) => a?.characterId !== undefined && a?.characterId !== null);
+    return (
+        Array.isArray(assignments) &&
+        assignments.some((a) => (a?.characterId !== undefined && a?.characterId !== null) || (a?.personaId !== undefined && a?.personaId !== null))
+    );
 }
 
+const voiceLabel = (v: { character?: { name: string } | null; persona?: { name: string | null } | null }) =>
+    v.character ? (v.persona?.name ? `${v.character.name} (as ${v.persona.name})` : v.character.name) : v.persona?.name ? `NPC ${v.persona.name}` : "(no voice)";
+
 /**
- * The work of assignVoices inside a caller's transaction. With a characterId,
- * the fragment gets that character and stops being an NPC voice:
- * a segment loses `npc` and `speaker`, a whole line loses `npcVoice` and
- * `speaker`. `log` gets one line per change (for the job history).
+ * The work of assignVoices inside a caller's transaction. `log` gets one line
+ * per change (for the job history). NPC personas a change leaves with no lines
+ * anywhere are deleted. Returns the changed lines as the reader gets them.
  */
 async function assignVoicesTx(tx: Prisma.TransactionClient, storyId: number, assignments: VoiceAssignment[], log?: (line: string) => void) {
     validateAssignments(assignments);
-    const story = { id: storyId };
-    {
-        const updated: { chapterNo: number; lineNo: number; speaker: string | null; segments: StorySegment[] | null }[] = [];
-        // several assignments may target one line (two fragments in a paragraph)
-        const pending = new Map<
-            number,
-            {
-                line: { id: number; type: StoryLineType; npcVoice: boolean; speaker: string | null; segments: StorySegment[] | null; characterId: number | null };
-                chapterNo: number;
-                lineNo: number;
-            }
-        >();
-        for (const [i, a] of assignments.entries()) {
-            const label = `Assignment ${i + 1}`;
-            if (!Number.isInteger(a?.chapterNo) || !Number.isInteger(a?.lineNo)) {
-                throw new Error(`${label}: chapterNo and lineNo must be whole numbers`);
-            }
-            if (a.speaker !== null && a.speaker !== undefined && typeof a.speaker !== "string") throw new Error(`${label}: speaker must be a string or null`);
-            const speaker = a.speaker?.trim() || null;
-            const characterId = a.characterId ?? null;
-            let to = speaker ?? "(unnamed)";
-            if (characterId !== null) {
-                if (!Number.isInteger(characterId)) throw new Error(`${label}: characterId must be an id`);
-                const character = await tx.character.findUnique({ where: { id: characterId }, select: { name: true } });
-                if (!character) throw new Error(`${label}: character with id '${characterId}' not found`);
-                to = `character ${character.name}`;
-            }
-            if (speaker && speaker.length > NPC_NAME_MAX) throw new Error(`${label}: names are at most ${NPC_NAME_MAX} characters`);
+    const { resolve } = voiceResolver(tx);
+    const released = new Set<number>();
+    const kept = new Set<number>();
+    const changedLines = new Map<number, { chapterNo: number; lineNo: number }>();
+    const voiceInclude = { character: { select: { name: true } }, persona: { select: { name: true } } } as const;
+    for (const [i, a] of assignments.entries()) {
+        const label = `Assignment ${i + 1}`;
+        if (!Number.isInteger(a?.chapterNo) || !Number.isInteger(a?.lineNo)) {
+            throw new Error(`${label}: chapterNo and lineNo must be whole numbers`);
+        }
+        const input: VoiceInput = { characterId: a.characterId ?? null, personaId: a.personaId ?? null, speaker: a.speaker ?? null };
+        validateVoice(input, label);
+        if (!hasVoice(input)) throw new Error(`${label}: give the fragment a speaker name, a character or a persona`);
+        const voice = await resolve(input, false, label);
+        if (voice.personaId !== null) kept.add(voice.personaId);
 
-            let entry = [...pending.values()].find((p) => p.chapterNo === a.chapterNo && p.lineNo === a.lineNo);
-            if (!entry) {
-                const line = await tx.storyLine.findFirst({
-                    where: { line_no: a.lineNo, chapter: { storyId: story.id, chapter_no: a.chapterNo } },
-                    select: { id: true, type: true, npcVoice: true, speaker: true, segments: true, characterId: true },
-                });
-                if (!line) throw new Error(`${label}: no line ${a.lineNo} in chapter ${a.chapterNo}`);
-                entry = {
-                    line: { ...line, segments: Array.isArray(line.segments) ? (structuredClone(line.segments) as StorySegment[]) : null },
-                    chapterNo: a.chapterNo,
-                    lineNo: a.lineNo,
-                };
-                pending.set(line.id, entry);
-            }
-            const { line } = entry;
-            if (a.segment === undefined || a.segment === null) {
-                if (!line.npcVoice) throw new Error(`${label}: line ${a.lineNo} isn't an NPC voice`);
-                log?.(`ch. ${a.chapterNo}, line ${a.lineNo}: NPC ${line.speaker ?? "(unnamed)"} -> ${to}`);
-                if (characterId !== null) {
-                    line.speaker = null;
-                    line.npcVoice = false;
-                    line.characterId = characterId;
-                } else {
-                    line.speaker = speaker;
-                }
-            } else {
-                const seg = Number.isInteger(a.segment) ? line.segments?.[a.segment] : undefined;
-                if (!seg?.npc) throw new Error(`${label}: segment ${a.segment} of line ${a.lineNo} isn't an NPC voice`);
-                log?.(`ch. ${a.chapterNo}, line ${a.lineNo}, quote ${a.segment}: NPC ${seg.speaker ?? "(unnamed)"} -> ${to}`);
-                if (characterId !== null) {
-                    delete seg.npc;
-                    delete seg.speaker;
-                    seg.characterId = characterId;
-                } else if (speaker) seg.speaker = speaker;
-                else delete seg.speaker;
-            }
+        const line = await tx.storyLine.findFirst({
+            where: { line_no: a.lineNo, chapter: { storyId, chapter_no: a.chapterNo } },
+            select: { id: true, characterId: true, personaId: true, ...voiceInclude },
+        });
+        if (!line) throw new Error(`${label}: no line ${a.lineNo} in chapter ${a.chapterNo}`);
+        let before: string;
+        let after;
+        if (a.segment === undefined || a.segment === null) {
+            if (!line.characterId && !line.personaId) throw new Error(`${label}: line ${a.lineNo} has no voice to change`);
+            before = voiceLabel(line);
+            if (line.personaId !== null) released.add(line.personaId);
+            after = await tx.storyLine.update({ where: { id: line.id }, data: voice, select: voiceInclude });
+            log?.(`ch. ${a.chapterNo}, line ${a.lineNo}: ${before} -> ${voiceLabel(after)}`);
+        } else {
+            const seg = Number.isInteger(a.segment)
+                ? await tx.storySegment.findUnique({
+                      where: { lineId_position: { lineId: line.id, position: a.segment } },
+                      select: { id: true, characterId: true, personaId: true, ...voiceInclude },
+                  })
+                : null;
+            if (!seg) throw new Error(`${label}: line ${a.lineNo} has no segment ${a.segment}`);
+            if (!seg.characterId && !seg.personaId) throw new Error(`${label}: segment ${a.segment} of line ${a.lineNo} is narration, not a voice`);
+            before = voiceLabel(seg);
+            if (seg.personaId !== null) released.add(seg.personaId);
+            after = await tx.storySegment.update({ where: { id: seg.id }, data: voice, select: voiceInclude });
+            log?.(`ch. ${a.chapterNo}, line ${a.lineNo}, quote ${a.segment}: ${before} -> ${voiceLabel(after)}`);
         }
-        for (const [id, { line, chapterNo, lineNo }] of pending) {
-            await tx.storyLine.update({
-                where: { id },
-                data: line.segments
-                    ? { segments: line.segments as object[] }
-                    : { speaker: line.speaker, npcVoice: line.npcVoice, characterId: line.characterId ?? null },
-            });
-            updated.push({ chapterNo, lineNo, speaker: line.speaker, segments: line.segments });
-        }
-        return updated;
+        changedLines.set(line.id, { chapterNo: a.chapterNo, lineNo: a.lineNo });
     }
+    for (const id of kept) released.delete(id);
+    const deleted = await deleteNpcPersonasIfUnused(tx, released);
+    if (deleted.length) log?.(`Deleted NPC voice(s) no line uses any more: ${deleted.join(", ")}`);
+
+    const lines = await tx.storyLine.findMany({ where: { id: { in: [...changedLines.keys()] } }, include: LINE_INCLUDE });
+    return lines.map((line) => ({ ...changedLines.get(line.id)!, ...toWireLine(line) }));
 }
 
-/** Story authors may name their story's NPC voices; admins may name any. */
-/** An admin, or one of the story's authors (who may replace its text and name its NPC voices). null: no such story. */
+/** An admin, or one of the story's authors (who may replace its text and re-voice its quotes). null: no such story. */
 async function isAuthorOrAdmin(slug: string, user: { id: number; role: string }): Promise<boolean | null> {
     const story = await prisma.story.findUnique({ where: { slug }, select: { authors: { select: { id: true } } } });
     if (!story) return null;
@@ -811,12 +768,6 @@ async function isAuthorOrAdmin(slug: string, user: { id: number; role: string })
 type ImportChapter = { chapter_no: number; title?: string | null; lines: LineData[] };
 type StoryImport = { story: StoryData; chapters: ImportChapter[]; importMeta?: unknown };
 
-/**
- * Atomic whole-story import: the story, every chapter and every line in one
- * transaction — it either lands complete or not at all, so "this story
- * exists" always means "this story imported completely". Rejects (409) a
- * slug or title already in use, or content identical to an existing story's.
- */
 /** Validates import chapters; returns them in chapter_no order with the content fingerprint. */
 function prepareChapters(chapters: ImportChapter[]): { ordered: ImportChapter[]; contentHash: string } {
     if (!Array.isArray(chapters) || chapters.length === 0) {
@@ -842,19 +793,27 @@ function prepareChapters(chapters: ImportChapter[]): { ordered: ImportChapter[];
     return { ordered, contentHash };
 }
 
-/** Creates chapters and their lines for a story, inside the caller's transaction. */
-async function insertChapters(tx: Prisma.TransactionClient, storyId: number, ordered: ImportChapter[]): Promise<number> {
+/** Creates chapters and their lines for a story, inside the caller's transaction. Returns line count and NPC personas created. */
+async function insertChapters(tx: Prisma.TransactionClient, storyId: number, ordered: ImportChapter[]) {
     let lineCount = 0;
+    const npcsCreated: string[] = [];
     for (const chapter of ordered) {
         const createdChapter = await tx.storyChapter.create({
             data: { storyId, chapter_no: chapter.chapter_no, title: chapter.title ?? null },
         });
-        await insertLines(tx, createdChapter.id, 1, chapter.lines);
+        npcsCreated.push(...(await writeLines(tx, createdChapter.id, 1, chapter.lines, `Chapter ${chapter.chapter_no}, `)));
         lineCount += chapter.lines.length;
     }
-    return lineCount;
+    return { lineCount, npcsCreated };
 }
 
+/**
+ * Atomic whole-story import: the story, every chapter and every line in one
+ * transaction — it either lands complete or not at all, so "this story
+ * exists" always means "this story imported completely". Rejects (409) a
+ * slug or title already in use, or content identical to an existing story's;
+ * rejects (400) a voice that is an unnamed NPC.
+ */
 async function importStory(body: StoryImport) {
     const { story, chapters } = body ?? ({} as StoryImport);
     if (!story || typeof story !== "object") throw new Error("body must be { story, chapters }");
@@ -899,64 +858,79 @@ async function importStory(body: StoryImport) {
             },
         });
 
-        const lineCount = await insertChapters(tx, created.id, ordered);
+        const { lineCount, npcsCreated } = await insertChapters(tx, created.id, ordered);
 
         const full = await tx.story.findUniqueOrThrow({
             where: { id: created.id },
             include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
         });
-        return { ...full, lineCount };
+        return { ...full, lineCount, npcsCreated };
     }, IMPORT_TX_OPTIONS);
 }
 
+/** Admin edit of one line: type, text, voice, segments (replaced wholesale). Returns the line as the reader gets it. */
 async function updateLine(slug: string, chapterNo: number, lineNo: number, data: Partial<LineData>) {
     const chapter = await requireChapter(slug, chapterNo);
     const existing = await prisma.storyLine.findUnique({
         where: { chapterId_line_no: { chapterId: chapter.id, line_no: lineNo } },
+        include: { segments: { orderBy: { position: "asc" } } },
     });
     if (!existing) throw new Error(`Line ${lineNo} of chapter ${chapterNo} in story '${slug}' not found`);
 
-    const existingSegments = (existing.segments as StorySegment[] | null) ?? null;
+    const existingSegments: SegmentInput[] | null = existing.segments.length
+        ? existing.segments.map((seg) => ({ text: seg.text, characterId: seg.characterId, personaId: seg.personaId, italic: seg.italic, bold: seg.bold }))
+        : null;
 
     // segments: absent = leave as-is, null = clear, array = replace
-    const effectiveSegments: StorySegment[] | null =
-        data.segments === undefined ? existingSegments : data.segments;
+    const effectiveSegments = data.segments === undefined ? existingSegments : data.segments;
 
     // A text-only edit on a segmented line would silently desync text from spans
     if (data.text !== undefined && existingSegments && data.segments === undefined) {
         throw new Error(`Line ${lineNo}: cannot edit text of a segmented line directly — update its segments, or send segments:null to clear them`);
     }
 
-    // Segmented lines derive text from the spans; otherwise take the edit or keep existing
-    const effectiveText = effectiveSegments
-        ? textFromSegments(effectiveSegments)
-        : (data.text !== undefined ? data.text : existing.text);
+    // A voice edit replaces the line's voice; otherwise it keeps the one it has
+    const voiceEdit = data.characterId !== undefined || data.personaId !== undefined || data.speaker !== undefined || data.npcVoice !== undefined;
+    const voice: VoiceInput & { npcVoice?: boolean } = voiceEdit
+        ? { characterId: data.characterId, personaId: data.personaId, speaker: data.speaker, npcVoice: data.npcVoice }
+        : { characterId: existing.characterId, personaId: existing.personaId };
 
-    const merged = {
+    const merged: LineData = {
         type: data.type ?? existing.type,
-        text: effectiveText,
-        characterId: data.characterId !== undefined ? data.characterId : existing.characterId,
-        speaker: data.speaker !== undefined ? data.speaker : existing.speaker,
+        text: effectiveSegments ? storedText({ text: "", segments: effectiveSegments }) : data.text !== undefined ? data.text : existing.text,
+        ...voice,
         segments: effectiveSegments,
         booruId: existing.booruId, // a picture's post isn't changed through a line edit
     };
-    validateLine(merged as LineData, `Line ${lineNo}`);
+    validateLine(merged, `Line ${lineNo}`);
 
-    return await prisma.storyLine.update({
-        where: { id: existing.id },
-        data: {
-            type: data.type,
-            text: effectiveText,
-            characterId: data.characterId,
-            speaker: data.speaker,
-            segments:
-                data.segments === undefined
-                    ? undefined
-                    : data.segments === null
-                      ? Prisma.DbNull
-                      : (data.segments as object[]),
-        },
-        include: { character: true },
+    return await prisma.$transaction(async (tx) => {
+        const { resolve } = voiceResolver(tx);
+        const before = await personasUsedBy(tx, { id: existing.id });
+        const lineVoice = await resolve(merged, merged.npcVoice, `Line ${lineNo}`);
+        await tx.storyLine.update({
+            where: { id: existing.id },
+            data: { type: merged.type, text: merged.text, ...lineVoice },
+        });
+        if (data.segments !== undefined) {
+            await tx.storySegment.deleteMany({ where: { lineId: existing.id } });
+            if (effectiveSegments) {
+                const rows = [];
+                for (const [position, seg] of effectiveSegments.entries()) {
+                    rows.push({
+                        lineId: existing.id,
+                        position,
+                        text: seg.text,
+                        ...(await resolve(seg, seg.npc, `Line ${lineNo}, segment ${position + 1}`)),
+                        italic: !!seg.italic,
+                        bold: !!seg.bold,
+                    });
+                }
+                await tx.storySegment.createMany({ data: rows });
+            }
+        }
+        await deleteNpcPersonasIfUnused(tx, before);
+        return toWireLine(await tx.storyLine.findUniqueOrThrow({ where: { id: existing.id }, include: LINE_INCLUDE }));
     });
 }
 
@@ -965,8 +939,11 @@ async function updateLine(slug: string, chapterNo: number, lineNo: number, data:
  * a new draft in one transaction, keeping the story itself (id, slug, title,
  * authors, season, blurb, theme). Rejects (409) text identical to a
  * *different* story; re-sending the story's own text is allowed and just
- * rewrites it. Line numbers restart at 1 per chapter, so deep links into the
- * story may shift; nothing else hangs off story lines.
+ * rewrites it. Unnamed NPC fragments take the voice their unchanged text had
+ * (carryVoices); any left unnamed reject the revision (400). NPC personas the
+ * old text used and the new one doesn't, and nothing else uses, are deleted.
+ * Line numbers restart at 1 per chapter, so deep links into the story may
+ * shift; nothing else hangs off story lines.
  */
 async function replaceStoryContent(slug: string, body: { chapters: ImportChapter[]; importMeta?: unknown }) {
     const { ordered, contentHash } = prepareChapters(body?.chapters);
@@ -988,21 +965,24 @@ async function replaceStoryContent(slug: string, body: { chapters: ImportChapter
         }
         // NPC fragments someone already named keep their names across a revision
         const voicesCarried = carryVoices(ordered, await knownVoices(tx, story.id));
+        const before = await personasUsedBy(tx, { chapter: { storyId: story.id } });
         await tx.storyLine.deleteMany({ where: { chapter: { storyId: story.id } } });
         await tx.storyChapter.deleteMany({ where: { storyId: story.id } });
-        const lineCount = await insertChapters(tx, story.id, ordered);
+        const { lineCount, npcsCreated } = await insertChapters(tx, story.id, ordered);
+        const npcsDeleted = await deleteNpcPersonasIfUnused(tx, before);
         await tx.story.update({ where: { id: story.id }, data: { contentHash, importMeta: importMeta ?? undefined } });
         const full = await tx.story.findUniqueOrThrow({
             where: { id: story.id },
             include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
         });
-        return { ...full, lineCount, voicesCarried };
+        return { ...full, lineCount, voicesCarried, npcsCreated, npcsDeleted };
     }, IMPORT_TX_OPTIONS);
 }
 
 export default {
     assignVoices,
     assignVoicesTx,
+    carryStoryVoices,
     linksCharacters,
     isAuthorOrAdmin,
     getAllStories,

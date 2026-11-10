@@ -17,6 +17,7 @@
  */
 import { StoryLineType } from "@prisma/client";
 import { prisma } from "../../src/db.js";
+import { findOrCreateNpcPersona } from "../../src/speaker/speaker.service.js";
 import { readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
@@ -98,6 +99,7 @@ const SPEAKERS: Record<string, string | "npc"> = {
 };
 const speakerIds = new Map<string, number>(); // slug -> id, filled by main()
 
+// npcVoice: an unidentified GM voice, written as the "Unnamed NPC" persona
 interface Row { type: StoryLineType; text: string; characterId: number | null; npcVoice: boolean }
 
 function parse(content: string): Row[] {
@@ -176,8 +178,9 @@ async function main() {
         console.log("dry run; pass --apply to write");
         return;
     }
+    const unnamed = rows.some((r) => r.npcVoice) ? (await findOrCreateNpcPersona(prisma, "Unnamed NPC")).persona.id : null;
     await prisma.storyLine.createMany({
-        data: rows.map((r, i) => ({ chapterId: chapter.id, line_no: start + i, ...r, speaker: null })),
+        data: rows.map(({ npcVoice, ...r }, i) => ({ chapterId: chapter.id, line_no: start + i, ...r, personaId: npcVoice ? unnamed : null })),
     });
     console.log("written; run `npm run export:vm-appended` and commit, so the seed has these lines too");
     if (!file && messages.length) {

@@ -32,6 +32,7 @@ import { fileURLToPath } from "url";
 import { slugify } from "../../src/utils/slug.js";
 import { defaultPassword } from "../../src/user/default-password.js";
 import { isUnknownSpeaker, resolveVmSpeaker } from "./vm-speakers.js";
+import { findOrCreateNpcPersona } from "../../src/speaker/speaker.service.js";
 import { SYSTEM_ACCOUNTS } from "./system-accounts.js";
 
 
@@ -445,7 +446,7 @@ async function main() {
             data: { storyId: vmStory.id, chapter_no: 1 },
         });
 
-        const cyoaRows: Prisma.StoryLineCreateManyInput[] = cyoaLines.map((line, index) => {
+        const cyoaRows = cyoaLines.map((line, index) => {
             // Unidentified voices ("?") and ambiguous "I:" lines: see vm-speakers.ts
             const resolved = line.character ? resolveVmSpeaker(index + 1, line.character) : null;
             const characterName = resolved
@@ -456,6 +457,16 @@ async function main() {
                   ? canonicalize(line.character)
                   : null;
             const characterId = characterName ? (characterIds.get(characterName) ?? null) : null;
+            // Uncatalogued voices and NPCs are NPC personas by name; an
+            // unidentified one ("?") shares the "Unnamed NPC" placeholder
+            const npcName =
+                characterId !== null
+                    ? null
+                    : resolved && "speaker" in resolved && resolved.speaker
+                      ? resolved.speaker
+                      : resolved && "npc" in resolved
+                        ? "Unnamed NPC"
+                        : line.character || null;
             let type: StoryLineType;
             switch (line.type) {
                 case "dialogue":
@@ -470,26 +481,21 @@ async function main() {
                 default:
                     type = StoryLineType.NARRATION;
             }
-            return {
-                chapterId: vmChapter.id,
-                line_no: index + 1,
-                type,
-                text: line.text,
-                characterId,
-                // Uncatalogued voices still render as dialogue via the name fallback
-                speaker:
-                    resolved && "speaker" in resolved
-                        ? resolved.speaker
-                        : line.character && characterId === null
-                          ? line.character
-                          : null,
-                npcVoice: resolved !== null && "npc" in resolved,
-            };
+            return { chapterId: vmChapter.id, line_no: index + 1, type, text: line.text, characterId, npcName };
         });
+        const npcIds = new Map<string, number>();
+        for (const name of new Set(cyoaRows.map((r) => r.npcName).filter((n): n is string => !!n))) {
+            npcIds.set(name, (await findOrCreateNpcPersona(prisma, name)).persona.id);
+        }
         // Lines appended from Discord since cyoa.json: seed-vm-appended.ts
         const CHUNK = 2000;
         for (let i = 0; i < cyoaRows.length; i += CHUNK) {
-            await prisma.storyLine.createMany({ data: cyoaRows.slice(i, i + CHUNK) });
+            await prisma.storyLine.createMany({
+                data: cyoaRows.slice(i, i + CHUNK).map(({ npcName, ...row }): Prisma.StoryLineCreateManyInput => ({
+                    ...row,
+                    personaId: npcName ? npcIds.get(npcName)! : null,
+                })),
+            });
         }
         cyoaRowCount = cyoaRows.length;
     }

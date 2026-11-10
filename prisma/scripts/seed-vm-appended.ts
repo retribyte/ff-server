@@ -15,6 +15,7 @@
  */
 import { StoryLineType } from "@prisma/client";
 import { prisma } from "../../src/db.js";
+import { findOrCreateNpcPersona } from "../../src/speaker/speaker.service.js";
 import { existsSync, readFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
@@ -26,8 +27,9 @@ interface VmAppendedLine {
     type: StoryLineType;
     text: string;
     character: string | null; // slug
-    speaker: string | null;
-    npcVoice: boolean;
+    persona?: string | null; // a persona of `character`, by name
+    speaker: string | null; // an NPC persona, by name
+    npcVoice: boolean; // an NPC line; one with no speaker is the "Unnamed NPC"
 }
 
 async function main() {
@@ -59,17 +61,29 @@ async function main() {
     const missing = slugs.filter((s) => !ids.has(s));
     if (missing.length) throw new Error(`vm-appended-lines.json names unknown character(s): ${missing.join(", ")}`);
 
-    await prisma.storyLine.createMany({
-        data: lines.map((l) => ({
+    // Voices are personas: a character's by name, or an NPC's (found or created)
+    const personaIdFor = async (l: VmAppendedLine): Promise<number | null> => {
+        if (l.character) {
+            if (!l.persona) return null;
+            const p = await prisma.persona.findFirst({ where: { characterId: ids.get(l.character)!, name: l.persona } });
+            if (!p) throw new Error(`line ${l.line_no}: ${l.character} has no persona '${l.persona}'`);
+            return p.id;
+        }
+        if (!l.speaker && !l.npcVoice) return null;
+        return (await findOrCreateNpcPersona(prisma, l.speaker || "Unnamed NPC")).persona.id;
+    };
+    const data = [];
+    for (const l of lines) {
+        data.push({
             chapterId: chapter.id,
             line_no: l.line_no,
             type: l.type,
             text: l.text,
             characterId: l.character ? ids.get(l.character)! : null,
-            speaker: l.speaker,
-            npcVoice: l.npcVoice,
-        })),
-    });
+            personaId: await personaIdFor(l),
+        });
+    }
+    await prisma.storyLine.createMany({ data });
     console.log(`Appended VM lines ${first}..${last} (${lines.length}).`);
 }
 

@@ -86,22 +86,18 @@ async function statsByCharacter(ids: number[]): Promise<Map<number, CharacterSta
                 FROM story_lines sl
                 WHERE sl."characterId" IN (${idList})
                 UNION
-                SELECT sl.id, (seg->>'characterId')::int AS cid
-                FROM story_lines sl, jsonb_array_elements(sl.segments) seg
-                WHERE jsonb_typeof(sl.segments) = 'array'
-                  AND jsonb_typeof(seg->'characterId') = 'number'
-                  AND (seg->>'characterId')::int IN (${idList})
+                SELECT ss."lineId", ss."characterId"
+                FROM story_segments ss
+                WHERE ss."characterId" IN (${idList})
             ),
             -- one row per (line, speaker): a segmented line quotes only that
             -- speaker's spans, any other line its whole text
             quoted AS (
                 SELECT sp.cid, sl.id, sl."chapterId",
-                    CASE WHEN jsonb_typeof(sl.segments) = 'array' THEN (
+                    CASE WHEN EXISTS (SELECT 1 FROM story_segments ss WHERE ss."lineId" = sl.id) THEN (
                         SELECT COUNT(*)
-                        FROM jsonb_array_elements(sl.segments) seg,
-                             regexp_matches(seg->>'text', '[^[:space:]]+', 'g')
-                        WHERE jsonb_typeof(seg->'characterId') = 'number'
-                          AND (seg->>'characterId')::int = sp.cid
+                        FROM story_segments ss, regexp_matches(ss.text, '[^[:space:]]+', 'g')
+                        WHERE ss."lineId" = sl.id AND ss."characterId" = sp.cid
                     ) ELSE (
                         SELECT COUNT(*) FROM regexp_matches(sl.text, '[^[:space:]]+', 'g')
                     ) END AS words
@@ -283,17 +279,9 @@ export class CharacterInArchiveError extends Error {}
 
 async function deleteCharacter(id: number): Promise<void> {
     // Archive immutability: a character woven into the archive can't vanish
-    // and strip attribution from its lines. Message.character and
-    // StoryLine.character are onDelete: Restrict (P2003 on delete), but
-    // in-paragraph prose speakers live in StoryLine.segments JSON with no FK,
-    // so check those here.
-    const containment = JSON.stringify([{ characterId: id }]);
-    const [{ count }] = await prisma.$queryRaw<{ count: bigint }[]>`
-        SELECT count(*) AS count FROM story_lines WHERE segments @> ${containment}::jsonb
-    `;
-    if (count > 0n) {
-        throw new CharacterInArchiveError("This character speaks in the archive, so it can't be deleted");
-    }
+    // and strip attribution from its lines. Message.character,
+    // StoryLine.character and StorySegment.character are onDelete: Restrict
+    // (P2003 on delete).
     try {
         await prisma.character.delete({ where: { id } });
     } catch (error) {
@@ -389,9 +377,8 @@ async function getAppearances(characterId: number): Promise<{ campaigns: Campaig
                 CROSS JOIN LATERAL (
                     SELECT sl."characterId" AS cid WHERE sl."characterId" IS NOT NULL
                     UNION
-                    SELECT (seg->>'characterId')::int
-                    FROM jsonb_array_elements(CASE WHEN jsonb_typeof(sl.segments) = 'array' THEN sl.segments ELSE '[]'::jsonb END) seg
-                    WHERE jsonb_typeof(seg->'characterId') = 'number'
+                    SELECT ss."characterId" FROM story_segments ss
+                    WHERE ss."lineId" = sl.id AND ss."characterId" IS NOT NULL
                 ) x
             ),
             story_shared AS (
@@ -516,8 +503,9 @@ async function updatePersona(id: number, data: Partial<PersonaData>) {
 }
 
 async function deletePersona(id: number): Promise<void> {
-    // Messages referencing this persona block deletion (FK restrict) — a
-    // persona used in the archive shouldn't silently vanish out from under it.
+    // Messages, story lines and story segments referencing this persona block
+    // deletion (FK restrict): a persona used in the archive shouldn't silently
+    // vanish out from under it.
     await prisma.persona.delete({ where: { id } });
 }
 

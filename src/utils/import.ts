@@ -15,8 +15,9 @@ export const IMPORT_PATHS = new Set([
     "/api/admin/episode-import",
     "/api/admin/episode-import/preview",
 ]);
-// PUT /api/stories/:slug/import (revision) carries a whole story too
-const REVISION_PATH = /^\/api\/stories\/[^/]+\/import$/;
+// PUT /api/stories/:slug/import (revision) carries a whole story too, and so
+// does POST /api/stories/:slug/voices/carry (the revision draft, pre-filled)
+const REVISION_PATH = /^\/api\/stories\/[^/]+\/(import|voices\/carry)$/;
 export const importJson = express.json({ limit: "10mb" });
 
 const defaultJson = express.json();
