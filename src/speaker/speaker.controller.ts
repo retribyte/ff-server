@@ -4,6 +4,8 @@ import speakerService, { SpeakerError, SpeakerScope } from "./speaker.service.js
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { AvatarImageError } from "../utils/avatar-image.js";
 import { logger } from "../utils/logger.js";
+import { runJob, JobBusyError, type JobContext, type Tx } from "../jobs/runner.js";
+import { TX_OPTIONS } from "./speaker.service.js";
 
 // Admin-only speaker operations (FR-EP-2: changing attribution is an admin
 // right). See speaker.service.ts for what each one moves.
@@ -42,6 +44,62 @@ function sendError(res: Response, error: unknown, what: string) {
     res.status(500).json({ status: "error", message: `Failed to ${what}` });
 }
 
+/** Job names in the admin History */
+export const SPEAKER_JOBS = {
+    demote: "speaker-demote",
+    promote: "speaker-promote",
+    merge: "speaker-merge",
+    rename: "speaker-rename",
+} as const;
+
+async function characterName(tx: Tx, id: number): Promise<string> {
+    const c = await tx.character.findUnique({ where: { id }, select: { name: true } });
+    return c ? `${c.name} (#${id})` : `character #${id}`;
+}
+
+/**
+ * Runs one speaker operation as a job, so it's a row in the admin History,
+ * and answers with the operation's own result. A refused operation keeps its
+ * HTTP status (the run is recorded as FAILED either way).
+ */
+async function logged<T>(
+    res: Response,
+    req: Request,
+    job: string,
+    what: string,
+    work: (ctx: JobContext) => Promise<{ result: T; summary: string }>,
+    status = 200
+) {
+    let result: T | undefined;
+    let failure: unknown;
+    try {
+        const run = await runJob(
+            job,
+            (req.user as { id: number }).id,
+            false,
+            async (ctx) => {
+                try {
+                    const out = await work(ctx);
+                    result = out.result;
+                    return out.summary;
+                } catch (error) {
+                    failure = error;
+                    throw error;
+                }
+            },
+            TX_OPTIONS
+        );
+        if (run.status === "FAILED") return sendError(res, failure ?? new Error(run.summary ?? what), what);
+        res.status(status).json({ status: "success", data: result });
+    } catch (error) {
+        if (error instanceof JobBusyError) return res.status(409).json({ status: "error", message: error.message });
+        sendError(res, error, what);
+    }
+}
+
+const counts = (r: { messages: number; storyLines: number; storySegmentLines: number }) =>
+    `${r.messages} transcript line(s), ${r.storyLines} story line(s), ${r.storySegmentLines} story paragraph(s)`;
+
 const initializeSpeakerRoutes = (): Router => {
     const router: Router = Router();
 
@@ -52,12 +110,13 @@ const initializeSpeakerRoutes = (): Router => {
         if (intoPersonaId !== undefined && !isPositiveInt(intoPersonaId)) return badRequest(res, "intoPersonaId must be a persona id");
         const scope = parseScope(req.body?.scope);
         if (scope instanceof Error) return badRequest(res, scope.message);
-        try {
-            const result = await speakerService.demoteToNpc(characterId, { scope, intoPersonaId });
-            res.status(200).json({ status: "success", data: result });
-        } catch (error) {
-            sendError(res, error, "demote character");
-        }
+        await logged(res, req, SPEAKER_JOBS.demote, "demote character", async ({ tx, log }) => {
+            const name = await characterName(tx, characterId);
+            const result = await speakerService.demoteToNpcTx(tx, characterId, { scope, intoPersonaId });
+            log(`demote ${name} to an NPC voice${scope ? ` (scope ${JSON.stringify(scope)})` : ""}${intoPersonaId ? ` into persona #${intoPersonaId}` : ""}`);
+            log(`moved ${counts(result)}${result.deletedCharacter ? "; the character was deleted" : ""}`);
+            return { result, summary: `${name} demoted to an NPC voice: ${counts(result)}` };
+        });
     });
 
     // POST /api/admin/speakers/promote {personaId, ownerId?, name?, slug?}
@@ -68,12 +127,21 @@ const initializeSpeakerRoutes = (): Router => {
         if ((name !== undefined && typeof name !== "string") || (slug !== undefined && typeof slug !== "string")) {
             return badRequest(res, "name and slug must be strings");
         }
-        try {
-            const result = await speakerService.promoteNpc(personaId, { ownerId, name, slug });
-            res.status(201).json({ status: "success", data: result });
-        } catch (error) {
-            sendError(res, error, "promote NPC");
-        }
+        await logged(
+            res,
+            req,
+            SPEAKER_JOBS.promote,
+            "promote NPC",
+            async ({ tx, log }) => {
+                const persona = await tx.persona.findUnique({ where: { id: personaId }, select: { name: true } });
+                const result = await speakerService.promoteNpcTx(tx, personaId, { ownerId, name, slug });
+                const label = `NPC ${persona?.name ?? `#${personaId}`}`;
+                log(`promote ${label} to a character${name ? ` named ${name}` : ""}${slug ? ` (slug ${slug})` : ""}${ownerId ? `, played by user #${ownerId}` : ""}`);
+                log(`result: ${JSON.stringify(result).slice(0, 500)}`);
+                return { result, summary: `${label} promoted to a character` };
+            },
+            201
+        );
     });
 
     // POST /api/admin/speakers/merge {sourceId, targetId, asPersona?, scope?}
@@ -83,12 +151,13 @@ const initializeSpeakerRoutes = (): Router => {
         if (asPersona !== undefined && typeof asPersona !== "boolean") return badRequest(res, "asPersona must be a boolean");
         const scope = parseScope(req.body?.scope);
         if (scope instanceof Error) return badRequest(res, scope.message);
-        try {
-            const result = await speakerService.mergeInto(sourceId, targetId, { asPersona, scope });
-            res.status(200).json({ status: "success", data: result });
-        } catch (error) {
-            sendError(res, error, "merge characters");
-        }
+        await logged(res, req, SPEAKER_JOBS.merge, "merge characters", async ({ tx, log }) => {
+            const [from, into] = await Promise.all([characterName(tx, sourceId), characterName(tx, targetId)]);
+            const result = await speakerService.mergeIntoTx(tx, sourceId, targetId, { asPersona, scope });
+            log(`merge ${from} into ${into}${asPersona ? " as a persona" : ""}${scope ? ` (scope ${JSON.stringify(scope)})` : ""}`);
+            log(`moved ${counts(result)}${result.deletedCharacter ? `; ${from} was deleted` : ""}`);
+            return { result, summary: `${from} merged into ${into}: ${counts(result)}` };
+        });
     });
 
     // POST /api/admin/speakers/rename {characterId, name?, slug?} (pre-go-live: slugs are permanent once public)
@@ -98,12 +167,12 @@ const initializeSpeakerRoutes = (): Router => {
         if ((name !== undefined && typeof name !== "string") || (slug !== undefined && typeof slug !== "string")) {
             return badRequest(res, "name and slug must be strings");
         }
-        try {
-            const result = await speakerService.renameCharacter(characterId, { name, slug });
-            res.status(200).json({ status: "success", data: result });
-        } catch (error) {
-            sendError(res, error, "rename character");
-        }
+        await logged(res, req, SPEAKER_JOBS.rename, "rename character", async ({ tx, log }) => {
+            const before = await tx.character.findUnique({ where: { id: characterId }, select: { name: true, slug: true } });
+            const result = await speakerService.renameCharacterTx(tx, characterId, { name, slug });
+            log(`character #${characterId}: name ${before?.name} -> ${result.name}, slug ${before?.slug} -> ${result.slug}`);
+            return { result, summary: `Renamed ${before?.name ?? `#${characterId}`} to ${result.name} (${result.slug})` };
+        });
     });
 
     // POST /api/personas {name, image?, color?}: find-or-create an NPC persona (admin)

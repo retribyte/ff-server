@@ -1601,6 +1601,7 @@ const spec = {
                 parameters: [
                     { name: "job", in: "query", schema: { type: "string" } },
                     { name: "limit", in: "query", schema: { type: "integer", default: 25, maximum: 100 } },
+                    { name: "before", in: "query", schema: { type: "integer" }, description: "A run id: page back to the runs older than it" },
                 ],
                 responses: { "200": { description: "JobRun[]" }, "403": { description: "Not an admin" } },
             },
@@ -1919,7 +1920,7 @@ const spec = {
                 description:
                     "Names (or, with a null/blank speaker, un-names) NPC voice fragments: a segment of a NARRATION line " +
                     "(`segment` = its index), or a whole `npcVoice` DIALOGUE line (`segment` omitted). Only NPC-flagged " +
-                    "fragments can be named here, so the text never changes; only an admin's characterId changes attribution. One transaction: " +
+                    "fragments can be named here, so the text never changes; only characterId changes attribution. One transaction: " +
                     "any invalid assignment rejects them all. A later revision (PUT /stories/{slug}/import) keeps these " +
                     "names for fragments whose text is unchanged.",
                 security: [{ bearerAuth: [] }],
@@ -1948,7 +1949,7 @@ const spec = {
                                                     type: "integer",
                                                     nullable: true,
                                                     description:
-                                                        "Admins only: the voice is this character. The fragment stops being an NPC voice, and the request is recorded in the job history as 'story-voice-name'.",
+                                                        "The voice is this character (story authors and admins). The fragment stops being an NPC voice, and the request is recorded in the job history as 'story-voice-name'.",
                                                 },
                                             },
                                         },

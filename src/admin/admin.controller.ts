@@ -90,13 +90,16 @@ const initializeAdminRoutes = (): Router => {
         });
     });
 
-    // GET /api/admin/job-runs?job=&limit=: recent runs, newest first, without their logs
+    // GET /api/admin/job-runs?job=&limit=&before=: recent runs, newest first, without their logs.
+    // `before` (a run id) pages back: the runs older than that one.
     router.get("/admin/job-runs", authenticate, isAdmin, async (req: Request, res: Response) => {
         const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "25"), 10) || 25, 1), 100);
         const job = typeof req.query.job === "string" ? req.query.job : undefined;
+        const before = parseInt(String(req.query.before ?? ""), 10);
         const runs = await prisma.jobRun.findMany({
-            where: job ? { job } : undefined,
-            orderBy: { startedAt: "desc" },
+            where: { ...(job ? { job } : {}), ...(Number.isInteger(before) ? { id: { lt: before } } : {}) },
+            // ids grow with start time; id breaks ties so pages never skip or repeat a run
+            orderBy: [{ startedAt: "desc" }, { id: "desc" }],
             take: limit,
             select: RUN_LIST_SELECT,
         });

@@ -4,7 +4,6 @@ import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { importJson, importErrorResponse } from "../utils/import.js";
 import { analyzeDocx, convertDocx, DocxError, ManuscriptError } from "./convert/index.js";
 import { logger } from "../utils/logger.js";
-import { UserRole } from "@prisma/client";
 import { runJob, JobBusyError } from "../jobs/runner.js";
 import { STORY_VOICE_NAME_JOB } from "../admin/archiveFixes.js";
 
@@ -114,8 +113,8 @@ const initializeStoryRoutes = (): Router => {
     // Body { assignments: [{ chapterNo, lineNo, segment?, speaker }] } — segment
     // indexes a NARRATION line's spans; omit it for a whole npcVoice DIALOGUE
     // line. speaker null/blank un-names it. Only NPC-flagged fragments can be
-    // named, so text can't change through here. An admin may send characterId
-    // instead: the fragment becomes that character's (a 'story-voice-name' job).
+    // named, so text can't change through here. characterId instead makes the
+    // fragment that character's (a 'story-voice-name' job in the admin History).
     // Story authors or admins; returns the updated lines.
     router.patch("/stories/:slug/voices", authenticate, async (req: Request, res: Response) => {
         const { slug } = req.params;
@@ -125,12 +124,10 @@ const initializeStoryRoutes = (): Router => {
             if (!allowed) {
                 return res.status(403).json({ status: "error", message: "Only this story's authors or an admin can name its voices" });
             }
-            // Linking a real character changes attribution: admins only, and
-            // recorded in the admin History like the other data fixes
+            // Linking a real character changes attribution, so it's recorded in
+            // the admin History like the other data fixes (story authors and
+            // admins, the user's call 2026-11-09)
             if (storyService.linksCharacters(req.body?.assignments)) {
-                if ((req.user as { role: string }).role !== UserRole.ADMIN) {
-                    return res.status(403).json({ status: "error", message: "Only an admin can link a voice to a character" });
-                }
                 const story = await storyService.getStoryBySlug(slug);
                 if (!story) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
                 let updated: unknown = [];

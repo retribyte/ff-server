@@ -639,7 +639,7 @@ type VoiceAssignment = {
     lineNo: number;
     segment?: number | null;
     speaker: string | null;
-    /** Admins only: the voice is a real character. The fragment stops being an NPC voice. */
+    /** The voice is a real character (authors and admins; logged as a job). The fragment stops being an NPC voice. */
     characterId?: number | null;
 };
 
@@ -653,7 +653,7 @@ type VoiceAssignment = {
 async function assignVoices(slug: string, assignments: VoiceAssignment[]) {
     validateAssignments(assignments);
     if (assignments.some((a) => a.characterId !== undefined && a.characterId !== null)) {
-        throw new Error("Linking a character goes through assignVoicesTx (admins only)");
+        throw new Error("Linking a character goes through assignVoicesTx (logged as a job)");
     }
     const story = await prisma.story.findUnique({ where: { slug }, select: { id: true } });
     if (!story) return null;
@@ -673,8 +673,8 @@ function linksCharacters(assignments: unknown): boolean {
 }
 
 /**
- * The work of assignVoices inside a caller's transaction. With a characterId
- * (admins), the fragment gets that character and stops being an NPC voice:
+ * The work of assignVoices inside a caller's transaction. With a characterId,
+ * the fragment gets that character and stops being an NPC voice:
  * a segment loses `npc` and `speaker`, a whole line loses `npcVoice` and
  * `speaker`. `log` gets one line per change (for the job history).
  */
