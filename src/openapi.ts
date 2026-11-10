@@ -595,6 +595,19 @@ const spec = {
                 },
             },
         },
+        "/users/{id}/commentaries": {
+            get: {
+                tags: ["Commentary"],
+                summary: "Every commentary note a user wrote, newest first (public)",
+                description: "Each note includes `message` (its line: messageNo, type, text, character, persona name, player) with the line's `episode` (title, slug, episode_no, seasonTitle, reconstructed).",
+                security: [],
+                parameters: [{ name: "id", in: "path", required: true, description: "Numeric id, or username", schema: { type: "string" } }],
+                responses: {
+                    "200": { description: "The user's notes" },
+                    "404": { description: "User not found" },
+                },
+            },
+        },
         "/users/{id}/role": {
             put: {
                 tags: ["Auth"],

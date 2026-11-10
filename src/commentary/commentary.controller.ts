@@ -7,6 +7,20 @@ import { logger } from "../utils/logger.js";
 const initializeCommentaryRoutes = (): Router => {
     const router: Router = Router();
 
+    // GET /api/users/:id/commentaries: every note a user wrote, newest first,
+    // each with its line and episode (public; :id is an id or a username)
+    router.get("/users/:id/commentaries", async (req: Request, res: Response) => {
+        const param = req.params.id;
+        try {
+            const notes = await commentaryService.getCommentariesByCreator(/^\d+$/.test(param) ? parseInt(param, 10) : param);
+            if (!notes) return res.status(404).json({ status: "error", message: "User not found" });
+            res.status(200).json({ status: "success", data: notes });
+        } catch (error) {
+            logger.caught("Error fetching a user's commentaries", error);
+            res.status(500).json({ status: "error", message: "Failed to fetch commentaries" });
+        }
+    });
+
     // POST /api/episodes/:episodeTitle/messages/:messageNo/commentaries: Add a commentary to a message
     router.post(
         "/episodes/:episodeTitle/messages/:messageNo/commentaries",
