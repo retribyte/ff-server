@@ -3,9 +3,10 @@ import { prisma } from "../db.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { importJson } from "../utils/import.js";
 import { JOBS, EPISODE_IMPORT_JOB } from "../jobs/registry.js";
-import { runJob, JobBusyError } from "../jobs/runner.js";
+import { runJob, JobBusyError, type JobContext } from "../jobs/runner.js";
 import { parsePayloads, previewEpisodeImport, importEpisodes } from "../jobs/episodeImport.js";
 import { logger, queryLogs, type Level } from "../utils/logger.js";
+import { MESSAGE_REASSIGN_JOB, OWNER_CHANGE_JOB, changeOwner, parseOwner, parseReassign, reassignMessages } from "./archiveFixes.js";
 
 const RUN_LIST_SELECT = {
     id: true,
@@ -135,6 +136,33 @@ const initializeAdminRoutes = (): Router => {
             sendRunError(res, error);
         }
     });
+
+    // Data fixes recorded in the History table. A run that fails answers 400
+    // with its summary (and the FAILED run), so a caller can't mistake it for success.
+    const fixRoute = <T>(job: string, parse: (body: any) => T, work: (input: T, ctx: JobContext) => Promise<string>) =>
+        async (req: Request, res: Response) => {
+            let input: T;
+            try {
+                input = parse(req.body);
+            } catch (error) {
+                return res.status(400).json({ status: "error", message: (error as Error).message });
+            }
+            try {
+                const run = await runJob(job, userId(req), req.body?.dryRun === true, (ctx) => work(input, ctx));
+                if (run.status === "FAILED") return res.status(400).json({ status: "error", message: run.summary ?? "The change failed", data: run });
+                res.json({ status: "success", data: run });
+            } catch (error) {
+                sendRunError(res, error);
+            }
+        };
+
+    // POST /api/admin/messages/reassign {episodeTitle, messageNos, characterId, personaId, newNpcName?, dryRun?}:
+    // move transcript lines to another character, persona or NPC voice; answers with the JobRun
+    router.post("/admin/messages/reassign", authenticate, isAdmin, fixRoute(MESSAGE_REASSIGN_JOB, parseReassign, reassignMessages));
+
+    // POST /api/admin/owner {kind: character|item|story, id, userIds, dryRun?}: change who plays a
+    // character, owns an item, or wrote a story (its authors); answers with the JobRun
+    router.post("/admin/owner", authenticate, isAdmin, fixRoute(OWNER_CHANGE_JOB, parseOwner, changeOwner));
 
     return router;
 };

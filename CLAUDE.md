@@ -245,6 +245,12 @@ data. Don't add a species table back.
   is a thin wrapper over the same function. One-off data fixes aren't jobs:
   they go in a prod-sql migration. Don't add
   a job that reads files outside `dist/` (prod only has the compiled `src/`).
+  - **Admin data fixes** (`src/admin/archiveFixes.ts`) also go through `runJob`, so
+    each is a History row whose log has every before/after value:
+    `POST /admin/messages/reassign` (job `message-reassign`: lines of one episode to
+    another character/persona/NPC voice; the site's per-block attribution control uses
+    it) and `POST /admin/owner` (job `owner-change`: character "played by", item owner,
+    story authors). A FAILED run answers 400. Write only through `ctx.tx` in them.
   - The append endpoints (`.../chapters/:n/lines`, `.../messages`) remain for
     incremental API use and the CLI episode uploaders.
 - **HTML sanitization** (`src/utils/sanitize.ts`, NFR-SEC-3): user-submitted

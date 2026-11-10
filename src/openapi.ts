@@ -1672,6 +1672,77 @@ const spec = {
                 },
             },
         },
+        "/admin/messages/reassign": {
+            post: {
+                tags: ["Admin", "Messages"],
+                summary: "Move transcript lines to another speaker, all or nothing (admin)",
+                description:
+                    "Sets characterId and personaId on the listed lines of one episode: a character (optionally as one of its personas), " +
+                    "an NPC persona (characterId null), or a new NPC voice named by newNpcName (created in the same transaction, or " +
+                    "reused if one has that name). Text, type, player and time never change. Recorded in the job history as " +
+                    "'message-reassign' with each line's old and new speaker in the log. A failed run answers 400 with its summary.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["episodeTitle", "messageNos"],
+                                properties: {
+                                    episodeTitle: { type: "string" },
+                                    messageNos: { type: "array", items: { type: "integer" }, minItems: 1, maxItems: 500 },
+                                    characterId: { type: "integer", nullable: true },
+                                    personaId: { type: "integer", nullable: true },
+                                    newNpcName: { type: "string" },
+                                    dryRun: { type: "boolean", default: false },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "The JobRun, with its log" },
+                    "400": { description: "Bad input, or the run failed (e.g. a quote left with no speaker); nothing changed" },
+                    "403": { description: "Not an admin" },
+                    "409": { description: "A reassign is already running" },
+                },
+            },
+        },
+        "/admin/owner": {
+            post: {
+                tags: ["Admin"],
+                summary: "Change who plays a character, owns an item, or wrote a story (admin)",
+                description:
+                    "character and item take exactly one user id (Character.creatorId is 'played by'); story takes one or more and " +
+                    "replaces its authors. Recorded in the job history as 'owner-change' with the old and new usernames. A failed run " +
+                    "(e.g. the new player already has a character with that name) answers 400 with its summary.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["kind", "id", "userIds"],
+                                properties: {
+                                    kind: { type: "string", enum: ["character", "item", "story"] },
+                                    id: { type: "integer" },
+                                    userIds: { type: "array", items: { type: "integer" }, minItems: 1 },
+                                    dryRun: { type: "boolean", default: false },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "The JobRun, with its log" },
+                    "400": { description: "Bad input, or the run failed; nothing changed" },
+                    "403": { description: "Not an admin" },
+                    "409": { description: "An owner change is already running" },
+                },
+            },
+        },
         "/stories/import": {
             post: {
                 tags: ["Stories"],
