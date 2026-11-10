@@ -638,12 +638,27 @@ function carryVoices(chapters: ImportChapter[], voices: Map<string, KnownVoice[]
 
 /**
  * For the importer's naming step: a revision draft with its unnamed NPC
- * fragments filled from the story's current voices. Writes nothing.
+ * fragments filled from the story's current voices, chapters in chapter_no
+ * order. The draft is taken as the importer holds it (speakers still names,
+ * pictures maybe without a booru post yet), so only its shape is checked; the
+ * revision PUT validates it in full. Writes nothing.
  */
 async function carryStoryVoices(slug: string, body: { chapters: ImportChapter[] }) {
-    const { ordered } = prepareChapters(body?.chapters);
+    const chapters = body?.chapters;
+    if (!Array.isArray(chapters) || !chapters.every((c) => Number.isInteger(c?.chapter_no) && Array.isArray(c?.lines))) {
+        throw new Error("chapters must be an array of { chapter_no, lines }");
+    }
+    for (const chapter of chapters) {
+        for (const line of chapter.lines) {
+            if (typeof line?.text !== "string") throw new Error(`Chapter ${chapter.chapter_no}: every line needs a text`);
+            if (line.segments != null && (!Array.isArray(line.segments) || !line.segments.every((seg) => typeof seg?.text === "string"))) {
+                throw new Error(`Chapter ${chapter.chapter_no}: segments need texts`);
+            }
+        }
+    }
     const story = await prisma.story.findUnique({ where: { slug }, select: { id: true } });
     if (!story) return null;
+    const ordered = [...chapters].sort((a, b) => a.chapter_no - b.chapter_no);
     const filled = carryVoices(ordered, await knownVoices(prisma, story.id));
     return { chapters: ordered, filled };
 }

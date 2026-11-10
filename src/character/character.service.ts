@@ -420,13 +420,14 @@ async function getAllPersonas(search?: string, npc?: boolean) {
     if (search) where.name = { contains: search };
     if (npc !== undefined) where.characterId = npc ? null : { not: null };
     if (npc) {
-        // The admin NPC-voices list shows how much each one speaks.
+        // The admin NPC-voices list shows how much each one speaks: transcript
+        // lines, and story quotes (whole lines plus in-paragraph spans)
         const personas = await prisma.persona.findMany({
             where,
             orderBy: { name: "asc" },
-            include: { _count: { select: { messages: true } } },
+            include: { _count: { select: { messages: true, storyLines: true, storySegments: true } } },
         });
-        return personas.map(({ _count, ...p }) => ({ ...p, messageCount: _count.messages }));
+        return personas.map(({ _count, ...p }) => ({ ...p, messageCount: _count.messages, storyQuoteCount: _count.storyLines + _count.storySegments }));
     }
     return await prisma.persona.findMany({ where, orderBy: { id: "asc" } });
 }
