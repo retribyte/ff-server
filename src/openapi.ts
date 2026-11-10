@@ -376,6 +376,24 @@ const spec = {
                             },
                         },
                     },
+                    commentaries: {
+                        type: "array",
+                        description:
+                            "Full-text matches on commentary notes, lowest priority: only the slots (limit per category, four categories) that all other matches leave free.",
+                        items: {
+                            type: "object",
+                            properties: {
+                                id: { type: "integer" },
+                                content: { type: "string", description: "Sanitized HTML" },
+                                author: { type: "string" },
+                                episodeTitle: { type: "string" },
+                                episodeNo: { type: "integer" },
+                                episodeSlug: { type: "string", nullable: true },
+                                seasonTitle: { type: "string" },
+                                messageNo: { type: "integer" },
+                            },
+                        },
+                    },
                 },
             },
         },

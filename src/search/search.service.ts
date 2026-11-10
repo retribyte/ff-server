@@ -14,14 +14,22 @@ const MAX_LIMIT = 20;
 async function searchAll(query: string, limitParam?: number) {
     const limit = Math.min(Math.max(limitParam ?? DEFAULT_LIMIT, 1), MAX_LIMIT);
 
-    const [characters, items, messagesResult, storyLinesResult] = await Promise.all([
+    const [characters, items, messagesResult, storyLinesResult, commentariesResult] = await Promise.all([
         characterService.getAllCharacters({ search: query, limit, lite: true }),
         itemService.getAllItems(query, { limit, lite: true }),
         messageService.searchMessages(query, 1, limit),
         storyService.searchStoryLines(query, 1, limit),
+        commentaryService.searchCommentaries(query, 1, limit),
     ]);
 
-    return { characters, items, messages: messagesResult.data, storyLines: storyLinesResult.data };
+    // Notes come last (the user's call, 2026-11-09): they only take the slots
+    // (limit per category, four categories) that every other match in the
+    // archive, shown or not, leaves free
+    const otherMatches = characters.length + items.length + messagesResult.total + storyLinesResult.total;
+    const freeSlots = Math.max(0, limit * 4 - otherMatches);
+    const commentaries = commentariesResult.data.slice(0, Math.min(limit, freeSlots));
+
+    return { characters, items, messages: messagesResult.data, storyLines: storyLinesResult.data, commentaries };
 }
 
 const CATEGORY_PAGE_DEFAULT = 20;
