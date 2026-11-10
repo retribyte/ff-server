@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
 import { sanitizeText } from "../utils/sanitize.js";
-import { normalizeSlug, slugify } from "../utils/slug.js";
+import { isValidSlug, normalizeSlug, slugify } from "../utils/slug.js";
 import { getWikiData } from "../wiki/wiki.service.js";
 import { storeAvatarUpload } from "./avatar.service.js";
 
@@ -462,6 +462,9 @@ async function createPersona(characterId: number, data: PersonaData) {
     if (!data.name && !data.label) {
         throw new Error("label is required when name is not set");
     }
+    if (data.slug !== undefined && !isValidSlug(data.slug)) {
+        throw new Error("slug must be lowercase letters, digits and single underscores");
+    }
 
     return await prisma.persona.create({
         data: {
@@ -484,6 +487,9 @@ async function updatePersona(id: number, data: Partial<PersonaData>) {
         // NPC voice: always named, never a slug or page.
         if (data.slug) throw new Error("NPC personas have no slug");
         if (data.name !== undefined && !data.name?.trim()) throw new Error("NPC personas need a name");
+    }
+    if (data.slug !== undefined && data.slug !== null && !isValidSlug(data.slug)) {
+        throw new Error("slug must be lowercase letters, digits and single underscores");
     }
 
     const nextName = data.name !== undefined ? data.name : existing.name;

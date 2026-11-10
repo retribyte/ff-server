@@ -81,6 +81,7 @@ interface CyoaLine {
 // ---------- Helpers ----------
 
 // Matches the old site's avatar lookup: "FF 8 Ball" -> "ff8ball.png"
+// (renamed characters look up their legacy name, see LEGACY_NAME_ALIASES)
 function avatarShorthand(name: string): string {
     return name.toLowerCase().replaceAll(/\s/g, "");
 }
@@ -116,6 +117,9 @@ const LEGACY_NAME_ALIASES: Record<string, string> = {
     // his identity in two. Canonicalizing it here folds it back into one
     // character the same way the mechanism handles genuine renames.
     "Edmin Kalvanzas": "Edwin",
+    // The bot's character, renamed 2026-11-09 (the user's call). It speaks in
+    // no messages, so it only enters the character set through the color table.
+    "8 Ball": "FF 8 Ball",
 };
 const LEGACY_ALIASED_AWAY = new Set(Object.values(LEGACY_NAME_ALIASES));
 // "Edwin" is the Edmin misspelling only in FF4's Discord-JSON conversions.
@@ -124,10 +128,11 @@ const LEGACY_ALIASED_AWAY = new Set(Object.values(LEGACY_NAME_ALIASES));
 // globally in canonicalize(), and he must not inherit Edmin's legacy color.
 const FF4_ONLY_ALIASES: Record<string, string> = { Edwin: "Edmin Kalvanzas" };
 const DISTINCT_FROM_LEGACY_KEY = new Set(["Edwin"]);
-// The Vortox bot and FF 8 Ball are one account (Vortox was merged into it).
+// The Vortox bot and the 8 Ball are one account (Vortox was merged into it).
 // md-to-api.py maps the name at conversion, but FF4 episodes still converted
-// straight from the Discord JSON name "Vortox" as the player.
-const PLAYER_ALIASES: Record<string, string> = { Vortox: "FF 8 Ball" };
+// straight from the Discord JSON name "Vortox" as the player. "FF 8 Ball" is
+// the account's name before 2026-11-09, in API JSON converted before then.
+const PLAYER_ALIASES: Record<string, string> = { Vortox: "8 Ball", "FF 8 Ball": "8 Ball" };
 
 // Accounts for story authors with no transcript messages (see the Users block)
 const STORY_ONLY_AUTHORS = ["Eve"];
@@ -137,7 +142,8 @@ const STORY_ONLY_AUTHORS = ["Eve"];
 // (the user's calls, 2026-11-05): "Los" is los_yelsi, as dev and the overlay
 // already have it; "Hector" is hector_lerwricki, his wiki slug (page "Hector
 // Ler'wricki").
-const SLUG_OVERRIDES: Record<string, string> = { Los: "los_yelsi", Hector: "hector_lerwricki" };
+// "8 Ball" keeps ff_8_ball, the slug from before its rename (slugs are permanent).
+const SLUG_OVERRIDES: Record<string, string> = { Los: "los_yelsi", Hector: "hector_lerwricki", "8 Ball": "ff_8_ball" };
 
 // Seasons with no archived episodes, which stories still file under. The
 // manuscripts name them in their `season:` frontmatter, so they must exist
@@ -322,7 +328,10 @@ async function main() {
         ...cyoaLines
             .filter((l) => l.character && !isUnknownSpeaker(l.character))
             .map((l) => canonicalize(l.character as string)),
-        ...Object.keys(colors.dark).filter((name) => !LEGACY_ALIASED_AWAY.has(name)),
+        // Legacy keys enter under their current name ("FF 8 Ball" -> "8 Ball")
+        ...Object.keys(colors.dark)
+            .map(canonicalize)
+            .filter((name) => !LEGACY_ALIASED_AWAY.has(name)),
     ]);
 
     const characterIds = new Map<string, number>();

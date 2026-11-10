@@ -3,7 +3,7 @@
  * the same flags on a fresh one):
  *   - every account that has never changed its password must pick its own
  *     on next login (mustChangePassword) — seeded passwords are placeholders
- *   - system accounts (SYSTEM_ACCOUNTS: the Archivist, the FF 8 Ball bot)
+ *   - system accounts (SYSTEM_ACCOUNTS: the Archivist, the 8 Ball bot)
  *     can't log in at all (loginDisabled)
  *
  * Idempotent: accounts that already changed their password are left alone,
