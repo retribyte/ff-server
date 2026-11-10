@@ -160,7 +160,7 @@ async function getAllCharacters(filters: CharacterFilters = {}) {
     }
 
     if (lite) {
-        return await prisma.character.findMany({ where, select: { id: true, name: true, slug: true, image: true }, take: limit });
+        return await prisma.character.findMany({ where, select: { id: true, name: true, slug: true, image: true, color: true, colorLight: true }, take: limit });
     }
     return await withSeasons(await prisma.character.findMany({ where, take: limit, include: { mainIn: MAIN_IN } }));
 }
