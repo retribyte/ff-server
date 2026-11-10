@@ -100,6 +100,46 @@ async function withWordCounts<T extends { chapters: { id: number }[] }>(stories:
     });
 }
 
+/**
+ * The characters featured in each story, keyed by story id: every
+ * character by number of story lines they speak (a DIALOGUE line's own
+ * character, or a character named in a NARRATION line's segments; a line
+ * counts once per character), most lines first.
+ */
+async function castByStory(storyIds: number[]) {
+    const cast = new Map<number, { id: number; name: string; slug: string; image: string | null; color: string | null; colorLight: string | null; lines: number }[]>();
+    if (storyIds.length === 0) return cast;
+    const rows = await prisma.$queryRaw<{ storyId: number; characterId: number; lines: bigint }[]>`
+        SELECT c."storyId", sp."characterId", COUNT(*) AS lines
+        FROM (
+            SELECT ch."storyId", sl.id AS "lineId", sl."characterId"
+            FROM story_lines sl JOIN story_chapters ch ON ch.id = sl."chapterId"
+            WHERE sl."characterId" IS NOT NULL
+            UNION
+            SELECT ch."storyId", sl.id, (seg ->> 'characterId')::int
+            FROM story_lines sl JOIN story_chapters ch ON ch.id = sl."chapterId",
+                 jsonb_array_elements(CASE WHEN jsonb_typeof(sl.segments::jsonb) = 'array' THEN sl.segments::jsonb ELSE '[]'::jsonb END) seg
+            WHERE seg ->> 'characterId' IS NOT NULL
+        ) sp("storyId", "lineId", "characterId")
+        JOIN (SELECT id AS "storyId" FROM stories WHERE id IN (${Prisma.join(storyIds)})) c USING ("storyId")
+        GROUP BY c."storyId", sp."characterId"
+        ORDER BY c."storyId", lines DESC, sp."characterId"
+    `;
+    const characters = await prisma.character.findMany({
+        where: { id: { in: [...new Set(rows.map((r) => r.characterId))] } },
+        select: { id: true, name: true, slug: true, image: true, color: true, colorLight: true },
+    });
+    const byId = new Map(characters.map((c) => [c.id, c]));
+    for (const r of rows) {
+        const c = byId.get(r.characterId);
+        if (!c) continue;
+        const list = cast.get(r.storyId) ?? [];
+        list.push({ ...c, lines: Number(r.lines) });
+        cast.set(r.storyId, list);
+    }
+    return cast;
+}
+
 async function getAllStories(search?: string, season?: string) {
     const where: Prisma.StoryWhereInput = {};
     if (search) {
@@ -116,7 +156,8 @@ async function getAllStories(search?: string, season?: string) {
         orderBy: { title: "asc" },
         include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
     });
-    return await withWordCounts(stories);
+    const [withCounts, cast] = await Promise.all([withWordCounts(stories), castByStory(stories.map((s) => s.id))]);
+    return withCounts.map((s) => ({ ...s, cast: cast.get(s.id) ?? [] }));
 }
 
 async function getStoryBySlug(slug: string) {
