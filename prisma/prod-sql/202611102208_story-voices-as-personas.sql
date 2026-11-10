@@ -81,9 +81,10 @@ BEGIN
 END $$ LANGUAGE plpgsql;
 
 -- ---- Backfill ---------------------------------------------------------------
--- Every statement is idempotent (it skips rows already carried over), so the
--- follow-up can re-run them for rows the old code writes before the new code
--- is up.
+-- Every statement skips rows already carried over, so the follow-up can
+-- re-run them for rows the old code writes before the new code is up. (The
+-- new code clears a line's legacy columns whenever it edits that line, so a
+-- re-run can't bring back voices or segments it changed.)
 
 -- An in-paragraph speaker pointing at a character that no longer exists would
 -- fail the new foreign key with a less helpful message: stop here instead.
@@ -91,27 +92,31 @@ DO $$
 DECLARE dangling bigint;
 BEGIN
     SELECT count(*) INTO dangling
-    FROM story_lines sl, jsonb_array_elements(sl.segments) seg
-    WHERE jsonb_typeof(sl.segments) = 'array'
-      AND nullif(seg->>'characterId', '') IS NOT NULL
+    FROM story_lines sl,
+         jsonb_array_elements(CASE WHEN jsonb_typeof(sl.segments) = 'array' THEN sl.segments ELSE '[]'::jsonb END) seg
+    WHERE nullif(seg->>'characterId', '') IS NOT NULL
       AND NOT EXISTS (SELECT 1 FROM characters c WHERE c.id = (seg->>'characterId')::int);
     IF dangling > 0 THEN
         RAISE EXCEPTION '% story segment(s) point at a character that no longer exists', dangling;
     END IF;
 END $$;
 
--- The NPC name each voice carries: its plain-text speaker, or, for an NPC
--- voice nobody named yet, a shared placeholder (unnamed voices are gone).
+-- The NPC name each voice not yet carried over has: its plain-text speaker,
+-- or, for an NPC voice nobody named yet, a shared placeholder (unnamed voices
+-- are gone). Scoped like the UPDATE and INSERT below, so a re-run never
+-- re-creates an NPC persona the new code has since deleted.
 CREATE TEMP TABLE story_npc_names ON COMMIT DROP AS
 SELECT DISTINCT ON (lower(name)) name
 FROM (
     SELECT coalesce(nullif(btrim(speaker), ''), 'Unnamed NPC') AS name
     FROM story_lines
-    WHERE "characterId" IS NULL AND (nullif(btrim(speaker), '') IS NOT NULL OR "npcVoice")
+    WHERE "characterId" IS NULL AND "personaId" IS NULL
+      AND (nullif(btrim(speaker), '') IS NOT NULL OR "npcVoice")
     UNION ALL
     SELECT coalesce(nullif(btrim(seg->>'speaker'), ''), 'Unnamed NPC')
-    FROM story_lines sl, jsonb_array_elements(sl.segments) seg
-    WHERE jsonb_typeof(sl.segments) = 'array'
+    FROM story_lines sl,
+         jsonb_array_elements(CASE WHEN jsonb_typeof(sl.segments) = 'array' THEN sl.segments ELSE '[]'::jsonb END) seg
+    WHERE NOT EXISTS (SELECT 1 FROM story_segments ss WHERE ss."lineId" = sl.id)
       AND nullif(seg->>'characterId', '') IS NULL
       AND (nullif(btrim(seg->>'speaker'), '') IS NOT NULL OR seg->>'npc' = 'true')
 ) names
@@ -143,7 +148,7 @@ SELECT sl.id,
        coalesce(e.seg->>'italic' = 'true', false),
        coalesce(e.seg->>'bold' = 'true', false)
 FROM story_lines sl
-CROSS JOIN LATERAL jsonb_array_elements(sl.segments) WITH ORDINALITY AS e(seg, ord)
+CROSS JOIN LATERAL jsonb_array_elements(CASE WHEN jsonb_typeof(sl.segments) = 'array' THEN sl.segments ELSE '[]'::jsonb END) WITH ORDINALITY AS e(seg, ord)
 LEFT JOIN personas p
        ON nullif(e.seg->>'characterId', '') IS NULL
       AND (nullif(btrim(e.seg->>'speaker'), '') IS NOT NULL OR e.seg->>'npc' = 'true')
