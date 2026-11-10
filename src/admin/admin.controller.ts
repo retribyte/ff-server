@@ -3,9 +3,20 @@ import { prisma } from "../db.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { importJson } from "../utils/import.js";
 import { JOBS, EPISODE_IMPORT_JOB } from "../jobs/registry.js";
-import { runJob, JobBusyError } from "../jobs/runner.js";
+import { runJob, JobBusyError, type JobContext } from "../jobs/runner.js";
 import { parsePayloads, previewEpisodeImport, importEpisodes } from "../jobs/episodeImport.js";
 import { logger, queryLogs, type Level } from "../utils/logger.js";
+import {
+    MESSAGE_REASSIGN_JOB,
+    OWNER_CHANGE_JOB,
+    STORY_VOICE_JOB,
+    changeOwner,
+    parseOwner,
+    parseReassign,
+    parseStoryVoice,
+    reassignMessages,
+    reassignStoryVoices,
+} from "./archiveFixes.js";
 
 const RUN_LIST_SELECT = {
     id: true,
@@ -79,13 +90,16 @@ const initializeAdminRoutes = (): Router => {
         });
     });
 
-    // GET /api/admin/job-runs?job=&limit=: recent runs, newest first, without their logs
+    // GET /api/admin/job-runs?job=&limit=&before=: recent runs, newest first, without their logs.
+    // `before` (a run id) pages back: the runs older than that one.
     router.get("/admin/job-runs", authenticate, isAdmin, async (req: Request, res: Response) => {
         const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "25"), 10) || 25, 1), 100);
         const job = typeof req.query.job === "string" ? req.query.job : undefined;
+        const before = parseInt(String(req.query.before ?? ""), 10);
         const runs = await prisma.jobRun.findMany({
-            where: job ? { job } : undefined,
-            orderBy: { startedAt: "desc" },
+            where: { ...(job ? { job } : {}), ...(Number.isInteger(before) ? { id: { lt: before } } : {}) },
+            // ids grow with start time; id breaks ties so pages never skip or repeat a run
+            orderBy: [{ startedAt: "desc" }, { id: "desc" }],
             take: limit,
             select: RUN_LIST_SELECT,
         });
@@ -135,6 +149,38 @@ const initializeAdminRoutes = (): Router => {
             sendRunError(res, error);
         }
     });
+
+    // Data fixes recorded in the History table. A run that fails answers 400
+    // with its summary (and the FAILED run), so a caller can't mistake it for success.
+    const fixRoute = <T>(job: string, parse: (body: any) => T, work: (input: T, ctx: JobContext) => Promise<string>) =>
+        async (req: Request, res: Response) => {
+            let input: T;
+            try {
+                input = parse(req.body);
+            } catch (error) {
+                return res.status(400).json({ status: "error", message: (error as Error).message });
+            }
+            try {
+                const run = await runJob(job, userId(req), req.body?.dryRun === true, (ctx) => work(input, ctx));
+                if (run.status === "FAILED") return res.status(400).json({ status: "error", message: run.summary ?? "The change failed", data: run });
+                res.json({ status: "success", data: run });
+            } catch (error) {
+                sendRunError(res, error);
+            }
+        };
+
+    // POST /api/admin/messages/reassign {episodeTitle, messageNos, characterId, personaId, newNpcName?, dryRun?}:
+    // move transcript lines to another character, persona or NPC voice; answers with the JobRun
+    router.post("/admin/messages/reassign", authenticate, isAdmin, fixRoute(MESSAGE_REASSIGN_JOB, parseReassign, reassignMessages));
+
+    // POST /api/admin/owner {kind: character|item|story, id, userIds, dryRun?}: change who plays a
+    // character, owns an item, or wrote a story (its authors); answers with the JobRun
+    router.post("/admin/owner", authenticate, isAdmin, fixRoute(OWNER_CHANGE_JOB, parseOwner, changeOwner));
+
+    // POST /api/admin/story-voices/reassign {from, to, stories?, seasons?, dryRun?}: move story dialogue
+    // (whole lines and in-paragraph quotes) between a character and/or plain speaker text; answers with
+    // the JobRun, whose log lists every change with its before-values. A dry run is the preview.
+    router.post("/admin/story-voices/reassign", authenticate, isAdmin, fixRoute(STORY_VOICE_JOB, parseStoryVoice, reassignStoryVoices));
 
     return router;
 };

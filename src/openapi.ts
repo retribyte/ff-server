@@ -376,6 +376,24 @@ const spec = {
                             },
                         },
                     },
+                    commentaries: {
+                        type: "array",
+                        description:
+                            "Full-text matches on commentary notes, lowest priority: only the slots (limit per category, four categories) that all other matches leave free.",
+                        items: {
+                            type: "object",
+                            properties: {
+                                id: { type: "integer" },
+                                content: { type: "string", description: "Sanitized HTML" },
+                                author: { type: "string" },
+                                episodeTitle: { type: "string" },
+                                episodeNo: { type: "integer" },
+                                episodeSlug: { type: "string", nullable: true },
+                                seasonTitle: { type: "string" },
+                                messageNo: { type: "integer" },
+                            },
+                        },
+                    },
                 },
             },
         },
@@ -591,6 +609,19 @@ const spec = {
                         description: "Public profile with the user's characters and stories",
                         content: { "application/json": { schema: { $ref: "#/components/schemas/PublicUser" } } },
                     },
+                    "404": { description: "User not found" },
+                },
+            },
+        },
+        "/users/{id}/commentaries": {
+            get: {
+                tags: ["Commentary"],
+                summary: "Every commentary note a user wrote, newest first (public)",
+                description: "Each note includes `message` (its line: messageNo, type, text, character, persona name, player) with the line's `episode` (title, slug, episode_no, seasonTitle, reconstructed).",
+                security: [],
+                parameters: [{ name: "id", in: "path", required: true, description: "Numeric id, or username", schema: { type: "string" } }],
+                responses: {
+                    "200": { description: "The user's notes" },
                     "404": { description: "User not found" },
                 },
             },
@@ -1570,6 +1601,7 @@ const spec = {
                 parameters: [
                     { name: "job", in: "query", schema: { type: "string" } },
                     { name: "limit", in: "query", schema: { type: "integer", default: 25, maximum: 100 } },
+                    { name: "before", in: "query", schema: { type: "integer" }, description: "A run id: page back to the runs older than it" },
                 ],
                 responses: { "200": { description: "JobRun[]" }, "403": { description: "Not an admin" } },
             },
@@ -1638,6 +1670,114 @@ const spec = {
                     "400": { description: "Malformed episodes" },
                     "403": { description: "Not an admin" },
                     "409": { description: "An episode import is already running" },
+                },
+            },
+        },
+        "/admin/messages/reassign": {
+            post: {
+                tags: ["Admin", "Messages"],
+                summary: "Move transcript lines to another speaker, all or nothing (admin)",
+                description:
+                    "Sets characterId and personaId on the listed lines of one episode: a character (optionally as one of its personas), " +
+                    "an NPC persona (characterId null), or a new NPC voice named by newNpcName (created in the same transaction, or " +
+                    "reused if one has that name). Text, type, player and time never change. Recorded in the job history as " +
+                    "'message-reassign' with each line's old and new speaker in the log. A failed run answers 400 with its summary.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["episodeTitle", "messageNos"],
+                                properties: {
+                                    episodeTitle: { type: "string" },
+                                    messageNos: { type: "array", items: { type: "integer" }, minItems: 1, maxItems: 500 },
+                                    characterId: { type: "integer", nullable: true },
+                                    personaId: { type: "integer", nullable: true },
+                                    newNpcName: { type: "string" },
+                                    dryRun: { type: "boolean", default: false },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "The JobRun, with its log" },
+                    "400": { description: "Bad input, or the run failed (e.g. a quote left with no speaker); nothing changed" },
+                    "403": { description: "Not an admin" },
+                    "409": { description: "A reassign is already running" },
+                },
+            },
+        },
+        "/admin/story-voices/reassign": {
+            post: {
+                tags: ["Admin", "Stories"],
+                summary: "Move story dialogue between a character and/or plain speaker text, all or nothing (admin)",
+                description:
+                    "from/to are each {characterId} or {speaker} (plain text, matched case-insensitively). Rewrites whole lines " +
+                    "(characterId, speaker; npcVoice cleared when moving to a character) and in-paragraph quotes in the segments " +
+                    "JSON, in the stories in scope (stories and/or seasons slugs; neither means every story). Transcript messages are " +
+                    "not touched. Recorded as 'story-voice-fix'; the log lists per-story counts, then every changed line with its " +
+                    "values before (the run's own snapshot). Use dryRun as the preview.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["from", "to"],
+                                properties: {
+                                    from: { type: "object", description: "{characterId: int} or {speaker: string}" },
+                                    to: { type: "object", description: "{characterId: int} or {speaker: string}" },
+                                    stories: { type: "array", items: { type: "string" } },
+                                    seasons: { type: "array", items: { type: "string" } },
+                                    dryRun: { type: "boolean", default: false },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "The JobRun, with its log" },
+                    "400": { description: "Bad input or unknown slugs; nothing changed" },
+                    "403": { description: "Not an admin" },
+                    "409": { description: "A story voice fix is already running" },
+                },
+            },
+        },
+        "/admin/owner": {
+            post: {
+                tags: ["Admin"],
+                summary: "Change who plays a character, owns an item, or wrote a story (admin)",
+                description:
+                    "character and item take exactly one user id (Character.creatorId is 'played by'); story takes one or more and " +
+                    "replaces its authors. Recorded in the job history as 'owner-change' with the old and new usernames. A failed run " +
+                    "(e.g. the new player already has a character with that name) answers 400 with its summary.",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["kind", "id", "userIds"],
+                                properties: {
+                                    kind: { type: "string", enum: ["character", "item", "story"] },
+                                    id: { type: "integer" },
+                                    userIds: { type: "array", items: { type: "integer" }, minItems: 1 },
+                                    dryRun: { type: "boolean", default: false },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "The JobRun, with its log" },
+                    "400": { description: "Bad input, or the run failed; nothing changed" },
+                    "403": { description: "Not an admin" },
+                    "409": { description: "An owner change is already running" },
                 },
             },
         },
@@ -1780,7 +1920,7 @@ const spec = {
                 description:
                     "Names (or, with a null/blank speaker, un-names) NPC voice fragments: a segment of a NARRATION line " +
                     "(`segment` = its index), or a whole `npcVoice` DIALOGUE line (`segment` omitted). Only NPC-flagged " +
-                    "fragments can be named here, so the text and character attributions never change. One transaction: " +
+                    "fragments can be named here, so the text never changes; only characterId changes attribution. One transaction: " +
                     "any invalid assignment rejects them all. A later revision (PUT /stories/{slug}/import) keeps these " +
                     "names for fragments whose text is unchanged.",
                 security: [{ bearerAuth: [] }],
@@ -1805,6 +1945,12 @@ const spec = {
                                                 lineNo: { type: "integer" },
                                                 segment: { type: "integer", nullable: true },
                                                 speaker: { type: "string", nullable: true, maxLength: 80 },
+                                                characterId: {
+                                                    type: "integer",
+                                                    nullable: true,
+                                                    description:
+                                                        "The voice is this character (story authors and admins). The fragment stops being an NPC voice, and the request is recorded in the job history as 'story-voice-name'.",
+                                                },
                                             },
                                         },
                                     },
@@ -2091,7 +2237,7 @@ const spec = {
                     {
                         name: "category",
                         in: "query",
-                        schema: { type: "string", enum: ["messages", "storyLines"] },
+                        schema: { type: "string", enum: ["messages", "storyLines", "commentaries"] },
                         description: "When set, switches to paginated single-category mode ({data,total,page,limit}) instead of the grouped response — backs the dedicated search-results page",
                     },
                     {
@@ -2099,6 +2245,24 @@ const spec = {
                         in: "query",
                         schema: { type: "integer", default: 1, minimum: 1 },
                         description: "Only used when category is set",
+                    },
+                    {
+                        name: "sort",
+                        in: "query",
+                        schema: { type: "string", enum: ["relevance", "appearance"], default: "relevance" },
+                        description: "Single-category mode: rank by match, or archive order (FF campaigns by number, then other seasons, then episode/story position)",
+                    },
+                    {
+                        name: "dir",
+                        in: "query",
+                        schema: { type: "string", enum: ["asc", "desc"], default: "asc" },
+                        description: "Direction of sort=appearance",
+                    },
+                    {
+                        name: "exclude",
+                        in: "query",
+                        schema: { type: "string" },
+                        description: "Single-category mode: comma-separated season slugs to leave out (stories with no campaign are always kept)",
                     },
                 ],
                 responses: {

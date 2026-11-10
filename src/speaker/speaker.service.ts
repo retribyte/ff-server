@@ -343,6 +343,10 @@ function inTransaction<F extends (tx: Tx, ...rest: any[]) => Promise<unknown>>(f
 }
 
 export default {
+    demoteToNpcTx,
+    promoteNpcTx,
+    mergeIntoTx,
+    renameCharacterTx,
     demoteToNpc: inTransaction(demoteToNpcTx),
     promoteNpc: inTransaction(promoteNpcTx),
     mergeInto: inTransaction(mergeIntoTx),

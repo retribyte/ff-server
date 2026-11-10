@@ -106,7 +106,8 @@ data. Don't add a species table back.
   - **NPC personas** (`Persona.characterId` null) voice one-off speakers;
     their lines have no character. Moving voices between characters and
     NPCs goes through `src/speaker/speaker.service.ts` (demote, promote,
-    merge, rename; admin endpoints under `/api/admin/speakers/`), which
+    merge, rename; admin endpoints under `/api/admin/speakers/`, each run as a
+    `speaker-*` job so it's in the admin History), which
     rewrites messages, story lines and `segments` JSON together in one
     transaction. Don't hand-roll `updateMany`s for this: the segments JSON is
     easy to miss. `seed-npc-personas.ts` applies the reviewed
@@ -148,7 +149,7 @@ data. Don't add a species table back.
     has no API keys). The live booru sits behind a Cloudflare bot challenge;
     `IMAGE_KEY` is sent as the `x-bypass-key` header, which Cloudflare lets
     through. Without it, lookups fail (502).
-  - System accounts (`prisma/scripts/system-accounts.ts`: the Archivist, the FF 8 Ball
+  - System accounts (`prisma/scripts/system-accounts.ts`: the Archivist, the 8 Ball
     bot) are `loginDisabled` in the seed and the go-live script.
   - `npm run docs` lints the OpenAPI spec (`scripts/lint-openapi.ts` dumps
     `src/openapi.ts` to JSON for Redocly). Public operations declare
@@ -230,7 +231,9 @@ data. Don't add a species table back.
     pre-fills a revision's colors from it, so only new colors need a pick.
   - **NPC voices**: `PATCH /api/stories/:slug/voices` names or un-names NPC
     fragments (authors or admins). It can only touch NPC-flagged fragments,
-    never text or character attribution. NPC voices are plain text, never
+    never text. A `characterId` changes attribution (the quote becomes that
+    character's, a logged `story-voice-name` job; authors and admins, the
+    user's call 2026-11-09). NPC voices are plain text, never
     NPC `Persona` rows (the user's call): story NPCs aren't archive speakers.
   - `POST /api/episodes/import` is **retired and answers 410**. Admins import
     *new* episodes with `POST /api/admin/episode-import` (the site's /admin
@@ -245,6 +248,17 @@ data. Don't add a species table back.
   is a thin wrapper over the same function. One-off data fixes aren't jobs:
   they go in a prod-sql migration. Don't add
   a job that reads files outside `dist/` (prod only has the compiled `src/`).
+  - **Admin data fixes** (`src/admin/archiveFixes.ts`) also go through `runJob`, so
+    each is a History row whose log has every before/after value:
+    `POST /admin/messages/reassign` (job `message-reassign`: lines of one episode to
+    another character/persona/NPC voice; the site's per-block attribution control uses
+    it) and `POST /admin/owner` (job `owner-change`: character "played by", item owner,
+    story authors), `POST /admin/story-voices/reassign` (job `story-voice-fix`: story
+    dialogue between a character and/or plain speaker text, whole lines and segments
+    JSON; the log keeps before-values, standing in for a dump; dry run = preview) and,
+    from `PATCH /stories/:slug/voices` with `characterId` (story authors and admins), job
+    `story-voice-name` (an NPC quote becomes a character's). A FAILED run answers 400.
+    Write only through `ctx.tx` in them.
   - The append endpoints (`.../chapters/:n/lines`, `.../messages`) remain for
     incremental API use and the CLI episode uploaders.
 - **HTML sanitization** (`src/utils/sanitize.ts`, NFR-SEC-3): user-submitted

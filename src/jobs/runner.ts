@@ -23,7 +23,13 @@ const STALE_MS = 15 * 60_000;
  * writes, then rolls them back. A failure rolls back too and is recorded as
  * FAILED, so the returned JobRun always says what happened.
  */
-export async function runJob(job: string, userId: number | null, dryRun: boolean, work: (ctx: JobContext) => Promise<string>) {
+export async function runJob(
+    job: string,
+    userId: number | null,
+    dryRun: boolean,
+    work: (ctx: JobContext) => Promise<string>,
+    txOptions: { maxWait: number; timeout: number } = IMPORT_TX_OPTIONS
+) {
     const busy = await prisma.jobRun.findFirst({
         where: { job, status: "RUNNING", startedAt: { gt: new Date(Date.now() - STALE_MS) } },
         select: { id: true },
@@ -41,7 +47,7 @@ export async function runJob(job: string, userId: number | null, dryRun: boolean
             const result = await work({ tx, dryRun, log });
             if (dryRun) throw new DryRunRollback(result);
             return result;
-        }, IMPORT_TX_OPTIONS);
+        }, txOptions);
     } catch (error) {
         if (error instanceof DryRunRollback) {
             summary = `Dry run, nothing saved: ${error.message}`;
