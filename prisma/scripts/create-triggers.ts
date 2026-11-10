@@ -12,10 +12,14 @@
  *    Persona(id, characterId), which Postgres skips entirely whenever
  *    characterId is null (MATCH SIMPLE). assertPersonaMatchesCharacter in
  *    message.service.ts is the app-level mirror that gives a friendly error.
- * 2. personas_character_frozen: a persona that messages already use can't
- *    move to another character (or to/from NPC), which would silently break
- *    rule 1 for every one of those lines. Moving voices goes through
- *    src/speaker/speaker.service.ts, which re-points the messages instead.
+ *    story_lines_persona_match / story_segments_persona_match apply the same
+ *    rule to story lines and in-paragraph segments (persona_matches_character,
+ *    written generically on NEW."personaId"/NEW."characterId").
+ * 2. personas_character_frozen: a persona that messages, story lines or
+ *    story segments already use can't move to another character (or to/from
+ *    NPC), which would silently break rule 1 for every one of those rows.
+ *    Moving voices goes through src/speaker/speaker.service.ts, which
+ *    re-points the rows instead.
  * 3. personas_npc_name_key: NPC personas are global and unique by
  *    case-insensitive name, so the FF2 and FF4 "Receptionist" share one
  *    nameplate. @@unique([characterId, name]) can't do it: NULLs are distinct.
@@ -43,11 +47,32 @@ const STATEMENTS = [
         BEFORE INSERT OR UPDATE OF "personaId", "characterId" ON messages
         FOR EACH ROW EXECUTE FUNCTION messages_persona_match()`,
 
+    `CREATE OR REPLACE FUNCTION persona_matches_character() RETURNS trigger AS $$
+    BEGIN
+        IF NEW."personaId" IS NOT NULL AND
+           (SELECT "characterId" FROM personas WHERE id = NEW."personaId") IS DISTINCT FROM NEW."characterId" THEN
+            RAISE EXCEPTION 'persona % does not belong to character %', NEW."personaId", coalesce(NEW."characterId"::text, 'null (NPC)')
+                USING ERRCODE = 'check_violation';
+        END IF;
+        RETURN NEW;
+    END $$ LANGUAGE plpgsql`,
+    `DROP TRIGGER IF EXISTS story_lines_persona_match ON story_lines`,
+    `CREATE TRIGGER story_lines_persona_match
+        BEFORE INSERT OR UPDATE OF "personaId", "characterId" ON story_lines
+        FOR EACH ROW EXECUTE FUNCTION persona_matches_character()`,
+    `DROP TRIGGER IF EXISTS story_segments_persona_match ON story_segments`,
+    `CREATE TRIGGER story_segments_persona_match
+        BEFORE INSERT OR UPDATE OF "personaId", "characterId" ON story_segments
+        FOR EACH ROW EXECUTE FUNCTION persona_matches_character()`,
+
     `CREATE OR REPLACE FUNCTION personas_character_frozen() RETURNS trigger AS $$
     BEGIN
-        IF NEW."characterId" IS DISTINCT FROM OLD."characterId" AND
-           EXISTS (SELECT 1 FROM messages WHERE "personaId" = OLD.id) THEN
-            RAISE EXCEPTION 'persona % is used by messages, so its character can''t change', OLD.id
+        IF NEW."characterId" IS DISTINCT FROM OLD."characterId" AND (
+            EXISTS (SELECT 1 FROM messages WHERE "personaId" = OLD.id) OR
+            EXISTS (SELECT 1 FROM story_lines WHERE "personaId" = OLD.id) OR
+            EXISTS (SELECT 1 FROM story_segments WHERE "personaId" = OLD.id)
+        ) THEN
+            RAISE EXCEPTION 'persona % is in use, so its character can''t change', OLD.id
                 USING ERRCODE = 'check_violation';
         END IF;
         RETURN NEW;
@@ -63,7 +88,7 @@ const STATEMENTS = [
 async function main() {
     // One transaction, so a failure never leaves a trigger dropped.
     await prisma.$transaction(STATEMENTS.map((sql) => prisma.$executeRawUnsafe(sql)));
-    console.log("Triggers OK: messages_persona_match, personas_character_frozen, personas_npc_name_key.");
+    console.log("Triggers OK: messages/story_lines/story_segments persona match, personas_character_frozen, personas_npc_name_key.");
 }
 
 main()

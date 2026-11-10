@@ -78,20 +78,21 @@ model User {
 }
 
 model Character {
-  id         Int         @id @unique @default(autoincrement())
-  name       String
-  creator    User        @relation(fields: [creatorId], references: [id])
-  creatorId  Int
-  messages   Message[]
-  image      String?
-  color      String?
-  colorLight String?
-  blurb      String?
-  storyLines StoryLine[]
-  personas   Persona[]
-  slug       String      @unique
+  id            Int            @id @unique @default(autoincrement())
+  name          String
+  creator       User           @relation(fields: [creatorId], references: [id])
+  creatorId     Int
+  messages      Message[]
+  image         String?
+  color         String?
+  colorLight    String?
+  blurb         String?
+  storyLines    StoryLine[]
+  storySegments StorySegment[]
+  personas      Persona[]
+  slug          String         @unique
   // campaigns an admin added this character to the cast of
-  mainIn     Season[]    @relation("MainCharacters")
+  mainIn        Season[]       @relation("MainCharacters")
 
   @@unique([creatorId, name])
   @@map("characters")
@@ -112,20 +113,22 @@ model AvatarImage {
 
 // How a character is presented for some stretch of the archive
 model Persona {
-  id          Int        @id @unique @default(autoincrement())
-  name        String? // null -> canonical name shows
-  label       String? // admin-facing handle; never rendered in transcripts
-  slug        String?    @unique // null for unnamed personas
-  image       String?
-  color       String?
+  id            Int            @id @unique @default(autoincrement())
+  name          String? // null -> canonical name shows
+  label         String? // admin-facing handle; never rendered in transcripts
+  slug          String?        @unique // null for unnamed personas
+  image         String?
+  color         String?
   // null -> an NPC persona: a named voice with no Character behind it
   // ("Enemy A", "Llamanian Guard"). NPC personas always have a name, never a
   // slug or a page, and are unique by lower(name) via a partial unique index
   // (personas_npc_name_key) that prisma/scripts/create-triggers.ts installs;
   // @@unique([characterId, name]) can't cover them, since NULLs are distinct.
-  character   Character? @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  characterId Int?
-  messages    Message[]
+  character     Character?     @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  characterId   Int?
+  messages      Message[]
+  storyLines    StoryLine[]
+  storySegments StorySegment[]
 
   @@unique([characterId, name]) // Postgres: NULLs distinct -> many name-less personas allowed
   @@map("personas")
@@ -246,41 +249,63 @@ model StoryChapter {
 }
 
 model StoryLine {
-  id          Int           @id @unique @default(autoincrement())
-  chapter     StoryChapter  @relation(fields: [chapterId], references: [id])
+  id          Int            @id @unique @default(autoincrement())
+  chapter     StoryChapter   @relation(fields: [chapterId], references: [id])
   chapterId   Int
   line_no     Int // 1-based within chapter; deep-link anchor
   type        StoryLineType
   text        String
-  character   Character?    @relation(fields: [characterId], references: [id], onDelete: Restrict) // same as Message.character
+  // The line's voice, the same rule as Message: a character alone, a character
+  // shown as one of its personas, or an NPC persona alone (characterId null).
+  // The story_lines_persona_match trigger (prisma/scripts/create-triggers.ts)
+  // keeps the persona on the line's character.
+  character   Character?     @relation(fields: [characterId], references: [id], onDelete: Restrict) // same as Message.character
   characterId Int?
-  speaker     String? // display-name fallback when no Character row exists
-  // An NPC voice (a DIALOGUE line): speaker is the NPC's name, or null while
-  // it's unnamed. Authors/admins name it from the reader (PATCH .../voices);
-  // only lines with this flag can be named that way.
-  npcVoice    Boolean       @default(false)
-  // Sub-paragraph dialogue spans for novel-style prose:
-  // [{text, characterId?, speaker?, npc?, italic?, bold?}]
-  // where a segment with a voice is dialogue, one without is narration. A
-  // segment with `npc: true` is an NPC voice: `speaker` is its name, or absent
-  // while unnamed (still dialogue, not narration). The
-  // segment texts concatenate verbatim (no separators) to exactly `text`, so
-  // search/scan/highlight keep working on `text`. Only set on NARRATION lines.
-  // NOTE: segment characterIds live in JSON — no FK, so Character.storyLines
-  // does not capture in-paragraph speakers (nothing queries that relation).
-  segments    Json?
+  persona     Persona?       @relation(fields: [personaId], references: [id], onDelete: Restrict)
+  personaId   Int?
+  // Sub-paragraph dialogue spans for novel-style prose (NARRATION lines only).
+  // Their texts concatenate verbatim to exactly `text`, so search/scan/
+  // highlight keep working on `text`.
+  segments    StorySegment[]
   // IMAGE lines: the booru.vortox.space post that holds the picture, and its
   // file URL, resolved from the booru at import (served via the image proxy)
   booruId     Int?
   imageUrl    String?
 
+  // DEPRECATED, read and written by nothing since story voices became
+  // personas (2026-11). Kept one release so the SQL stays backward-compatible
+  // with the code live until the deploy lands; a follow-up drops them.
+  speaker        String?
+  npcVoice       Boolean @default(false)
+  legacySegments Json?   @map("segments")
+
   @@unique([chapterId, line_no])
-  // Containment lookups (`segments @> '[{"characterId": N}]'`) for finding
-  // in-paragraph quotes by character — see findQuotesByCharacter in
-  // story.service.ts. jsonb_path_ops (not the default jsonb_ops) because the
-  // only operator used is `@>`; it's smaller and faster for that one case.
-  @@index([segments(ops: JsonbPathOps)], type: Gin)
+  @@index([personaId])
+  @@index([legacySegments(ops: JsonbPathOps)], type: Gin, map: "story_lines_segments_idx")
   @@map("story_lines")
+}
+
+// One span of a segmented NARRATION line: dialogue when it has a voice
+// (same rule as StoryLine/Message: character, character + persona, or an NPC
+// persona alone; story_segments_persona_match enforces it), narration when
+// not. Replaced wholesale whenever its line changes.
+model StorySegment {
+  id          Int        @id @default(autoincrement())
+  line        StoryLine  @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  lineId      Int
+  position    Int // 0-based order within the line
+  text        String
+  character   Character? @relation(fields: [characterId], references: [id], onDelete: Restrict)
+  characterId Int?
+  persona     Persona?   @relation(fields: [personaId], references: [id], onDelete: Restrict)
+  personaId   Int?
+  italic      Boolean    @default(false)
+  bold        Boolean    @default(false)
+
+  @@unique([lineId, position])
+  @@index([characterId])
+  @@index([personaId])
+  @@map("story_segments")
 }
 
 model Item {
