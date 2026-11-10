@@ -1,5 +1,6 @@
 import { MessageType, Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
+import { direction, seasonOrderKeys, type SearchOptions } from "../search/search-options.js";
 
 
 const PERSONA_SELECT = { select: { id: true, name: true, image: true, color: true } };
@@ -84,6 +85,19 @@ type MessageHit = {
     messageNo: number;
     text: string;
     type: MessageType;
+    seasonTitle: string;
+    // Who speaks the line, for the results page's avatar (null when not set)
+    characterName: string | null;
+    characterSlug: string | null;
+    characterImage: string | null;
+    characterColor: string | null;
+    characterColorLight: string | null;
+    personaName: string | null;
+    personaImage: string | null;
+    personaColor: string | null;
+    playerName: string | null;
+    playerIcon: string | null;
+    playerColor: string | null;
 };
 
 // Backs the unified /api/search endpoint. Full-text (not substring) match —
@@ -98,23 +112,40 @@ type MessageHit = {
 async function searchMessages(
     query: string,
     page = 1,
-    limit = 20
+    limit = 20,
+    options: SearchOptions = {}
 ): Promise<{ data: MessageHit[]; total: number; page: number; limit: number }> {
     const skip = (page - 1) * limit;
+    const exclude = options.exclude ?? [];
+    const where = Prisma.sql`to_tsvector('english', m.text) @@ plainto_tsquery('english', ${query})
+        AND s.slug <> ALL(${exclude}::text[])`;
+    const order =
+        options.sort === "appearance"
+            ? Prisma.sql`${seasonOrderKeys('e."seasonTitle"', options.dir ?? "asc")}, e.episode_no ${direction(options.dir)}, m."messageNo" ${direction(options.dir)}`
+            : Prisma.sql`ts_rank(to_tsvector('english', m.text), plainto_tsquery('english', ${query})) DESC, e.episode_no ASC, m."messageNo" ASC`;
     const [data, countResult] = await Promise.all([
         prisma.$queryRaw<MessageHit[]>`
-            SELECT "episodeTitle",
-                (SELECT "episode_no" FROM episodes WHERE title = messages."episodeTitle") AS "episodeNo",
-                "messageNo", text, type
-            FROM messages
-            WHERE to_tsvector('english', text) @@ plainto_tsquery('english', ${query})
-            ORDER BY ts_rank(to_tsvector('english', text), plainto_tsquery('english', ${query})) DESC, "episodeNo" ASC, "messageNo" ASC
+            SELECT m."episodeTitle", e.episode_no AS "episodeNo", m."messageNo", m.text, m.type, e."seasonTitle",
+                c.name AS "characterName", c.slug AS "characterSlug", c.image AS "characterImage",
+                c.color AS "characterColor", c."colorLight" AS "characterColorLight",
+                p.name AS "personaName", p.image AS "personaImage", p.color AS "personaColor",
+                u.username AS "playerName", u.icon AS "playerIcon", u.color AS "playerColor"
+            FROM messages m
+            JOIN episodes e ON e.title = m."episodeTitle"
+            JOIN seasons s ON s.title = e."seasonTitle"
+            LEFT JOIN characters c ON c.id = m."characterId"
+            LEFT JOIN personas p ON p.id = m."personaId"
+            LEFT JOIN "User" u ON u.id = m."playerId"
+            WHERE ${where}
+            ORDER BY ${order}
             LIMIT ${limit} OFFSET ${skip}
         `,
         prisma.$queryRaw<{ count: bigint }[]>`
             SELECT COUNT(*) AS count
-            FROM messages
-            WHERE to_tsvector('english', text) @@ plainto_tsquery('english', ${query})
+            FROM messages m
+            JOIN episodes e ON e.title = m."episodeTitle"
+            JOIN seasons s ON s.title = e."seasonTitle"
+            WHERE ${where}
         `,
     ]);
     return { data, total: Number(countResult[0]?.count ?? 0), page, limit };

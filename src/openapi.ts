@@ -2104,7 +2104,7 @@ const spec = {
                     {
                         name: "category",
                         in: "query",
-                        schema: { type: "string", enum: ["messages", "storyLines"] },
+                        schema: { type: "string", enum: ["messages", "storyLines", "commentaries"] },
                         description: "When set, switches to paginated single-category mode ({data,total,page,limit}) instead of the grouped response — backs the dedicated search-results page",
                     },
                     {
@@ -2112,6 +2112,24 @@ const spec = {
                         in: "query",
                         schema: { type: "integer", default: 1, minimum: 1 },
                         description: "Only used when category is set",
+                    },
+                    {
+                        name: "sort",
+                        in: "query",
+                        schema: { type: "string", enum: ["relevance", "appearance"], default: "relevance" },
+                        description: "Single-category mode: rank by match, or archive order (FF campaigns by number, then other seasons, then episode/story position)",
+                    },
+                    {
+                        name: "dir",
+                        in: "query",
+                        schema: { type: "string", enum: ["asc", "desc"], default: "asc" },
+                        description: "Direction of sort=appearance",
+                    },
+                    {
+                        name: "exclude",
+                        in: "query",
+                        schema: { type: "string" },
+                        description: "Single-category mode: comma-separated season slugs to leave out (stories with no campaign are always kept)",
                     },
                 ],
                 responses: {

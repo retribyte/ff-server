@@ -2,6 +2,8 @@ import characterService from "../character/character.service.js";
 import itemService from "../item/item.service.js";
 import messageService from "../message/message.service.js";
 import storyService from "../story/story.service.js";
+import commentaryService from "../commentary/commentary.service.js";
+import type { SearchOptions } from "./search-options.js";
 
 const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 20;
@@ -29,18 +31,25 @@ const CATEGORY_PAGE_MAX = 50; // separate, more generous clamp than grouped mode
 // (comprehensive, not capped at 5) — messages/storyLines are the only
 // categories that need this; characters/items are small enough to
 // fetch unbounded via their own existing ?search= endpoints instead.
+export type SearchCategory = "messages" | "storyLines" | "commentaries";
+export const SEARCH_CATEGORIES: readonly SearchCategory[] = ["messages", "storyLines", "commentaries"];
+
 async function searchCategory(
-    category: "messages" | "storyLines",
+    category: SearchCategory,
     query: string,
     page?: number,
-    limit?: number
+    limit?: number,
+    options: SearchOptions = {}
 ) {
     const effectiveLimit = Math.min(Math.max(limit ?? CATEGORY_PAGE_DEFAULT, 1), CATEGORY_PAGE_MAX);
     const effectivePage = Math.max(page ?? 1, 1);
     if (category === "messages") {
-        return messageService.searchMessages(query, effectivePage, effectiveLimit);
+        return messageService.searchMessages(query, effectivePage, effectiveLimit, options);
     }
-    return storyService.searchStoryLines(query, effectivePage, effectiveLimit);
+    if (category === "commentaries") {
+        return commentaryService.searchCommentaries(query, effectivePage, effectiveLimit, options);
+    }
+    return storyService.searchStoryLines(query, effectivePage, effectiveLimit, options);
 }
 
 export default { searchAll, searchCategory };

@@ -148,7 +148,7 @@ data. Don't add a species table back.
     has no API keys). The live booru sits behind a Cloudflare bot challenge;
     `IMAGE_KEY` is sent as the `x-bypass-key` header, which Cloudflare lets
     through. Without it, lookups fail (502).
-  - System accounts (`prisma/scripts/system-accounts.ts`: the Archivist, the FF 8 Ball
+  - System accounts (`prisma/scripts/system-accounts.ts`: the Archivist, the 8 Ball
     bot) are `loginDisabled` in the seed and the go-live script.
   - `npm run docs` lints the OpenAPI spec (`scripts/lint-openapi.ts` dumps
     `src/openapi.ts` to JSON for Redocly). Public operations declare

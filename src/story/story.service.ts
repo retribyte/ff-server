@@ -1,5 +1,6 @@
 import { Prisma, StoryLineType, StoryFormat } from "@prisma/client";
 import { prisma } from "../db.js";
+import { direction, seasonOrderKeys, type SearchOptions } from "../search/search-options.js";
 import { SLUG_PATTERN } from "../utils/slug.js";
 import { parseImportMeta } from "./import-meta.js";
 import { IMPORT_TX_OPTIONS, ImportConflictError } from "../utils/import.js";
@@ -325,7 +326,14 @@ async function getStoryQuotesByCharacter(characterId: number): Promise<Character
     `;
 }
 
-type StoryLineHit = { storySlug: string; chapterNo: number; lineNo: number; text: string };
+type StoryLineHit = {
+    storySlug: string;
+    storyTitle: string;
+    seasonTitle: string | null;
+    chapterNo: number;
+    lineNo: number;
+    text: string;
+};
 
 // Backs the unified /api/search endpoint. Full-text (not substring) match —
 // stemmed keyword search via to_tsvector/plainto_tsquery, ranked by ts_rank
@@ -339,23 +347,40 @@ type StoryLineHit = { storySlug: string; chapterNo: number; lineNo: number; text
 async function searchStoryLines(
     query: string,
     page = 1,
-    limit = 20
+    limit = 20,
+    options: SearchOptions = {}
 ): Promise<{ data: StoryLineHit[]; total: number; page: number; limit: number }> {
     const skip = (page - 1) * limit;
+    const exclude = options.exclude ?? [];
+    // A story with no campaign is never excluded (there's no season to pick)
+    const where = Prisma.sql`to_tsvector('english', sl.text) @@ plainto_tsquery('english', ${query})
+        AND (se.slug IS NULL OR se.slug <> ALL(${exclude}::text[]))`;
+    // Stories have no in-world order: campaign, then publication, then shelf order
+    const order =
+        options.sort === "appearance"
+            ? Prisma.sql`${seasonOrderKeys('s."seasonTitle"', options.dir ?? "asc")},
+                s."publishedDate" ${direction(options.dir)} NULLS LAST, s.id ${direction(options.dir)},
+                sc.chapter_no ${direction(options.dir)}, sl.line_no ${direction(options.dir)}`
+            : Prisma.sql`ts_rank(to_tsvector('english', sl.text), plainto_tsquery('english', ${query})) DESC, sl.id ASC`;
     const [data, countResult] = await Promise.all([
         prisma.$queryRaw<StoryLineHit[]>`
-            SELECT s.slug AS "storySlug", sc.chapter_no AS "chapterNo", sl.line_no AS "lineNo", sl.text
+            SELECT s.slug AS "storySlug", s.title AS "storyTitle", s."seasonTitle",
+                sc.chapter_no AS "chapterNo", sl.line_no AS "lineNo", sl.text
             FROM story_lines sl
             JOIN story_chapters sc ON sc.id = sl."chapterId"
             JOIN stories s ON s.id = sc."storyId"
-            WHERE to_tsvector('english', sl.text) @@ plainto_tsquery('english', ${query})
-            ORDER BY ts_rank(to_tsvector('english', sl.text), plainto_tsquery('english', ${query})) DESC, sl.id ASC
+            LEFT JOIN seasons se ON se.title = s."seasonTitle"
+            WHERE ${where}
+            ORDER BY ${order}
             LIMIT ${limit} OFFSET ${skip}
         `,
         prisma.$queryRaw<{ count: bigint }[]>`
             SELECT COUNT(*) AS count
             FROM story_lines sl
-            WHERE to_tsvector('english', sl.text) @@ plainto_tsquery('english', ${query})
+            JOIN story_chapters sc ON sc.id = sl."chapterId"
+            JOIN stories s ON s.id = sc."storyId"
+            LEFT JOIN seasons se ON se.title = s."seasonTitle"
+            WHERE ${where}
         `,
     ]);
     return { data, total: Number(countResult[0]?.count ?? 0), page, limit };
