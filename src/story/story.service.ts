@@ -943,9 +943,7 @@ async function updateLine(slug: string, chapterNo: number, lineNo: number, data:
         const lineVoice = await resolve(merged, merged.npcVoice, `Line ${lineNo}`);
         await tx.storyLine.update({
             where: { id: existing.id },
-            // the deprecated pre-persona columns are cleared, so the migration's
-            // backfill, re-run before they're dropped, can't bring them back
-            data: { type: merged.type, text: merged.text, ...lineVoice, speaker: null, npcVoice: false, legacySegments: Prisma.DbNull },
+            data: { type: merged.type, text: merged.text, ...lineVoice },
         });
         if (data.segments !== undefined) {
             await tx.storySegment.deleteMany({ where: { lineId: existing.id } });

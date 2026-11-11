@@ -214,9 +214,10 @@ const spec = {
                     speaker: {
                         type: "string",
                         nullable: true,
-                        description: "Write: an NPC persona by name (found or created). Read: deprecated, the NPC persona's name (use persona)",
+                        writeOnly: true,
+                        description: "An NPC persona by name (found or created). Responses carry the voice as personaId + persona",
                     },
-                    npc: { type: "boolean", description: "Write: an NPC voice (unnamed without speaker). Read: deprecated, set for an NPC persona" },
+                    npc: { type: "boolean", writeOnly: true, description: "An NPC voice (unnamed without speaker)" },
                     italic: { type: "boolean" },
                     bold: { type: "boolean" },
                 },
@@ -303,11 +304,13 @@ const spec = {
                     speaker: {
                         type: "string",
                         nullable: true,
-                        description: "Write: an NPC persona by name (found or created). Read: deprecated, the NPC persona's name (use persona)",
+                        writeOnly: true,
+                        description: "An NPC persona by name (found or created). Responses carry the voice as personaId + persona",
                     },
                     npcVoice: {
                         type: "boolean",
-                        description: "Write (DIALOGUE): an NPC voice, unnamed without speaker (a draft only; an import refuses it). Read: deprecated, set for an NPC persona",
+                        writeOnly: true,
+                        description: "DIALOGUE: an NPC voice, unnamed without speaker (a draft only; an import refuses it)",
                     },
                     segments: {
                         type: "array",
