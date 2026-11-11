@@ -4,8 +4,10 @@
 // count is computed for every character or chapter at once, kept until the
 // archive generation moves (any write to the archive's text or its speakers,
 // see src/utils/archive-generation.ts), and shared by every request meanwhile.
-// The TTL covers writes this process never sees: psql or a CLI script against
-// the same database.
+// The TTL covers writes this process never sees (psql, or a CLI script against
+// the same database): past it, the cached counts are still served at once and
+// refreshed in the background, so a quiet site never waits on the regex just
+// because time passed. Only an archive write makes a request wait for a recount.
 
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
@@ -13,20 +15,48 @@ import { archiveGeneration } from "./archive-generation.js";
 
 const TTL_MS = 5 * 60 * 1000;
 
-/** Memoize an all-rows computation until the archive generation moves or the TTL passes. */
+type Entry<T> = { generation: number; at: number; value: Promise<T> };
+
+/**
+ * Memoize an all-rows computation until the archive generation moves.
+ * Past the TTL, serve the cached value and recompute it in the background.
+ */
 function cachedUntilArchiveChanges<T>(compute: () => Promise<T>): () => Promise<T> {
-    let entry: { generation: number; at: number; value: Promise<T> } | null = null;
-    return () => {
-        const generation = archiveGeneration();
-        if (entry && entry.generation === generation && Date.now() - entry.at < TTL_MS) return entry.value;
-        // Taken before the queries start, so a write that lands while they run
-        // moves the generation past this entry and the next caller recomputes
+    let entry: Entry<T> | null = null;
+    let refreshing = false;
+
+    // The generation is taken before the queries start, so a write that lands
+    // while they run moves the generation past this entry
+    const start = (generation: number): Entry<T> => {
         const fresh = { generation, at: Date.now(), value: compute() };
-        entry = fresh;
         fresh.value.catch(() => {
             if (entry === fresh) entry = null;
         });
-        return fresh.value;
+        return fresh;
+    };
+
+    return () => {
+        const generation = archiveGeneration();
+        if (!entry || entry.generation !== generation) {
+            entry = start(generation);
+            return entry.value;
+        }
+        if (Date.now() - entry.at >= TTL_MS && !refreshing) {
+            refreshing = true;
+            const next = start(generation);
+            next.value
+                .then(
+                    () => {
+                        // Unless a write has moved on past it meanwhile
+                        if (entry?.generation === next.generation) entry = next;
+                    },
+                    () => {} // keep serving the old counts; the next request tries again
+                )
+                .finally(() => {
+                    refreshing = false;
+                });
+        }
+        return entry.value;
     };
 }
 

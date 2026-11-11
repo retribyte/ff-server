@@ -188,7 +188,8 @@ data. Don't add a species table back.
   every write to `Message`, `StoryLine`, `StorySegment` or a parent whose delete
   cascades to them bumps a counter (`src/utils/archive-generation.ts`), again when such
   a transaction finishes, and the cache recomputes on the next read. Writes from
-  outside this process (psql, `prisma/scripts/`) are only seen after a 5-minute TTL.
+  outside this process (psql, `prisma/scripts/`) show up within 5 minutes: past
+  that TTL a request gets the cached counts at once and starts a background recount.
   If you add a model whose writes change archive text or who speaks it, add it to
   `ARCHIVE_MODELS`. Use the `prisma` from `src/db.ts`; a client of your own would
   bypass the hook.
