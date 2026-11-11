@@ -190,15 +190,22 @@ model Message {
   @@map("messages")
 }
 
+// A margin note on a transcript message or on a story line: exactly one of
+// the two (the commentaries_one_target check, prisma/prod-sql). A story line's
+// notes go with it when it's deleted; a story revision moves them to the new
+// line first (replaceStoryContent).
 model Commentary {
-  id                  Int     @id @unique @default(autoincrement())
-  creator             User    @relation(fields: [creatorId], references: [id])
+  id                  Int        @id @unique @default(autoincrement())
+  creator             User       @relation(fields: [creatorId], references: [id])
   creatorId           Int
-  message             Message @relation(fields: [messageEpisodeTitle, messageNo], references: [episodeTitle, messageNo])
-  messageEpisodeTitle String
-  messageNo           Int
+  message             Message?   @relation(fields: [messageEpisodeTitle, messageNo], references: [episodeTitle, messageNo], onDelete: Restrict) // as before it was optional
+  messageEpisodeTitle String?
+  messageNo           Int?
+  storyLine           StoryLine? @relation(fields: [storyLineId], references: [id], onDelete: Cascade)
+  storyLineId         Int?
   content             String
 
+  @@index([storyLineId])
   @@map("commentaries")
 }
 
@@ -249,28 +256,29 @@ model StoryChapter {
 }
 
 model StoryLine {
-  id          Int            @id @unique @default(autoincrement())
-  chapter     StoryChapter   @relation(fields: [chapterId], references: [id])
-  chapterId   Int
-  line_no     Int // 1-based within chapter; deep-link anchor
-  type        StoryLineType
-  text        String
+  id           Int            @id @unique @default(autoincrement())
+  chapter      StoryChapter   @relation(fields: [chapterId], references: [id])
+  chapterId    Int
+  line_no      Int // 1-based within chapter; deep-link anchor
+  type         StoryLineType
+  text         String
   // The line's voice, the same rule as Message: a character alone, a character
   // shown as one of its personas, or an NPC persona alone (characterId null).
   // The story_lines_persona_match trigger (prisma/scripts/create-triggers.ts)
   // keeps the persona on the line's character.
-  character   Character?     @relation(fields: [characterId], references: [id], onDelete: Restrict) // same as Message.character
-  characterId Int?
-  persona     Persona?       @relation(fields: [personaId], references: [id], onDelete: Restrict)
-  personaId   Int?
+  character    Character?     @relation(fields: [characterId], references: [id], onDelete: Restrict) // same as Message.character
+  characterId  Int?
+  persona      Persona?       @relation(fields: [personaId], references: [id], onDelete: Restrict)
+  personaId    Int?
   // Sub-paragraph dialogue spans for novel-style prose (NARRATION lines only).
   // Their texts concatenate verbatim to exactly `text`, so search/scan/
   // highlight keep working on `text`.
-  segments    StorySegment[]
+  segments     StorySegment[]
   // IMAGE lines: the booru.vortox.space post that holds the picture, and its
   // file URL, resolved from the booru at import (served via the image proxy)
-  booruId     Int?
-  imageUrl    String?
+  booruId      Int?
+  imageUrl     String?
+  commentaries Commentary[]
 
   @@unique([chapterId, line_no])
   @@index([personaId])
@@ -341,6 +349,17 @@ enum JobStatus {
   RUNNING
   SUCCEEDED
   FAILED
+}
+
+// Small server-kept state an admin feature needs between runs, by key. The
+// Vortox Machina import ("vm-import") keeps the last Discord message it
+// appended and the speaker codes it has learned (src/jobs/vmImport.ts).
+model AppSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("app_settings")
 }
 
 // One run of an admin job (the /admin page): what ran, who ran it, its log

@@ -6,6 +6,8 @@ import { parseImportMeta } from "./import-meta.js";
 import { parsePublishedDate } from "./published-date.js";
 import { IMPORT_TX_OPTIONS, ImportConflictError } from "../utils/import.js";
 import { storyContentHash } from "./story-hash.js";
+import { targetedLines, targetsCharacterVoice } from "./voice-targets.js";
+import { placeNote } from "./note-carry.js";
 import booru from "../utils/booru.js";
 import { deleteNpcPersonasIfUnused } from "../speaker/speaker.service.js";
 import {
@@ -291,6 +293,12 @@ async function deleteChapter(slug: string, chapterNo: number): Promise<void> {
     });
 }
 
+/** A story line's margin notes as the reader gets them, oldest first. */
+const LINE_NOTES = {
+    orderBy: { id: "asc" as const },
+    select: { id: true, content: true, creatorId: true, creator: { select: { username: true } } },
+};
+
 async function getLinesByChapter(slug: string, chapterNo: number, page = 1, limit = 100, search?: string) {
     const chapter = await requireChapter(slug, chapterNo);
     const skip = (page - 1) * limit;
@@ -302,7 +310,8 @@ async function getLinesByChapter(slug: string, chapterNo: number, page = 1, limi
             orderBy: { line_no: "asc" },
             skip,
             take: limit,
-            include: LINE_INCLUDE,
+            // the reader shows each line's margin notes in its rail
+            include: { ...LINE_INCLUDE, commentaries: LINE_NOTES },
         }),
         prisma.storyLine.count({ where }),
     ]);
@@ -687,8 +696,8 @@ type VoiceAssignment = {
  */
 async function assignVoices(slug: string, assignments: VoiceAssignment[]) {
     validateAssignments(assignments);
-    if (linksCharacters(assignments)) {
-        throw new Error("Linking a character goes through assignVoicesTx (logged as a job)");
+    if (linksCharacters(assignments) || (await revoicesCharacters(slug, assignments))) {
+        throw new Error("Linking a character, or changing one's quote, goes through assignVoicesTx (logged as a job)");
     }
     const story = await prisma.story.findUnique({ where: { slug }, select: { id: true } });
     if (!story) return null;
@@ -700,6 +709,25 @@ function validateAssignments(assignments: VoiceAssignment[]) {
         throw new Error("assignments must be a non-empty array");
     }
     if (assignments.length > 500) throw new Error("at most 500 assignments per request");
+}
+
+/**
+ * True when any assignment re-voices a line or segment a character speaks now
+ * (admin-only, and logged as a job whatever it becomes). null: no such story.
+ */
+async function revoicesCharacters(slug: string, assignments: unknown): Promise<boolean | null> {
+    const story = await prisma.story.findUnique({ where: { slug }, select: { id: true } });
+    if (!story) return null;
+    const pairs = targetedLines(assignments);
+    if (pairs.length === 0) return false;
+    const lines = await prisma.storyLine.findMany({
+        where: { chapter: { storyId: story.id }, OR: pairs.map((p) => ({ line_no: p.lineNo, chapter: { chapter_no: p.chapterNo } })) },
+        select: { line_no: true, characterId: true, chapter: { select: { chapter_no: true } }, segments: { select: { position: true, characterId: true } } },
+    });
+    return targetsCharacterVoice(
+        assignments,
+        lines.map((l) => ({ chapterNo: l.chapter.chapter_no, lineNo: l.line_no, characterId: l.characterId, segments: l.segments }))
+    );
 }
 
 /** True when any assignment links a character or a persona by id (logged as a job) */
@@ -1004,21 +1032,63 @@ async function replaceStoryContent(
         // NPC fragments someone already named keep their names across a revision
         const voicesCarried = carryVoices(ordered, await knownVoices(tx, story.id));
         const before = await personasUsedBy(tx, { chapter: { storyId: story.id } });
+        // Margin notes go with their lines when those are deleted: keep them
+        // (ids and all) and put each back on the new line for its old one
+        const notes = await tx.commentary.findMany({
+            where: { storyLine: { chapter: { storyId: story.id } } },
+            select: {
+                id: true,
+                creatorId: true,
+                content: true,
+                storyLine: { select: { line_no: true, text: true, chapter: { select: { chapter_no: true } } } },
+            },
+        });
         await tx.storyLine.deleteMany({ where: { chapter: { storyId: story.id } } });
         await tx.storyChapter.deleteMany({ where: { storyId: story.id } });
         const { lineCount, npcsCreated } = await insertChapters(tx, story.id, ordered);
+        const { notesKept, notesMoved } = await restoreNotes(tx, story.id, notes);
         const npcsDeleted = await deleteNpcPersonasIfUnused(tx, before);
         await tx.story.update({ where: { id: story.id }, data: { contentHash, importMeta: importMeta ?? undefined, publishedDate } });
         const full = await tx.story.findUniqueOrThrow({
             where: { id: story.id },
             include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
         });
-        return { ...full, lineCount, voicesCarried, npcsCreated, npcsDeleted };
+        return { ...full, lineCount, voicesCarried, npcsCreated, npcsDeleted, notesKept, notesMoved };
     }, IMPORT_TX_OPTIONS);
+}
+
+/**
+ * Writes a revision's saved margin notes back onto the story's new lines
+ * (placeNote picks each one's line). notesMoved counts the ones whose line
+ * text changed, so they now sit on the nearest line instead.
+ */
+async function restoreNotes(
+    tx: Prisma.TransactionClient,
+    storyId: number,
+    notes: { id: number; creatorId: number; content: string; storyLine: { line_no: number; text: string; chapter: { chapter_no: number } } | null }[]
+): Promise<{ notesKept: number; notesMoved: number }> {
+    if (notes.length === 0) return { notesKept: 0, notesMoved: 0 };
+    const lines = (
+        await tx.storyLine.findMany({
+            where: { chapter: { storyId } },
+            select: { id: true, line_no: true, text: true, chapter: { select: { chapter_no: true } } },
+        })
+    ).map((l) => ({ id: l.id, chapterNo: l.chapter.chapter_no, lineNo: l.line_no, text: l.text }));
+    let notesMoved = 0;
+    const rows = notes.flatMap((note) => {
+        const spot = note.storyLine!;
+        const placed = placeNote({ chapterNo: spot.chapter.chapter_no, lineNo: spot.line_no, text: spot.text }, lines);
+        if (!placed) return []; // a revision always has lines (prepareChapters), so this never drops one
+        if (!placed.sameText) notesMoved++;
+        return [{ id: note.id, creatorId: note.creatorId, content: note.content, storyLineId: placed.lineId }];
+    });
+    await tx.commentary.createMany({ data: rows });
+    return { notesKept: rows.length, notesMoved };
 }
 
 export default {
     assignVoices,
+    revoicesCharacters,
     assignVoicesTx,
     carryStoryVoices,
     linksCharacters,

@@ -218,7 +218,8 @@ async function loadExisting(tx: Tx, seasonTitle: string, episode_no: number): Pr
             select: { id: true, creatorId: true, messageNo: true, content: true },
         }),
     ]);
-    return { ...episode, messages, notes };
+    // a note on a message always has its messageNo (the commentaries_one_target check)
+    return { ...episode, messages, notes: notes.map((n) => ({ ...n, messageNo: n.messageNo! })) };
 }
 
 /** An existing episode keeps its slug (links to it keep working) unless the file renames it or names one. */

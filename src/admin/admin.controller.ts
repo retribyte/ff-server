@@ -5,6 +5,8 @@ import { importJson } from "../utils/import.js";
 import { JOBS, EPISODE_IMPORT_JOB } from "../jobs/registry.js";
 import { runJob, JobBusyError, type JobContext } from "../jobs/runner.js";
 import { parsePayloads, previewEpisodeImport, importEpisodes } from "../jobs/episodeImport.js";
+import { VM_IMPORT_JOB, previewVmImport, runVmImport, vmImportStatus } from "../jobs/vmImport.js";
+import { messagesFromExport } from "../jobs/vm-parse.js";
 import { logger, queryLogs, type Level } from "../utils/logger.js";
 import {
     MESSAGE_REASSIGN_JOB,
@@ -181,6 +183,51 @@ const initializeAdminRoutes = (): Router => {
     // (whole lines and in-paragraph quotes) between a character and/or plain speaker text; answers with
     // the JobRun, whose log lists every change with its before-values. A dry run is the preview.
     router.post("/admin/story-voices/reassign", authenticate, isAdmin, fixRoute(STORY_VOICE_JOB, parseStoryVoice, reassignStoryVoices));
+
+    // GET /api/admin/vm-import: where the last Vortox Machina import stopped (its
+    // newest Discord message) and the speaker codes it knows
+    router.get("/admin/vm-import", authenticate, isAdmin, async (_req: Request, res: Response) => {
+        try {
+            res.json({ status: "success", data: await vmImportStatus() });
+        } catch (error) {
+            logger.caught("VM import status error", error);
+            res.status(500).json({ status: "error", message: "Failed to read the import status" });
+        }
+    });
+
+    // POST /api/admin/vm-import/preview {export, speakers?}: what a DiscordChatExporter JSON
+    // export of #cyoa-vm would append (entries after the last import), and its speaker codes,
+    // with null for the ones still to pick; writes nothing
+    router.post("/admin/vm-import/preview", authenticate, isAdmin, importJson, async (req: Request, res: Response) => {
+        try {
+            const messages = messagesFromExport(req.body?.export);
+            res.json({ status: "success", data: await previewVmImport(messages, req.body?.speakers) });
+        } catch (error) {
+            res.status(400).json({ status: "error", message: (error as Error).message });
+        }
+    });
+
+    // POST /api/admin/vm-import {export, speakers?, dryRun?}: append those entries to the "vm"
+    // story in one transaction (a dry run rolls back); answers with the JobRun, whose log lists
+    // every line. speakers: {code: {characterId, personaId?} | {npc: name | null}} for codes the
+    // import doesn't know yet (remembered for next time)
+    router.post("/admin/vm-import", authenticate, isAdmin, importJson, async (req: Request, res: Response) => {
+        let messages;
+        try {
+            messages = messagesFromExport(req.body?.export);
+        } catch (error) {
+            return res.status(400).json({ status: "error", message: (error as Error).message });
+        }
+        try {
+            const run = await runJob(VM_IMPORT_JOB, userId(req), req.body?.dryRun === true, (ctx: JobContext) =>
+                runVmImport(messages, req.body?.speakers, ctx)
+            );
+            if (run.status === "FAILED") return res.status(400).json({ status: "error", message: run.summary ?? "The import failed", data: run });
+            res.json({ status: "success", data: run });
+        } catch (error) {
+            sendRunError(res, error);
+        }
+    });
 
     return router;
 };

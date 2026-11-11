@@ -136,8 +136,9 @@ const initializeStoryRoutes = (): Router => {
     // with one of its personaIds) or an NPC personaId picks a voice by id, which
     // runs as a 'story-voice-name' job in the admin History. Only fragments that
     // already have a voice can change, so text and narration can't. NPC personas
-    // left with no lines are deleted. Story authors or admins; returns the
-    // updated lines.
+    // left with no lines are deleted. Story authors or admins, except that a
+    // quote a character already speaks is admins' only (and always logged as a
+    // job, whatever it becomes); returns the updated lines.
     router.patch("/stories/:slug/voices", authenticate, async (req: Request, res: Response) => {
         const { slug } = req.params;
         try {
@@ -146,16 +147,22 @@ const initializeStoryRoutes = (): Router => {
             if (!allowed) {
                 return res.status(403).json({ status: "error", message: "Only this story's authors or an admin can change its voices" });
             }
-            // Linking a real character changes attribution, so it's recorded in
-            // the admin History like the other data fixes (story authors and
-            // admins, the user's call 2026-11-09)
-            if (storyService.linksCharacters(req.body?.assignments)) {
+            // Changing a quote a character already speaks is for admins only
+            // (the user's call, 2026-11-11)
+            const fromCharacter = await storyService.revoicesCharacters(slug, req.body?.assignments);
+            if (fromCharacter && (req.user as { role: string }).role !== "ADMIN") {
+                return res.status(403).json({ status: "error", message: "Only an admin can change who speaks a character's quote" });
+            }
+            // Linking a real character, or changing one's quote, changes
+            // attribution, so it's recorded in the admin History like the other
+            // data fixes (linking: story authors and admins, the user's call 2026-11-09)
+            if (fromCharacter || storyService.linksCharacters(req.body?.assignments)) {
                 const story = await storyService.getStoryBySlug(slug);
                 if (!story) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
                 let updated: unknown = [];
                 const run = await runJob(STORY_VOICE_NAME_JOB, (req.user as { id: number }).id, false, async ({ tx, log }) => {
                     updated = await storyService.assignVoicesTx(tx, story.id, req.body.assignments, log);
-                    return `${story.title}: re-voiced ${(req.body.assignments as unknown[]).length} quote(s) by character or persona`;
+                    return `${story.title}: re-voiced ${(req.body.assignments as unknown[]).length} quote(s)`;
                 });
                 if (run.status === "FAILED") return res.status(400).json({ status: "error", message: run.summary ?? "Linking failed" });
                 return res.status(200).json({ status: "success", data: updated });

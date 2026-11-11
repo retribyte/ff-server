@@ -30,6 +30,19 @@ async function createCommentary(episodeTitle: string, messageNo: number, creator
     });
 }
 
+// A note on a story line, by its story slug, chapter and line number; null if no such line
+async function createStoryLineCommentary(slug: string, chapterNo: number, lineNo: number, creatorId: number, content: string) {
+    const line = await prisma.storyLine.findFirst({
+        where: { line_no: lineNo, chapter: { chapter_no: chapterNo, story: { slug } } },
+        select: { id: true },
+    });
+    if (!line) return null;
+    return await prisma.commentary.create({
+        data: { storyLineId: line.id, creatorId, content: sanitizeText(content) },
+        include: { creator: CREATOR_SELECT },
+    });
+}
+
 async function updateCommentary(id: number, content: string) {
     return await prisma.commentary.update({
         where: { id },
@@ -49,6 +62,17 @@ const NOTE_MESSAGE_INCLUDE = {
             persona: { select: { name: true } },
             player: { select: { username: true } },
             episode: { select: { title: true, slug: true, episode_no: true, seasonTitle: true, reconstructed: true } },
+        },
+    },
+    // or the story line it sits on, with its chapter and story
+    storyLine: {
+        select: {
+            line_no: true,
+            type: true,
+            text: true,
+            character: { select: { id: true, name: true, slug: true } },
+            persona: { select: { name: true } },
+            chapter: { select: { chapter_no: true, title: true, story: { select: { slug: true, title: true, seasonTitle: true } } } },
         },
     },
 } as const;
@@ -120,6 +144,7 @@ async function deleteCommentary(id: number): Promise<void> {
 export default {
     getCommentaryById,
     createCommentary,
+    createStoryLineCommentary,
     updateCommentary,
     deleteCommentary,
     getCommentariesByCreator,
