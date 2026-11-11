@@ -63,11 +63,12 @@ const initializeCharacterRoutes = (): Router => {
     // GET /api/characters: Return all characters, optionally filtered/searched (public)
     router.get("/characters", async (req: Request, res: Response) => {
         try {
-            const { search, ownerId, season } = req.query;
+            const { search, ownerId, season, lite } = req.query;
             const characters = await characterService.getAllCharacters({
                 search: search as string | undefined,
                 ownerId: ownerId ? parseInt(ownerId as string, 10) : undefined,
                 season: season as string | undefined,
+                lite: lite === "true",
             });
             res.status(200).json({ status: "success", data: characters });
         } catch (error) {

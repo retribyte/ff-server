@@ -31,9 +31,9 @@ type CharacterFilters = {
     search?: string;
     ownerId?: number;
     season?: string;
-    // limit/lite: additive, unified-/api/search-only (a narrower select
-    // shape + a result cap). Omitted by every existing caller, so their
-    // result set is otherwise unchanged.
+    // limit: a result cap (unified /api/search only). lite: a narrower
+    // select with no stats or seasons, for /api/search and pickers
+    // (GET /api/characters?lite=true).
     limit?: number;
     lite?: boolean;
 };

@@ -708,6 +708,7 @@ const spec = {
                     { name: "search", in: "query", schema: { type: "string" }, description: "Search by name" },
                     { name: "ownerId", in: "query", schema: { type: "integer" } },
                     { name: "season", in: "query", schema: { type: "string" } },
+                    { name: "lite", in: "query", schema: { type: "boolean" }, description: "\"true\" returns only id, name, slug, image, color and colorLight per character, without stats or seasons: for pickers" },
                 ],
                 responses: {
                     "200": {
