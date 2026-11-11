@@ -53,6 +53,27 @@ const initializeCommentaryRoutes = (): Router => {
         }
     );
 
+    // POST /api/stories/:slug/chapters/:chapterNo/lines/:lineNo/commentaries: add a margin note
+    // to a story line (any signed-in member, like notes on transcript lines)
+    router.post("/stories/:slug/chapters/:chapterNo/lines/:lineNo/commentaries", authenticate, async (req: Request, res: Response) => {
+        const { slug } = req.params;
+        const chapterNo = parseInt(req.params.chapterNo, 10);
+        const lineNo = parseInt(req.params.lineNo, 10);
+        if (!req.body?.content || typeof req.body.content !== "string" || !req.body.content.trim()) {
+            return res.status(400).json({ status: "error", message: "Missing commentary content" });
+        }
+        try {
+            const commentary = await commentaryService.createStoryLineCommentary(slug, chapterNo, lineNo, req.user!.id, req.body.content.trim());
+            if (!commentary) {
+                return res.status(404).json({ status: "error", message: `Line ${lineNo} of chapter ${chapterNo} in story '${slug}' not found` });
+            }
+            res.status(201).json({ status: "success", data: commentary });
+        } catch (error) {
+            logger.caught("Error creating story commentary", error);
+            res.status(500).json({ status: "error", message: "Failed to create commentary" });
+        }
+    });
+
     // PUT /api/commentaries/:id: Edit a commentary (author or admin)
     router.put("/commentaries/:id", authenticate, async (req: Request, res: Response) => {
         const id = parseInt(req.params.id, 10);

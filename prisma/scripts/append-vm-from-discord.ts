@@ -1,39 +1,28 @@
 /**
  * Append new Vortox Machina entries from the #cyoa-vm Discord channel to the
- * "vm" story's single chapter. Only the GM's (Zander's) code-block entries
- * become lines; player prompts, "@Trey" pings and parenthetical GM notes are
- * skipped (same as the original cyoa.json).
+ * "vm" story, the same import as the /admin page's (src/jobs/vmImport.ts:
+ * same parser, same remembered "last message" and speaker codes, logged in
+ * the admin History). The site takes a DiscordChatExporter JSON export; this
+ * can also read the channel through the local discord-mcp server.
  *
- *   tsx prisma/scripts/append-vm-from-discord.ts [--after <messageId>] [--apply]
- *   tsx prisma/scripts/append-vm-from-discord.ts <export.json> [--apply]
+ *   tsx prisma/scripts/append-vm-from-discord.ts [<export.json>] [--apply]
  *
- * By default it asks the local discord-mcp server (DISCORD_MCP_URL, default
+ * Without a file it asks discord-mcp (DISCORD_MCP_URL, default
  * http://localhost:8085/mcp -- the Docker container, see wiki/CLAUDE.md) for
- * messages after the cursor in data/vm-discord-cursor.json (override with
- * --after). With a DiscordChatExporter JSON path it reads that instead.
- *
- * Dry run unless --apply. Lines are appended after the current last line_no,
- * and --apply advances the cursor to the newest message seen.
+ * the messages after the last import. Dry run unless --apply. A speaker code
+ * it doesn't know yet stops it: map it once on the /admin page.
  */
-import { StoryLineType } from "@prisma/client";
+import { readFileSync } from "fs";
 import { prisma } from "../../src/db.js";
-import { findOrCreateNpcPersona } from "../../src/speaker/speaker.service.js";
-import { readFileSync, writeFileSync } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
+import { runJob } from "../../src/jobs/runner.js";
+import { VM_IMPORT_JOB, loadState, previewVmImport, runVmImport } from "../../src/jobs/vmImport.js";
+import { VM_CHANNEL_ID, messagesFromExport, type VmMessage } from "../../src/jobs/vm-parse.js";
 
 const args = process.argv.slice(2);
 const apply = args.includes("--apply");
-const afterIdx = args.indexOf("--after");
-const afterArg = afterIdx >= 0 ? args[afterIdx + 1] : undefined;
-const file = args.find((a, i) => !a.startsWith("--") && (afterIdx < 0 || i !== afterIdx + 1));
+const file = args.find((a) => !a.startsWith("--"));
 
-const CHANNEL_ID = "824134407496794162"; // #cyoa-vm
 const MCP_URL = process.env.DISCORD_MCP_URL ?? "http://localhost:8085/mcp";
-const CURSOR_FILE = join(dirname(fileURLToPath(import.meta.url)), "data/vm-discord-cursor.json");
-const GM_NAMES = new Set(["Zander", "lastingparadox"]); // nickname in exports, username from the MCP
-
-interface DiscordMsg { id: string; author: string; content: string }
 
 /** Call one tool on the streamable-HTTP MCP server (fresh session per run). */
 async function mcpSession() {
@@ -59,7 +48,7 @@ async function mcpSession() {
 }
 
 /** Parse read_messages' text format: "- (ID: n) **[author]** `ts`: ```content```" (+ optional Reply/Reactions/Attachments lines). */
-function parseMcpMessages(text: string): DiscordMsg[] {
+function parseMcpMessages(text: string): VmMessage[] {
     const head = /^- \(ID: (\d+)\) \*\*\[(.*?)\]\*\* `[^`]*`: ```/gm;
     const hits = [...text.matchAll(head)];
     return hits.map((h, i) => {
@@ -71,121 +60,38 @@ function parseMcpMessages(text: string): DiscordMsg[] {
     });
 }
 
-async function fetchNewMessages(after: string): Promise<DiscordMsg[]> {
+async function fetchNewMessages(after: string): Promise<VmMessage[]> {
     const call = await mcpSession();
-    const all: DiscordMsg[] = [];
+    const all: VmMessage[] = [];
     let cursor = after;
     for (;;) {
-        const batch = parseMcpMessages(await call("read_messages", { channelId: CHANNEL_ID, count: "100", after: cursor }));
+        const batch = parseMcpMessages(await call("read_messages", { channelId: VM_CHANNEL_ID, count: "100", after: cursor }));
         if (!batch.length) break;
         all.push(...batch);
         cursor = batch.reduce((m, x) => (BigInt(x.id) > BigInt(m) ? x.id : m), cursor);
         if (batch.length < 100) break;
     }
-    return all.sort((a, b) => (BigInt(a.id) < BigInt(b.id) ? -1 : 1));
-}
-
-// Speaker prefix -> character slug. Slugs, not ids: ids differ between the
-// dev DB, a fresh seed and prod. main() resolves them before parsing.
-const SPEAKERS: Record<string, string | "npc"> = {
-    E: "emmett_tawfeek",
-    L: "los_yelsi",
-    I: "irene",
-    W: "wes_romaw",
-    FP: "felps",
-    F: "felps",
-    S: "squorchy_vurkallus",
-    "?": "npc",
-};
-const speakerIds = new Map<string, number>(); // slug -> id, filled by main()
-
-// npcVoice: an unidentified GM voice, written as the "Unnamed NPC" persona
-interface Row { type: StoryLineType; text: string; characterId: number | null; npcVoice: boolean }
-
-function parse(content: string): Row[] {
-    const rows: Row[] = [];
-    // Split into heading / fenced-block pieces in order.
-    const re = /\*\*(.*?)\s*==>\*\*|```\n?([\s\S]*?)```/g;
-    let m: RegExpExecArray | null;
-    let last = 0;
-    while ((m = re.exec(content))) {
-        if (content.slice(last, m.index).trim()) throw new Error(`stray text: ${content.slice(last, m.index)}`);
-        last = re.lastIndex;
-        if (m[2] === undefined) {
-            rows.push({ type: StoryLineType.ACTION, text: m[1] ? `${m[1]} ⇒` : "⇒", characterId: null, npcVoice: false });
-            continue;
-        }
-        for (const para of m[2].split(/\n\s*\n/)) {
-            const lines = para.split("\n").map((l) => l.trimEnd()).filter((l) => l.trim());
-            if (!lines.length) continue;
-            const isDialogue = (l: string) => /^(FP|[EFILSW?]): /.test(l);
-            if (!lines.some(isDialogue)) {
-                rows.push({ type: StoryLineType.NARRATION, text: lines.join("\n").trim(), characterId: null, npcVoice: false });
-                continue;
-            }
-            for (const l of lines) {
-                if (isDialogue(l)) {
-                    const [, who, text] = l.match(/^(FP|[EFILSW?]): (.*)$/)!;
-                    const sp = SPEAKERS[who];
-                    rows.push({
-                        type: StoryLineType.DIALOGUE,
-                        text: text.trim(),
-                        characterId: sp === "npc" ? null : speakerIds.get(sp)!,
-                        npcVoice: sp === "npc",
-                    });
-                } else if (rows.at(-1)?.type === StoryLineType.DIALOGUE) {
-                    rows.at(-1)!.text += "\n" + l.trim();
-                } else throw new Error(`orphan line in dialogue paragraph: ${l}`);
-            }
-        }
-    }
-    if (content.slice(last).trim()) throw new Error(`trailing text: ${content.slice(last)}`);
-    return rows;
+    return all;
 }
 
 async function main() {
-    let messages: DiscordMsg[];
-    if (file) {
-        const data = JSON.parse(readFileSync(file, "utf8"));
-        messages = data.messages.map((m: any) => ({ id: m.id, author: m.author.nickname, content: m.content }));
-    } else {
-        const after = afterArg ?? (JSON.parse(readFileSync(CURSOR_FILE, "utf8")) as { lastMessageId: string }).lastMessageId;
-        messages = await fetchNewMessages(after);
-        console.log(`fetched ${messages.length} messages after ${after}`);
+    const messages = file
+        ? messagesFromExport(JSON.parse(readFileSync(file, "utf8")))
+        : await fetchNewMessages((await loadState()).lastMessageId);
+    const preview = await previewVmImport(messages, undefined);
+    console.log(`${preview.entries} new GM entries, ${preview.lineCount} lines, after message ${preview.lastMessageId} (${preview.lastMessageAt})`);
+    for (const c of preview.codes) console.log(`  ${c.code}: ${c.voice ?? "UNKNOWN"} (${c.count} lines, e.g. ${JSON.stringify(c.example)})`);
+    if (preview.unknown.length) {
+        throw new Error(`unknown speaker code(s) ${preview.unknown.join(", ")}: map them on the /admin page's Vortox Machina import, then rerun`);
     }
-    const slugs = Object.values(SPEAKERS).filter((s) => s !== "npc");
-    for (const c of await prisma.character.findMany({ where: { slug: { in: slugs } }, select: { id: true, slug: true } })) {
-        speakerIds.set(c.slug, c.id);
-    }
-    const missing = slugs.filter((s) => !speakerIds.has(s));
-    if (missing.length) throw new Error(`no character for speaker slug(s): ${[...new Set(missing)].join(", ")}`);
-    const rows: Row[] = [];
-    for (const msg of messages) {
-        if (!GM_NAMES.has(msg.author) || !msg.content.includes("```")) continue;
-        rows.push(...parse(msg.content));
-    }
-    const chapter = await prisma.storyChapter.findFirstOrThrow({
-        where: { story: { slug: "vm" } },
-        orderBy: { chapter_no: "desc" },
-    });
-    const max = await prisma.storyLine.aggregate({ where: { chapterId: chapter.id }, _max: { line_no: true } });
-    const start = (max._max.line_no ?? 0) + 1;
-    const hist: Record<string, number> = {};
-    for (const r of rows) hist[r.type] = (hist[r.type] ?? 0) + 1;
-    console.log(`${rows.length} new lines, starting at line_no ${start}`, hist);
-    if (!apply) {
-        rows.slice(0, 6).forEach((r, i) => console.log(start + i, r.type, r.characterId, r.npcVoice, JSON.stringify(r.text.slice(0, 80))));
-        console.log("dry run; pass --apply to write");
-        return;
-    }
-    const unnamed = rows.some((r) => r.npcVoice) ? (await findOrCreateNpcPersona(prisma, "Unnamed NPC")).persona.id : null;
-    await prisma.storyLine.createMany({
-        data: rows.map(({ npcVoice, ...r }, i) => ({ chapterId: chapter.id, line_no: start + i, ...r, personaId: npcVoice ? unnamed : null })),
-    });
-    console.log("written; run `npm run export:vm-appended` and commit, so the seed has these lines too");
-    if (!file && messages.length) {
-        writeFileSync(CURSOR_FILE, JSON.stringify({ lastMessageId: messages.at(-1)!.id }, null, 4) + "\n");
-        console.log(`cursor -> ${messages.at(-1)!.id}`);
-    }
+    const run = await runJob(VM_IMPORT_JOB, null, !apply, (ctx) => runVmImport(messages, undefined, ctx));
+    console.log(run.log);
+    console.log(`${run.status}: ${run.summary}`);
+    if (run.status === "FAILED") process.exitCode = 1;
 }
-main().catch((e) => { console.error(e); process.exitCode = 1; }).finally(() => prisma.$disconnect());
+main()
+    .catch((e) => {
+        console.error(e instanceof Error ? e.message : e);
+        process.exitCode = 1;
+    })
+    .finally(() => prisma.$disconnect());
