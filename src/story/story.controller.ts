@@ -109,6 +109,26 @@ const initializeStoryRoutes = (): Router => {
         }
     });
 
+    // PATCH /api/stories/:slug/published-date: set or clear the story's real-world
+    // publication date. Body { publishedDate: "YYYY-MM-DD" | null }. The one
+    // metadata write open to a story's authors (besides admins); everything else
+    // on PUT /stories/:slug stays admin. Returns { slug, publishedDate }.
+    router.patch("/stories/:slug/published-date", authenticate, async (req: Request, res: Response) => {
+        const { slug } = req.params;
+        try {
+            const allowed = await storyService.isAuthorOrAdmin(slug, req.user as { id: number; role: string });
+            if (allowed === null) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
+            if (!allowed) {
+                return res.status(403).json({ status: "error", message: "Only this story's authors or an admin can change its published date" });
+            }
+            const updated = await storyService.setPublishedDate(slug, req.body?.publishedDate);
+            if (updated === null) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
+            res.status(200).json({ status: "success", data: updated });
+        } catch (error: any) {
+            res.status(400).json({ status: "error", message: error.message });
+        }
+    });
+
     // PATCH /api/stories/:slug/voices: re-voice quotes as you read.
     // Body { assignments: [{ chapterNo, lineNo, segment?, speaker? | characterId?, personaId? }] }:
     // segment (0-based) picks a span of a NARRATION line; omit it for a whole
