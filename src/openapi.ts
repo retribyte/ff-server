@@ -1888,7 +1888,8 @@ const spec = {
                 summary: "Atomically replace a story's chapters and lines with a revised draft (story authors or admins)",
                 description:
                     "One transaction: deletes every chapter and line, then writes the new ones (numbered 1..n per chapter). " +
-                    "The story's id, slug, title, authors, season, blurb and theme are kept. Line numbers may shift. Body limit 10mb.",
+                    "The story's id, slug, title, authors, season, blurb and theme are kept, and so is its published date unless the body " +
+                    "sends `publishedDate`. Line numbers may shift. Body limit 10mb.",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
                 requestBody: {
@@ -1899,6 +1900,12 @@ const spec = {
                                 type: "object",
                                 required: ["chapters"],
                                 properties: {
+                                    publishedDate: {
+                                        type: "string",
+                                        format: "date",
+                                        nullable: true,
+                                        description: "YYYY-MM-DD. Omit it to keep the story's date; null clears it.",
+                                    },
                                     importMeta: {
                                         type: "object",
                                         nullable: true,
@@ -1938,6 +1945,37 @@ const spec = {
                     "403": { description: "Not one of this story's authors, and not an admin" },
                     "404": { description: "No story with that slug" },
                     "409": { description: "The draft's text is identical to a different story — nothing was changed" },
+                },
+            },
+        },
+        "/stories/{slug}/published-date": {
+            patch: {
+                tags: ["Stories"],
+                summary: "Set or clear a story's real-world publication date (story authors or admins)",
+                description:
+                    "A calendar date with no time, stored as midnight UTC: read it back as the first 10 characters of `publishedDate`. " +
+                    "`null` clears it (a story still in progress has none). The one story metadata write open to a story's authors; " +
+                    "the rest of PUT /stories/{slug} stays admin-only.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["publishedDate"],
+                                properties: { publishedDate: { type: "string", format: "date", nullable: true, example: "2026-11-03" } },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "{ slug, publishedDate }" },
+                    "400": { description: "Not a real YYYY-MM-DD date (or null) — nothing was changed" },
+                    "401": { description: "Unauthorized" },
+                    "403": { description: "Not one of this story's authors, and not an admin" },
+                    "404": { description: "No story with that slug" },
                 },
             },
         },

@@ -220,8 +220,16 @@ data. Don't add a species table back.
     shelf, with no drafts; the site's `/import` previews the story with the
     real reader first. Replacing a story's text (`PUT .../import`) and
     re-voicing its quotes are for its **authors** and admins
-    (`storyService.isAuthorOrAdmin`). Every other story write (metadata,
-    delete, chapter/line edits) stays `isAdmin`. Members get only
+    (`storyService.isAuthorOrAdmin`), and so is the story's **published date**
+    (`PATCH /stories/:slug/published-date`, `{publishedDate: "YYYY-MM-DD"|null}`,
+    the user's call 2026-11-10; null = unpublished/in progress). Every other
+    story write (metadata, delete, chapter/line edits) stays `isAdmin`.
+    `publishedDate` is a calendar date stored as midnight UTC
+    (`src/story/published-date.ts` parses it strictly; junk is a 400): clients
+    must show the first 10 characters of the ISO string, never format it in
+    local time (that reads a day early in the Americas). A `PUT .../import`
+    revision sets it when the body has `publishedDate` (null clears) and keeps
+    the stored one when it's absent. Members get only
     `{id, username, icon}` from `GET /users`, for the author picker.
   - `PUT /api/stories/:slug/import` is the revision path: `{chapters}` replaces
     every chapter and line in one transaction, keeping the story row (id,

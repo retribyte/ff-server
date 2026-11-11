@@ -3,6 +3,7 @@ import { prisma } from "../db.js";
 import { direction, seasonOrderKeys, type SearchOptions } from "../search/search-options.js";
 import { SLUG_PATTERN } from "../utils/slug.js";
 import { parseImportMeta } from "./import-meta.js";
+import { parsePublishedDate } from "./published-date.js";
 import { IMPORT_TX_OPTIONS, ImportConflictError } from "../utils/import.js";
 import { storyContentHash } from "./story-hash.js";
 import booru from "../utils/booru.js";
@@ -180,6 +181,7 @@ function validateStoryData(data: StoryData, requireAll: boolean) {
     if (data.canon !== undefined && typeof data.canon !== "boolean") {
         throw new Error("canon must be true or false");
     }
+    parsePublishedDate(data.publishedDate); // throws on anything but YYYY-MM-DD, null or ""
 }
 
 function authorRefs(ids: unknown): { id: number }[] {
@@ -209,7 +211,7 @@ async function createStory(data: StoryData) {
             title: data.title,
             blurb: data.blurb ?? null,
             authors: data.authorIds ? { connect: authorRefs(data.authorIds) } : undefined,
-            publishedDate: data.publishedDate ? new Date(data.publishedDate) : null,
+            publishedDate: parsePublishedDate(data.publishedDate) ?? null,
             themeColor: data.themeColor ?? null,
             themeColor2: data.themeColor2 ?? null,
             format: data.format ?? undefined,
@@ -231,9 +233,7 @@ async function updateStory(slug: string, data: Partial<StoryData>) {
             title: data.title,
             blurb: data.blurb,
             authors: data.authorIds !== undefined ? { set: authorRefs(data.authorIds) } : undefined,
-            publishedDate: data.publishedDate !== undefined
-                ? (data.publishedDate ? new Date(data.publishedDate) : null)
-                : undefined,
+            publishedDate: parsePublishedDate(data.publishedDate),
             themeColor: data.themeColor,
             themeColor2: data.themeColor2,
             format: data.format,
@@ -780,6 +780,24 @@ async function isAuthorOrAdmin(slug: string, user: { id: number; role: string })
     return user.role === "ADMIN" || story.authors.some((a) => a.id === user.id);
 }
 
+/**
+ * Sets (or, with null, clears) a story's real-world publication date. The one
+ * story metadata write open to its authors (the user's call, 2026-11-10); the
+ * rest of PUT /stories/:slug stays admin. Throws on a malformed date.
+ */
+async function setPublishedDate(slug: string, value: unknown) {
+    if (value === undefined) throw new Error("publishedDate is required (YYYY-MM-DD, or null to clear it)");
+    const publishedDate = parsePublishedDate(value) ?? null;
+    const story = await prisma.story.findUnique({ where: { slug }, select: { id: true } });
+    if (!story) return null;
+    const updated = await prisma.story.update({
+        where: { id: story.id },
+        data: { publishedDate },
+        select: { slug: true, publishedDate: true },
+    });
+    return updated;
+}
+
 type ImportChapter = { chapter_no: number; title?: string | null; lines: LineData[] };
 type StoryImport = { story: StoryData; chapters: ImportChapter[]; importMeta?: unknown };
 
@@ -862,7 +880,7 @@ async function importStory(body: StoryImport) {
                 title: story.title,
                 blurb: story.blurb ?? null,
                 authors: story.authorIds ? { connect: authorRefs(story.authorIds) } : undefined,
-                publishedDate: story.publishedDate ? new Date(story.publishedDate) : null,
+                publishedDate: parsePublishedDate(story.publishedDate) ?? null,
                 themeColor: story.themeColor ?? null,
                 themeColor2: story.themeColor2 ?? null,
                 format: story.format ?? undefined,
@@ -962,8 +980,13 @@ async function updateLine(slug: string, chapterNo: number, lineNo: number, data:
  * Line numbers restart at 1 per chapter, so deep links into the story may
  * shift; nothing else hangs off story lines.
  */
-async function replaceStoryContent(slug: string, body: { chapters: ImportChapter[]; importMeta?: unknown }) {
+async function replaceStoryContent(
+    slug: string,
+    body: { chapters: ImportChapter[]; importMeta?: unknown; publishedDate?: string | null }
+) {
     const { ordered, contentHash } = prepareChapters(body?.chapters);
+    // Sent: set it (null clears it). Absent: the story keeps the date it has
+    const publishedDate = parsePublishedDate(body?.publishedDate);
     // A revision from a Google Doc updates the remembered color map; one from
     // a CLI .json (no importMeta) leaves it as it was
     const importMeta = parseImportMeta(body?.importMeta);
@@ -987,7 +1010,7 @@ async function replaceStoryContent(slug: string, body: { chapters: ImportChapter
         await tx.storyChapter.deleteMany({ where: { storyId: story.id } });
         const { lineCount, npcsCreated } = await insertChapters(tx, story.id, ordered);
         const npcsDeleted = await deleteNpcPersonasIfUnused(tx, before);
-        await tx.story.update({ where: { id: story.id }, data: { contentHash, importMeta: importMeta ?? undefined } });
+        await tx.story.update({ where: { id: story.id }, data: { contentHash, importMeta: importMeta ?? undefined, publishedDate } });
         const full = await tx.story.findUniqueOrThrow({
             where: { id: story.id },
             include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
@@ -1002,6 +1025,7 @@ export default {
     carryStoryVoices,
     linksCharacters,
     isAuthorOrAdmin,
+    setPublishedDate,
     getAllStories,
     getStoryBySlug,
     createStory,
