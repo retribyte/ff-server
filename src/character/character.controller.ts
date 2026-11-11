@@ -21,7 +21,7 @@ function mapPersonaError(error: any): { status: number; message: string } {
             return { status: 404, message: "Persona not found" };
         }
         if (error.code === "P2003" || error.code === "P2014") {
-            return { status: 400, message: "Cannot delete persona: messages still reference it" };
+            return { status: 409, message: "Cannot delete persona: archive lines or story quotes still use it" };
         }
     }
     return { status: 400, message: error.message ?? "Invalid persona data" };

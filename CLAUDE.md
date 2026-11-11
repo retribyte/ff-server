@@ -52,10 +52,11 @@ data. Don't add a species table back.
   `/api/search`'s full-text search (Prisma has no syntax for expression
   indexes) — run `npm run db:search-indexes` after every `db push` too; it's
   idempotent and safe to re-run. Same for `npm run db:triggers`
-  (`prisma/scripts/create-triggers.ts`): the trigger that keeps a message's
-  persona on that message's character (null == null for NPC lines), the one
-  that freezes a used persona's character, and the partial unique index on
-  NPC persona names. None of these are in the schema.
+  (`prisma/scripts/create-triggers.ts`): the triggers that keep the persona of
+  a message, story line or story segment on that row's character (null ==
+  null for NPC lines), the one that freezes a used persona's character, and
+  the partial unique index on NPC persona names. None of these are in the
+  schema; prod gets them from the `prisma/prod-sql/` file that adds them.
 - **Schema changes `db push` would lose data on** ship as a one-shot SQL
   script in `prisma/scripts/`, run against an *existing* DB **before** `db push`
   (fresh DBs just `db push` + seed). Check for unapplied ones whenever you
@@ -67,6 +68,11 @@ data. Don't add a species table back.
     has an `authorId` column. Afterwards, `npm run backfill:story-authors`
     sets each story's authors from its manuscript's `authors:` frontmatter
     (re-runnable).
+  - `prisma/prod-sql/202611102208_story-voices-as-personas.sql` (2026-11):
+    story voices become personas (`StoryLine.personaId`, the
+    `story_segments` table). Needed if `story_segments` doesn't exist: run it
+    *instead of* `db push` for that change (`psql -1 -f`), because it copies
+    the old `speaker`/`npcVoice`/`segments` JSON over, which `db push` won't.
 
   Run with `docker exec -i ff-server-db-1 psql -U <user> <db> < prisma/scripts/<script>.sql`,
   then `db push`, `prisma generate`, `npm run db:search-indexes`,
@@ -100,16 +106,16 @@ data. Don't add a species table back.
     attribution. Owners may still stamp personas onto their own character's
     lines (`.../personas/apply`, owner-or-admin): that's presentation, not a
     message change. Don't add member write paths to archive data, and watch
-    for indirect ones: `Message.character`/`StoryLine.character` are
-    `onDelete: Restrict`, and `deleteCharacter` also refuses (409) when a
-    character appears in `StoryLine.segments` JSON, which has no FK.
+    for indirect ones: `Message`, `StoryLine` and `StorySegment` reference
+    their character and persona `onDelete: Restrict`, so `deleteCharacter`
+    and persona deletes refuse (409) anything the archive uses.
   - **NPC personas** (`Persona.characterId` null) voice one-off speakers;
     their lines have no character. Moving voices between characters and
     NPCs goes through `src/speaker/speaker.service.ts` (demote, promote,
     merge, rename; admin endpoints under `/api/admin/speakers/`, each run as a
     `speaker-*` job so it's in the admin History), which
-    rewrites messages, story lines and `segments` JSON together in one
-    transaction. Don't hand-roll `updateMany`s for this: the segments JSON is
+    rewrites messages, story lines and story segments together in one
+    transaction. Don't hand-roll `updateMany`s for this: the story tables are
     easy to miss. `seed-npc-personas.ts` applies the reviewed
     `seed-data/npc-speakers.csv` through the same functions (`--dry-run`
     rolls back).
@@ -212,8 +218,8 @@ data. Don't add a species table back.
     (`POST /stories/convert`) and imports, and a member is always credited
     among the authors (the route adds them). Stories go straight to the
     shelf, with no drafts; the site's `/import` previews the story with the
-    real reader first. Replacing a story's text (`PUT .../import`) and naming
-    its NPC voices are for its **authors** and admins
+    real reader first. Replacing a story's text (`PUT .../import`) and
+    re-voicing its quotes are for its **authors** and admins
     (`storyService.isAuthorOrAdmin`). Every other story write (metadata,
     delete, chapter/line edits) stays `isAdmin`. Members get only
     `{id, username, icon}` from `GET /users`, for the author picker.
@@ -223,18 +229,34 @@ data. Don't add a species table back.
     `chapter_no` 0 is allowed (a preface before Chapter 1). Unnamed NPC voice
     fragments in the revision (segment `npc: true` / line `npcVoice: true`, no
     speaker) take the voice their text already had, matched by occurrence;
-    placeholder voices ("NPC", "?", "Unknown") aren't carried.
+    placeholder voices ("NPC", "?", "Unknown", "Unnamed NPC") aren't carried.
+    `POST /stories/:slug/voices/carry` returns a draft so filled, without
+    writing, so the importer pre-fills its naming step (the user's call
+    2026-11-10). Any NPC fragment still unnamed rejects the import or revision.
   - `Story.importMeta` (`src/story/import-meta.ts`): the `{format, colors}`
     a Google Doc import was converted with. Both import routes take it as an
     optional top-level `importMeta` and store it. A PUT without it keeps the
     stored one. `GET /stories/:slug` returns it, and the site's docx form
     pre-fills a revision's colors from it, so only new colors need a pick.
-  - **NPC voices**: `PATCH /api/stories/:slug/voices` names or un-names NPC
-    fragments (authors or admins). It can only touch NPC-flagged fragments,
-    never text. A `characterId` changes attribution (the quote becomes that
-    character's, a logged `story-voice-name` job; authors and admins, the
-    user's call 2026-11-09). NPC voices are plain text, never
-    NPC `Persona` rows (the user's call): story NPCs aren't archive speakers.
+  - **Story voices are personas** (the user's call 2026-11-10, reversing the
+    earlier "story NPCs are plain text"): a story line or segment has
+    `characterId` + `personaId` under the message rule (character alone,
+    character as one of its personas, or an NPC persona alone), so a persona
+    restyles story quotes exactly as it restyles messages. `src/story/story-voices.ts`
+    resolves what clients send: ids, or `speaker` as an NPC persona by name,
+    found or created by **any importing member** (a deliberate permission,
+    whatever the design doc says). Authors may pick any character's
+    personas. Unnamed NPC voices no longer exist in the archive: gray text
+    must be named (or given a character) before upload. An NPC persona that
+    a revision, re-voice or delete leaves with no lines anywhere is deleted
+    (only those the operation released, never NPCs made ahead of use).
+    `PATCH /api/stories/:slug/voices` re-voices fragments that already have a
+    voice (never narration, never text); a by-id voice is a logged
+    `story-voice-name` job. Lines are served with `persona` inline and, for
+    one release, the derived `speaker`/`npcVoice`/`npc` fields the pre-persona
+    site reads; `story_lines.speaker/npcVoice/segments` (JSON) are deprecated
+    columns nothing reads, to be dropped in a follow-up that first re-runs
+    the migration's idempotent backfill.
   - `POST /api/episodes/import` is **retired and answers 410**. Admins import
     *new* episodes with `POST /api/admin/episode-import` (the site's /admin
     page): md-to-api.py's JSON as is, speakers resolved like api-import.py,
@@ -254,10 +276,10 @@ data. Don't add a species table back.
     another character/persona/NPC voice; the site's per-block attribution control uses
     it) and `POST /admin/owner` (job `owner-change`: character "played by", item owner,
     story authors), `POST /admin/story-voices/reassign` (job `story-voice-fix`: story
-    dialogue between a character and/or plain speaker text, whole lines and segments
-    JSON; the log keeps before-values, standing in for a dump; dry run = preview) and,
-    from `PATCH /stories/:slug/voices` with `characterId` (story authors and admins), job
-    `story-voice-name` (an NPC quote becomes a character's). A FAILED run answers 400.
+    dialogue from one voice to another, whole lines and segments; the log keeps
+    before-values, standing in for a dump; dry run = preview) and, from `PATCH
+    /stories/:slug/voices` with a `characterId`/`personaId` (story authors and admins),
+    job `story-voice-name`. A FAILED run answers 400.
     Write only through `ctx.tx` in them.
   - The append endpoints (`.../chapters/:n/lines`, `.../messages`) remain for
     incremental API use and the CLI episode uploaders.

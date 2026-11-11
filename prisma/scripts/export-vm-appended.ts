@@ -26,11 +26,11 @@ async function main() {
     const lines = await prisma.storyLine.findMany({
         where: { chapter: { story: { slug: "vm" }, chapter_no: 1 }, line_no: { gt: cyoaLength } },
         orderBy: { line_no: "asc" },
-        include: { character: { select: { slug: true } } },
+        include: { character: { select: { slug: true } }, persona: { select: { name: true } }, _count: { select: { segments: true } } },
     });
     lines.forEach((line, i) => {
         if (line.line_no !== cyoaLength + 1 + i) throw new Error(`gap before vm line ${line.line_no}`);
-        if (line.segments !== null || line.booruId !== null || line.imageUrl !== null) {
+        if (line._count.segments || line.booruId !== null || line.imageUrl !== null) {
             throw new Error(`vm line ${line.line_no} has segments or a picture; the seed file can't carry those`);
         }
     });
@@ -39,8 +39,9 @@ async function main() {
         type: line.type,
         text: line.text,
         character: line.character?.slug ?? null,
-        speaker: line.speaker,
-        npcVoice: line.npcVoice,
+        ...(line.character && line.persona ? { persona: line.persona.name } : {}),
+        speaker: !line.character && line.persona ? line.persona.name : null,
+        npcVoice: !line.character && !!line.persona,
     }));
     // One line per entry: readable diffs when more lines are appended
     writeFileSync(OUT_FILE, "[\n" + out.map((o) => "    " + JSON.stringify(o)).join(",\n") + "\n]\n");

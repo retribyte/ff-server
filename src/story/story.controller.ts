@@ -109,20 +109,22 @@ const initializeStoryRoutes = (): Router => {
         }
     });
 
-    // PATCH /api/stories/:slug/voices: name NPC voice fragments as you read.
-    // Body { assignments: [{ chapterNo, lineNo, segment?, speaker }] } — segment
-    // indexes a NARRATION line's spans; omit it for a whole npcVoice DIALOGUE
-    // line. speaker null/blank un-names it. Only NPC-flagged fragments can be
-    // named, so text can't change through here. characterId instead makes the
-    // fragment that character's (a 'story-voice-name' job in the admin History).
-    // Story authors or admins; returns the updated lines.
+    // PATCH /api/stories/:slug/voices: re-voice quotes as you read.
+    // Body { assignments: [{ chapterNo, lineNo, segment?, speaker? | characterId?, personaId? }] }:
+    // segment (0-based) picks a span of a NARRATION line; omit it for a whole
+    // line. speaker names an NPC (found or created); characterId (optionally
+    // with one of its personaIds) or an NPC personaId picks a voice by id, which
+    // runs as a 'story-voice-name' job in the admin History. Only fragments that
+    // already have a voice can change, so text and narration can't. NPC personas
+    // left with no lines are deleted. Story authors or admins; returns the
+    // updated lines.
     router.patch("/stories/:slug/voices", authenticate, async (req: Request, res: Response) => {
         const { slug } = req.params;
         try {
             const allowed = await storyService.isAuthorOrAdmin(slug, req.user as { id: number; role: string });
             if (allowed === null) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
             if (!allowed) {
-                return res.status(403).json({ status: "error", message: "Only this story's authors or an admin can name its voices" });
+                return res.status(403).json({ status: "error", message: "Only this story's authors or an admin can change its voices" });
             }
             // Linking a real character changes attribution, so it's recorded in
             // the admin History like the other data fixes (story authors and
@@ -133,7 +135,7 @@ const initializeStoryRoutes = (): Router => {
                 let updated: unknown = [];
                 const run = await runJob(STORY_VOICE_NAME_JOB, (req.user as { id: number }).id, false, async ({ tx, log }) => {
                     updated = await storyService.assignVoicesTx(tx, story.id, req.body.assignments, log);
-                    return `${story.title}: linked ${(req.body.assignments as unknown[]).length} NPC quote(s) to a character`;
+                    return `${story.title}: re-voiced ${(req.body.assignments as unknown[]).length} quote(s) by character or persona`;
                 });
                 if (run.status === "FAILED") return res.status(400).json({ status: "error", message: run.summary ?? "Linking failed" });
                 return res.status(200).json({ status: "success", data: updated });
@@ -143,6 +145,26 @@ const initializeStoryRoutes = (): Router => {
             res.status(200).json({ status: "success", data: updated });
         } catch (error: any) {
             if (error instanceof JobBusyError) return res.status(409).json({ status: "error", message: error.message });
+            res.status(400).json({ status: "error", message: error.message });
+        }
+    });
+
+    // POST /api/stories/:slug/voices/carry: a revision draft { chapters } with its
+    // unnamed NPC quotes filled from the voices the story's unchanged text has
+    // now, for the importer to pre-fill its naming step. Writes nothing. The
+    // story's authors or an admin (the same people who may revise it).
+    router.post("/stories/:slug/voices/carry", authenticate, importJson, async (req: Request, res: Response) => {
+        const { slug } = req.params;
+        try {
+            const allowed = await storyService.isAuthorOrAdmin(slug, req.user as { id: number; role: string });
+            if (allowed === null) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
+            if (!allowed) {
+                return res.status(403).json({ status: "error", message: "Only this story's authors or an admin can revise it" });
+            }
+            const result = await storyService.carryStoryVoices(slug, req.body);
+            if (result === null) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
+            res.status(200).json({ status: "success", data: result });
+        } catch (error: any) {
             res.status(400).json({ status: "error", message: error.message });
         }
     });

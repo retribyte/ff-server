@@ -55,7 +55,8 @@ async function main() {
         // The stray row only ever existed for this episode; drop it once nothing references it.
         const remaining =
             (await prisma.message.count({ where: { characterId: stray.id } })) +
-            (await prisma.storyLine.count({ where: { characterId: stray.id } }));
+            (await prisma.storyLine.count({ where: { characterId: stray.id } })) +
+            (await prisma.storySegment.count({ where: { characterId: stray.id } }));
         if (remaining === 0) {
             await prisma.character.delete({ where: { id: stray.id } });
             console.log(`Removed now-empty character '${stray.name}'.`);

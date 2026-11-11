@@ -9,15 +9,13 @@
  * Attribution changes are admin-only (FR-EP-2). Message text, type, player
  * and timestamp are never touched.
  *
- * A "voice" reaches the archive in three places, and each move rewrites all
- * three:
- *   - messages: characterId + personaId (the messages_persona_match trigger
- *     checks that the persona belongs to the character, null == null)
- *   - story_lines.characterId: whole DIALOGUE lines
- *   - story_lines.segments JSON: in-paragraph quotes, [{text, characterId?, speaker?}]
- * Story lines have no persona column. When lines leave a character to become
- * an NPC or a persona, their `speaker` text is set to the old character name,
- * which is what the reader was showing before.
+ * A "voice" reaches the archive in three places, each a characterId +
+ * personaId pair under the same rule (a persona belongs to the row's
+ * character, null == null for NPCs; the *_persona_match triggers check it),
+ * and each move rewrites all three:
+ *   - messages
+ *   - story_lines: whole DIALOGUE lines
+ *   - story_segments: in-paragraph quotes
  */
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
@@ -27,7 +25,7 @@ import { storeAvatarUpload } from "../character/avatar.service.js";
 
 type Tx = Prisma.TransactionClient;
 
-// Generous: a full-character move rewrites every segment JSON it appears in.
+// Generous: a full-character move can touch thousands of rows.
 export const TX_OPTIONS = { timeout: 120_000, maxWait: 10_000 };
 
 /** A speaker operation refused on purpose. `status` is the HTTP status the controller answers with. */
@@ -54,12 +52,7 @@ export type MoveCounts = {
     deletedCharacter: boolean;
 };
 
-type Destination = {
-    characterId: number | null;
-    personaId: number | null;
-    /** Set story-line `speaker` to this (the old character's name), or leave it alone when undefined. */
-    speaker?: string;
-};
+type Destination = { characterId: number | null; personaId: number | null };
 
 function isFullScope(scope?: SpeakerScope): boolean {
     return !scope || (!scope.seasons?.length && !scope.messages?.length);
@@ -114,8 +107,6 @@ async function resolveScope(tx: Tx, sourceId: number, scope?: SpeakerScope) {
     };
 }
 
-type Segment = { text: string; characterId?: number | null; speaker?: string | null; [key: string]: unknown };
-
 /** Moves a character's lines (all three places) to `dest`. The caller decides whether to delete the source. */
 async function moveVoice(tx: Tx, sourceId: number, dest: Destination, scope?: SpeakerScope): Promise<Omit<MoveCounts, "deletedCharacter">> {
     const { messageWhere, storyWhere, storySeasonTitles } = await resolveScope(tx, sourceId, scope);
@@ -125,37 +116,19 @@ async function moveVoice(tx: Tx, sourceId: number, dest: Destination, scope?: Sp
         data: { characterId: dest.characterId, personaId: dest.personaId },
     });
 
-    const { count: storyLines } = await tx.storyLine.updateMany({
-        where: { ...storyWhere, characterId: sourceId },
-        data: { characterId: dest.characterId, ...(dest.speaker !== undefined ? { speaker: dest.speaker } : {}) },
-    });
-
-    // In-paragraph quotes: no FK, so rewrite the JSON. Scoped by story season
-    // the same way as whole lines (msg-only scopes skip stories entirely).
+    // Story lines and segments move only with a full or season scope (msg:
+    // refs only ever name messages); storyWhere is that season filter.
+    const stories = storySeasonTitles === null || storySeasonTitles.length > 0;
+    const data = { characterId: dest.characterId, personaId: dest.personaId };
+    const { count: storyLines } = stories
+        ? await tx.storyLine.updateMany({ where: { ...storyWhere, characterId: sourceId }, data })
+        : { count: 0 };
+    // counted as distinct lines, which is what the admin log has always reported
     let storySegmentLines = 0;
-    if (storySeasonTitles === null || storySeasonTitles.length) {
-        const containment = JSON.stringify([{ characterId: sourceId }]);
-        const rows = await tx.$queryRaw<{ id: number; segments: Segment[] }[]>`
-            SELECT sl.id, sl.segments
-            FROM story_lines sl
-            JOIN story_chapters ch ON ch.id = sl."chapterId"
-            JOIN stories s ON s.id = ch."storyId"
-            WHERE sl.segments @> ${containment}::jsonb
-              AND (${storySeasonTitles === null} OR s."seasonTitle" = ANY(${storySeasonTitles ?? []}::text[]))
-        `;
-        for (const row of rows) {
-            const segments = row.segments.map((seg) => {
-                if (seg.characterId !== sourceId) return seg;
-                const { characterId: _drop, ...rest } = seg;
-                return {
-                    ...rest,
-                    ...(dest.characterId !== null ? { characterId: dest.characterId } : {}),
-                    ...(dest.speaker !== undefined ? { speaker: dest.speaker } : {}),
-                };
-            });
-            await tx.storyLine.update({ where: { id: row.id }, data: { segments: segments as Prisma.InputJsonValue } });
-        }
-        storySegmentLines = rows.length;
+    if (stories) {
+        const where: Prisma.StorySegmentWhereInput = { line: storyWhere, characterId: sourceId };
+        storySegmentLines = (await tx.storySegment.findMany({ where, distinct: ["lineId"], select: { lineId: true } })).length;
+        await tx.storySegment.updateMany({ where, data });
     }
 
     return { messages, storyLines, storySegmentLines };
@@ -163,13 +136,12 @@ async function moveVoice(tx: Tx, sourceId: number, dest: Destination, scope?: Sp
 
 /** Lines, story lines and story segments still voiced by a character. */
 export async function countReferences(tx: Tx, characterId: number): Promise<number> {
-    const containment = JSON.stringify([{ characterId }]);
-    const [messages, storyLines, [{ count }]] = await Promise.all([
+    const [messages, storyLines, storySegments] = await Promise.all([
         tx.message.count({ where: { characterId } }),
         tx.storyLine.count({ where: { characterId } }),
-        tx.$queryRaw<{ count: bigint }[]>`SELECT count(*) AS count FROM story_lines WHERE segments @> ${containment}::jsonb`,
+        tx.storySegment.count({ where: { characterId } }),
     ]);
-    return messages + storyLines + Number(count);
+    return messages + storyLines + storySegments;
 }
 
 /** Deletes a character that nothing in the archive references any more (its personas cascade). */
@@ -198,6 +170,24 @@ export async function findOrCreateNpcPersona(tx: Tx, name: string, extra: { imag
     return { persona, created: true };
 }
 
+/**
+ * Deletes those of these personas that are NPC personas no line uses any
+ * more (no message, story line or story segment). Called with only the
+ * personas an operation just moved lines away from, so an NPC an admin made
+ * ahead of use, which never had lines, is never swept up. Returns the names
+ * deleted.
+ */
+export async function deleteNpcPersonasIfUnused(tx: Tx, personaIds: Iterable<number>): Promise<string[]> {
+    const ids = [...new Set(personaIds)];
+    if (!ids.length) return [];
+    const unused = await tx.persona.findMany({
+        where: { id: { in: ids }, characterId: null, messages: { none: {} }, storyLines: { none: {} }, storySegments: { none: {} } },
+        select: { id: true, name: true },
+    });
+    if (unused.length) await tx.persona.deleteMany({ where: { id: { in: unused.map((p) => p.id) } } });
+    return unused.map((p) => p.name ?? `#${p.id}`);
+}
+
 async function getNpcPersonaOrThrow(tx: Tx, personaId: number) {
     const persona = await tx.persona.findUnique({ where: { id: personaId } });
     if (!persona) throw new SpeakerError(`Persona with id '${personaId}' not found`, 404);
@@ -220,7 +210,7 @@ export async function demoteToNpcTx(tx: Tx, characterId: number, opts: { scope?:
         ? { persona: await getNpcPersonaOrThrow(tx, opts.intoPersonaId), created: false }
         : await findOrCreateNpcPersona(tx, source.name, { image: source.image, color: source.color });
 
-    const moved = await moveVoice(tx, source.id, { characterId: null, personaId: persona.id, speaker: source.name }, opts.scope);
+    const moved = await moveVoice(tx, source.id, { characterId: null, personaId: persona.id }, opts.scope);
     const full = isFullScope(opts.scope);
     if (full) await deleteIfUnreferenced(tx, source.id);
     return { persona, personaCreated: created, ...moved, deletedCharacter: full };
@@ -243,7 +233,7 @@ export async function promoteNpcTx(tx: Tx, personaId: number, opts: { ownerId?: 
             orderBy: { _count: { playerId: "desc" } },
             take: 1,
         });
-        if (!top) throw new SpeakerError("This NPC has no lines, so ownerId is required");
+        if (!top) throw new SpeakerError("This NPC has no transcript lines, so ownerId is required");
         ownerId = top.playerId;
     } else if (!(await tx.user.findUnique({ where: { id: ownerId } }))) {
         throw new SpeakerError(`User with id '${ownerId}' not found`, 404);
@@ -259,12 +249,12 @@ export async function promoteNpcTx(tx: Tx, personaId: number, opts: { ownerId?: 
     const character = await tx.character.create({
         data: { name, slug, creatorId: ownerId, image: persona.image, color: persona.color },
     });
-    const { count: messages } = await tx.message.updateMany({
-        where: { personaId },
-        data: { characterId: character.id, personaId: null },
-    });
+    const data = { characterId: character.id, personaId: null };
+    const { count: messages } = await tx.message.updateMany({ where: { personaId }, data });
+    const { count: storyLines } = await tx.storyLine.updateMany({ where: { personaId }, data });
+    const { count: storySegments } = await tx.storySegment.updateMany({ where: { personaId }, data });
     await tx.persona.delete({ where: { id: personaId } });
-    return { character, messages };
+    return { character, messages, storyLines, storySegments };
 }
 
 /**
@@ -297,7 +287,7 @@ export async function mergeIntoTx(tx: Tx, sourceId: number, targetId: number, op
     const moved = await moveVoice(
         tx,
         source.id,
-        { characterId: target.id, personaId: persona?.id ?? null, speaker: opts.asPersona ? source.name : undefined },
+        { characterId: target.id, personaId: persona?.id ?? null },
         opts.scope
     );
     const full = isFullScope(opts.scope);

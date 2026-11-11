@@ -7,7 +7,7 @@
  */
 import { MessageType, Prisma } from "@prisma/client";
 import type { JobContext, Tx } from "../jobs/runner.js";
-import { findOrCreateNpcPersona } from "../speaker/speaker.service.js";
+import { deleteNpcPersonasIfUnused, findOrCreateNpcPersona } from "../speaker/speaker.service.js";
 
 /** Job names in the History table */
 export const MESSAGE_REASSIGN_JOB = "message-reassign";
@@ -166,8 +166,14 @@ export const STORY_VOICE_JOB = "story-voice-fix";
 /** An admin linking NPC quotes to a character from the story reader (PATCH /stories/:slug/voices) */
 export const STORY_VOICE_NAME_JOB = "story-voice-name";
 
-/** A voice in a story: a Character, or plain speaker text (a name with no Character row) */
-export type VoiceRef = { characterId: number } | { speaker: string };
+/**
+ * A voice in a story, the same rule as a message: a character (optionally as
+ * one of its personas), or an NPC persona alone. `{speaker: name}` names an
+ * NPC persona (as `from` it must exist; as `to` it's created if needed).
+ * As `from`, a character without a persona matches all of its lines,
+ * whatever persona they show.
+ */
+export type VoiceRef = { characterId: number; personaId?: number | null } | { personaId: number } | { speaker: string };
 
 export type StoryVoiceInput = {
     from: VoiceRef;
@@ -179,13 +185,16 @@ export type StoryVoiceInput = {
 };
 
 function parseVoice(v: any, label: string): VoiceRef {
-    if (Number.isInteger(v?.characterId)) return { characterId: v.characterId };
+    const personaId = v?.personaId ?? null;
+    if (personaId !== null && !Number.isInteger(personaId)) throw new Error(`${label}: personaId must be an id`);
+    if (Number.isInteger(v?.characterId)) return { characterId: v.characterId, personaId };
+    if (personaId !== null) return { personaId };
     if (typeof v?.speaker === "string" && v.speaker.trim()) {
         const speaker = v.speaker.trim();
         if (speaker.length > 100) throw new Error(`${label}: names are at most 100 characters`);
         return { speaker };
     }
-    throw new Error(`${label} must be {characterId} or {speaker}`);
+    throw new Error(`${label} must be {characterId, personaId?}, {personaId} (an NPC) or {speaker} (an NPC by name)`);
 }
 
 export function parseStoryVoice(body: any): StoryVoiceInput {
@@ -194,40 +203,51 @@ export function parseStoryVoice(body: any): StoryVoiceInput {
         if (!Array.isArray(v) || !v.every((s) => typeof s === "string")) throw new Error(`${label} must be a list of slugs`);
         return [...new Set(v.map((s: string) => s.trim().toLowerCase()).filter(Boolean))];
     };
-    const input = {
+    return {
         from: parseVoice(body?.from, "from"),
         to: parseVoice(body?.to, "to"),
         stories: slugs(body?.stories, "stories"),
         seasons: slugs(body?.seasons, "seasons"),
     };
-    const same =
-        ("characterId" in input.from && "characterId" in input.to && input.from.characterId === input.to.characterId) ||
-        ("speaker" in input.from && "speaker" in input.to && input.from.speaker === input.to.speaker);
-    if (same) throw new Error("from and to are the same voice");
-    return input;
 }
 
-type Segment = { text: string; characterId?: number | null; speaker?: string | null; npc?: boolean; [key: string]: unknown };
+/** A VoiceRef resolved to ids. `anyPersona`: a `from` character with no persona given matches all its lines. */
+type ResolvedVoice = { characterId: number | null; personaId: number | null; anyPersona: boolean; name: string };
+
+async function resolveVoice(tx: Tx, v: VoiceRef, role: "from" | "to", log: (line: string) => void): Promise<ResolvedVoice> {
+    if ("speaker" in v) {
+        if (role === "to") {
+            const { persona, created } = await findOrCreateNpcPersona(tx, v.speaker);
+            if (created) log(`Created NPC voice '${persona.name}' (#${persona.id})`);
+            return { characterId: null, personaId: persona.id, anyPersona: false, name: `NPC ${persona.name}` };
+        }
+        const persona = await tx.persona.findFirst({ where: { characterId: null, name: { equals: v.speaker, mode: "insensitive" } } });
+        if (!persona) throw new Error(`No NPC voice named '${v.speaker}'`);
+        return { characterId: null, personaId: persona.id, anyPersona: false, name: `NPC ${persona.name}` };
+    }
+    const personaId = v.personaId ?? null;
+    const persona = personaId === null ? null : await tx.persona.findUnique({ where: { id: personaId } });
+    if (personaId !== null && !persona) throw new Error(`Persona with id '${personaId}' not found`);
+    const characterId = "characterId" in v ? v.characterId : (persona!.characterId ?? null);
+    const character = characterId === null ? null : await tx.character.findUnique({ where: { id: characterId }, select: { name: true } });
+    if (characterId !== null && !character) throw new Error(`Character with id '${characterId}' not found`);
+    if (persona && (persona.characterId ?? null) !== characterId) throw new Error(`Persona with id '${personaId}' doesn't belong to that character`);
+    return { characterId, personaId, anyPersona: role === "from" && characterId !== null && personaId === null, name: voiceName({ character, persona }) };
+}
 
 /**
  * Moves story dialogue from one voice to another, in the stories in scope:
- * whole lines (characterId / speaker) and in-paragraph quotes (the segments
- * JSON, which has no FK). Moving to a character clears the speaker text and
- * the NPC flag; moving to plain text clears the character and keeps the flag.
- * The log keeps every changed line's before-values, standing in for a dump.
- * Transcript messages aren't touched (the attribution control and merge do those).
+ * whole lines and in-paragraph quotes. Text never changes. An NPC persona
+ * left with no lines anywhere is deleted. The log keeps every changed line's
+ * before-values, standing in for a dump. Transcript messages aren't touched
+ * (the attribution control and merge do those).
  */
 export async function reassignStoryVoices(input: StoryVoiceInput, { tx, log }: JobContext): Promise<string> {
-    const names = new Map<number, string>();
-    const describe = async (v: VoiceRef) => {
-        if ("speaker" in v) return `"${v.speaker}"`;
-        const c = await tx.character.findUnique({ where: { id: v.characterId }, select: { name: true } });
-        if (!c) throw new Error(`Character with id '${v.characterId}' not found`);
-        names.set(v.characterId, c.name);
-        return c.name;
-    };
-    const fromName = await describe(input.from);
-    const toName = await describe(input.to);
+    const from = await resolveVoice(tx, input.from, "from", log);
+    const to = await resolveVoice(tx, input.to, "to", log);
+    if (from.characterId === to.characterId && (from.anyPersona ? to.personaId === null : from.personaId === to.personaId)) {
+        throw new Error("from and to are the same voice");
+    }
 
     // Stories in scope
     const storyWhere: Prisma.StoryWhereInput = {};
@@ -244,64 +264,41 @@ export async function reassignStoryVoices(input: StoryVoiceInput, { tx, log }: J
         storyWhere.seasonTitle = { in: found.map((f) => f.title) };
     }
 
-    const matchesSegment = (seg: Segment) =>
-        "characterId" in input.from
-            ? seg.characterId === input.from.characterId
-            : !seg.characterId && typeof seg.speaker === "string" && seg.speaker.toLowerCase() === input.from.speaker.toLowerCase();
-    const lineWhere: Prisma.StoryLineWhereInput =
-        "characterId" in input.from
-            ? { characterId: input.from.characterId }
-            : { characterId: null, speaker: { equals: input.from.speaker, mode: "insensitive" } };
-    // Segment candidates: containment for a character; a text match narrowed in JS for a name
-    const segmentFilter: Prisma.StoryLineWhereInput =
-        "characterId" in input.from
-            ? { segments: { array_contains: [{ characterId: input.from.characterId }] } }
-            : { segments: { not: Prisma.AnyNull } };
-
+    const voiceWhere = { characterId: from.characterId, ...(from.anyPersona ? {} : { personaId: from.personaId }) };
     const lines = await tx.storyLine.findMany({
-        where: { chapter: { story: storyWhere }, OR: [lineWhere, segmentFilter] },
-        include: { chapter: { select: { chapter_no: true, story: { select: { title: true } } } } },
+        where: { chapter: { story: storyWhere }, OR: [voiceWhere, { segments: { some: voiceWhere } }] },
+        select: {
+            id: true,
+            line_no: true,
+            characterId: true,
+            personaId: true,
+            segments: { where: voiceWhere, select: { id: true, position: true, characterId: true, personaId: true } },
+            chapter: { select: { chapter_no: true, story: { select: { title: true } } } },
+        },
         orderBy: [{ chapterId: "asc" }, { line_no: "asc" }],
     });
 
+    const data = { characterId: to.characterId, personaId: to.personaId };
+    const released = new Set<number>();
     const perStory = new Map<string, { lines: number; segments: number }>();
     let wholeLines = 0;
     let segmentCount = 0;
     // Per-line detail goes after the per-story totals, so the log reads top-down
     const details: string[] = [];
     for (const line of lines) {
-        const where = `${line.chapter.story.title}, ch. ${line.chapter.chapter_no}, line ${line.line_no}`;
-        const data: Prisma.StoryLineUpdateInput = {};
+        const lineHit = line.characterId === from.characterId && (from.anyPersona || line.personaId === from.personaId);
         const before: Record<string, unknown> = {};
-        const lineHit =
-            "characterId" in input.from
-                ? line.characterId === input.from.characterId
-                : line.characterId === null && (line.speaker ?? "").toLowerCase() === input.from.speaker.toLowerCase();
         if (lineHit) {
-            Object.assign(before, { characterId: line.characterId, speaker: line.speaker, npcVoice: line.npcVoice });
-            if ("characterId" in input.to) {
-                Object.assign(data, { character: { connect: { id: input.to.characterId } }, speaker: null, npcVoice: false });
-            } else {
-                Object.assign(data, { character: { disconnect: true }, speaker: input.to.speaker });
-            }
+            Object.assign(before, { characterId: line.characterId, personaId: line.personaId });
+            if (line.personaId !== null) released.add(line.personaId);
+            await tx.storyLine.update({ where: { id: line.id }, data });
         }
-        let hits = 0;
-        if (Array.isArray(line.segments)) {
-            const segments = (line.segments as Segment[]).map((seg) => {
-                if (!matchesSegment(seg)) return seg;
-                hits += 1;
-                const { characterId: _c, speaker: _s, npc, ...rest } = seg;
-                return "characterId" in input.to
-                    ? { ...rest, characterId: input.to.characterId }
-                    : { ...rest, speaker: input.to.speaker, ...(npc ? { npc } : {}) };
-            });
-            if (hits) {
-                before.segments = line.segments;
-                data.segments = segments as Prisma.InputJsonValue;
-            }
+        if (line.segments.length) {
+            before.segments = line.segments.map(({ position, characterId, personaId }) => ({ position, characterId, personaId }));
+            line.segments.forEach((seg) => seg.personaId !== null && released.add(seg.personaId));
+            await tx.storySegment.updateMany({ where: { id: { in: line.segments.map((seg) => seg.id) } }, data });
         }
-        if (!lineHit && !hits) continue;
-        await tx.storyLine.update({ where: { id: line.id }, data });
+        const hits = line.segments.length;
         const tally = perStory.get(line.chapter.story.title) ?? { lines: 0, segments: 0 };
         if (lineHit) {
             tally.lines += 1;
@@ -310,20 +307,23 @@ export async function reassignStoryVoices(input: StoryVoiceInput, { tx, log }: J
         tally.segments += hits;
         segmentCount += hits;
         perStory.set(line.chapter.story.title, tally);
-        details.push(`${where}: ${lineHit ? "whole line" : `${hits} quote(s)`}; before ${JSON.stringify(before)}`);
+        details.push(`${line.chapter.story.title}, ch. ${line.chapter.chapter_no}, line ${line.line_no}: ${lineHit ? "whole line" : `${hits} quote(s)`}; before ${JSON.stringify(before)}`);
     }
 
     if (perStory.size === 0) {
-        return `No story lines in scope are spoken by ${fromName}`;
+        return `No story lines in scope are spoken by ${from.name}`;
     }
     log("Per story:");
     for (const [title, t] of perStory) log(`  ${title}: ${t.lines} whole line(s), ${t.segments} in-paragraph quote(s)`);
-    if ("characterId" in input.from) {
-        const messages = await tx.message.count({ where: { characterId: input.from.characterId } });
-        if (messages) log(`(${fromName} also speaks ${messages} transcript line(s); those are unchanged)`);
+    if (from.characterId !== null) {
+        const messages = await tx.message.count({ where: { characterId: from.characterId } });
+        if (messages) log(`(${from.name} also speaks ${messages} transcript line(s); those are unchanged)`);
     }
+    if (to.personaId !== null) released.delete(to.personaId);
+    const deleted = await deleteNpcPersonasIfUnused(tx, released);
+    if (deleted.length) log(`Deleted NPC voice(s) no line uses any more: ${deleted.join(", ")}`);
     log("");
     log("Each line changed, with its values before:");
     details.forEach((d) => log(d));
-    return `${fromName} -> ${toName}: ${wholeLines} whole line(s) and ${segmentCount} quote(s) in ${perStory.size} stor${perStory.size === 1 ? "y" : "ies"}`;
+    return `${from.name} -> ${to.name}: ${wholeLines} whole line(s) and ${segmentCount} quote(s) in ${perStory.size} stor${perStory.size === 1 ? "y" : "ies"}`;
 }

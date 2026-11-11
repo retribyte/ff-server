@@ -201,20 +201,38 @@ const spec = {
             },
             StorySegment: {
                 type: "object",
-                description: "A sub-paragraph span; texts concatenate verbatim to the line's text. A span may carry a voice (dialogue) and/or inline styling (italic/bold).",
+                description:
+                    "A sub-paragraph span; texts concatenate verbatim to the line's text. A span may carry a voice (dialogue) and/or inline styling (italic/bold). " +
+                    "A voice follows the message rule: characterId alone, characterId + one of its personaIds, or an NPC personaId alone. " +
+                    "When writing, `speaker` names an NPC persona instead (found or created), and `npc: true` with no name marks an unnamed NPC voice, " +
+                    "which a draft may carry but an import refuses.",
                 properties: {
                     text: { type: "string" },
                     characterId: { type: "integer", nullable: true },
-                    speaker: { type: "string", nullable: true },
-                    npc: {
-                        type: "boolean",
-                        description:
-                            "An NPC voice: `speaker` is its name, or absent while unnamed (still dialogue). Named via PATCH /stories/{slug}/voices; can't carry a characterId",
+                    personaId: { type: "integer", nullable: true, description: "One of characterId's personas, or an NPC persona alone" },
+                    persona: { $ref: "#/components/schemas/PersonaSummary", readOnly: true },
+                    speaker: {
+                        type: "string",
+                        nullable: true,
+                        description: "Write: an NPC persona by name (found or created). Read: deprecated, the NPC persona's name (use persona)",
                     },
+                    npc: { type: "boolean", description: "Write: an NPC voice (unnamed without speaker). Read: deprecated, set for an NPC persona" },
                     italic: { type: "boolean" },
                     bold: { type: "boolean" },
                 },
                 required: ["text"],
+            },
+            PersonaSummary: {
+                type: "object",
+                description: "The persona voicing a story line or segment: what the reader shows (persona ?? character for name, image, color)",
+                properties: {
+                    id: { type: "integer" },
+                    name: { type: "string", nullable: true },
+                    image: { type: "string", nullable: true },
+                    color: { type: "string", nullable: true },
+                    characterId: { type: "integer", nullable: true, description: "null for an NPC persona" },
+                    slug: { type: "string", nullable: true },
+                },
             },
             Story: {
                 type: "object",
@@ -276,11 +294,20 @@ const spec = {
                     type: { $ref: "#/components/schemas/StoryLineType" },
                     text: { type: "string" },
                     characterId: { type: "integer", nullable: true },
-                    speaker: { type: "string", nullable: true, description: "Display name when no Character row exists" },
+                    personaId: {
+                        type: "integer",
+                        nullable: true,
+                        description: "The voice follows the message rule: characterId alone, characterId + one of its personas, or an NPC persona alone",
+                    },
+                    persona: { $ref: "#/components/schemas/PersonaSummary", readOnly: true },
+                    speaker: {
+                        type: "string",
+                        nullable: true,
+                        description: "Write: an NPC persona by name (found or created). Read: deprecated, the NPC persona's name (use persona)",
+                    },
                     npcVoice: {
                         type: "boolean",
-                        description:
-                            "DIALOGUE only: an NPC voice, named by `speaker` or unnamed (speaker null). Named via PATCH /stories/{slug}/voices",
+                        description: "Write (DIALOGUE): an NPC voice, unnamed without speaker (a draft only; an import refuses it). Read: deprecated, set for an NPC persona",
                     },
                     segments: {
                         type: "array",
@@ -892,7 +919,7 @@ const spec = {
                 security: [], // public — no token needed
                 parameters: [
                     { name: "search", in: "query", schema: { type: "string" }, description: "Search by persona name" },
-                    { name: "npc", in: "query", schema: { type: "string", enum: ["true", "false"] }, description: "true: only NPC personas, sorted by name, each with messageCount; false: only character personas" },
+                    { name: "npc", in: "query", schema: { type: "string", enum: ["true", "false"] }, description: "true: only NPC personas, sorted by name, each with messageCount and storyQuoteCount; false: only character personas" },
                 ],
                 responses: { "200": { description: "Array of every persona" } },
             },
@@ -957,7 +984,7 @@ const spec = {
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 responses: {
                     "204": { description: "Deleted" },
-                    "400": { description: "Cannot delete: messages still reference this persona" },
+                    "409": { description: "Cannot delete: messages, story lines or story segments still use this persona" },
                     "403": { description: "Forbidden" },
                     "404": { description: "Not found" },
                 },
@@ -967,7 +994,7 @@ const spec = {
             post: {
                 tags: ["Speakers"],
                 summary: "Turn a character into an NPC voice (admin only)",
-                description: "Moves the character's lines to the NPC persona of the same name (found or created) or to intoPersonaId: messages get characterId null + that persona; story lines and in-paragraph segments lose the character and keep its name as speaker text. A full (unscoped) move then deletes the character. One transaction.",
+                description: "Moves the character's lines to the NPC persona of the same name (found or created) or to intoPersonaId: messages get characterId null + that persona; story lines and in-paragraph segments the same. A full (unscoped) move then deletes the character. One transaction.",
                 security: [{ bearerAuth: [] }],
                 requestBody: {
                     required: true,
@@ -1713,13 +1740,14 @@ const spec = {
         "/admin/story-voices/reassign": {
             post: {
                 tags: ["Admin", "Stories"],
-                summary: "Move story dialogue between a character and/or plain speaker text, all or nothing (admin)",
+                summary: "Move story dialogue from one voice to another, all or nothing (admin)",
                 description:
-                    "from/to are each {characterId} or {speaker} (plain text, matched case-insensitively). Rewrites whole lines " +
-                    "(characterId, speaker; npcVoice cleared when moving to a character) and in-paragraph quotes in the segments " +
-                    "JSON, in the stories in scope (stories and/or seasons slugs; neither means every story). Transcript messages are " +
-                    "not touched. Recorded as 'story-voice-fix'; the log lists per-story counts, then every changed line with its " +
-                    "values before (the run's own snapshot). Use dryRun as the preview.",
+                    "from/to are each {characterId, personaId?}, {personaId} (an NPC persona) or {speaker} (an NPC persona by name, " +
+                    "matched case-insensitively; as `to` it's created if needed). A `from` character without personaId matches all its " +
+                    "lines, whatever persona they show. Re-voices whole lines and in-paragraph quotes in the stories in scope (stories " +
+                    "and/or seasons slugs; neither means every story); an NPC persona left with no lines anywhere is deleted. Transcript " +
+                    "messages are not touched. Recorded as 'story-voice-fix'; the log lists per-story counts, then every changed line " +
+                    "with its values before (the run's own snapshot). Use dryRun as the preview.",
                 security: [{ bearerAuth: [] }],
                 requestBody: {
                     required: true,
@@ -1729,8 +1757,8 @@ const spec = {
                                 type: "object",
                                 required: ["from", "to"],
                                 properties: {
-                                    from: { type: "object", description: "{characterId: int} or {speaker: string}" },
-                                    to: { type: "object", description: "{characterId: int} or {speaker: string}" },
+                                    from: { type: "object", description: "{characterId, personaId?}, {personaId} or {speaker}" },
+                                    to: { type: "object", description: "{characterId, personaId?}, {personaId} or {speaker}" },
                                     stories: { type: "array", items: { type: "string" } },
                                     seasons: { type: "array", items: { type: "string" } },
                                     dryRun: { type: "boolean", default: false },
@@ -1916,13 +1944,13 @@ const spec = {
         "/stories/{slug}/voices": {
             patch: {
                 tags: ["Stories"],
-                summary: "Name NPC voice fragments while reading (story authors or admins)",
+                summary: "Re-voice quotes while reading (story authors or admins)",
                 description:
-                    "Names (or, with a null/blank speaker, un-names) NPC voice fragments: a segment of a NARRATION line " +
-                    "(`segment` = its index), or a whole `npcVoice` DIALOGUE line (`segment` omitted). Only NPC-flagged " +
-                    "fragments can be named here, so the text never changes; only characterId changes attribution. One transaction: " +
-                    "any invalid assignment rejects them all. A later revision (PUT /stories/{slug}/import) keeps these " +
-                    "names for fragments whose text is unchanged.",
+                    "Changes who speaks fragments that already have a voice: a segment of a NARRATION line (`segment` = its 0-based " +
+                    "index), or a whole line (`segment` omitted). Each assignment gives the new voice as `speaker` (an NPC persona by " +
+                    "name, found or created) or by id: `characterId` (optionally with one of its `personaId`s) or an NPC `personaId`. " +
+                    "By-id requests are recorded in the job history as 'story-voice-name'. Narration can't become dialogue and text never " +
+                    "changes. NPC personas left with no lines anywhere are deleted. One transaction: any invalid assignment rejects them all.",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
                 requestBody: {
@@ -1939,18 +1967,14 @@ const spec = {
                                         maxItems: 500,
                                         items: {
                                             type: "object",
-                                            required: ["chapterNo", "lineNo", "speaker"],
+                                            required: ["chapterNo", "lineNo"],
                                             properties: {
                                                 chapterNo: { type: "integer" },
                                                 lineNo: { type: "integer" },
                                                 segment: { type: "integer", nullable: true },
-                                                speaker: { type: "string", nullable: true, maxLength: 80 },
-                                                characterId: {
-                                                    type: "integer",
-                                                    nullable: true,
-                                                    description:
-                                                        "The voice is this character (story authors and admins). The fragment stops being an NPC voice, and the request is recorded in the job history as 'story-voice-name'.",
-                                                },
+                                                speaker: { type: "string", nullable: true, maxLength: 80, description: "An NPC persona by name" },
+                                                characterId: { type: "integer", nullable: true },
+                                                personaId: { type: "integer", nullable: true, description: "One of characterId's personas, or an NPC persona alone" },
                                             },
                                         },
                                     },
@@ -1960,8 +1984,38 @@ const spec = {
                     },
                 },
                 responses: {
-                    "200": { description: "The updated lines: [{ chapterNo, lineNo, speaker, segments }]" },
-                    "400": { description: "Invalid assignment (not an NPC voice, no such line) — nothing was changed" },
+                    "200": { description: "The updated lines as StoryLine, each with chapterNo and lineNo" },
+                    "400": { description: "Invalid assignment (no voice to change, no such line, bad persona) — nothing was changed" },
+                    "401": { description: "Unauthorized" },
+                    "403": { description: "Not one of this story's authors, and not an admin" },
+                    "404": { description: "No story with that slug" },
+                },
+            },
+        },
+        "/stories/{slug}/voices/carry": {
+            post: {
+                tags: ["Stories"],
+                summary: "Pre-fill a revision draft's unnamed NPC voices (story authors or admins)",
+                description:
+                    "Takes a revision draft { chapters } (as for PUT /stories/{slug}/import) and returns it with each unnamed NPC fragment " +
+                    "given the voice the same text has in the story now, matched by occurrence, plus how many it filled. Writes nothing.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["chapters"],
+                                properties: { chapters: { type: "array", items: { type: "object" } } },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "{ chapters, filled }" },
+                    "400": { description: "Invalid draft" },
                     "401": { description: "Unauthorized" },
                     "403": { description: "Not one of this story's authors, and not an admin" },
                     "404": { description: "No story with that slug" },
