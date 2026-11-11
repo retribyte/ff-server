@@ -3,9 +3,8 @@
  * /api/search endpoint's Message/StoryLine full-text search.
  *
  * Prisma's schema-driven `db push` has no syntax for expression indexes
- * (`USING gin (to_tsvector(...))`) — the only existing GIN index in this
- * schema (StoryLine.segments) works because `segments` is a real jsonb
- * *column*; `to_tsvector(text)` is a computed expression over a String
+ * (`USING gin (to_tsvector(...))`): a GIN index on a plain jsonb column fits
+ * `@@index`, but `to_tsvector(text)` is a computed expression over a String
  * column, which `@@index` simply cannot represent. So these indexes can
  * never live in schema.prisma, and this script is the only thing that
  * creates them. Unlike backfill-slugs.ts / migrate-vm-to-story.ts

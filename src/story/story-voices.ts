@@ -200,32 +200,22 @@ type SegmentWithVoice = LineWithVoices["segments"][number];
 
 /**
  * A segment as the API serves it. `persona` comes inline (name/image/color
- * for the reader). `speaker` + `npc` are the pre-persona fields, derived for
- * one release so a site deployed before this API keeps rendering NPC quotes.
+ * for the reader); an NPC voice is a persona with no character.
  */
 function toWireSegment(seg: SegmentWithVoice) {
-    const npc = seg.persona && seg.persona.characterId === null ? seg.persona : null;
     return {
         text: seg.text,
         ...(seg.characterId !== null ? { characterId: seg.characterId } : {}),
         ...(seg.personaId !== null ? { personaId: seg.personaId, persona: seg.persona } : {}),
         ...(seg.italic ? { italic: true } : {}),
         ...(seg.bold ? { bold: true } : {}),
-        ...(npc ? { npc: true, speaker: npc.name } : {}),
     };
 }
 
 /** A line as the API serves it: voice ids with their character/persona, segments as an array (null when unsegmented). */
 export function toWireLine(line: LineWithVoices) {
-    const { segments, speaker: _speaker, npcVoice: _npcVoice, legacySegments: _legacy, ...rest } = line;
-    const npc = line.persona && line.persona.characterId === null ? line.persona : null;
-    return {
-        ...rest,
-        segments: segments.length ? segments.map(toWireSegment) : null,
-        // pre-persona fields, for one release (see toWireSegment)
-        speaker: npc ? npc.name : null,
-        npcVoice: !!npc,
-    };
+    const { segments, ...rest } = line;
+    return { ...rest, segments: segments.length ? segments.map(toWireSegment) : null };
 }
 
 export type WireLine = ReturnType<typeof toWireLine>;

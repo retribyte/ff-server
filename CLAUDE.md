@@ -73,6 +73,9 @@ data. Don't add a species table back.
     `story_segments` table). Needed if `story_segments` doesn't exist: run it
     *instead of* `db push` for that change (`psql -1 -f`), because it copies
     the old `speaker`/`npcVoice`/`segments` JSON over, which `db push` won't.
+    Then run `202611110614_story-voices-drop-legacy.sql` the same way: it
+    re-runs that copy and drops those three columns (`db push` would drop
+    them without copying).
 
   Run with `docker exec -i ff-server-db-1 psql -U <user> <db> < prisma/scripts/<script>.sql`,
   then `db push`, `prisma generate`, `npm run db:search-indexes`,

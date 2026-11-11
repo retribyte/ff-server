@@ -272,16 +272,8 @@ model StoryLine {
   booruId     Int?
   imageUrl    String?
 
-  // DEPRECATED, read and written by nothing since story voices became
-  // personas (2026-11). Kept one release so the SQL stays backward-compatible
-  // with the code live until the deploy lands; a follow-up drops them.
-  speaker        String?
-  npcVoice       Boolean @default(false)
-  legacySegments Json?   @map("segments")
-
   @@unique([chapterId, line_no])
   @@index([personaId])
-  @@index([legacySegments(ops: JsonbPathOps)], type: Gin, map: "story_lines_segments_idx")
   @@map("story_lines")
 }
 
