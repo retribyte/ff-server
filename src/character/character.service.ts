@@ -4,6 +4,7 @@ import { sanitizeText } from "../utils/sanitize.js";
 import { isValidSlug, normalizeSlug, slugify } from "../utils/slug.js";
 import { getWikiData } from "../wiki/wiki.service.js";
 import { storeAvatarUpload } from "./avatar.service.js";
+import { quoteWordsByCharacter } from "../utils/word-counts.js";
 
 
 type CharacterData = {
@@ -30,9 +31,9 @@ type CharacterFilters = {
     search?: string;
     ownerId?: number;
     season?: string;
-    // limit/lite: additive, unified-/api/search-only (a narrower select
-    // shape + a result cap). Omitted by every existing caller, so their
-    // result set is otherwise unchanged.
+    // limit: a result cap (unified /api/search only). lite: a narrower
+    // select with no stats or seasons, for /api/search and pickers
+    // (GET /api/characters?lite=true).
     limit?: number;
     lite?: boolean;
 };
@@ -64,23 +65,30 @@ async function statsByCharacter(ids: number[]): Promise<Map<number, CharacterSta
     const map = new Map<number, CharacterStats>(ids.map((id) => [id, { quoteCount: 0, quoteWordCount: 0, appearances: [] }]));
     if (ids.length === 0) return map;
     const idList = Prisma.join(ids);
-    const [messageQuotes, firstMessages, storyLines] = await Promise.all([
-        prisma.$queryRaw<{ characterId: number; n: bigint; words: bigint }[]>`
-            SELECT m."characterId", COUNT(*) AS n,
-                   SUM((SELECT COUNT(*) FROM regexp_matches(m.text, '[^[:space:]]+', 'g'))) AS words
+    // Word counts come from the in-memory cache (src/utils/word-counts.ts);
+    // the counts and first appearances below are cheap enough to read live
+    const [messageQuotes, firstMessages, storyLines, quoteWords] = await Promise.all([
+        prisma.$queryRaw<{ characterId: number; n: bigint }[]>`
+            SELECT m."characterId", COUNT(*) AS n
             FROM messages m
             WHERE m.type = 'QUOTE' AND m."characterId" IN (${idList})
             GROUP BY m."characterId"
         `,
-        // Archived episodes first; a reconstructed one is only a fallback
+        // Archived episodes first; a reconstructed one is only a fallback.
+        // Each episode's first line per character is found before the join,
+        // so the sort sees a row per episode, not one per message.
         prisma.$queryRaw<{ characterId: number; season: string; episodeNo: number; messageNo: number; reconstructed: boolean }[]>`
-            SELECT DISTINCT ON (m."characterId", e."seasonTitle")
-                m."characterId", e."seasonTitle" AS season, e.episode_no AS "episodeNo", m."messageNo", e.reconstructed
-            FROM messages m JOIN episodes e ON e.title = m."episodeTitle"
-            WHERE m."characterId" IN (${idList})
-            ORDER BY m."characterId", e."seasonTitle", e.reconstructed, e.episode_no, m."messageNo"
+            SELECT DISTINCT ON (f."characterId", e."seasonTitle")
+                f."characterId", e."seasonTitle" AS season, e.episode_no AS "episodeNo", f."messageNo", e.reconstructed
+            FROM (
+                SELECT m."characterId", m."episodeTitle", MIN(m."messageNo") AS "messageNo"
+                FROM messages m
+                WHERE m."characterId" IN (${idList})
+                GROUP BY m."characterId", m."episodeTitle"
+            ) f JOIN episodes e ON e.title = f."episodeTitle"
+            ORDER BY f."characterId", e."seasonTitle", e.reconstructed, e.episode_no, f."messageNo"
         `,
-        prisma.$queryRaw<{ characterId: number; lines: bigint; words: bigint; seasons: (string | null)[] }[]>`
+        prisma.$queryRaw<{ characterId: number; lines: bigint; seasons: (string | null)[] }[]>`
             WITH spoken AS (
                 SELECT sl.id, sl."characterId" AS cid
                 FROM story_lines sl
@@ -90,31 +98,23 @@ async function statsByCharacter(ids: number[]): Promise<Map<number, CharacterSta
                 FROM story_segments ss
                 WHERE ss."characterId" IN (${idList})
             ),
-            -- one row per (line, speaker): a segmented line quotes only that
-            -- speaker's spans, any other line its whole text
+            -- one row per (line, speaker)
             quoted AS (
-                SELECT sp.cid, sl.id, sl."chapterId",
-                    CASE WHEN EXISTS (SELECT 1 FROM story_segments ss WHERE ss."lineId" = sl.id) THEN (
-                        SELECT COUNT(*)
-                        FROM story_segments ss, regexp_matches(ss.text, '[^[:space:]]+', 'g')
-                        WHERE ss."lineId" = sl.id AND ss."characterId" = sp.cid
-                    ) ELSE (
-                        SELECT COUNT(*) FROM regexp_matches(sl.text, '[^[:space:]]+', 'g')
-                    ) END AS words
+                SELECT sp.cid, sl.id, sl."chapterId"
                 FROM spoken sp JOIN story_lines sl ON sl.id = sp.id
             )
-            SELECT q.cid AS "characterId", COUNT(*) AS lines, SUM(q.words) AS words,
+            SELECT q.cid AS "characterId", COUNT(*) AS lines,
                    array_agg(DISTINCT s."seasonTitle") AS seasons
             FROM quoted q
             JOIN story_chapters sc ON sc.id = q."chapterId"
             JOIN stories s ON s.id = sc."storyId"
             GROUP BY q.cid
         `,
+        quoteWordsByCharacter(),
     ]);
     for (const r of messageQuotes) {
         const stats = map.get(r.characterId)!;
         stats.quoteCount += Number(r.n);
-        stats.quoteWordCount += Number(r.words);
     }
     for (const r of firstMessages) {
         map.get(r.characterId)!.appearances.push({ season: r.season, episodeNo: r.episodeNo, messageNo: r.messageNo, reconstructed: r.reconstructed });
@@ -122,13 +122,13 @@ async function statsByCharacter(ids: number[]): Promise<Map<number, CharacterSta
     for (const r of storyLines) {
         const stats = map.get(r.characterId)!;
         stats.quoteCount += Number(r.lines);
-        stats.quoteWordCount += Number(r.words);
         for (const season of r.seasons) {
             if (!stats.appearances.some((a) => a.season === season)) {
                 stats.appearances.push({ season, episodeNo: null, messageNo: null });
             }
         }
     }
+    for (const [id, stats] of map) stats.quoteWordCount = quoteWords.get(id) ?? 0;
     return map;
 }
 

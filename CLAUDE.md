@@ -182,6 +182,17 @@ data. Don't add a species table back.
   On NFSN stdout/stderr also land in `/home/logs/daemon_ffserver.log`; the file sink
   needs a `LOG_DIR` the `web` user can write (unset it there and a failed write is
   reported once, not fatal).
+- **Word counts are cached in memory** (`src/utils/word-counts.ts`): characters'
+  `quoteWordCount` and stories' and chapters' `wordCount` are computed for every row
+  at once and kept until the archive changes. `src/db.ts` extends the shared client so
+  every write to `Message`, `StoryLine`, `StorySegment` or a parent whose delete
+  cascades to them bumps a counter (`src/utils/archive-generation.ts`), again when such
+  a transaction finishes, and the cache recomputes on the next read. Writes from
+  outside this process (psql, `prisma/scripts/`) show up within 5 minutes: past
+  that TTL a request gets the cached counts at once and starts a background recount.
+  If you add a model whose writes change archive text or who speaks it, add it to
+  `ARCHIVE_MODELS`. Use the `prisma` from `src/db.ts`; a client of your own would
+  bypass the hook.
 - **View counters** (`src/view/`, table `view_counts`): aggregate daily counts of
   episode and story page views, split into `member` (signed-in) and `anonymous`
   columns. Nothing per user is stored (the user's call, 2026-11-07: counts only, no

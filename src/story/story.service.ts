@@ -10,6 +10,7 @@ import { targetedLines, targetsCharacterVoice } from "./voice-targets.js";
 import { placeNote } from "./note-carry.js";
 import booru from "../utils/booru.js";
 import { deleteNpcPersonasIfUnused } from "../speaker/speaker.service.js";
+import { wordsByChapter } from "../utils/word-counts.js";
 import {
     LINE_INCLUDE,
     hasVoice,
@@ -74,25 +75,9 @@ async function requireChapter(slug: string, chapterNo: number) {
     return chapter;
 }
 
-// Line types counted in word counts (not BREAK or IMAGE)
-const WORD_LINE_TYPES = ["NARRATION", "DIALOGUE", "ACTION", "TRANSCRIPT", "HEADING"];
-
-/** Words per chapter (whitespace-separated runs in each prose line's text), keyed by chapter id. */
-async function wordCountsByChapter(chapterIds: number[]): Promise<Map<number, number>> {
-    if (chapterIds.length === 0) return new Map();
-    const rows = await prisma.$queryRaw<{ chapterId: number; words: bigint }[]>`
-        SELECT sl."chapterId", COUNT(*) AS words
-        FROM story_lines sl, regexp_matches(sl.text, '[^[:space:]]+', 'g')
-        WHERE sl."chapterId" IN (${Prisma.join(chapterIds)})
-          AND sl.type::text IN (${Prisma.join(WORD_LINE_TYPES)})
-        GROUP BY sl."chapterId"
-    `;
-    return new Map(rows.map((r) => [r.chapterId, Number(r.words)]));
-}
-
-/** Adds `wordCount` to each story and to each of its chapters. */
+/** Adds `wordCount` to each story and to each of its chapters (from the in-memory cache). */
 async function withWordCounts<T extends { chapters: { id: number }[] }>(stories: T[]) {
-    const counts = await wordCountsByChapter(stories.flatMap((s) => s.chapters.map((c) => c.id)));
+    const counts = await wordsByChapter();
     return stories.map((story) => {
         const chapters = story.chapters.map((c) => ({ ...c, wordCount: counts.get(c.id) ?? 0 }));
         return { ...story, chapters, wordCount: chapters.reduce((sum, c) => sum + c.wordCount, 0) };
