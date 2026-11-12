@@ -7,19 +7,24 @@
 // tested.
 //
 // A GM entry is a Discord message of code blocks, with an optional bold
-// "**Choice ==>**" heading before each:
+// "**Choice ==>**" heading before each (the earliest entries sometimes leave
+// out the "==>"):
 //   - a heading becomes an ACTION line ("Choice ⇒")
 //   - a code-block paragraph with no dialogue is one NARRATION line
 //   - in a paragraph with dialogue, each "CODE: text" line is a DIALOGUE line
 //     spoken by that code's voice (E = Emmett, ? = an unnamed NPC, ...), and a
 //     plain line continues the dialogue line above it
+// The opening is older: a VCOMM broadcast (its header line outside the code
+// block) becomes a TRANSCRIPT line, and the GM's plain messages before the
+// first regular entry are the prologue's narration. Entries the GM labeled "(not
+// canon)" or "(Not real)" are bonus scenes, left out of the story.
 
 export const VM_CHANNEL_ID = "824134407496794162"; // #cyoa-vm
 
 /** The GM, by Discord nickname (DiscordChatExporter) or username. */
 export const VM_GM_NAMES = new Set(["Zander", "lastingparadox"]);
 
-export type VmLineType = "ACTION" | "NARRATION" | "DIALOGUE";
+export type VmLineType = "ACTION" | "NARRATION" | "DIALOGUE" | "TRANSCRIPT";
 
 /** A parsed line; DIALOGUE carries the speaker code it was written with. */
 export type VmRow = { type: VmLineType; text: string; code?: string };
@@ -28,20 +33,48 @@ export type VmRow = { type: VmLineType; text: string; code?: string };
 export type VmMessage = { id: string; author: string; content: string };
 
 // A speaker code: one to three capitals/digits starting with a capital, or an
-// unnamed NPC: "?", "??", "???", optionally numbered ("?2", "???3")
-const DIALOGUE = /^([A-Z][A-Z0-9]{0,2}|\?{1,3}\d?): (.*)$/;
+// unnamed NPC: "?", "??", "???", optionally numbered ("?2", "???3"). An NPC
+// code sometimes lost its colon ("??? A Squoatling?").
+const DIALOGUE = /^(?:([A-Z][A-Z0-9]{0,2}|\?{1,3}\d?): |(\?{1,3}\d?) (?=[A-Z]))(.*)$/;
+
+// Outside the code blocks, a line that only pings someone ("@Sean") isn't part of the entry
+const strayText = (text: string) =>
+    text
+        .split("\n")
+        .filter((l) => l.trim() && !/^@\S+$/.test(l.trim()))
+        .join("\n")
+        .trim();
+
+const VCOMM = /^\s*(VCOMM\b[^\n`]*)\n?```\n?([\s\S]*?)```\s*$/;
+
+/** A bonus scene the GM labeled as outside the story. */
+export const isNonCanon = (content: string) => /^\s*\((not canon|not real)\)/i.test(content);
+
+/** A divider line between messages (dashes and the like), not story text. */
+const isDivider = (text: string) => /^[-—–_=*~.\s]+$/.test(text);
 
 /** Throws on text the format doesn't allow (stray text outside code blocks, an orphan line). */
 export function parseEntry(content: string): VmRow[] {
+    // A VCOMM broadcast: its header line, then the recording, a paragraph per line
+    const vcomm = content.match(VCOMM);
+    if (vcomm) {
+        const body = vcomm[2]
+            .split("\n")
+            .map((l) => l.trim())
+            .filter(Boolean);
+        return [{ type: "TRANSCRIPT", text: [vcomm[1].trim(), ...body].join("\n\n") }];
+    }
     const rows: VmRow[] = [];
-    const re = /\*\*(.*?)\s*==>\*\*|```\n?([\s\S]*?)```/g;
+    const re = /\*\*([\s\S]*?)\*\*|```\n?([\s\S]*?)```/g;
     let m: RegExpExecArray | null;
     let last = 0;
     while ((m = re.exec(content))) {
-        if (content.slice(last, m.index).trim()) throw new Error(`stray text: ${content.slice(last, m.index).trim().slice(0, 80)}`);
+        const stray = strayText(content.slice(last, m.index));
+        if (stray) throw new Error(`stray text: ${stray.slice(0, 80)}`);
         last = re.lastIndex;
         if (m[2] === undefined) {
-            rows.push({ type: "ACTION", text: m[1] ? `${m[1]} ⇒` : "⇒" });
+            const choice = m[1].replace(/\s*==>\s*$/, "").trim();
+            rows.push({ type: "ACTION", text: choice ? `${choice} ⇒` : "⇒" });
             continue;
         }
         for (const para of m[2].split(/\n\s*\n/)) {
@@ -56,13 +89,14 @@ export function parseEntry(content: string): VmRow[] {
             }
             for (const l of lines) {
                 const d = l.match(DIALOGUE);
-                if (d) rows.push({ type: "DIALOGUE", text: d[2].trim(), code: d[1] });
+                if (d) rows.push({ type: "DIALOGUE", text: d[3].trim(), code: d[1] ?? d[2] });
                 else if (rows.at(-1)?.type === "DIALOGUE") rows.at(-1)!.text += "\n" + l.trim();
                 else throw new Error(`orphan line in dialogue paragraph: ${l.trim().slice(0, 80)}`);
             }
         }
     }
-    if (content.slice(last).trim()) throw new Error(`trailing text: ${content.slice(last).trim().slice(0, 80)}`);
+    const trailing = strayText(content.slice(last));
+    if (trailing) throw new Error(`trailing text: ${trailing.slice(0, 80)}`);
     return rows;
 }
 
@@ -107,18 +141,34 @@ export type DiscordConversion = {
  */
 export function convertDiscord(data: unknown): DiscordConversion {
     const messages = messagesFromExport(data)
-        .filter((m) => /^\d+$/.test(m.id) && VM_GM_NAMES.has(m.author) && m.content.includes("```"))
+        .filter((m) => /^\d+$/.test(m.id) && VM_GM_NAMES.has(m.author))
         .sort((a, b) => (newer(a.id, b.id) ? 1 : -1));
     const lines: VmRow[] = [];
     const warnings: string[] = [];
     let entries = 0;
+    // the prologue runs until the first entry after the VCOMM; after it, plain messages are table talk
+    let prologue = true;
     for (const msg of messages) {
+        const when = snowflakeDate(msg.id).toISOString().slice(0, 10);
+        if (!msg.content.includes("```")) {
+            if (!prologue) continue;
+            for (const para of msg.content.split(/\n\s*\n/)) {
+                const text = para.trim();
+                if (text && !isDivider(text)) lines.push({ type: "NARRATION", text });
+            }
+            continue;
+        }
+        if (isNonCanon(msg.content)) {
+            warnings.push(`The entry posted ${when} (message ${msg.id}) is marked not canon, so it's left out.`);
+            continue;
+        }
         try {
             const rows = parseEntry(msg.content);
             if (rows.length) entries++;
+            // the VCOMM is part of the prologue; the first real entry ends it
+            if (rows.some((r) => r.type !== "TRANSCRIPT")) prologue = false;
             lines.push(...rows);
         } catch (error) {
-            const when = snowflakeDate(msg.id).toISOString().slice(0, 10);
             warnings.push(`The entry posted ${when} (message ${msg.id}) doesn't read, so it's left out: ${(error as Error).message}`);
         }
     }

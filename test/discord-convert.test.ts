@@ -77,6 +77,53 @@ test("convertDiscord: ids sort as numbers, and an entry that doesn't read is lef
     assert.match(result.warnings[0], /message 999\) doesn't read, so it's left out: stray text/);
 });
 
+test("the opening: a VCOMM broadcast and the plain prologue, then table talk is left out", () => {
+    const gm = (id: string, content: string) => ({ id, author: { name: "lastingparadox" }, content });
+    const result = convertDiscord({
+        messages: [
+            gm("100", `VCOMM RECORDED 4-2-3024 GUY.\n${fence}SO, UH, IS THIS THING ON?\noh. uh, sorry.\n\nI just need some help.${fence}`),
+            gm("110", "ABOUT 0.7 GUYS HAVE PASSED."),
+            gm("120", "-------------------------"),
+            gm("130", "You are EMMETT TAWFEEK.\n\nThe POWER has been drained."),
+            gm("200", `**Find marbles ==>**\n${fence}You look around.${fence}`),
+            gm("210", "No?"),
+        ],
+    });
+    assert.deepEqual(result.lines, [
+        { type: "TRANSCRIPT", text: "VCOMM RECORDED 4-2-3024 GUY.\n\nSO, UH, IS THIS THING ON?\n\noh. uh, sorry.\n\nI just need some help." },
+        { type: "NARRATION", text: "ABOUT 0.7 GUYS HAVE PASSED." },
+        { type: "NARRATION", text: "You are EMMETT TAWFEEK." },
+        { type: "NARRATION", text: "The POWER has been drained." },
+        { type: "ACTION", text: "Find marbles ⇒" },
+        { type: "NARRATION", text: "You look around." },
+    ]);
+});
+
+test("older entries: a heading without ==> or with a space, a stray mention, an NPC code without its colon", () => {
+    assert.deepEqual(parseEntry(`**Look around.**\n${fence}Dusty.${fence}`)[0], { type: "ACTION", text: "Look around. ⇒" });
+    assert.deepEqual(parseEntry(`**Attach wires. ==> **\n${fence}No?${fence}`)[0], { type: "ACTION", text: "Attach wires. ⇒" });
+    assert.deepEqual(parseEntry(`**Eat. ==>**\n${fence}How about no.${fence}\n@Sean`).length, 2);
+    assert.deepEqual(parseEntry(`${fence}You press it.\n\n??? A Squoatling? I thought you were extinct!${fence}`)[1], {
+        type: "DIALOGUE",
+        text: "A Squoatling? I thought you were extinct!",
+        code: "???",
+    });
+});
+
+test("a bonus scene marked not canon is left out, with a note", () => {
+    const result = convertDiscord({
+        messages: [
+            { id: "1", author: { name: "Zander" }, content: `${fence}E: Real.${fence}` },
+            { id: "2", author: { name: "Zander" }, content: `(not canon)\n${fence}\nE: Bonus.\n${fence}` },
+        ],
+    });
+    assert.deepEqual(
+        result.lines.map((l) => l.text),
+        ["Real."]
+    );
+    assert.match(result.warnings[0], /marked not canon/);
+});
+
 test("messagesFromExport reads DiscordChatExporter JSON and checks the channel", () => {
     const exported = {
         channel: { id: VM_CHANNEL_ID },
