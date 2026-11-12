@@ -11,6 +11,7 @@ import { Prisma } from "@prisma/client";
 export const IMPORT_PATHS = new Set([
     "/api/stories/import",
     "/api/stories/convert",
+    "/api/stories/convert/discord",
     "/api/episodes/import",
     "/api/admin/episode-import",
     "/api/admin/episode-import/preview",

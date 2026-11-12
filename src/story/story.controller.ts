@@ -3,6 +3,7 @@ import storyService from "./story.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { importJson, importErrorResponse } from "../utils/import.js";
 import { analyzeDocx, convertDocx, DocxError, ManuscriptError } from "./convert/index.js";
+import { convertDiscord } from "./convert/discord.js";
 import { logger } from "../utils/logger.js";
 import { runJob, JobBusyError } from "../jobs/runner.js";
 import { STORY_VOICE_NAME_JOB } from "../admin/archiveFixes.js";
@@ -85,6 +86,34 @@ const initializeStoryRoutes = (): Router => {
             }
             logger.caught("Story conversion failed", error);
             res.status(500).json({ status: "error", message: "Conversion failed" });
+        }
+    });
+
+    // POST /api/stories/convert/discord: Vortox Machina from Discord. Body { export } (a
+    // DiscordChatExporter JSON export of #cyoa-vm). Every GM entry as story lines, oldest first,
+    // DIALOGUE lines carrying their speaker code; the codes with a count and an example each; and a
+    // warning per entry that doesn't read (left out). The importer maps codes to speakers. Writes
+    // nothing. Any member, like /stories/convert.
+    router.post("/stories/convert/discord", authenticate, importJson, async (req: Request, res: Response) => {
+        try {
+            res.status(200).json({ status: "success", data: convertDiscord(req.body?.export) });
+        } catch (error: any) {
+            res.status(400).json({ status: "error", message: error?.message ?? "That export could not be read" });
+        }
+    });
+
+    // GET /api/stories/:slug/text: the whole story as an import draft {chapters: [{chapter_no,
+    // title, lines}]}: lines as the importer uploads them (a character voice by id, an NPC by
+    // name with npcVoice/npc, pictures by booru post), so a revision can be compared with the
+    // story as it stands and any of its lines kept. Public, like the lines themselves.
+    router.get("/stories/:slug/text", async (req: Request, res: Response) => {
+        try {
+            const text = await storyService.getStoryText(req.params.slug);
+            if (!text) return res.status(404).json({ status: "error", message: `Story '${req.params.slug}' not found` });
+            res.status(200).json({ status: "success", data: text });
+        } catch (error) {
+            logger.caught("Error reading story text", error);
+            res.status(500).json({ status: "error", message: "Failed to read the story" });
         }
     });
 

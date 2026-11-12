@@ -1,6 +1,6 @@
 /**
  * Append the Vortox Machina lines that came from Discord after cyoa.json was
- * frozen (append-vm-from-discord.ts) to the "vm" story seed-legacy created.
+ * frozen (the retired append-vm-from-discord.ts) to the "vm" story seed-legacy created.
  *
  * The lines live in seed-data/vm-appended-lines.json, written from the dev DB
  * by `npm run export:vm-appended`. Characters are slugs as they are *after*

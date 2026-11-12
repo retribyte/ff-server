@@ -1,6 +1,10 @@
-// Vortox Machina entries as the GM posts them in #cyoa-vm, turned into story
-// lines. Shared by the admin import (vmImport.ts) and the CLI
-// (prisma/scripts/append-vm-from-discord.ts). Pure, so it's unit tested.
+// Vortox Machina from Discord: a DiscordChatExporter JSON export of #cyoa-vm
+// in, the story's lines out, for the web importer (POST
+// /stories/convert/discord). Like the Google Doc converter it writes nothing:
+// the importer maps each speaker code to a speaker (remembered on the story,
+// Story.importMeta.codes), previews it, and a revision of the "vm" story goes
+// through its review of what changed against the shelf. Pure, so it's unit
+// tested.
 //
 // A GM entry is a Discord message of code blocks, with an optional bold
 // "**Choice ==>**" heading before each:
@@ -20,11 +24,12 @@ export type VmLineType = "ACTION" | "NARRATION" | "DIALOGUE";
 /** A parsed line; DIALOGUE carries the speaker code it was written with. */
 export type VmRow = { type: VmLineType; text: string; code?: string };
 
-/** One message as the import reads it. */
+/** One message as the converter reads it. */
 export type VmMessage = { id: string; author: string; content: string };
 
-// A speaker code: one to three capitals/digits starting with a capital, or "?"
-const DIALOGUE = /^([A-Z][A-Z0-9]{0,2}|\?): (.*)$/;
+// A speaker code: one to three capitals/digits starting with a capital, or an
+// unnamed NPC: "?", "??", "???", optionally numbered ("?2", "???3")
+const DIALOGUE = /^([A-Z][A-Z0-9]{0,2}|\?{1,3}\d?): (.*)$/;
 
 /** Throws on text the format doesn't allow (stray text outside code blocks, an orphan line). */
 export function parseEntry(content: string): VmRow[] {
@@ -64,37 +69,6 @@ export function parseEntry(content: string): VmRow[] {
 const newer = (a: string, b: string) => BigInt(a) > BigInt(b);
 
 /**
- * The GM entries after `afterId`, oldest first, parsed: what an import would
- * append. `newestId` is the newest message seen after `afterId` by anyone (the
- * next import's starting point), or null when there's nothing new.
- * `codes` counts each speaker code with its first line, for the preview.
- */
-export function newEntries(messages: VmMessage[], afterId: string) {
-    const fresh = messages.filter((m) => /^\d+$/.test(m.id) && newer(m.id, afterId)).sort((a, b) => (newer(a.id, b.id) ? 1 : -1));
-    const rows: (VmRow & { messageId: string })[] = [];
-    let entries = 0;
-    for (const msg of fresh) {
-        if (!VM_GM_NAMES.has(msg.author) || !msg.content.includes("```")) continue;
-        let parsed: VmRow[];
-        try {
-            parsed = parseEntry(msg.content);
-        } catch (error) {
-            throw new Error(`message ${msg.id}: ${(error as Error).message}`);
-        }
-        if (parsed.length) entries++;
-        rows.push(...parsed.map((r) => ({ ...r, messageId: msg.id })));
-    }
-    const codes = new Map<string, { count: number; example: string }>();
-    for (const r of rows) {
-        if (r.code === undefined) continue;
-        const seen = codes.get(r.code);
-        if (seen) seen.count++;
-        else codes.set(r.code, { count: 1, example: r.text.slice(0, 120) });
-    }
-    return { rows, entries, codes, newestId: fresh.at(-1)?.id ?? null };
-}
-
-/**
  * A DiscordChatExporter JSON export of #cyoa-vm as messages. Throws when it
  * isn't one, or is another channel's.
  */
@@ -112,6 +86,50 @@ export function messagesFromExport(data: unknown): VmMessage[] {
         const name = [author.nickname, author.name].find((n) => typeof n === "string" && VM_GM_NAMES.has(n)) ?? author.nickname ?? author.name ?? "";
         return { id: m.id, author: String(name), content: m.content };
     });
+}
+
+export type DiscordConversion = {
+    /** the story's lines, oldest entry first; DIALOGUE lines carry their speaker code */
+    lines: VmRow[];
+    /** GM entries read */
+    entries: number;
+    /** every speaker code, with how many lines it speaks and its first one */
+    codes: { code: string; count: number; example: string }[];
+    /** entries that don't read in the format (left out of the lines) */
+    warnings: string[];
+};
+
+/**
+ * Every GM entry in the export (a GM message with code blocks), oldest first,
+ * as story lines. An entry that doesn't read is left out with a warning (old
+ * ones were posted in earlier formats; the review of a revision shows their
+ * lines as removed, to keep).
+ */
+export function convertDiscord(data: unknown): DiscordConversion {
+    const messages = messagesFromExport(data)
+        .filter((m) => /^\d+$/.test(m.id) && VM_GM_NAMES.has(m.author) && m.content.includes("```"))
+        .sort((a, b) => (newer(a.id, b.id) ? 1 : -1));
+    const lines: VmRow[] = [];
+    const warnings: string[] = [];
+    let entries = 0;
+    for (const msg of messages) {
+        try {
+            const rows = parseEntry(msg.content);
+            if (rows.length) entries++;
+            lines.push(...rows);
+        } catch (error) {
+            const when = snowflakeDate(msg.id).toISOString().slice(0, 10);
+            warnings.push(`The entry posted ${when} (message ${msg.id}) doesn't read, so it's left out: ${(error as Error).message}`);
+        }
+    }
+    const codes = new Map<string, { count: number; example: string }>();
+    for (const r of lines) {
+        if (r.code === undefined) continue;
+        const seen = codes.get(r.code);
+        if (seen) seen.count++;
+        else codes.set(r.code, { count: 1, example: r.text.slice(0, 120) });
+    }
+    return { lines, entries, codes: [...codes].map(([code, c]) => ({ code, ...c })), warnings };
 }
 
 /** When a Discord message was sent, from its id (a snowflake). */

@@ -1071,8 +1071,76 @@ async function restoreNotes(
     return { notesKept: rows.length, notesMoved };
 }
 
+/**
+ * The whole story as an import draft, chapters in order: each line as the
+ * importer uploads one (a character voice by id, an NPC by name with
+ * npcVoice / npc, a picture by booru post and its file URL), so a revision
+ * can be compared with the story as it stands and any line of it kept as is.
+ * null for an unknown slug.
+ */
+async function getStoryText(slug: string) {
+    const story = await prisma.story.findUnique({
+        where: { slug },
+        select: {
+            chapters: {
+                orderBy: { chapter_no: "asc" },
+                select: {
+                    chapter_no: true,
+                    title: true,
+                    lines: {
+                        orderBy: { line_no: "asc" },
+                        select: {
+                            type: true,
+                            text: true,
+                            characterId: true,
+                            personaId: true,
+                            persona: { select: { name: true } },
+                            booruId: true,
+                            imageUrl: true,
+                            segments: {
+                                orderBy: { position: "asc" },
+                                select: { text: true, characterId: true, personaId: true, persona: { select: { name: true } }, italic: true, bold: true },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    });
+    if (!story) return null;
+    // a voice as the importer writes it: a character (and persona) by id, an NPC persona by name
+    const voice = (f: { characterId: number | null; personaId: number | null; persona: { name: string | null } | null }, npcFlag: "npcVoice" | "npc") => {
+        if (f.characterId !== null) return f.personaId !== null ? { characterId: f.characterId, personaId: f.personaId } : { characterId: f.characterId };
+        if (f.personaId !== null) return { [npcFlag]: true, ...(f.persona?.name ? { speaker: f.persona.name } : {}) };
+        return {};
+    };
+    return {
+        chapters: story.chapters.map((c) => ({
+            chapter_no: c.chapter_no,
+            title: c.title,
+            lines: c.lines.map((l) => ({
+                type: l.type,
+                text: l.text,
+                ...voice(l, "npcVoice"),
+                ...(l.segments.length
+                    ? {
+                          segments: l.segments.map((seg) => ({
+                              text: seg.text,
+                              ...voice(seg, "npc"),
+                              ...(seg.italic ? { italic: true } : {}),
+                              ...(seg.bold ? { bold: true } : {}),
+                          })),
+                      }
+                    : {}),
+                ...(l.booruId !== null ? { booruId: l.booruId, imageUrl: l.imageUrl } : {}),
+            })),
+        })),
+    };
+}
+
 export default {
     assignVoices,
+    getStoryText,
     revoicesCharacters,
     assignVoicesTx,
     carryStoryVoices,
