@@ -351,9 +351,9 @@ enum JobStatus {
   FAILED
 }
 
-// Small server-kept state an admin feature needs between runs, by key. The
-// Vortox Machina import ("vm-import") keeps the last Discord message it
-// appended and the speaker codes it has learned (src/jobs/vmImport.ts).
+// Small server-kept state an admin feature needs between runs, by key. Unused
+// since Vortox Machina moved to the story importer (its speaker codes are
+// Story.importMeta.codes now); left for the next feature that needs one.
 model AppSetting {
   key       String   @id
   value     Json

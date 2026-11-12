@@ -3,6 +3,7 @@ import storyService from "./story.service.js";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { importJson, importErrorResponse } from "../utils/import.js";
 import { analyzeDocx, convertDocx, DocxError, ManuscriptError } from "./convert/index.js";
+import { convertDiscord } from "./convert/discord.js";
 import { logger } from "../utils/logger.js";
 import { runJob, JobBusyError } from "../jobs/runner.js";
 import { STORY_VOICE_NAME_JOB } from "../admin/archiveFixes.js";
@@ -88,8 +89,37 @@ const initializeStoryRoutes = (): Router => {
         }
     });
 
-    // PUT /api/stories/:slug/import: Atomic revision { chapters: [...] } — replaces
-    // every chapter and line, keeping the story's metadata. 404 unknown slug,
+    // POST /api/stories/convert/discord: Vortox Machina from Discord. Body { export } (a
+    // DiscordChatExporter JSON export of #cyoa-vm). Every GM entry as story lines, oldest first,
+    // DIALOGUE lines carrying their speaker code; the codes with a count and an example each; and a
+    // warning per entry that doesn't read (left out). The importer maps codes to speakers. Writes
+    // nothing. Any member, like /stories/convert.
+    router.post("/stories/convert/discord", authenticate, importJson, async (req: Request, res: Response) => {
+        try {
+            res.status(200).json({ status: "success", data: convertDiscord(req.body?.export) });
+        } catch (error: any) {
+            res.status(400).json({ status: "error", message: error?.message ?? "That export could not be read" });
+        }
+    });
+
+    // GET /api/stories/:slug/text: the whole story as an import draft {chapters: [{chapter_no,
+    // title, lines}]}: lines as the importer uploads them (a character voice by id, an NPC by
+    // name with npcVoice/npc, pictures by booru post), so a revision can be compared with the
+    // story as it stands and any of its lines kept. Public, like the lines themselves.
+    router.get("/stories/:slug/text", async (req: Request, res: Response) => {
+        try {
+            const text = await storyService.getStoryText(req.params.slug);
+            if (!text) return res.status(404).json({ status: "error", message: `Story '${req.params.slug}' not found` });
+            res.status(200).json({ status: "success", data: text });
+        } catch (error) {
+            logger.caught("Error reading story text", error);
+            res.status(500).json({ status: "error", message: "Failed to read the story" });
+        }
+    });
+
+    // PUT /api/stories/:slug/import: Atomic revision { chapters: [...], blurb?, publishedDate?,
+    // authorIds? (admins), importMeta? } — replaces every chapter and line; a blurb, date or
+    // author list sent replaces the story's, anything left out stays. 404 unknown slug,
     // 409 when the text duplicates a different story. The story's authors or an admin.
     router.put("/stories/:slug/import", authenticate, importJson, async (req: Request, res: Response) => {
         try {
@@ -98,7 +128,9 @@ const initializeStoryRoutes = (): Router => {
             if (!allowed) {
                 return res.status(403).json({ status: "error", message: "Only this story's authors or an admin can replace its text" });
             }
-            const story = await storyService.replaceStoryContent(req.params.slug, req.body);
+            const story = await storyService.replaceStoryContent(req.params.slug, req.body, {
+                canSetAuthors: (req.user as { role: string }).role === "ADMIN",
+            });
             res.status(200).json({ status: "success", data: story });
         } catch (error: any) {
             if (/^Story '.*' not found$/.test(error?.message ?? "")) {
@@ -111,8 +143,8 @@ const initializeStoryRoutes = (): Router => {
 
     // PATCH /api/stories/:slug/published-date: set or clear the story's real-world
     // publication date. Body { publishedDate: "YYYY-MM-DD" | null }. The one
-    // metadata write open to a story's authors (besides admins); everything else
-    // on PUT /stories/:slug stays admin. Returns { slug, publishedDate }.
+    // metadata write open to a story's authors (besides admins), with the blurb;
+    // everything else on PUT /stories/:slug stays admin. Returns { slug, publishedDate }.
     router.patch("/stories/:slug/published-date", authenticate, async (req: Request, res: Response) => {
         const { slug } = req.params;
         try {
@@ -122,6 +154,25 @@ const initializeStoryRoutes = (): Router => {
                 return res.status(403).json({ status: "error", message: "Only this story's authors or an admin can change its published date" });
             }
             const updated = await storyService.setPublishedDate(slug, req.body?.publishedDate);
+            if (updated === null) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
+            res.status(200).json({ status: "success", data: updated });
+        } catch (error: any) {
+            res.status(400).json({ status: "error", message: error.message });
+        }
+    });
+
+    // PATCH /api/stories/:slug/blurb: set or clear the story's blurb. Body { blurb: text | null }
+    // (at most 2,000 characters; blank clears it). Its authors or an admin, like the published
+    // date. Returns { slug, blurb }.
+    router.patch("/stories/:slug/blurb", authenticate, async (req: Request, res: Response) => {
+        const { slug } = req.params;
+        try {
+            const allowed = await storyService.isAuthorOrAdmin(slug, req.user as { id: number; role: string });
+            if (allowed === null) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
+            if (!allowed) {
+                return res.status(403).json({ status: "error", message: "Only this story's authors or an admin can change its blurb" });
+            }
+            const updated = await storyService.setBlurb(slug, req.body?.blurb);
             if (updated === null) return res.status(404).json({ status: "error", message: `Story '${slug}' not found` });
             res.status(200).json({ status: "success", data: updated });
         } catch (error: any) {

@@ -811,6 +811,26 @@ async function setPublishedDate(slug: string, value: unknown) {
     return updated;
 }
 
+const MAX_BLURB = 2000;
+
+/** A blurb as stored: trimmed, one to 2,000 characters, or null (none). */
+function parseBlurb(value: unknown): string | null {
+    if (value === null) return null;
+    if (typeof value !== "string") throw new Error("blurb must be text, or null to clear it");
+    const blurb = value.trim();
+    if (blurb.length > MAX_BLURB) throw new Error(`blurb must be at most ${MAX_BLURB} characters`);
+    return blurb || null;
+}
+
+/** An author's or admin's edit of the story's blurb (null or blank clears it). */
+async function setBlurb(slug: string, value: unknown) {
+    if (value === undefined) throw new Error("blurb is required (text, or null to clear it)");
+    const blurb = parseBlurb(value);
+    const story = await prisma.story.findUnique({ where: { slug }, select: { id: true } });
+    if (!story) return null;
+    return prisma.story.update({ where: { id: story.id }, data: { blurb }, select: { slug: true, blurb: true } });
+}
+
 type ImportChapter = { chapter_no: number; title?: string | null; lines: LineData[] };
 type StoryImport = { story: StoryData; chapters: ImportChapter[]; importMeta?: unknown };
 
@@ -983,7 +1003,8 @@ async function updateLine(slug: string, chapterNo: number, lineNo: number, data:
 /**
  * Atomic revision: replaces every chapter and line of an existing story with
  * a new draft in one transaction, keeping the story itself (id, slug, title,
- * authors, season, blurb, theme). Rejects (409) text identical to a
+ * season, theme). A blurb, published date or (admins only: `canSetAuthors`)
+ * author list the draft sends replaces the story's; one it leaves out stays. Rejects (409) text identical to a
  * *different* story; re-sending the story's own text is allowed and just
  * rewrites it. Unnamed NPC fragments take the voice their unchanged text had
  * (carryVoices); any left unnamed reject the revision (400). NPC personas the
@@ -993,9 +1014,15 @@ async function updateLine(slug: string, chapterNo: number, lineNo: number, data:
  */
 async function replaceStoryContent(
     slug: string,
-    body: { chapters: ImportChapter[]; importMeta?: unknown; publishedDate?: string | null }
+    body: { chapters: ImportChapter[]; importMeta?: unknown; publishedDate?: string | null; blurb?: unknown; authorIds?: unknown },
+    { canSetAuthors = false }: { canSetAuthors?: boolean } = {}
 ) {
     const { ordered, contentHash } = prepareChapters(body?.chapters);
+    // Sent: replaces the story's. Absent: it keeps its own
+    const blurb = body?.blurb === undefined ? undefined : parseBlurb(body.blurb);
+    if (body?.authorIds !== undefined && !canSetAuthors) throw new Error("Only an admin can change a story's authors");
+    const authors = body?.authorIds === undefined ? undefined : authorRefs(body.authorIds);
+    if (authors && authors.length === 0) throw new Error("A story needs at least one author");
     // Sent: set it (null clears it). Absent: the story keeps the date it has
     const publishedDate = parsePublishedDate(body?.publishedDate);
     // A revision from a Google Doc updates the remembered color map; one from
@@ -1033,7 +1060,10 @@ async function replaceStoryContent(
         const { lineCount, npcsCreated } = await insertChapters(tx, story.id, ordered);
         const { notesKept, notesMoved } = await restoreNotes(tx, story.id, notes);
         const npcsDeleted = await deleteNpcPersonasIfUnused(tx, before);
-        await tx.story.update({ where: { id: story.id }, data: { contentHash, importMeta: importMeta ?? undefined, publishedDate } });
+        await tx.story.update({
+            where: { id: story.id },
+            data: { contentHash, importMeta: importMeta ?? undefined, publishedDate, blurb, authors: authors ? { set: authors } : undefined },
+        });
         const full = await tx.story.findUniqueOrThrow({
             where: { id: story.id },
             include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
@@ -1071,14 +1101,83 @@ async function restoreNotes(
     return { notesKept: rows.length, notesMoved };
 }
 
+/**
+ * The whole story as an import draft, chapters in order: each line as the
+ * importer uploads one (a character voice by id, an NPC by name with
+ * npcVoice / npc, a picture by booru post and its file URL), so a revision
+ * can be compared with the story as it stands and any line of it kept as is.
+ * null for an unknown slug.
+ */
+async function getStoryText(slug: string) {
+    const story = await prisma.story.findUnique({
+        where: { slug },
+        select: {
+            chapters: {
+                orderBy: { chapter_no: "asc" },
+                select: {
+                    chapter_no: true,
+                    title: true,
+                    lines: {
+                        orderBy: { line_no: "asc" },
+                        select: {
+                            type: true,
+                            text: true,
+                            characterId: true,
+                            personaId: true,
+                            persona: { select: { name: true } },
+                            booruId: true,
+                            imageUrl: true,
+                            segments: {
+                                orderBy: { position: "asc" },
+                                select: { text: true, characterId: true, personaId: true, persona: { select: { name: true } }, italic: true, bold: true },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    });
+    if (!story) return null;
+    // a voice as the importer writes it: a character (and persona) by id, an NPC persona by name
+    const voice = (f: { characterId: number | null; personaId: number | null; persona: { name: string | null } | null }, npcFlag: "npcVoice" | "npc") => {
+        if (f.characterId !== null) return f.personaId !== null ? { characterId: f.characterId, personaId: f.personaId } : { characterId: f.characterId };
+        if (f.personaId !== null) return { [npcFlag]: true, ...(f.persona?.name ? { speaker: f.persona.name } : {}) };
+        return {};
+    };
+    return {
+        chapters: story.chapters.map((c) => ({
+            chapter_no: c.chapter_no,
+            title: c.title,
+            lines: c.lines.map((l) => ({
+                type: l.type,
+                text: l.text,
+                ...voice(l, "npcVoice"),
+                ...(l.segments.length
+                    ? {
+                          segments: l.segments.map((seg) => ({
+                              text: seg.text,
+                              ...voice(seg, "npc"),
+                              ...(seg.italic ? { italic: true } : {}),
+                              ...(seg.bold ? { bold: true } : {}),
+                          })),
+                      }
+                    : {}),
+                ...(l.booruId !== null ? { booruId: l.booruId, imageUrl: l.imageUrl } : {}),
+            })),
+        })),
+    };
+}
+
 export default {
     assignVoices,
+    getStoryText,
     revoicesCharacters,
     assignVoicesTx,
     carryStoryVoices,
     linksCharacters,
     isAuthorOrAdmin,
     setPublishedDate,
+    setBlurb,
     getAllStories,
     getStoryBySlug,
     createStory,

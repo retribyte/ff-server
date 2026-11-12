@@ -1,5 +1,5 @@
 /**
- * Export the Vortox Machina lines appended from Discord (append-vm-from-discord.ts)
+ * Export the Vortox Machina lines appended from Discord (the retired append-vm-from-discord.ts)
  * into the committed seed file seed-legacy.ts replays:
  * prisma/scripts/seed-data/vm-appended-lines.json.
  *

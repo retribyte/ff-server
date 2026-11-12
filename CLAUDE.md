@@ -331,7 +331,8 @@ data. Don't add a species table back.
   other source live in `prisma/scripts/seed-data/{characters,users}.json`, applied by
   `seed-overlay.ts`; after editing records in the site, `npm run export:overlay`
   rewrites those files from the dev DB so the change can be committed.
-  Vortox Machina lines appended from Discord (`append-vm-from-discord.ts`,
+  Vortox Machina lines appended from Discord (by the retired
+  `append-vm-from-discord.ts`; it's updated through the site's /import now,
   speakers keyed by slug) are replayed by `seed-vm-appended.ts` (right after
   `seed-npc-personas.ts`, whose renames the slugs assume) from
   `seed-data/vm-appended-lines.json`: after appending to dev, run `npm run

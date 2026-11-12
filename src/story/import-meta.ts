@@ -1,14 +1,22 @@
-// Story.importMeta: how a story's last Google Doc import read the doc (its
-// dialogue style and text color -> speaker map), so a revision only asks about
-// colors it hasn't seen.
+// Story.importMeta: how a story's last import read its source, so a revision
+// only asks about what it hasn't seen: a Google Doc's dialogue style and text
+// color -> speaker map, or a Discord export's speaker code -> speaker map
+// (Vortox Machina; "?" = an unnamed NPC, named in the importer).
 
-export type ImportMeta = { format?: "prose" | "script"; colors: Record<string, string | null> };
+export type ImportMeta = {
+    format?: "prose" | "script";
+    colors: Record<string, string | null>;
+    codes?: Record<string, string>;
+};
+
+const SPEAKER_CODE = /^([A-Z][A-Z0-9]{0,2}|\?{1,3}\d?)$/;
+const MAX_IMPORT_CODES = 100;
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/;
 const MAX_IMPORT_COLORS = 200;
 
 /**
- * The Google Doc color map an import was converted with (see Story.importMeta).
+ * The color map (or speaker codes) an import was converted with (see Story.importMeta).
  * undefined = none sent; throws on anything malformed.
  */
 export function parseImportMeta(raw: unknown): ImportMeta | undefined {
@@ -31,5 +39,18 @@ export function parseImportMeta(raw: unknown): ImportMeta | undefined {
         }
         out[key] = speaker === null ? null : (speaker as string).trim();
     }
-    return format ? { format: format as ImportMeta["format"], colors: out } : { colors: out };
+    const meta: ImportMeta = format ? { format: format as ImportMeta["format"], colors: out } : { colors: out };
+    const { codes } = raw as { codes?: unknown };
+    if (codes !== undefined) {
+        if (!codes || typeof codes !== "object" || Array.isArray(codes)) fail("codes must be an object");
+        const list = Object.entries(codes as Record<string, unknown>);
+        if (list.length > MAX_IMPORT_CODES) fail(`at most ${MAX_IMPORT_CODES} speaker codes`);
+        meta.codes = {};
+        for (const [code, speaker] of list) {
+            if (!SPEAKER_CODE.test(code)) fail(`'${code}' is not a speaker code`);
+            if (typeof speaker !== "string" || !speaker.trim() || speaker.length > 100) fail(`${code} must map to a speaker name (1-100 characters)`);
+            meta.codes[code] = (speaker as string).trim();
+        }
+    }
+    return meta;
 }
