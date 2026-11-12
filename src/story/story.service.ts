@@ -811,6 +811,26 @@ async function setPublishedDate(slug: string, value: unknown) {
     return updated;
 }
 
+const MAX_BLURB = 2000;
+
+/** A blurb as stored: trimmed, one to 2,000 characters, or null (none). */
+function parseBlurb(value: unknown): string | null {
+    if (value === null) return null;
+    if (typeof value !== "string") throw new Error("blurb must be text, or null to clear it");
+    const blurb = value.trim();
+    if (blurb.length > MAX_BLURB) throw new Error(`blurb must be at most ${MAX_BLURB} characters`);
+    return blurb || null;
+}
+
+/** An author's or admin's edit of the story's blurb (null or blank clears it). */
+async function setBlurb(slug: string, value: unknown) {
+    if (value === undefined) throw new Error("blurb is required (text, or null to clear it)");
+    const blurb = parseBlurb(value);
+    const story = await prisma.story.findUnique({ where: { slug }, select: { id: true } });
+    if (!story) return null;
+    return prisma.story.update({ where: { id: story.id }, data: { blurb }, select: { slug: true, blurb: true } });
+}
+
 type ImportChapter = { chapter_no: number; title?: string | null; lines: LineData[] };
 type StoryImport = { story: StoryData; chapters: ImportChapter[]; importMeta?: unknown };
 
@@ -983,7 +1003,8 @@ async function updateLine(slug: string, chapterNo: number, lineNo: number, data:
 /**
  * Atomic revision: replaces every chapter and line of an existing story with
  * a new draft in one transaction, keeping the story itself (id, slug, title,
- * authors, season, blurb, theme). Rejects (409) text identical to a
+ * season, theme). A blurb, published date or (admins only: `canSetAuthors`)
+ * author list the draft sends replaces the story's; one it leaves out stays. Rejects (409) text identical to a
  * *different* story; re-sending the story's own text is allowed and just
  * rewrites it. Unnamed NPC fragments take the voice their unchanged text had
  * (carryVoices); any left unnamed reject the revision (400). NPC personas the
@@ -993,9 +1014,15 @@ async function updateLine(slug: string, chapterNo: number, lineNo: number, data:
  */
 async function replaceStoryContent(
     slug: string,
-    body: { chapters: ImportChapter[]; importMeta?: unknown; publishedDate?: string | null }
+    body: { chapters: ImportChapter[]; importMeta?: unknown; publishedDate?: string | null; blurb?: unknown; authorIds?: unknown },
+    { canSetAuthors = false }: { canSetAuthors?: boolean } = {}
 ) {
     const { ordered, contentHash } = prepareChapters(body?.chapters);
+    // Sent: replaces the story's. Absent: it keeps its own
+    const blurb = body?.blurb === undefined ? undefined : parseBlurb(body.blurb);
+    if (body?.authorIds !== undefined && !canSetAuthors) throw new Error("Only an admin can change a story's authors");
+    const authors = body?.authorIds === undefined ? undefined : authorRefs(body.authorIds);
+    if (authors && authors.length === 0) throw new Error("A story needs at least one author");
     // Sent: set it (null clears it). Absent: the story keeps the date it has
     const publishedDate = parsePublishedDate(body?.publishedDate);
     // A revision from a Google Doc updates the remembered color map; one from
@@ -1033,7 +1060,10 @@ async function replaceStoryContent(
         const { lineCount, npcsCreated } = await insertChapters(tx, story.id, ordered);
         const { notesKept, notesMoved } = await restoreNotes(tx, story.id, notes);
         const npcsDeleted = await deleteNpcPersonasIfUnused(tx, before);
-        await tx.story.update({ where: { id: story.id }, data: { contentHash, importMeta: importMeta ?? undefined, publishedDate } });
+        await tx.story.update({
+            where: { id: story.id },
+            data: { contentHash, importMeta: importMeta ?? undefined, publishedDate, blurb, authors: authors ? { set: authors } : undefined },
+        });
         const full = await tx.story.findUniqueOrThrow({
             where: { id: story.id },
             include: { authors: AUTHORS_LIST, season: SEASON_SELECT, chapters: CHAPTER_LIST },
@@ -1147,6 +1177,7 @@ export default {
     linksCharacters,
     isAuthorOrAdmin,
     setPublishedDate,
+    setBlurb,
     getAllStories,
     getStoryBySlug,
     createStory,
