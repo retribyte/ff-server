@@ -309,7 +309,12 @@ data. Don't add a species table back.
   /admin/portrait/curation` (categories, hidden items, pixel repairs), `PATCH
   /admin/portrait/mods/:id` (on/off, clothing limits) and `DELETE /admin/portrait/mods/:id`,
   which deletes that mod's folder from the bundle directory: the one place the API
-  removes files. The disabled-mod set is cached 5 s
+  removes files. **Saved portraits** (`src/portrait/saved.service.ts`, table `portraits`):
+  a member keeps a name, the creator's recipe (JSON) and the rendered PNG (bytes, at most
+  256x256 and 64 KB, checked like avatars; 300 per member). `/api/portraits` (GET mine,
+  POST), `/api/portraits/:id` (GET, PUT, DELETE) and `.../image.png`. Private (the user's
+  open question, so the safe default): only the owner reads or changes one, an admin may
+  read and delete, anyone else gets a 404. They are not linked to characters. The disabled-mod set is cached 5 s
   (writes through the service clear it; psql edits show within 5 s).
 - **Admin jobs** (`src/jobs/`, `src/admin/`): idempotent, database-only
   maintenance jobs (`JOBS` in `src/jobs/registry.ts`) and the episode import

@@ -4,6 +4,7 @@ import { importJson } from "../utils/import.js";
 import { logger } from "../utils/logger.js";
 import portraitService from "./portrait.service.js";
 import { acceptsGzip, etagMatches, plain, type Assembled } from "./portrait.bundle.js";
+import savedService, { parsePortrait, PortraitInputError, type PortraitInput } from "./saved.service.js";
 import { parseCurationPatch, parseModPatch, parseRaces, parseSettings, SettingsError } from "./portrait.validation.js";
 
 const PACK_CACHE = "private, max-age=31536000, immutable"; // the site adds ?v=<build>
@@ -77,6 +78,90 @@ const initializePortraitRoutes = (): Router => {
             if (error instanceof SettingsError) return res.status(400).json({ status: "error", message: error.message });
             logger.caught("Error replacing portrait settings", error);
             return res.status(500).json({ status: "error", message: "Failed to save portrait settings" });
+        }
+    });
+
+    // ----- saved portraits: each member's own (admins may read and delete any)
+
+    const failed = (res: Response, what: string, error: unknown) => {
+        if (error instanceof PortraitInputError) return res.status(400).json({ status: "error", message: error.message });
+        logger.caught(what, error);
+        return res.status(500).json({ status: "error", message: "The portrait could not be saved" });
+    };
+    const idOf = (req: Request) => (/^\d{1,9}$/.test(req.params.id) ? Number(req.params.id) : null);
+    const mayUse = (req: Request, ownerId: number) => req.user!.id === ownerId || req.user!.role === "ADMIN";
+    const missing = (res: Response) => res.status(404).json({ status: "error", message: "No such portrait" });
+
+    // GET /api/portraits: my saved portraits, without recipes or images (members)
+    router.get("/portraits", authenticate, async (req: Request, res: Response) => {
+        try {
+            return res.status(200).json({ status: "success", data: await savedService.getPortraitsByOwner(req.user!.id) });
+        } catch (error) {
+            return failed(res, "Error listing portraits", error);
+        }
+    });
+
+    // POST /api/portraits {name, race, recipe, image: PNG data URL}: keep a portrait (members)
+    router.post("/portraits", authenticate, async (req: Request, res: Response) => {
+        try {
+            const created = await savedService.createPortrait(req.user!.id, parsePortrait(req.body) as PortraitInput);
+            return res.status(201).json({ status: "success", data: created });
+        } catch (error) {
+            return failed(res, "Error saving portrait", error);
+        }
+    });
+
+    // GET /api/portraits/:id: one portrait with its recipe (owner or admin; anyone else gets a 404)
+    router.get("/portraits/:id", authenticate, async (req: Request, res: Response) => {
+        try {
+            const id = idOf(req);
+            const portrait = id === null ? null : await savedService.getPortraitById(id);
+            if (!portrait || !mayUse(req, portrait.ownerId)) return missing(res);
+            return res.status(200).json({ status: "success", data: portrait });
+        } catch (error) {
+            return failed(res, "Error fetching portrait", error);
+        }
+    });
+
+    // GET /api/portraits/:id/image.png: its PNG (owner or admin)
+    router.get("/portraits/:id/image.png", authenticate, async (req: Request, res: Response) => {
+        try {
+            const id = idOf(req);
+            const portrait = id === null ? null : await savedService.getPortraitImage(id);
+            if (!portrait || !mayUse(req, portrait.ownerId)) return missing(res);
+            // The site adds ?v=<updatedAt>, so a changed portrait is a new URL
+            res.set({ "Content-Type": "image/png", "Cache-Control": "private, max-age=31536000, immutable" });
+            return res.status(200).send(Buffer.from(portrait.image));
+        } catch (error) {
+            return failed(res, "Error fetching portrait image", error);
+        }
+    });
+
+    // PUT /api/portraits/:id: change any of name, race, recipe, image (owner only: an admin does not edit a member's portrait)
+    router.put("/portraits/:id", authenticate, async (req: Request, res: Response) => {
+        try {
+            const id = idOf(req);
+            const portrait = id === null ? null : await savedService.getPortraitById(id);
+            if (!portrait || !mayUse(req, portrait.ownerId)) return missing(res);
+            if (portrait.ownerId !== req.user!.id) return res.status(403).json({ status: "error", message: "Only its owner can change a portrait" });
+            const changes = parsePortrait(req.body, true);
+            if (!Object.keys(changes).length) return res.status(400).json({ status: "error", message: "Nothing to change" });
+            return res.status(200).json({ status: "success", data: await savedService.updatePortrait(portrait.id, changes) });
+        } catch (error) {
+            return failed(res, "Error updating portrait", error);
+        }
+    });
+
+    // DELETE /api/portraits/:id (owner or admin)
+    router.delete("/portraits/:id", authenticate, async (req: Request, res: Response) => {
+        try {
+            const id = idOf(req);
+            const portrait = id === null ? null : await savedService.getPortraitById(id);
+            if (!portrait || !mayUse(req, portrait.ownerId)) return missing(res);
+            await savedService.deletePortrait(portrait.id);
+            return res.status(204).end();
+        } catch (error) {
+            return failed(res, "Error deleting portrait", error);
         }
     });
 

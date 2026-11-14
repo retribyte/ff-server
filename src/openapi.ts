@@ -1633,6 +1633,59 @@ const spec = {
                 responses: { "200": { description: "The whole pack" }, "206": { description: "The requested range" }, "401": { description: "Not signed in" }, "404": { description: "No such pack" } },
             },
         },
+        "/portraits": {
+            get: {
+                tags: ["Portrait"],
+                summary: "My saved portraits (members)",
+                description: "The signed-in member's own portraits, most recently changed first: `{id, name, race, ownerId, createdAt, updatedAt}`, without recipes or images.",
+                security: [{ bearerAuth: [] }],
+                responses: { "200": { description: "The list" }, "401": { description: "Not signed in" } },
+            },
+            post: {
+                tags: ["Portrait"],
+                summary: "Save a portrait (members)",
+                description:
+                    "Body `{name, race, recipe, image}`: `race` is the creator's race id, `recipe` the creator's recipe object (at most 32 KB), " +
+                    "`image` the rendered PNG as a `data:` URL (at most 256x256 and 64 KB). A member can keep 300.",
+                security: [{ bearerAuth: [] }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["name", "race", "recipe", "image"] } } } },
+                responses: { "201": { description: "The saved portrait's summary" }, "400": { description: "Invalid body, or the member's limit is reached" } },
+            },
+        },
+        "/portraits/{id}": {
+            get: {
+                tags: ["Portrait"],
+                summary: "One saved portrait with its recipe (its owner, or an admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: { "200": { description: "The portrait" }, "404": { description: "No such portrait, or it is someone else's" } },
+            },
+            put: {
+                tags: ["Portrait"],
+                summary: "Change a saved portrait (its owner)",
+                description: "Any of `name`, `race`, `recipe`, `image`, as in POST /portraits.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+                responses: { "200": { description: "The portrait's summary" }, "400": { description: "Invalid body" }, "403": { description: "An admin who is not its owner" }, "404": { description: "No such portrait, or it is someone else's" } },
+            },
+            delete: {
+                tags: ["Portrait"],
+                summary: "Delete a saved portrait (its owner, or an admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: { "204": { description: "Deleted" }, "404": { description: "No such portrait, or it is someone else's" } },
+            },
+        },
+        "/portraits/{id}/image.png": {
+            get: {
+                tags: ["Portrait"],
+                summary: "A saved portrait's PNG (its owner, or an admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: { "200": { description: "The PNG", content: { "image/png": {} } }, "404": { description: "No such portrait, or it is someone else's" } },
+            },
+        },
         "/admin/portrait/settings": {
             put: {
                 tags: ["Admin", "Portrait"],

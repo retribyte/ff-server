@@ -173,3 +173,29 @@ test("the admin panel's partial edits are validated", () => {
     assert.equal(parseRaces([{ id: "human" }, { id: "blazekid", species: "novakid", lock: { facialHair: "" } }]).length, 2);
     for (const bad of [undefined, {}, [{ id: "a" }, { id: "a" }], [{ name: "no id" }]]) assert.throws(() => parseRaces(bad), SettingsError);
 });
+
+test("a saved portrait's body is checked", async () => {
+    const { parsePortrait, PortraitInputError, PORTRAIT_MAX_SIDE } = await import("../src/portrait/saved.service.js");
+    // a 1x1 PNG
+    const png = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+    const good = { name: "  Matthias  ", race: "avian", recipe: { v: 1, species: "avian", wear: {} }, image: png };
+    const parsed = parsePortrait(good);
+    assert.equal(parsed.name, "Matthias");
+    assert.equal(parsed.image?.readUInt32BE(16), 1);
+    assert.ok(PORTRAIT_MAX_SIDE >= 43);
+    for (const bad of [
+        null,
+        { ...good, name: "" },
+        { ...good, name: "x".repeat(101) },
+        { ...good, race: undefined },
+        { ...good, recipe: { species: "avian" } },
+        { ...good, recipe: { v: 1, species: "avian", junk: "x".repeat(40_000) } },
+        { ...good, image: "data:image/jpeg;base64,AAAA" },
+        { ...good, image: "https://example.com/a.png" },
+    ]) {
+        assert.throws(() => parsePortrait(bad), PortraitInputError);
+    }
+    // a partial change checks only what is sent
+    assert.deepEqual(parsePortrait({ name: "New" }, true), { name: "New" });
+    assert.throws(() => parsePortrait({ name: "" }, true), PortraitInputError);
+});

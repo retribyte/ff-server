@@ -75,6 +75,7 @@ model User {
   commentaries       Commentary[]
   stories            Story[]
   jobRuns            JobRun[]
+  portraits          Portrait[]
 }
 
 model Character {
@@ -437,4 +438,21 @@ model PortraitSetting {
   value Json
 
   @@map("portrait_settings")
+}
+
+// A portrait a member made in the creator and kept: the recipe to reopen it and the
+// rendered PNG. Private to its owner (and admins); it need not belong to a character.
+model Portrait {
+  id        Int      @id @default(autoincrement())
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   Int
+  name      String
+  race      String // the creator's race id the recipe was made with
+  recipe    Json
+  image     Bytes // PNG, 1 pixel per sprite pixel
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
+  @@map("portraits")
 }

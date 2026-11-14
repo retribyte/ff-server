@@ -20,19 +20,22 @@ export function isDataUrl(image: string): boolean {
 
 /** The PNG's bytes, or an AvatarImageError saying what's wrong with the upload. */
 export function decodeAvatarDataUrl(dataUrl: string): Buffer {
+    return decodePngDataUrl(dataUrl, AVATAR_MAX_SIDE, AVATAR_MAX_BYTES, "Avatars");
+}
+
+/** A PNG sent as a data: URL, within the limits given; `what` names it in the error ("Avatars"). */
+export function decodePngDataUrl(dataUrl: string, maxSide: number, maxBytes: number, what: string): Buffer {
     const base64 = DATA_URL.exec(dataUrl.trim())?.[1];
-    if (!base64) throw new AvatarImageError("Avatars must be PNG files");
+    if (!base64) throw new AvatarImageError(`${what} must be PNG files`);
     const png = Buffer.from(base64, "base64");
-    if (png.length > AVATAR_MAX_BYTES) {
-        throw new AvatarImageError(`Avatars can be at most ${AVATAR_MAX_BYTES / 1024} KB`);
+    if (png.length > maxBytes) {
+        throw new AvatarImageError(`${what} can be at most ${maxBytes / 1024} KB`);
     }
     if (!hasPngStructure(png)) throw new AvatarImageError("That file isn't a valid PNG");
     const width = png.readUInt32BE(16);
     const height = png.readUInt32BE(20);
-    if (width === 0 || height === 0 || width > AVATAR_MAX_SIDE || height > AVATAR_MAX_SIDE) {
-        throw new AvatarImageError(
-            `Avatars can be at most ${AVATAR_MAX_SIDE}x${AVATAR_MAX_SIDE} pixels (this one is ${width}x${height})`
-        );
+    if (width === 0 || height === 0 || width > maxSide || height > maxSide) {
+        throw new AvatarImageError(`${what} can be at most ${maxSide}x${maxSide} pixels (this one is ${width}x${height})`);
     }
     return png;
 }
