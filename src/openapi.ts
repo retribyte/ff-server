@@ -1592,6 +1592,60 @@ const spec = {
                 responses: { "200": { description: "Counted" }, "400": { description: "Bad kind or slug" }, "404": { description: "No such episode or story" } },
             },
         },
+        "/portrait/settings": {
+            get: {
+                tags: ["Portrait"],
+                summary: "Portrait creator settings: races, categories, curation and the mod list (members)",
+                description:
+                    "`races` are in list order, as ff-site's RaceDef (empty fields left out). `mods` is every bundle folder " +
+                    "on the server and every remembered switch: {id, name, enabled, present}.",
+                security: [{ bearerAuth: [] }],
+                responses: { "200": { description: "{ categories, races, curation: {hideItemPattern, hideItems, itemsOnlyFor, erase}, mods }" }, "401": { description: "Not signed in" } },
+            },
+        },
+        "/portrait/bundle/mods.json": {
+            get: {
+                tags: ["Portrait"],
+                summary: "The sprite bundle's mod index: every present, enabled mod's mod.json, in load order (members)",
+                description:
+                    "Not the usual envelope: the file itself, `{\"version\":2,\"mods\":[...]}`. Gzipped when the client accepts it; " +
+                    "send If-None-Match to get a 304. 404 when the server has no bundle directory (PORTRAIT_BUNDLE_DIR).",
+                security: [{ bearerAuth: [] }],
+                responses: { "200": { description: "The index file" }, "304": { description: "Unchanged" }, "401": { description: "Not signed in" }, "404": { description: "No bundle installed" } },
+            },
+        },
+        "/portrait/bundle/items.json": {
+            get: {
+                tags: ["Portrait"],
+                summary: "The sprite bundle's clothing index: every present, enabled mod's items.json, in load order (members)",
+                description: "Same shape and caching as mods.json.",
+                security: [{ bearerAuth: [] }],
+                responses: { "200": { description: "The index file" }, "304": { description: "Unchanged" }, "401": { description: "Not signed in" }, "404": { description: "No bundle installed" } },
+            },
+        },
+        "/portrait/bundle/{mod}/sprites.pack": {
+            get: {
+                tags: ["Portrait"],
+                summary: "One mod's sprite pack, with byte ranges (members)",
+                description: "Supports `Range`. Cached for a year (clients add ?v=<build>). A disabled or absent mod is 404.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "mod", in: "path", required: true, description: "The mod's folder name (workshop id, or `vanilla`)", schema: { type: "string" } }],
+                responses: { "200": { description: "The whole pack" }, "206": { description: "The requested range" }, "401": { description: "Not signed in" }, "404": { description: "No such pack" } },
+            },
+        },
+        "/admin/portrait/settings": {
+            put: {
+                tags: ["Admin", "Portrait"],
+                summary: "Replace all portrait settings in one transaction (admin)",
+                description:
+                    "Body is the contents of ff-site's races.json and curation.json: `{categories, races, curation: {skipMods?, " +
+                    "hideItemPattern, hideItems, itemsOnlyFor, erase}}`. `skipMods` (id -> name) switches those mods off and all others on; " +
+                    "leave it out to keep the switches. Strictly validated (400). Answers the new settings.",
+                security: [{ bearerAuth: [] }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+                responses: { "200": { description: "The saved settings, as GET /portrait/settings" }, "400": { description: "Invalid settings" }, "403": { description: "Not an admin" } },
+            },
+        },
         "/admin/views": {
             get: {
                 tags: ["Admin", "Views"],

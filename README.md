@@ -31,6 +31,10 @@ IMAGE_KEY=
 # Only if the booru stops serving posts anonymously (HTTP Basic auth)
 BOORU_USER=
 BOORU_PASSWORD=
+# Portrait creator: absolute path of the sprite bundle (one folder per mod, built by
+# ff-site's scripts/portrait-extract/extract.py). Unset or missing: the bundle
+# endpoints answer 404 and the server still starts. Never inside a deployed folder.
+PORTRAIT_BUNDLE_DIR=
 ```
 
 3. Start the Postgres container (requires Docker). Only the `db` service: the

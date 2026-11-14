@@ -398,3 +398,43 @@ model ViewCount {
   @@index([day])
   @@map("view_counts")
 }
+
+// Portrait creator (ff-site /portraits). The sprite files themselves live in a
+// directory on the server (PORTRAIT_BUNDLE_DIR), never in the database or in git.
+// A mod is switched by `enabled`; a bundle folder with no row counts as enabled, and
+// a row with no folder is a remembered switch. `itemsOnlyFor`: species kinds (lowercase)
+// that may wear this mod's clothing; empty = anyone.
+model PortraitMod {
+  id           String   @id // bundle folder name (the workshop id, or "vanilla")
+  name         String
+  enabled      Boolean  @default(true)
+  itemsOnlyFor String[]
+
+  @@map("portrait_mods")
+}
+
+// One race in the creator's list (a species can be several races). Mirrors RaceDef
+// in ff-site's src/lib/portrait/races.ts; `position` is the list order.
+model PortraitRace {
+  id         String   @id
+  species    String?
+  name       String?
+  descriptor String?
+  category   String?
+  exclude    String[]
+  prefer     String[]
+  hidden     Boolean  @default(false)
+  lock       Json?
+  position   Int
+
+  @@map("portrait_races")
+}
+
+// Whole-bundle settings, one row each: `categories` (string[]), `hideItemPattern`
+// (string), `hideItems` (string[]), `erase` ({"<mod id><image path>": [[x, y], ...]}).
+model PortraitSetting {
+  key   String @id
+  value Json
+
+  @@map("portrait_settings")
+}

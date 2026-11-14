@@ -31,6 +31,7 @@
         "seed:npc-personas": "tsx prisma/scripts/seed-npc-personas.ts",
         "seed:vm-appended": "tsx prisma/scripts/seed-vm-appended.ts",
         "golive:flag-accounts": "tsx prisma/scripts/flag-accounts-golive.ts",
+        "portrait:import-settings": "tsx prisma/scripts/import-portrait-settings.ts",
         "refresh:wiki-cache": "tsx prisma/scripts/refresh-wiki-cache.ts",
         "test": "tsx --test test/*.test.ts"
     },
