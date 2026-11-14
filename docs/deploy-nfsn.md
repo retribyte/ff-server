@@ -163,13 +163,18 @@ The portrait creator's sprites are Starbound and mod assets. They are never in g
 never part of a deploy: they sit in `/home/protected/portrait-bundle/`, outside both
 deployed folders, one folder per mod. The API serves them to signed-in members only.
 
-- **Putting mods on the server:** `scripts/portrait-push.sh` in ff-site (rsync over SSH;
+- **Putting mods on the server:** members add them at `/portraits/mods` on the site (their
+  browser reads their own Starbound files and uploads the mod's folder; live at once), and
+  admins can also use `scripts/portrait-push.sh` in ff-site (rsync over SSH;
   `--dry-run` to look first). It copies the folders built on a dev machine by
   `scripts/portrait-extract/extract.py`, replaces a mod that is already there, and leaves
   other mods alone unless `--prune` is given. Nothing is restarted.
 - **Removing a mod:** the site's `/admin/portraits` page (switch it off, or delete its
   files), or `rm -r` its folder over SSH. No code change and no deploy either way.
-- **One-time setup:** add `PORTRAIT_BUNDLE_DIR=/home/protected/portrait-bundle` to the
+- **One-time setup:** make the folder so the API (user `web`) can write to it, since uploads
+  and admin deletes happen there: `mkdir /home/protected/portrait-bundle && chgrp web
+  /home/protected/portrait-bundle && chmod 2770 /home/protected/portrait-bundle`. Then add
+  `PORTRAIT_BUNDLE_DIR=/home/protected/portrait-bundle` to the
   API's `.env` on the host and restart `ffserver` (`nfsn stop-daemon ffserver; nfsn
   start-daemon ffserver`). Until then the bundle endpoints answer 404 and the creator
   says the server has no sprites. Then load the first settings (races, categories,

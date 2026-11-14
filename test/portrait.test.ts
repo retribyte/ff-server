@@ -199,3 +199,65 @@ test("a saved portrait's body is checked", async () => {
     assert.deepEqual(parsePortrait({ name: "New" }, true), { name: "New" });
     assert.throws(() => parsePortrait({ name: "" }, true), PortraitInputError);
 });
+
+test("a member's mod upload arrives in pieces, is checked, and replaces the folder in one step", async () => {
+    const { appendChunk, installUpload, UploadError, UPLOAD_MAGIC, validModId, validSession } = await import("../src/portrait/portrait.upload.js");
+    const dir = makeBundle();
+    const u32 = (n: number) => {
+        const b = Buffer.alloc(4);
+        b.writeUInt32BE(n);
+        return b;
+    };
+    const blob = (_id: string, mod: object, items: object, pack: Buffer) => {
+        const [m, i] = [Buffer.from(JSON.stringify(mod)), Buffer.from(JSON.stringify(items))];
+        return Buffer.concat([UPLOAD_MAGIC, u32(m.length), m, u32(i.length), i, pack]);
+    };
+    const pack = Buffer.from("0123456789");
+    const goodMod = { version: 2, id: "newmod", name: "New mod", order: 4, build: "abcdef123456", frameFiles: ["/a.frames"], images: { "/humanoid/x/body.png": [0, 6, "h", 0] }, species: {}, speciesPatches: {}, frames: {} };
+    const goodItems = { version: 2, id: "newmod", build: "abcdef123456", items: [{ id: "hat", name: "Hat", slot: "head", frames: {}, colors: 0 }], palettes: [[]], images: { "/items/hat.png": [6, 4, "h", -1] } };
+    const session = "a".repeat(32);
+    const send = async (id: string, file: Buffer, piece = 7) => {
+        for (let at = 0; at < file.length; at += piece) await appendChunk(dir, 1, session, at, file.length, file.subarray(at, at + piece));
+        return installUpload(dir, 1, session, id);
+    };
+    try {
+        const done = await send("newmod", blob("newmod", goodMod, goodItems, pack));
+        assert.deepEqual([done.name, done.items, done.sprites, done.packBytes], ["New mod", 1, 2, 10]);
+        assert.equal((await listModFolders(dir)).includes("newmod"), true);
+        assert.equal((await packPath(dir, "newmod", new Set())) !== null, true);
+        const names = async () => JSON.parse((await plain((await assembleBundle(dir, new Set())).mods)).toString()).mods.map((m: { name: string }) => m.name);
+        assert.equal((await names()).includes("New mod"), true);
+
+        // a second upload replaces the folder whole
+        await send("newmod", blob("newmod", { ...goodMod, name: "Newer mod", images: {} }, { ...goodItems, images: {} }, Buffer.alloc(0)));
+        assert.equal((await names()).includes("Newer mod"), true);
+        assert.equal((await names()).includes("New mod"), false);
+
+        // what is refused leaves the folder that was there, and no leftovers
+        const bad: [string, Buffer][] = [
+            ["newmod", Buffer.concat([Buffer.from("NOPE!\n"), Buffer.alloc(20)])],
+            ["newmod", blob("newmod", { ...goodMod, id: "other" }, goodItems, pack)],
+            ["newmod", blob("newmod", { ...goodMod, version: 1 }, goodItems, pack)],
+            ["newmod", blob("newmod", { ...goodMod, images: { "/a.png": [8, 6, "h", -1] } }, goodItems, pack)],
+            ["newmod", blob("newmod", { ...goodMod, images: { "/a.png": [0, 1, "h", 5] } }, goodItems, pack)],
+            ["newmod", blob("newmod", goodMod, { ...goodItems, items: [{ id: "hat", slot: "feet", name: "x", frames: {}, colors: 0 }] }, pack)],
+            ["newmod", blob("newmod", goodMod, { ...goodItems, build: "different000" }, pack)],
+        ];
+        for (const [n, [id, file]] of bad.entries()) await assert.rejects(send(id, file), UploadError, `bad upload ${n}`);
+        assert.equal((await names()).includes("Newer mod"), true);
+        assert.deepEqual(await listModFolders(dir), ["1234", "alpha-beta mod", "newmod", "zeta"]);
+
+        // pieces must arrive in order
+        const file = blob("newmod", goodMod, goodItems, pack);
+        await appendChunk(dir, 1, session, 0, file.length, file.subarray(0, 10));
+        await assert.rejects(appendChunk(dir, 1, session, 20, file.length, file.subarray(20, 30)), UploadError);
+        await assert.rejects(appendChunk(dir, 2, session, 10, file.length, file.subarray(10, 20)), UploadError); // another member's session
+        await assert.rejects(appendChunk(dir, 1, session, 10, file.length, Buffer.alloc(0)), UploadError); // empty piece
+
+        for (const id of ["..", ".uploads", "a/b", "", "x".repeat(101), "trailing.", " lead"]) assert.equal(validModId(id), false, id);
+        for (const id of ["729427301", "vanilla", "squoatling-race-work-in-progress", "123-Contents v2"]) assert.equal(validModId(id), true, id);
+        assert.equal(validSession("../../etc"), false);
+    } finally {
+        rmSync(dir, { recursive: true, force: true });
+    }
+});

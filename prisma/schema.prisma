@@ -410,6 +410,9 @@ model PortraitMod {
   name         String
   enabled      Boolean  @default(true)
   itemsOnlyFor String[]
+  // Set when a member uploads the folder through the site (not by the push script)
+  uploadedBy   String?
+  uploadedAt   DateTime?
 
   @@map("portrait_mods")
 }

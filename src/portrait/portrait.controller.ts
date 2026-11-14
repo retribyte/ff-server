@@ -1,10 +1,11 @@
-import { Router, Request, Response } from "express";
+import express, { Router, Request, Response } from "express";
 import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { importJson } from "../utils/import.js";
 import { logger } from "../utils/logger.js";
 import portraitService from "./portrait.service.js";
 import { acceptsGzip, etagMatches, plain, type Assembled } from "./portrait.bundle.js";
 import savedService, { parsePortrait, PortraitInputError, type PortraitInput } from "./saved.service.js";
+import { CHUNK_MAX_BYTES, UploadError, validModId, validSession } from "./portrait.upload.js";
 import { parseCurationPatch, parseModPatch, parseRaces, parseSettings, SettingsError } from "./portrait.validation.js";
 
 const PACK_CACHE = "private, max-age=31536000, immutable"; // the site adds ?v=<build>
@@ -78,6 +79,35 @@ const initializePortraitRoutes = (): Router => {
             if (error instanceof SettingsError) return res.status(400).json({ status: "error", message: error.message });
             logger.caught("Error replacing portrait settings", error);
             return res.status(500).json({ status: "error", message: "Failed to save portrait settings" });
+        }
+    });
+
+    // ----- mod uploads: any member; the mod is live as soon as its last piece arrives
+
+    // PUT /api/portrait/mods/:id/upload?session=<hex>&offset=<n>&total=<n>, body: the next
+    // piece of the mod folder file (application/octet-stream). The site extracts the folder
+    // from the member's own Starbound files in their browser and sends it in pieces.
+    router.put("/portrait/mods/:id/upload", authenticate, express.raw({ type: "application/octet-stream", limit: CHUNK_MAX_BYTES }), async (req: Request, res: Response) => {
+        const session = String(req.query.session ?? "");
+        const offset = Number(req.query.offset);
+        const total = Number(req.query.total);
+        try {
+            if (!validModId(req.params.id)) throw new UploadError("That is not a mod id");
+            if (!validSession(session)) throw new UploadError("session must be a random hex string");
+            if (!Buffer.isBuffer(req.body)) throw new UploadError("Send the piece as application/octet-stream");
+            const result = await portraitService.receiveUpload({ id: req.user!.id, username: req.user!.username }, req.params.id, session, offset, total, req.body);
+            if (!result.configured) return notInstalled(res);
+            const mod = result.installed;
+            if (mod) logger.info("portrait.mod_uploaded", { mod: mod.id, name: mod.name, bytes: total, sprites: mod.sprites, items: mod.items, species: mod.species });
+            return res.status(200).json({
+                status: "success",
+                data: { received: result.received, done: mod !== null, ...(mod ? { mod: { id: mod.id, name: mod.name, species: mod.species, items: mod.items, sprites: mod.sprites } } : {}) },
+            });
+        } catch (error) {
+            if (validSession(session)) await portraitService.cancelUpload(req.user!.id, session).catch(() => {});
+            if (error instanceof UploadError) return res.status(400).json({ status: "error", message: error.message });
+            logger.caught("Error receiving a portrait mod upload", error);
+            return res.status(500).json({ status: "error", message: "The upload could not be saved" });
         }
     });
 

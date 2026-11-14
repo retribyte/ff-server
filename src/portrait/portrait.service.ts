@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
-import { assembleBundle, bundleDir, folderNames, packPath, removeModFolder, type AssembledBundle } from "./portrait.bundle.js";
+import { assembleBundle, bundleDir, ensureBundleDir, folderNames, packPath, removeModFolder, type AssembledBundle } from "./portrait.bundle.js";
+import { appendChunk, discardUpload, installUpload, type UploadedMod } from "./portrait.upload.js";
 import type { CurationPatch, ModPatch, RaceInput, SettingsInput } from "./portrait.validation.js";
 
 // Portrait creator settings (tables portrait_mods, portrait_races, portrait_settings) and
@@ -59,6 +60,8 @@ async function getSettings() {
         enabled: known.get(id)?.enabled ?? true,
         present: onDisk.has(id),
         itemsOnlyFor: known.get(id)?.itemsOnlyFor ?? [],
+        uploadedBy: known.get(id)?.uploadedBy ?? null,
+        uploadedAt: known.get(id)?.uploadedAt ?? null,
     }));
     mods.sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
     const itemsOnlyFor: Record<string, string[]> = {};
@@ -173,6 +176,33 @@ async function replaceSettings(input: SettingsInput): Promise<void> {
     invalidate();
 }
 
+/**
+ * Takes one piece of a member's mod upload. When the last piece arrives the folder is
+ * checked and installed, and the mod is live on the next request: null until then, and
+ * null when no bundle directory is configured (`configured` false).
+ */
+async function receiveUpload(user: { id: number; username: string }, id: string, session: string, offset: number, total: number, chunk: Buffer): Promise<{ configured: boolean; received: number; installed: UploadedMod | null }> {
+    const dir = await ensureBundleDir();
+    if (!dir) return { configured: false, received: 0, installed: null };
+    const received = await appendChunk(dir, user.id, session, offset, total, chunk);
+    if (received < total) return { configured: true, received, installed: null };
+    const installed = await installUpload(dir, user.id, session, id);
+    // The switch an admin set stays as it is: an upload replaces files, it does not turn a mod back on
+    await prisma.portraitMod.upsert({
+        where: { id },
+        create: { id, name: installed.name, uploadedBy: user.username, uploadedAt: new Date() },
+        update: { name: installed.name, uploadedBy: user.username, uploadedAt: new Date() },
+    });
+    invalidate();
+    return { configured: true, received, installed };
+}
+
+/** Drops a member's unfinished upload. */
+async function cancelUpload(userId: number, session: string): Promise<void> {
+    const dir = bundleDir();
+    if (dir) await discardUpload(dir, userId, session);
+}
+
 /** mods.json and items.json of the present, enabled mods; null when no bundle directory is set up. */
 async function getBundle(): Promise<AssembledBundle | null> {
     const dir = bundleDir();
@@ -185,4 +215,4 @@ async function getPackPath(mod: string): Promise<string | null> {
     return dir ? packPath(dir, mod, await disabledMods()) : null;
 }
 
-export default { getSettings, replaceSettings, replaceRaces, updateCuration, updateMod, deleteMod, getBundle, getPackPath, invalidate };
+export default { getSettings, replaceSettings, replaceRaces, updateCuration, updateMod, deleteMod, receiveUpload, cancelUpload, getBundle, getPackPath, invalidate };

@@ -1633,6 +1633,31 @@ const spec = {
                 responses: { "200": { description: "The whole pack" }, "206": { description: "The requested range" }, "401": { description: "Not signed in" }, "404": { description: "No such pack" } },
             },
         },
+        "/portrait/mods/{id}/upload": {
+            put: {
+                tags: ["Portrait"],
+                summary: "Upload a mod folder for the portrait creator, one piece at a time (members)",
+                description:
+                    "The site extracts a mod's folder from the member's own Starbound files in their browser and sends it as one file in pieces " +
+                    "(`FFPM1\\n`, a 4-byte length and mod.json, a 4-byte length and items.json, then the sprite pack). Each request carries the next " +
+                    "piece as `application/octet-stream` (at most 4 MB); `offset` must be where the last piece ended (0 starts over) and `total` the " +
+                    "whole size (at most 128 MB). When the last piece arrives the folder is checked and swapped in, and the mod is served from the next " +
+                    "request on. An upload replaces the mod's files; it does not switch a mod an admin turned off back on.",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "id", in: "path", required: true, schema: { type: "string" }, description: "The mod's folder name: its workshop number, `vanilla`, or a slug" },
+                    { name: "session", in: "query", required: true, schema: { type: "string" }, description: "16 to 64 hex characters, the same for every piece of one upload" },
+                    { name: "offset", in: "query", required: true, schema: { type: "integer" } },
+                    { name: "total", in: "query", required: true, schema: { type: "integer" } },
+                ],
+                requestBody: { required: true, content: { "application/octet-stream": { schema: { type: "string", format: "binary" } } } },
+                responses: {
+                    "200": { description: "`{received, done}`, and `mod` (id, name, counts) once it is installed" },
+                    "400": { description: "A piece out of place, or a folder that fails the checks (the upload is dropped)" },
+                    "404": { description: "No bundle directory is configured on this server" },
+                },
+            },
+        },
         "/portraits": {
             get: {
                 tags: ["Portrait"],

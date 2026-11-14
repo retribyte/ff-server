@@ -4,6 +4,8 @@ CREATE TABLE "portrait_mods" (
     "name" TEXT NOT NULL,
     "enabled" BOOLEAN NOT NULL DEFAULT true,
     "itemsOnlyFor" TEXT[],
+    "uploadedBy" TEXT,
+    "uploadedAt" TIMESTAMP(3),
 
     CONSTRAINT "portrait_mods_pkey" PRIMARY KEY ("id")
 );

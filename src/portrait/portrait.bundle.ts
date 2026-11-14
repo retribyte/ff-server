@@ -17,6 +17,14 @@ export const PACK_NAME = "sprites.pack";
 
 export class BundleMissingError extends Error {}
 
+/** The directory PORTRAIT_BUNDLE_DIR names, made if it is not there yet (the first upload); null when unset. */
+export async function ensureBundleDir(): Promise<string | null> {
+    const dir = process.env.PORTRAIT_BUNDLE_DIR;
+    if (!dir) return null;
+    await fs.mkdir(dir, { recursive: true });
+    return path.resolve(dir);
+}
+
 /** The configured bundle directory, or null when unset or not a directory. */
 export function bundleDir(): string | null {
     const dir = process.env.PORTRAIT_BUNDLE_DIR;

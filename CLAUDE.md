@@ -309,7 +309,15 @@ data. Don't add a species table back.
   /admin/portrait/curation` (categories, hidden items, pixel repairs), `PATCH
   /admin/portrait/mods/:id` (on/off, clothing limits) and `DELETE /admin/portrait/mods/:id`,
   which deletes that mod's folder from the bundle directory: the one place the API
-  removes files. **Saved portraits** (`src/portrait/saved.service.ts`, table `portraits`):
+  removes files. **Member uploads**
+  (`portrait.upload.ts`; the user's call 2026-11-14: any member, live at once): `PUT
+  /api/portrait/mods/:id/upload?session=&offset=&total=` takes a mod folder in pieces
+  (the site builds it in the member's browser from their own Starbound files, so the
+  server never sees a pak or runs an extractor), checks the two JSON files against the
+  pack's size and swaps the folder in by rename; unfinished pieces sit in
+  `<bundle>/.uploads/` and are swept after two hours. It records `uploadedBy`/`uploadedAt`
+  on the mod's row and leaves `enabled` alone. Sprite bytes are not decoded here.
+  **Saved portraits** (`src/portrait/saved.service.ts`, table `portraits`):
   a member keeps a name, the creator's recipe (JSON) and the rendered PNG (bytes, at most
   256x256 and 64 KB, checked like avatars; 300 per member). `/api/portraits` (GET mine,
   POST), `/api/portraits/:id` (GET, PUT, DELETE) and `.../image.png`. Private (the user's
