@@ -1,7 +1,7 @@
 import { promises as fs, existsSync } from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { gzip } from "node:zlib";
+import { gunzip, gzip } from "node:zlib";
 import { promisify } from "node:util";
 
 // Reads the portrait creator's sprite bundle from PORTRAIT_BUNDLE_DIR: one folder per mod
@@ -10,6 +10,7 @@ import { promisify } from "node:util";
 // on the next request, with no restart. Nothing here knows any mod's name.
 
 const gzipAsync = promisify(gzip);
+const gunzipAsync = promisify(gunzip);
 
 export const BUNDLE_VERSION = 2;
 export const PACK_NAME = "sprites.pack";
@@ -81,18 +82,16 @@ interface FolderInfo {
     stamp: string;
     order: number;
     name: string;
-    mod: Buffer;
-    items: Buffer;
 }
 
 const folderCache = new Map<string, FolderInfo>();
 
+/** A folder's load order and name; mod.json is read again only when it or items.json has changed. */
 async function readFolder(dir: string, id: string): Promise<FolderInfo | null> {
     const modFile = path.join(dir, id, "mod.json");
-    const itemsFile = path.join(dir, id, "items.json");
     let mod, items;
     try {
-        [mod, items] = await Promise.all([fs.stat(modFile), fs.stat(itemsFile)]);
+        [mod, items] = await Promise.all([fs.stat(modFile), fs.stat(path.join(dir, id, "items.json"))]);
     } catch {
         return null;
     }
@@ -101,11 +100,10 @@ async function readFolder(dir: string, id: string): Promise<FolderInfo | null> {
     const known = folderCache.get(key);
     if (known && known.stamp === stamp) return known;
     try {
-        const [modBytes, itemBytes] = await Promise.all([fs.readFile(modFile), fs.readFile(itemsFile)]);
-        const info = JSON.parse(modBytes.toString("utf8"));
+        const info = JSON.parse(await fs.readFile(modFile, "utf8"));
         const order = typeof info.order === "number" ? info.order : Number.MAX_SAFE_INTEGER;
         const name = typeof info.name === "string" && info.name ? info.name : id;
-        const read: FolderInfo = { id, stamp, order, name, mod: modBytes, items: itemBytes };
+        const read: FolderInfo = { id, stamp, order, name };
         folderCache.set(key, read);
         return read;
     } catch {
@@ -123,10 +121,14 @@ export async function folderNames(dir: string): Promise<Map<string, string>> {
     return names;
 }
 
+/**
+ * One assembled index file. Only the gzip is kept (the two files are megabytes of JSON, a
+ * tenth of that zipped, and the production daemon is short of memory); the rare client that
+ * does not take gzip gets it unzipped on the spot (`plain`).
+ */
 export interface Assembled {
     etag: string;
-    body: Buffer;
-    gzip: Buffer | null;
+    gzip: Buffer;
 }
 
 export interface AssembledBundle {
@@ -134,18 +136,19 @@ export interface AssembledBundle {
     items: Assembled;
 }
 
-const hash = (buffer: Buffer) => `"${createHash("sha1").update(buffer).digest("hex").slice(0, 20)}"`;
-
-function join(head: string, parts: Buffer[]): Assembled {
+async function join(head: string, files: string[]): Promise<Assembled> {
     const comma = Buffer.from(",");
     const pieces: Buffer[] = [Buffer.from(head)];
-    parts.forEach((part, i) => pieces.push(...(i ? [comma, part] : [part])));
+    for (const [i, file] of files.entries()) {
+        if (i) pieces.push(comma);
+        pieces.push(await fs.readFile(file));
+    }
     pieces.push(Buffer.from("]}"));
     const body = Buffer.concat(pieces);
-    return { etag: hash(body), body, gzip: null };
+    return { etag: `"${createHash("sha1").update(body).digest("hex").slice(0, 20)}"`, gzip: await gzipAsync(body, { level: 6 }) };
 }
 
-const assembledCache = new Map<string, { signature: string; value: AssembledBundle }>();
+const assembledCache = new Map<string, { signature: string; value: Promise<AssembledBundle> }>();
 
 /**
  * mods.json and items.json as the extractor writes them at the top level: every present,
@@ -167,15 +170,19 @@ export async function assembleBundle(dir: string, disabled: ReadonlySet<string>)
     const cached = assembledCache.get(dir);
     if (cached && cached.signature === signature) return cached.value;
     const head = `{"version":${BUNDLE_VERSION},"mods":[`;
-    const value = { mods: join(head, infos.map((i) => i.mod)), items: join(head, infos.map((i) => i.items)) };
+    // The promise is cached, so requests arriving together build it once
+    const value = (async () => ({
+        mods: await join(head, infos.map((i) => path.join(dir, i.id, "mod.json"))),
+        items: await join(head, infos.map((i) => path.join(dir, i.id, "items.json"))),
+    }))();
     assembledCache.set(dir, { signature, value });
+    value.catch(() => assembledCache.delete(dir));
     return value;
 }
 
-/** The gzipped form of an assembled file, made once and kept with it. */
-export async function gzipped(file: Assembled): Promise<Buffer> {
-    file.gzip ??= await gzipAsync(file.body, { level: 6 });
-    return file.gzip;
+/** An assembled file unzipped, for a client that does not accept gzip. */
+export async function plain(file: Assembled): Promise<Buffer> {
+    return gunzipAsync(file.gzip);
 }
 
 /** Whether an Accept-Encoding header allows gzip. */

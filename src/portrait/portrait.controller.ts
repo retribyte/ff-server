@@ -3,7 +3,7 @@ import { authenticate, isAdmin } from "../auth/security.middleware.js";
 import { importJson } from "../utils/import.js";
 import { logger } from "../utils/logger.js";
 import portraitService from "./portrait.service.js";
-import { acceptsGzip, etagMatches, gzipped, type Assembled } from "./portrait.bundle.js";
+import { acceptsGzip, etagMatches, plain, type Assembled } from "./portrait.bundle.js";
 import { parseCurationPatch, parseModPatch, parseRaces, parseSettings, SettingsError } from "./portrait.validation.js";
 
 const PACK_CACHE = "private, max-age=31536000, immutable"; // the site adds ?v=<build>
@@ -17,7 +17,7 @@ async function sendAssembled(req: Request, res: Response, file: Assembled) {
     const etag = gz ? file.etag.slice(0, -1) + '-gz"' : file.etag;
     res.set({ ETag: etag, "Cache-Control": "private, no-cache", Vary: "Accept-Encoding", "Content-Type": "application/json; charset=utf-8" });
     if (etagMatches(req.headers["if-none-match"], etag)) return res.status(304).end();
-    const body = gz ? await gzipped(file) : file.body;
+    const body = gz ? file.gzip : await plain(file);
     if (gz) res.set("Content-Encoding", "gzip");
     return res.status(200).send(body);
 }

@@ -294,9 +294,9 @@ data. Don't add a species table back.
   Game and mod assets never go in git and prod keeps the folder outside the deploy
   directory (the deploy mirrors with `--delete`). The folders on disk are the truth:
   `GET /api/portrait/bundle/mods.json` and `items.json` concatenate the present, enabled
-  folders' files in `order` (as the extractor's top-level files; cached in memory,
-  re-checked by a stat pass, gzipped by hand since the app has no compression, ETag and
-  304), and `.../bundle/:mod/sprites.pack` sends one pack with `Range`. `:mod` is matched
+  folders' files in `order` (as the extractor's top-level files; only the gzip is kept in memory, about 1 MB,
+  because the production daemon has little; re-checked by a stat pass; gzipped by hand
+  since the app has no compression; ETag and 304), and `.../bundle/:mod/sprites.pack` sends one pack with `Range`. `:mod` is matched
   against the directory listing, never joined into a path. Removing a mod is deleting its
   folder or setting `PortraitMod.enabled` false: no code change or deploy. A folder with
   no row is enabled; a row with no folder is a remembered switch. Nothing may name a

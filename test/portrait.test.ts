@@ -6,7 +6,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, renameSync } from "node:
 import { gunzipSync } from "node:zlib";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { acceptsGzip, assembleBundle, etagMatches, folderNames, gzipped, listModFolders, packPath, removeModFolder } from "../src/portrait/portrait.bundle.js";
+import { acceptsGzip, assembleBundle, etagMatches, folderNames, plain, listModFolders, packPath, removeModFolder } from "../src/portrait/portrait.bundle.js";
 import { parseCurationPatch, parseModPatch, parseRaces, parseSettings, SettingsError } from "../src/portrait/portrait.validation.js";
 
 function makeBundle(): string {
@@ -29,13 +29,14 @@ test("assembles mods.json and items.json in load order", async () => {
     const dir = makeBundle();
     try {
         const { mods, items } = await assembleBundle(dir, new Set());
-        const parsed = JSON.parse(mods.body.toString());
+        const text = (await plain(mods)).toString();
+        const parsed = JSON.parse(text);
         assert.equal(parsed.version, 2);
         assert.deepEqual(parsed.mods.map((m: { id: string }) => m.id), ["zeta", "1234", "alpha-beta mod"]);
-        assert.deepEqual(JSON.parse(items.body.toString()).mods.map((m: { items: string[] }) => m.items[0]), ["zeta", "1234", "alpha-beta mod"]);
+        assert.deepEqual(JSON.parse((await plain(items)).toString()).mods.map((m: { items: string[] }) => m.items[0]), ["zeta", "1234", "alpha-beta mod"]);
         // exactly the extractor's compact concatenation
-        assert.ok(mods.body.toString().startsWith('{"version":2,"mods":[{"version":2,"id":"zeta"'));
-        assert.ok(mods.body.toString().endsWith("}]}"));
+        assert.ok(text.startsWith('{"version":2,"mods":[{"version":2,"id":"zeta"'));
+        assert.ok(text.endsWith("}]}"));
         assert.deepEqual(await listModFolders(dir), ["1234", "alpha-beta mod", "zeta"]);
         assert.equal((await folderNames(dir)).get("1234"), "Mod 1234");
     } finally {
@@ -47,7 +48,7 @@ test("leaves out disabled mods, and follows folders coming and going", async () 
     const dir = makeBundle();
     try {
         const ids = async (disabled: string[]) =>
-            JSON.parse((await assembleBundle(dir, new Set(disabled))).mods.body.toString()).mods.map((m: { id: string }) => m.id);
+            JSON.parse((await plain((await assembleBundle(dir, new Set(disabled))).mods)).toString()).mods.map((m: { id: string }) => m.id);
         assert.deepEqual(await ids(["1234"]), ["zeta", "alpha-beta mod"]);
         const before = (await assembleBundle(dir, new Set())).mods.etag;
         renameSync(path.join(dir, "zeta"), path.join(dir, "..", path.basename(dir) + "-away"));
@@ -57,21 +58,18 @@ test("leaves out disabled mods, and follows folders coming and going", async () 
         assert.equal((await assembleBundle(dir, new Set())).mods.etag, before);
         // an edited file is noticed
         writeFileSync(path.join(dir, "1234", "mod.json"), JSON.stringify({ id: "1234", name: "Renamed", order: 3, images: {} }));
-        assert.match((await assembleBundle(dir, new Set())).mods.body.toString(), /Renamed/);
+        assert.match((await plain((await assembleBundle(dir, new Set())).mods)).toString(), /Renamed/);
     } finally {
         rmSync(dir, { recursive: true });
     }
 });
 
-test("caches the assembled buffer and its gzip", async () => {
+test("keeps one assembled bundle, as gzip", async () => {
     const dir = makeBundle();
     try {
         const first = await assembleBundle(dir, new Set());
-        const second = await assembleBundle(dir, new Set());
-        assert.equal(first, second);
-        const gz = await gzipped(first.mods);
-        assert.equal(await gzipped(first.mods), gz);
-        assert.deepEqual(gunzipSync(gz), first.mods.body);
+        assert.equal(await assembleBundle(dir, new Set()), first);
+        assert.deepEqual(gunzipSync(first.mods.gzip), await plain(first.mods));
     } finally {
         rmSync(dir, { recursive: true });
     }
