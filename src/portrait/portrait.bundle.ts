@@ -64,6 +64,17 @@ export async function packPath(dir: string, mod: string, disabled: ReadonlySet<s
     }
 }
 
+/**
+ * Deletes a mod's folder from the bundle. Like packPath, `mod` must be the name of an entry
+ * in the directory listing, so nothing outside the bundle can be named. False if it is not there.
+ */
+export async function removeModFolder(dir: string, mod: string): Promise<boolean> {
+    const folder = (await listModFolders(dir)).find((name) => name === mod);
+    if (folder === undefined) return false;
+    await fs.rm(path.join(dir, folder), { recursive: true });
+    return true;
+}
+
 interface FolderInfo {
     id: string;
     /** mtime and size of mod.json and items.json, to notice a change. */

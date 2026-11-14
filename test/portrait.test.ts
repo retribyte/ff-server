@@ -6,8 +6,8 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, renameSync } from "node:
 import { gunzipSync } from "node:zlib";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { acceptsGzip, assembleBundle, etagMatches, folderNames, gzipped, listModFolders, packPath } from "../src/portrait/portrait.bundle.js";
-import { parseSettings, SettingsError } from "../src/portrait/portrait.validation.js";
+import { acceptsGzip, assembleBundle, etagMatches, folderNames, gzipped, listModFolders, packPath, removeModFolder } from "../src/portrait/portrait.bundle.js";
+import { parseCurationPatch, parseModPatch, parseRaces, parseSettings, SettingsError } from "../src/portrait/portrait.validation.js";
 
 function makeBundle(): string {
     const dir = mkdtempSync(path.join(tmpdir(), "portrait-test-"));
@@ -147,4 +147,31 @@ test("rejects junk", () => {
     bad((b) => (b.curation.erase = { k: [[1.5, 0]] }));
     bad((b) => (b.curation.surprise = 1));
     bad((b) => delete b.curation);
+});
+
+test("deletes a mod folder only by its exact name", async () => {
+    const dir = makeBundle();
+    try {
+        const [first] = await listModFolders(dir);
+        for (const bad of ["..", ".", "", `${first}/..`, `../${path.basename(dir)}`, path.join(dir, first)]) assert.equal(await removeModFolder(dir, bad), false);
+        assert.equal((await listModFolders(dir)).includes(first), true);
+        assert.equal(await removeModFolder(dir, first), true);
+        assert.equal((await listModFolders(dir)).includes(first), false);
+        assert.equal(await removeModFolder(dir, first), false);
+    } finally {
+        rmSync(dir, { recursive: true, force: true });
+    }
+});
+
+test("the admin panel's partial edits are validated", () => {
+    assert.deepEqual(parseModPatch({ enabled: false }), { enabled: false });
+    assert.deepEqual(parseModPatch({ itemsOnlyFor: ["Alpaca"] }), { itemsOnlyFor: ["alpaca"] });
+    for (const bad of [{}, { enabled: "no" }, { name: "" }, { other: 1 }, null]) assert.throws(() => parseModPatch(bad), SettingsError);
+
+    assert.deepEqual(parseCurationPatch({ hideItemPattern: "" }), { hideItemPattern: "" });
+    assert.deepEqual(parseCurationPatch({ erase: { "mod/a.png": [[1, 2]] } }), { erase: { "mod/a.png": [[1, 2]] } });
+    for (const bad of [{}, { hideItemPattern: "(" }, { categories: "animal" }, { erase: { a: [[1]] } }, { hideItems: [1] }]) assert.throws(() => parseCurationPatch(bad), SettingsError);
+
+    assert.equal(parseRaces([{ id: "human" }, { id: "blazekid", species: "novakid", lock: { facialHair: "" } }]).length, 2);
+    for (const bad of [undefined, {}, [{ id: "a" }, { id: "a" }], [{ name: "no id" }]]) assert.throws(() => parseRaces(bad), SettingsError);
 });

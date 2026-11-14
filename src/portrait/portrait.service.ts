@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
-import { assembleBundle, bundleDir, folderNames, packPath, type AssembledBundle } from "./portrait.bundle.js";
-import type { RaceInput, SettingsInput } from "./portrait.validation.js";
+import { assembleBundle, bundleDir, folderNames, packPath, removeModFolder, type AssembledBundle } from "./portrait.bundle.js";
+import type { CurationPatch, ModPatch, RaceInput, SettingsInput } from "./portrait.validation.js";
 
 // Portrait creator settings (tables portrait_mods, portrait_races, portrait_settings) and
 // access to the sprite bundle on disk. See portrait.bundle.ts for the files.
@@ -54,9 +54,11 @@ async function getSettings() {
     const known = new Map(rows.map((r) => [r.id, r]));
     const mods = [...new Set([...onDisk.keys(), ...known.keys()])].map((id) => ({
         id,
-        name: known.get(id)?.name ?? onDisk.get(id) ?? id,
+        // The folder's own name when it is there; the row's is what a missing mod is remembered by
+        name: onDisk.get(id) ?? known.get(id)?.name ?? id,
         enabled: known.get(id)?.enabled ?? true,
         present: onDisk.has(id),
+        itemsOnlyFor: known.get(id)?.itemsOnlyFor ?? [],
     }));
     mods.sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
     const itemsOnlyFor: Record<string, string[]> = {};
@@ -74,6 +76,71 @@ async function getSettings() {
     };
 }
 
+async function writeRaces(tx: Prisma.TransactionClient, races: RaceInput[]): Promise<void> {
+    await tx.portraitRace.deleteMany();
+    await tx.portraitRace.createMany({
+        data: races.map((r, position) => ({
+            id: r.id,
+            species: r.species ?? null,
+            name: r.name ?? null,
+            descriptor: r.descriptor ?? null,
+            category: r.category ?? null,
+            exclude: r.exclude ?? [],
+            prefer: r.prefer ?? [],
+            hidden: r.hidden ?? false,
+            lock: r.lock ?? Prisma.DbNull,
+            position,
+        })),
+    });
+}
+
+async function writeCuration(tx: Prisma.TransactionClient, patch: CurationPatch): Promise<void> {
+    for (const [key, value] of Object.entries(patch)) {
+        if (value === undefined) continue;
+        await tx.portraitSetting.upsert({ where: { key }, create: { key, value }, update: { value } });
+    }
+}
+
+/** Replaces the race list; the order given is the order shown. */
+async function replaceRaces(races: RaceInput[]): Promise<void> {
+    await prisma.$transaction((tx) => writeRaces(tx, races));
+}
+
+/** Changes the settings given (categories, hideItemPattern, hideItems, erase) and leaves the rest. */
+async function updateCuration(patch: CurationPatch): Promise<void> {
+    await prisma.$transaction((tx) => writeCuration(tx, patch));
+}
+
+/**
+ * Switches a mod on or off, renames it or limits who wears its clothing. The mod must be a
+ * folder in the bundle or already have a row: false otherwise.
+ */
+async function updateMod(id: string, patch: ModPatch): Promise<boolean> {
+    const dir = bundleDir();
+    const onDisk = dir ? await folderNames(dir) : new Map<string, string>();
+    const row = await prisma.portraitMod.findUnique({ where: { id } });
+    if (!row && !onDisk.has(id)) return false;
+    await prisma.portraitMod.upsert({
+        where: { id },
+        create: { id, name: patch.name ?? onDisk.get(id) ?? id, enabled: patch.enabled ?? true, itemsOnlyFor: patch.itemsOnlyFor ?? [] },
+        update: patch,
+    });
+    invalidate();
+    return true;
+}
+
+/**
+ * Removes a mod for good: its folder in the bundle (sprites and all) and its row. Returns
+ * what was there to remove; both false means there was no such mod.
+ */
+async function deleteMod(id: string): Promise<{ folder: boolean; row: boolean }> {
+    const dir = bundleDir();
+    const folder = dir ? await removeModFolder(dir, id) : false;
+    const row = (await prisma.portraitMod.deleteMany({ where: { id } })).count > 0;
+    invalidate();
+    return { folder, row };
+}
+
 /**
  * Replaces the race list, categories and curation in one transaction (the contents of
  * ff-site's races.json and curation.json). `skipMods` switches those mods off and every
@@ -85,30 +152,8 @@ async function replaceSettings(input: SettingsInput): Promise<void> {
     const dir = bundleDir();
     const names = dir ? await folderNames(dir) : new Map<string, string>();
     await prisma.$transaction(async (tx) => {
-        await tx.portraitRace.deleteMany();
-        await tx.portraitRace.createMany({
-            data: input.races.map((r, position) => ({
-                id: r.id,
-                species: r.species ?? null,
-                name: r.name ?? null,
-                descriptor: r.descriptor ?? null,
-                category: r.category ?? null,
-                exclude: r.exclude ?? [],
-                prefer: r.prefer ?? [],
-                hidden: r.hidden ?? false,
-                lock: r.lock ?? Prisma.DbNull,
-                position,
-            })),
-        });
-        const settings: Record<string, Prisma.InputJsonValue> = {
-            categories: input.categories,
-            hideItemPattern: curation.hideItemPattern,
-            hideItems: curation.hideItems,
-            erase: curation.erase,
-        };
-        for (const [key, value] of Object.entries(settings)) {
-            await tx.portraitSetting.upsert({ where: { key }, create: { key, value }, update: { value } });
-        }
+        await writeRaces(tx, input.races);
+        await writeCuration(tx, { categories: input.categories, hideItemPattern: curation.hideItemPattern, hideItems: curation.hideItems, erase: curation.erase });
 
         const skip = curation.skipMods;
         const existing = new Set((await tx.portraitMod.findMany({ select: { id: true } })).map((r) => r.id));
@@ -140,4 +185,4 @@ async function getPackPath(mod: string): Promise<string | null> {
     return dir ? packPath(dir, mod, await disabledMods()) : null;
 }
 
-export default { getSettings, replaceSettings, getBundle, getPackPath, invalidate };
+export default { getSettings, replaceSettings, replaceRaces, updateCuration, updateMod, deleteMod, getBundle, getPackPath, invalidate };

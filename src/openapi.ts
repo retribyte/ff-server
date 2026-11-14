@@ -1646,6 +1646,49 @@ const spec = {
                 responses: { "200": { description: "The saved settings, as GET /portrait/settings" }, "400": { description: "Invalid settings" }, "403": { description: "Not an admin" } },
             },
         },
+        "/admin/portrait/races": {
+            put: {
+                tags: ["Admin", "Portrait"],
+                summary: "Replace the portrait creator's race list (admin)",
+                description: "Body `{races: [...]}`, each entry as in GET /portrait/settings; the order given is the order shown. No id twice (400).",
+                security: [{ bearerAuth: [] }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["races"], properties: { races: { type: "array", items: { type: "object" } } } } } } },
+                responses: { "200": { description: "The settings as they now stand, as GET /portrait/settings" }, "400": { description: "Invalid race list" }, "403": { description: "Not an admin" } },
+            },
+        },
+        "/admin/portrait/curation": {
+            patch: {
+                tags: ["Admin", "Portrait"],
+                summary: "Change the portrait creator's categories, hidden items or pixel repairs (admin)",
+                description:
+                    "Any of `categories` (string[]), `hideItemPattern` (regex source, '' for none), `hideItems` (item ids) and " +
+                    "`erase` ({\"<mod id><image path>\": [[x, y], ...]}). What is left out stays as it is.",
+                security: [{ bearerAuth: [] }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+                responses: { "200": { description: "The settings as they now stand" }, "400": { description: "Invalid body" }, "403": { description: "Not an admin" } },
+            },
+        },
+        "/admin/portrait/mods/{id}": {
+            patch: {
+                tags: ["Admin", "Portrait"],
+                summary: "Switch a portrait mod on or off, rename it, or limit who wears its clothing (admin)",
+                description:
+                    "Any of `enabled` (false: the mod's sprites and items are no longer served, at once), `name`, and `itemsOnlyFor` " +
+                    "(species kinds that may wear its clothing; empty for anyone). The mod must be a folder in the bundle or already have a row.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+                responses: { "200": { description: "The settings as they now stand" }, "400": { description: "Invalid body" }, "403": { description: "Not an admin" }, "404": { description: "No such mod" } },
+            },
+            delete: {
+                tags: ["Admin", "Portrait"],
+                summary: "Delete a portrait mod's files from the server (admin)",
+                description: "Removes the mod's folder from the bundle directory (its sprites are gone until someone uploads them again) and its settings row.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+                responses: { "200": { description: "The settings as they now stand" }, "403": { description: "Not an admin" }, "404": { description: "No such mod" } },
+            },
+        },
         "/admin/views": {
             get: {
                 tags: ["Admin", "Views"],

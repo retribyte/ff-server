@@ -304,7 +304,12 @@ data. Don't add a species table back.
   three tables: `GET /api/portrait/settings` (members) and `PUT
   /api/admin/portrait/settings` (admin, replaces everything in one transaction, 10mb
   body limit via `utils/import.ts`); `npm run portrait:import-settings` loads the two
-  JSON files through the same service function. The disabled-mod set is cached 5 s
+  JSON files through the same service function. The site's /admin/portraits page edits
+  piecewise: `PUT /admin/portrait/races` (the whole list, in order), `PATCH
+  /admin/portrait/curation` (categories, hidden items, pixel repairs), `PATCH
+  /admin/portrait/mods/:id` (on/off, clothing limits) and `DELETE /admin/portrait/mods/:id`,
+  which deletes that mod's folder from the bundle directory: the one place the API
+  removes files. The disabled-mod set is cached 5 s
   (writes through the service clear it; psql edits show within 5 s).
 - **Admin jobs** (`src/jobs/`, `src/admin/`): idempotent, database-only
   maintenance jobs (`JOBS` in `src/jobs/registry.ts`) and the episode import

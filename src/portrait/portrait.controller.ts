@@ -4,7 +4,7 @@ import { importJson } from "../utils/import.js";
 import { logger } from "../utils/logger.js";
 import portraitService from "./portrait.service.js";
 import { acceptsGzip, etagMatches, gzipped, type Assembled } from "./portrait.bundle.js";
-import { parseSettings, SettingsError } from "./portrait.validation.js";
+import { parseCurationPatch, parseModPatch, parseRaces, parseSettings, SettingsError } from "./portrait.validation.js";
 
 const PACK_CACHE = "private, max-age=31536000, immutable"; // the site adds ?v=<build>
 
@@ -79,6 +79,34 @@ const initializePortraitRoutes = (): Router => {
             return res.status(500).json({ status: "error", message: "Failed to save portrait settings" });
         }
     });
+
+    // The admin panel's edits. Each answers with the settings as they now stand.
+    const edit = (what: string, change: (req: Request) => Promise<boolean | void>) => async (req: Request, res: Response) => {
+        try {
+            if ((await change(req)) === false) return res.status(404).json({ status: "error", message: "No such mod" });
+            logger.info("portrait.settings_changed", { what, mod: req.params.id });
+            return res.status(200).json({ status: "success", data: await portraitService.getSettings() });
+        } catch (error) {
+            if (error instanceof SettingsError) return res.status(400).json({ status: "error", message: error.message });
+            logger.caught(`Error changing portrait ${what}`, error);
+            return res.status(500).json({ status: "error", message: "Failed to save portrait settings" });
+        }
+    };
+
+    // PUT /api/admin/portrait/races: { races } replaces the race list, in the order given (admin)
+    router.put("/admin/portrait/races", authenticate, isAdmin, edit("races", async (req) => portraitService.replaceRaces(parseRaces(req.body?.races))));
+
+    // PATCH /api/admin/portrait/curation: any of categories, hideItemPattern, hideItems, erase (admin)
+    router.patch("/admin/portrait/curation", authenticate, isAdmin, edit("curation", async (req) => portraitService.updateCuration(parseCurationPatch(req.body))));
+
+    // PATCH /api/admin/portrait/mods/:id: switch a mod on or off, rename it, limit who wears its clothing (admin)
+    router.patch("/admin/portrait/mods/:id", authenticate, isAdmin, edit("mod", async (req) => portraitService.updateMod(req.params.id, parseModPatch(req.body))));
+
+    // DELETE /api/admin/portrait/mods/:id: delete a mod's folder from the bundle, and its row (admin)
+    router.delete("/admin/portrait/mods/:id", authenticate, isAdmin, edit("mod_deleted", async (req) => {
+        const gone = await portraitService.deleteMod(req.params.id);
+        return gone.folder || gone.row;
+    }));
 
     return router;
 };
