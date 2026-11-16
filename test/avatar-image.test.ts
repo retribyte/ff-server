@@ -72,3 +72,9 @@ test("every spelling of a data: URL is treated as an upload, so none skips valid
         assert.equal(isDataUrl(image), false);
     }
 });
+
+test("strips color-space chunks so browsers don't color-manage the sprite", () => {
+    const tagged = png(14, 14, Buffer.concat([chunk("sRGB", Buffer.from([0])), chunk("gAMA", Buffer.alloc(4)), chunk("tEXt", Buffer.from("k\0v"))]));
+    const out = decodeAvatarDataUrl(dataUrl(tagged));
+    assert.deepEqual(out, png(14, 14, chunk("tEXt", Buffer.from("k\0v"))));
+});
