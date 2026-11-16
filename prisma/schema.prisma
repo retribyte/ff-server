@@ -526,13 +526,18 @@ model MapBody {
   parentId    Int?
   children    MapBody[]       @relation("orbit")
   kind        MapBodyKind
-  name        String? // null only for a star nobody has named
+  // null for a star nobody has named, and for a planet or moon known only by its GU
+  // designation (Sol-3, Sol-3a), which the site works out from the star's name
+  name        String?
   slug        String?         @unique // wiki identity, as MapPlace.slug
   // Stars: a key of STAR_TYPES. Everything else: a key of COMPOSITIONS.
   type        String
   radiusKm    Float? // null for stars: they take their size from the type
   // Planets: AU from the star. Moons and stations: km from the parent. Null for the star.
   orbit       Float?
+  // Planets only: "this is planet N of its star", for a planet whose inner neighbours
+  // are not on the map yet. Null = it counts from the planets inside its orbit.
+  ordinal     Int?
   color       String? // "#rrggbb" override of the type's color
   description String?
   travelogue  TravelogueTag[]

@@ -18,6 +18,7 @@
             "kind": "PLANET",
             "name": "Earth",
             "slug": "earth",
+            "ordinal": 3,
             "type": "ocean",
             "radiusKm": 6371,
             "orbit": 1,

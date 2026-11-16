@@ -225,7 +225,7 @@ This section captures the *entities* and *relationships* the System must represe
 
 - **Commentary** — A member-authored annotation on a transcript message. Fields: `content` (text body), `creator` (User reference), `message` (Message reference).
 - **MapPlace** — A star system or landmark on the galaxy map. Fields: `kind`, `name` (null for a placeholder system), `slug`, position (`x`, `y`, `z`), `region` (set when placed "somewhere in" one), `category` (landmarks), `description`, `creator` (User reference).
-- **MapBody** — A star, planet, moon or station of a system, self-referentially nested. Fields: `kind`, `name`, `slug`, `type` (star type or composition), `radiusKm`, `orbit`, `color`, `description`, `parent`.
+- **MapBody** — A star, planet, moon or station of a system, self-referentially nested. Fields: `kind`, `name`, `slug`, `type` (star type or composition), `radiusKm`, `orbit`, `ordinal` (planets: "this is planet N", when its inner neighbours are not on the map), `color`, `description`, `parent`. A planet or moon may have no `name`: it is then shown by its GU designation (Sol-3, Sol-3a).
 - **TravelogueTag** — "This episode happened here". Fields: `place`, optional `body`, the episode's slug, `creator`.
 - **Story** — A standalone narrative work (prose fiction, or the CYOA chronicle), independent of the Season/Episode/Message hierarchy. Fields: `title`, `slug`, `blurb`, optional `author` (User reference), optional `publishedDate`, optional theme colors, and a `format` (`SCRIPT` or `PROSE`) governing how its content renders. Composed of ordered **StoryChapters**.
 - **StoryChapter** — An ordered chapter within a Story. Fields: `chapter_no`, optional `title`. Composed of ordered **StoryLines**.

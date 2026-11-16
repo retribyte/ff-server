@@ -50,10 +50,17 @@ test("slugs are checked, and come from the name when not sent", () => {
 });
 
 test("bodies are held to their kind's rules", () => {
-    assert.deepEqual(parseBody(planet), { ...planet, color: null, description: null });
-    assert.deepEqual(parseBody({ kind: "STAR", type: "sunlike" }), { kind: "STAR", name: null, type: "sunlike", radiusKm: null, orbit: null, color: null, description: null });
+    assert.deepEqual(parseBody(planet), { ...planet, ordinal: null, color: null, description: null });
+    assert.deepEqual(parseBody({ kind: "STAR", type: "sunlike" }), { kind: "STAR", name: null, type: "sunlike", radiusKm: null, orbit: null, ordinal: null, color: null, description: null });
     assert.equal(parseBody({ kind: "STATION", name: "Dock", orbit: 9000 }).type, "artificial");
-    assert.throws(() => parseBody({ ...planet, name: "" }), /planet needs a name/);
+    // A planet or moon may go by its designation alone; a station may not
+    assert.equal(parseBody({ ...planet, name: "" }).name, null);
+    assert.equal(parseBody({ kind: "MOON", type: "rocky", radiusKm: 1737, orbit: 384400 }).name, null);
+    assert.throws(() => parseBody({ kind: "STATION", orbit: 9000 }), /station needs a name/);
+    assert.equal(parseBody({ ...planet, ordinal: 3 }).ordinal, 3);
+    assert.equal(parseBody({ ordinal: null }, true, "PLANET").ordinal, null);
+    for (const bad of [0, 1.5, 100, "3"]) assert.throws(() => parseBody({ ...planet, ordinal: bad }), /ordinal must be/, String(bad));
+    assert.throws(() => parseBody({ kind: "MOON", name: "Luna", type: "rocky", radiusKm: 1737, orbit: 384400, ordinal: 1 }), /Only a planet/);
     assert.throws(() => parseBody({ ...planet, type: "sunlike" }), /type must be one of/);
     assert.throws(() => parseBody({ kind: "STAR", type: "ocean" }), /type must be one of/);
     assert.throws(() => parseBody({ kind: "STAR", type: "sunlike", orbit: 1 }), /no orbit/);

@@ -23,6 +23,8 @@ export const MAP_RADIUS = 50;
 export const BODIES_PER_PLACE = 1000;
 /** Per member, so the map cannot be filled by one account. */
 export const PLACES_PER_USER = 500;
+/** The highest "this is planet N" a planet may claim. */
+export const ORDINAL_MAX = 99;
 
 /** What each kind of body may orbit. null = nothing (the star). */
 export const PARENT_KINDS: Record<MapBodyKind, (MapBodyKind | null)[]> = {
@@ -39,6 +41,7 @@ export interface BodyInput {
     type: string;
     radiusKm: number | null;
     orbit: number | null;
+    ordinal: number | null;
     color: string | null;
     description: string | null;
 }
@@ -171,7 +174,8 @@ export function parseBody(body: unknown, partial = false, kind?: MapBodyKind): P
     const star = kind === "STAR";
     if (!partial || o.name !== undefined) {
         out.name = parseName(o.name);
-        if (!out.name && !star) throw new GalaxyInputError(`A ${kind!.toLowerCase()} needs a name`);
+        // A planet or moon without a name goes by its designation (Sol-3, Sol-3a)
+        if (!out.name && kind === "STATION") throw new GalaxyInputError("A station needs a name");
     }
     if (o.slug !== undefined) out.slug = parseSlug(o.slug);
     if (!partial || o.type !== undefined) {
@@ -190,6 +194,12 @@ export function parseBody(body: unknown, partial = false, kind?: MapBodyKind): P
             if (o.orbit !== null && o.orbit !== undefined) throw new GalaxyInputError("A star has no orbit");
             out.orbit = null;
         } else out.orbit = parsePositive(o.orbit, "orbit", kind === "PLANET" ? 1e5 : 1e9);
+    }
+    if (!partial || o.ordinal !== undefined) {
+        if (o.ordinal === null || o.ordinal === undefined) out.ordinal = null;
+        else if (kind !== "PLANET") throw new GalaxyInputError("Only a planet has an ordinal");
+        else if (!Number.isInteger(o.ordinal) || (o.ordinal as number) < 1 || (o.ordinal as number) > ORDINAL_MAX) throw new GalaxyInputError(`ordinal must be a whole number from 1 to ${ORDINAL_MAX}`);
+        else out.ordinal = o.ordinal as number;
     }
     if (!partial || o.color !== undefined) out.color = o.color === undefined ? null : parseColor(o.color);
     if (!partial || o.description !== undefined) out.description = parseDescription(o.description);

@@ -37,6 +37,7 @@ CREATE TABLE "map_bodies" (
     "type" TEXT NOT NULL,
     "radiusKm" DOUBLE PRECISION,
     "orbit" DOUBLE PRECISION,
+    "ordinal" INTEGER,
     "color" TEXT,
     "description" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
