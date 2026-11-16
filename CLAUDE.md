@@ -195,7 +195,7 @@ data. Don't add a species table back.
   If you add a model whose writes change archive text or who speaks it, add it to
   `ARCHIVE_MODELS`. Use the `prisma` from `src/db.ts`; a client of your own would
   bypass the hook.
-- **Galaxy map** (`src/galaxy/`, tables `map_places`, `map_bodies`, `map_travelogue`; Each place and body carries `wiki`: the wiki-cache row of the same slug from the map's buckets (`MAP_BUCKETS` in `wiki.client.ts`: planets, stars, satellites, celestial_bodies, locations), with the article's opening as `intro`; cache-only, filled by `npm run refresh:wiki-cache`.
+- **Galaxy map** (`src/galaxy/`, tables `map_places`, `map_bodies`, `map_travelogue`; Each place and body carries `wiki`: the wiki-cache row of the same slug from the map's buckets (`MAP_BUCKETS` in `wiki.client.ts`: planets, stars, satellites, celestial_bodies, locations), with the article's opening as `intro` and its picture's address as `image_url`; cache-only, filled by `npm run refresh:wiki-cache`.
   the successor to space-builder, read by ff-site's `/galaxy`): a **place** is a SYSTEM
   or a LANDMARK at `x`/`y`/`z` in klyr, in the Galactic Sector Grid frame (Sagittarius A
   at the origin). `region` (GU/ADE/LR/RIM) non-null means it was put "somewhere in" that

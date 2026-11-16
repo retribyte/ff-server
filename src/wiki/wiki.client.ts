@@ -192,6 +192,35 @@ export async function fetchPageIntro(title: string): Promise<string | null> {
     return typeof extract === "string" ? introOf(extract) : null;
 }
 
+/**
+ * The address of a wiki file's picture at card width, or null when there is no such
+ * file. The wiki's own Special:FilePath turns browsers away, so the map needs the
+ * file host's address. Throws WikiFetchError like the bucket reads.
+ */
+export async function fetchFileUrl(file: string): Promise<string | null> {
+    const url = new URL(WIKI_API_URL);
+    url.search = new URLSearchParams({
+        action: "query",
+        prop: "imageinfo",
+        iiprop: "url",
+        iiurlwidth: "480",
+        formatversion: "2",
+        format: "json",
+        titles: `File:${file}`,
+    }).toString();
+    try {
+        const response = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+        if (!response.ok) throw new WikiFetchError(`Wiki file request failed: HTTP ${response.status}`);
+        const data: any = await response.json();
+        const info = data?.query?.pages?.[0]?.imageinfo?.[0];
+        const found = info?.thumburl ?? info?.url;
+        return typeof found === "string" && found.startsWith("https://") ? found : null;
+    } catch (err: any) {
+        if (err instanceof WikiFetchError) throw err;
+        throw new WikiFetchError(`Wiki file request failed: ${err.message}`);
+    }
+}
+
 /** An extract up to its first heading, with a cut-off ending trimmed back to a whole sentence. */
 export function introOf(extract: string): string | null {
     const heading = extract.search(/\n+==/);

@@ -9,7 +9,7 @@
  * separate future decision.
  */
 import { prisma } from "../../src/db.js";
-import { fetchPageIntro, fetchWholeBucket, MAP_BUCKETS, WikiBucket } from "../../src/wiki/wiki.client.js";
+import { fetchFileUrl, fetchPageIntro, fetchWholeBucket, MAP_BUCKETS, WikiBucket } from "../../src/wiki/wiki.client.js";
 import { sanitizeRow, upsertCacheEntry } from "../../src/wiki/wiki.service.js";
 
 
@@ -53,7 +53,9 @@ async function refreshBucket({ bucket, getDbSlugs }: (typeof BUCKETS)[number]) {
         }
         wikiSlugs.add(slug);
         // The map shows each article's opening under the place's own description
+        // and its picture, by the file host's address
         if (isMapBucket(bucket) && typeof row.page_name === "string") row.intro = await fetchPageIntro(row.page_name);
+        if (isMapBucket(bucket)) row.image_url = typeof row.image === "string" && row.image ? await fetchFileUrl(row.image) : null;
         await upsertCacheEntry(bucket, slug, sanitizeRow(row));
         positives++;
     }

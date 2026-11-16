@@ -1720,7 +1720,7 @@ const spec = {
                     "`x`/`y`/`z` are klyr in the Galactic Sector Grid frame (Sagittarius A at the origin). `region` (GU, ADE, LR, RIM) is set when the " +
                     "place was put \"somewhere in\" that region, so its position is a random point in it. `name` and `slug` are null for a system " +
                     "nobody has named. `bodies` is flat: `{id, parentId, kind, name, slug, type, radiusKm, orbit, color, description}`, the star first. " +
-                    "`orbit` is AU for a planet and km for a moon or station. `travelogue` is as in GET /galaxy/places/{id}. A place or body whose slug has a wiki page carries `wiki`, that page's cached row (`page_name`, `image` as a wiki file name, `intro`, `faction`, ...), else null.",
+                    "`orbit` is AU for a planet and km for a moon or station. `travelogue` is as in GET /galaxy/places/{id}. A place or body whose slug has a wiki page carries `wiki`, that page's cached row (`page_name`, `image_url`, `intro`, `faction`, ...), else null.",
                 security: [],
                 responses: { "200": { description: "The list" } },
             },
