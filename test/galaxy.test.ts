@@ -79,3 +79,11 @@ test("a system's bodies are one star with what may orbit under it", () => {
     const many = Array.from({ length: 1000 }, (_, i) => ({ ...planet, name: `P${i}` }));
     assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike", children: many }]), /at most 1000/);
 });
+
+test("introOf keeps what stands before the first heading", async () => {
+    const { introOf } = await import("../src/wiki/wiki.client.js");
+    assert.equal(introOf("Barbona is an oceanic planet.\n\n\n== Weather ==\nStorms."), "Barbona is an oceanic planet.");
+    assert.equal(introOf("One sentence. A second that is cut off by the lim..."), "One sentence.");
+    assert.equal(introOf("\n\n== History ==\nOnly sections."), null);
+    assert.equal(introOf(""), null);
+});

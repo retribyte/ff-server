@@ -7,7 +7,11 @@ import { logger, errorFields } from "../utils/logger.js";
 const WIKI_API_URL = "https://wiki.vortox.space/w/api.php";
 const FETCH_TIMEOUT_MS = 4000;
 
-export type WikiBucket = "characters" | "species" | "items";
+export type WikiBucket = "characters" | "species" | "items" | MapBucket;
+
+/** The buckets whose pages the galaxy map shows (a slug is unique across all of them). */
+export const MAP_BUCKETS = ["planets", "stars", "satellites", "celestial_bodies", "locations"] as const;
+export type MapBucket = (typeof MAP_BUCKETS)[number];
 
 // Which fields to pull comes from the wiki itself: each bucket's schema is a
 // public JSON page, Bucket:<name> ({field: {type, repeated?, ...}}), which
@@ -18,6 +22,9 @@ export type WikiBucket = "characters" | "species" | "items";
 // own images for every record, and its own season/episode structure.
 // Everything else is pulled.
 const EXCLUDED_FIELDS = new Set(["image", "image1", "imagecaption", "caption1", "season"]);
+// The map has no pictures of its own: its buckets keep the wiki's file name
+const MAP_EXCLUDED_FIELDS = new Set(["imagecaption", "caption", "caption_image", "map", "mapcaption", "flag", "season"]);
+const excludedFields = (bucket: WikiBucket) => ((MAP_BUCKETS as readonly string[]).includes(bucket) ? MAP_EXCLUDED_FIELDS : EXCLUDED_FIELDS);
 
 // Schemas change rarely; re-read at most this often
 const SCHEMA_TTL_MS = 60 * 60 * 1000;
@@ -60,7 +67,7 @@ async function fetchSchemaFields(bucket: WikiBucket): Promise<string[]> {
     // slug is how every row is matched to a DB record
     if (!("slug" in schema)) throw new WikiFetchError(`Bucket '${bucket}' has no slug field`);
 
-    const fields = Object.keys(schema).filter((field) => FIELD_NAME.test(field) && !EXCLUDED_FIELDS.has(field));
+    const fields = Object.keys(schema).filter((field) => FIELD_NAME.test(field) && !excludedFields(bucket).has(field));
     // page_name is a reserved column on every bucket, not in the schema page
     return ["page_name", ...fields];
 }
@@ -152,4 +159,46 @@ export async function fetchBucketRow(bucket: WikiBucket, slug: string): Promise<
 // every row given current bucket sizes.
 export async function fetchWholeBucket(bucket: WikiBucket): Promise<WikiRow[]> {
     return runQuery(bucket, undefined, WHOLE_BUCKET_LIMIT);
+}
+
+const INTRO_MAX = 1200;
+
+/**
+ * The opening of a wiki article as plain text (what stands before its first heading),
+ * or null when the page has none. One request per page: the wiki's `exintro` comes back
+ * empty on pages that open with an infobox. Throws WikiFetchError like the bucket reads.
+ */
+export async function fetchPageIntro(title: string): Promise<string | null> {
+    const url = new URL(WIKI_API_URL);
+    url.search = new URLSearchParams({
+        action: "query",
+        prop: "extracts",
+        explaintext: "1",
+        exchars: String(INTRO_MAX),
+        formatversion: "2",
+        format: "json",
+        titles: title,
+    }).toString();
+    let extract: unknown;
+    try {
+        const response = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+        if (!response.ok) throw new WikiFetchError(`Wiki extract request failed: HTTP ${response.status}`);
+        const data: any = await response.json();
+        extract = data?.query?.pages?.[0]?.extract;
+    } catch (err: any) {
+        if (err instanceof WikiFetchError) throw err;
+        throw new WikiFetchError(`Wiki extract request failed: ${err.message}`);
+    }
+    return typeof extract === "string" ? introOf(extract) : null;
+}
+
+/** An extract up to its first heading, with a cut-off ending trimmed back to a whole sentence. */
+export function introOf(extract: string): string | null {
+    const heading = extract.search(/\n+==/);
+    let intro = (heading === -1 ? extract : extract.slice(0, heading)).trim();
+    if (heading === -1 && intro.endsWith("...")) {
+        const end = Math.max(intro.lastIndexOf(". "), intro.lastIndexOf(".\n"));
+        intro = end === -1 ? intro : intro.slice(0, end + 1);
+    }
+    return intro || null;
 }

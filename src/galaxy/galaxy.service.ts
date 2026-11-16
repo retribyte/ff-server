@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
 import { normalizeSlug } from "../utils/slug.js";
+import { MAP_BUCKETS } from "../wiki/wiki.client.js";
 import {
     BODIES_PER_PLACE,
     GalaxyInputError,
@@ -41,9 +42,24 @@ async function assertBodySlugFree(tx: Tx, slug: string | null | undefined, excep
     if (taken && taken.id !== exceptId) throw new GalaxyConflictError(`'${taken.name}' is already on the map as '${slug}'`);
 }
 
-/** Every place with its bodies (flat, each with its parentId) and travelogue: what the map draws and searches. */
+type PlaceRow = Prisma.MapPlaceGetPayload<{ include: typeof PLACE_INCLUDE }>;
+
+/**
+ * Gives each place and body its `wiki`: the wiki's row for the same slug (page_name,
+ * image, intro, faction and the rest of its infobox), or null. Read from the wiki cache
+ * only, which `npm run refresh:wiki-cache` fills: the map never waits on the wiki.
+ */
+async function withWiki(places: PlaceRow[]) {
+    const slugs = places.flatMap((place) => [place.slug, ...place.bodies.map((body) => body.slug)]).filter((slug): slug is string => !!slug);
+    const rows = slugs.length ? await prisma.wikiCache.findMany({ where: { bucket: { in: [...MAP_BUCKETS] }, slug: { in: slugs }, data: { not: Prisma.DbNull } } }) : [];
+    const bySlug = new Map(rows.map((row) => [row.slug, row.data as Record<string, unknown>]));
+    const wikiOf = (slug: string | null) => (slug ? (bySlug.get(slug) ?? null) : null);
+    return places.map((place) => ({ ...place, wiki: wikiOf(place.slug), bodies: place.bodies.map((body) => ({ ...body, wiki: wikiOf(body.slug) })) }));
+}
+
+/** Every place with its bodies (flat, each with its parentId), travelogue and wiki rows: what the map draws and searches. */
 async function getAllPlaces() {
-    const places = await prisma.mapPlace.findMany({ include: PLACE_INCLUDE, orderBy: { id: "asc" } });
+    const places = await withWiki(await prisma.mapPlace.findMany({ include: PLACE_INCLUDE, orderBy: { id: "asc" } }));
     const tags = await traveloguesOf(places.map((place) => place.id));
     return places.map((place) => ({ ...place, travelogue: tags.get(place.id) ?? [] }));
 }
@@ -66,8 +82,8 @@ async function traveloguesOf(placeIds: number[]) {
 
 const travelogueOf = async (placeId: number) => (await traveloguesOf([placeId])).get(placeId) ?? [];
 
-async function withTravelogue<T extends { id: number }>(place: T | null) {
-    return place ? { ...place, travelogue: await travelogueOf(place.id) } : null;
+async function withTravelogue(place: PlaceRow | null) {
+    return place ? { ...(await withWiki([place]))[0], travelogue: await travelogueOf(place.id) } : null;
 }
 
 async function getPlaceById(id: number) {

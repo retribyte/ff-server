@@ -9,7 +9,7 @@
  * separate future decision.
  */
 import { prisma } from "../../src/db.js";
-import { fetchWholeBucket, WikiBucket } from "../../src/wiki/wiki.client.js";
+import { fetchPageIntro, fetchWholeBucket, MAP_BUCKETS, WikiBucket } from "../../src/wiki/wiki.client.js";
 import { sanitizeRow, upsertCacheEntry } from "../../src/wiki/wiki.service.js";
 
 
@@ -29,7 +29,14 @@ const BUCKETS: { bucket: WikiBucket; getDbSlugs: () => Promise<string[]> }[] = [
         bucket: "items",
         getDbSlugs: async () => (await prisma.item.findMany({ select: { slug: true } })).map((r) => r.slug),
     },
+    // The galaxy map's buckets, like species, are read from the cache only: the slugs
+    // already cached are the ones to check for pages deleted from the wiki
+    ...MAP_BUCKETS.map((bucket) => ({
+        bucket,
+        getDbSlugs: async () => (await prisma.wikiCache.findMany({ where: { bucket }, select: { slug: true } })).map((r) => r.slug),
+    })),
 ];
+const isMapBucket = (bucket: WikiBucket) => (MAP_BUCKETS as readonly string[]).includes(bucket);
 
 async function refreshBucket({ bucket, getDbSlugs }: (typeof BUCKETS)[number]) {
     console.log(`\n=== ${bucket} ===`);
@@ -45,6 +52,8 @@ async function refreshBucket({ bucket, getDbSlugs }: (typeof BUCKETS)[number]) {
             continue;
         }
         wikiSlugs.add(slug);
+        // The map shows each article's opening under the place's own description
+        if (isMapBucket(bucket) && typeof row.page_name === "string") row.intro = await fetchPageIntro(row.page_name);
         await upsertCacheEntry(bucket, slug, sanitizeRow(row));
         positives++;
     }
