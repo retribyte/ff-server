@@ -11,6 +11,7 @@
 // The booru sits behind a Cloudflare bot challenge; IMAGE_KEY, sent as the
 // `x-bypass-key` header, is what Cloudflare lets through.
 
+import { stripColorSpace } from "./avatar-image.js";
 import { logger } from "./logger.js";
 
 const BOORU_URL = (process.env.BOORU_URL ?? "https://booru.vortox.space").replace(/\/+$/, "");
@@ -262,7 +263,8 @@ async function fetchBooruImage(url: URL): Promise<BooruImage | null> {
                 // Trust the bytes, not the header (which may be missing)
                 const contentType = sniffImageType(body);
                 if (contentType && body.length <= MAX_IMAGE_BYTES) {
-                    const image = { body, contentType };
+                    // Untagged, so a wide-gamut display shows the booru's pixels as drawn
+                    const image = { body: contentType === "image/png" ? stripColorSpace(body) : body, contentType };
                     cacheImage(key, image);
                     return image;
                 }
