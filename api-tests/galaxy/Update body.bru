@@ -1,0 +1,23 @@
+meta {
+  name: Update body
+  type: http
+  seq: 7
+}
+
+patch {
+  url: http://localhost:3000/api/galaxy/bodies/2
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "radiusKm": 7000,
+    "color": "#3f8fd6"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

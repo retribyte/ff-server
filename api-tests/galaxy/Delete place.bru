@@ -1,0 +1,16 @@
+meta {
+  name: Delete place
+  type: http
+  seq: 11
+}
+
+delete {
+  url: http://localhost:3000/api/galaxy/places/1
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

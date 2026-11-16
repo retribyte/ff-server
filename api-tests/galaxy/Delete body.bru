@@ -1,0 +1,16 @@
+meta {
+  name: Delete body
+  type: http
+  seq: 10
+}
+
+delete {
+  url: http://localhost:3000/api/galaxy/bodies/2
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

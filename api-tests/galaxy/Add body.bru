@@ -1,0 +1,27 @@
+meta {
+  name: Add body
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:3000/api/galaxy/places/1/bodies
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "kind": "MOON",
+    "name": "Test Moon",
+    "parentId": 2,
+    "type": "rocky",
+    "radiusKm": 900,
+    "orbit": 200000
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

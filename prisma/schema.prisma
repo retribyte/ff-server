@@ -54,9 +54,9 @@ enum StoryFormat {
 }
 
 model User {
-  id                 Int          @id @unique @default(autoincrement())
-  username           String       @unique
-  email              String?      @unique
+  id                 Int             @id @unique @default(autoincrement())
+  username           String          @unique
+  email              String?         @unique
   password           String // hashed using bcrypt?
   role               UserRole
   icon               String? // Resolved booru image URL; if null, use identicon?
@@ -65,17 +65,19 @@ model User {
   bio                String?
   wikiUser           String?
   passwordChangedAt  DateTime? // Tokens issued before this are rejected
-  mustChangePassword Boolean      @default(false) // Seeded/reset accounts pick their own password
-  loginDisabled      Boolean      @default(false) // System accounts, suspended users
+  mustChangePassword Boolean         @default(false) // Seeded/reset accounts pick their own password
+  loginDisabled      Boolean         @default(false) // System accounts, suspended users
   characters         Character[]
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
   messages           Message[]
   items              Item[]
   commentaries       Commentary[]
   stories            Story[]
   jobRuns            JobRun[]
   portraits          Portrait[]
+  mapPlaces          MapPlace[]
+  travelogueTags     TravelogueTag[]
 }
 
 model Character {
@@ -406,9 +408,9 @@ model ViewCount {
 // a row with no folder is a remembered switch. `itemsOnlyFor`: species kinds (lowercase)
 // that may wear this mod's clothing; empty = anyone.
 model PortraitMod {
-  id           String   @id // bundle folder name (the workshop id, or "vanilla")
+  id           String    @id // bundle folder name (the workshop id, or "vanilla")
   name         String
-  enabled      Boolean  @default(true)
+  enabled      Boolean   @default(true)
   itemsOnlyFor String[]
   // Set when a member uploads the folder through the site (not by the push script)
   uploadedBy   String?
@@ -458,4 +460,105 @@ model Portrait {
 
   @@index([ownerId])
   @@map("portraits")
+}
+
+// ---------- Galaxy map (ff-site /galaxy; src/galaxy/) ----------
+
+enum MapPlaceKind {
+  SYSTEM // a star with whatever orbits it
+  LANDMARK // anything else pinned to the map: a station in open space, a nebula, a district
+}
+
+enum MapBodyKind {
+  STAR
+  PLANET
+  MOON
+  STATION
+}
+
+// The four "somewhere in ..." regions a place can be dropped into
+enum MapRegion {
+  GU
+  ADE
+  LR
+  RIM
+}
+
+// One pin on the galaxy map. Any member adds one; its creator (or whoever it was
+// seeded with) owns it and everything in it, and the owner or an admin edits it.
+// `slug` is the shared wiki identity (Final Frontier Wiki:Slugs), so the site can
+// pull the wiki's text and picture for it; null while the place has no name.
+model MapPlace {
+  id          Int             @id @default(autoincrement())
+  kind        MapPlaceKind
+  // null -> a placeholder system: a planet was added before anyone named its star
+  name        String?
+  slug        String?         @unique
+  // Position in the Galactic Sector Grid frame: klyr, Sagittarius A at the origin,
+  // the bar along +y, z out of the disk
+  x           Float
+  y           Float
+  z           Float           @default(0)
+  // Set when the place was put "somewhere in" a region: x/y/z are then a random
+  // point inside it, not a known position. Null = placed by hand.
+  region      MapRegion?
+  category    String? // landmarks only: a key of LANDMARK_CATEGORIES (src/galaxy/galaxy.validation.ts)
+  description String?
+  creator     User            @relation(fields: [creatorId], references: [id])
+  creatorId   Int
+  bodies      MapBody[]
+  travelogue  TravelogueTag[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([creatorId])
+  @@map("map_places")
+}
+
+// A star, planet, moon or station of a SYSTEM place, in one self-referential table:
+// the star has no parent, a planet orbits the star, a moon orbits a planet, a station
+// orbits any of them. Owned through its place. Deleting a body deletes what orbits it.
+model MapBody {
+  id          Int             @id @default(autoincrement())
+  place       MapPlace        @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId     Int
+  parent      MapBody?        @relation("orbit", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId    Int?
+  children    MapBody[]       @relation("orbit")
+  kind        MapBodyKind
+  name        String? // null only for a star nobody has named
+  slug        String?         @unique // wiki identity, as MapPlace.slug
+  // Stars: a key of STAR_TYPES. Everything else: a key of COMPOSITIONS.
+  type        String
+  radiusKm    Float? // null for stars: they take their size from the type
+  // Planets: AU from the star. Moons and stations: km from the parent. Null for the star.
+  orbit       Float?
+  color       String? // "#rrggbb" override of the type's color
+  description String?
+  travelogue  TravelogueTag[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([placeId])
+  @@index([parentId])
+  @@map("map_bodies")
+}
+
+// "This episode happened here", tagged by hand. A tag is on a place, or on one body
+// of it (bodyId set). The episode is its permanent slug with no FK, as in ViewCount:
+// an episode re-import deletes and recreates the row, and the tags must outlive that.
+model TravelogueTag {
+  id          Int      @id @default(autoincrement())
+  place       MapPlace @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId     Int
+  body        MapBody? @relation(fields: [bodyId], references: [id], onDelete: Cascade)
+  bodyId      Int?
+  episodeSlug String
+  creator     User     @relation(fields: [creatorId], references: [id])
+  creatorId   Int
+  createdAt   DateTime @default(now())
+
+  @@index([placeId])
+  @@index([episodeSlug])
+  @@map("map_travelogue")
 }

@@ -4,8 +4,7 @@
  * the individual scripts, so they stay safe to reason about independently.
  * The first failing (or missing) script stops the seed with a non-zero exit:
  * every script builds on the ones before it, so carrying on would leave a
- * half-built database that looks complete. Only scripts in OPTIONAL_SCRIPTS
- * may be absent.
+ * half-built database that looks complete.
  */
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -33,16 +32,9 @@ const SEED_SCRIPTS = [
     "create-search-indexes.ts",
 ];
 
-// Listed ahead of time but not written yet (the space-builder galaxy data)
-const OPTIONAL_SCRIPTS = new Set(["seed-galaxy.ts"]);
-
 function runScript(script: string) {
     const scriptPath = path.join(__dirname, script);
-    if (!existsSync(scriptPath)) {
-        if (!OPTIONAL_SCRIPTS.has(script)) throw new Error(`seed script ${script} not found`);
-        console.log(`\n=== Skipping ${script} (optional, not found) ===`);
-        return;
-    }
+    if (!existsSync(scriptPath)) throw new Error(`seed script ${script} not found`);
     console.log(`\n=== Running ${script} ===`);
     const result = spawnSync("npx", ["tsx", scriptPath], { stdio: "inherit" });
     if (result.status !== 0) {
@@ -51,6 +43,7 @@ function runScript(script: string) {
 }
 
 async function main() {
+    await prisma.mapPlace.deleteMany(); // its bodies and travelogue tags cascade
     await prisma.item.deleteMany();
     await prisma.commentary.deleteMany();
     await prisma.storyLine.deleteMany();

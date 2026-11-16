@@ -194,6 +194,16 @@ A small, non-canonical community feature layered on top of the archive; answers 
 - **FR-IMP-2** The import console MUST NOT be reachable by non-admin members or visitors.
 - **FR-IMP-3** Bulk-loaded content MUST be subject to the same data constraints (§4.5) as content authored interactively — e.g. unique `(season, episode_number)`, gap-tolerant unique `(episode, sequence_number)`.
 
+### 3.15 Galaxy Map
+
+- **FR-MAP-1** The System MUST maintain one shared galaxy map that any member can add places to: star systems and landmarks, each at a position in the Galactic Sector Grid's three-dimensional frame.
+- **FR-MAP-2** A member MUST be able to place a system or landmark either at a chosen position or "somewhere in" a region (Galactic Union, ADE, Llamanian Republic, the Outer Rim); the System MUST record which of the two it was.
+- **FR-MAP-3** A star system MUST have exactly one star and MAY have planets, moons (around planets) and stations (around any body). A planet MAY be added before its system is named; the system is then an unnamed placeholder.
+- **FR-MAP-4** A place MUST belong to its creator. Editing or deleting a place, or any body in it, MUST be restricted to that creator or an admin.
+- **FR-MAP-5** Sizes, orbits and compositions MUST be stored as plain values, but members are never asked for raw numbers: clients offer them by comparison. Derived stats (mass, gravity, year length, habitability) MUST NOT be stored.
+- **FR-MAP-6** A place or body MUST carry the wiki's slug for the same thing, so its description and picture can come from the wiki.
+- **FR-MAP-7** A member MUST be able to tag an episode as having taken place at a place or on a body (its travelogue); a visitor MUST be able to read it.
+- **FR-MAP-8** A visitor MUST be able to view the map and open any system, read-only.
 
 ---
 
@@ -214,6 +224,9 @@ This section captures the *entities* and *relationships* the System must represe
 ### 4.2 New entities
 
 - **Commentary** — A member-authored annotation on a transcript message. Fields: `content` (text body), `creator` (User reference), `message` (Message reference).
+- **MapPlace** — A star system or landmark on the galaxy map. Fields: `kind`, `name` (null for a placeholder system), `slug`, position (`x`, `y`, `z`), `region` (set when placed "somewhere in" one), `category` (landmarks), `description`, `creator` (User reference).
+- **MapBody** — A star, planet, moon or station of a system, self-referentially nested. Fields: `kind`, `name`, `slug`, `type` (star type or composition), `radiusKm`, `orbit`, `color`, `description`, `parent`.
+- **TravelogueTag** — "This episode happened here". Fields: `place`, optional `body`, the episode's slug, `creator`.
 - **Story** — A standalone narrative work (prose fiction, or the CYOA chronicle), independent of the Season/Episode/Message hierarchy. Fields: `title`, `slug`, `blurb`, optional `author` (User reference), optional `publishedDate`, optional theme colors, and a `format` (`SCRIPT` or `PROSE`) governing how its content renders. Composed of ordered **StoryChapters**.
 - **StoryChapter** — An ordered chapter within a Story. Fields: `chapter_no`, optional `title`. Composed of ordered **StoryLines**.
 - **StoryLine** — A single line within a StoryChapter. Fields: `line_no` (a stable deep-link anchor within the chapter), a `type` (`NARRATION`, `DIALOGUE`, `ACTION`, `TRANSCRIPT`, `BREAK`, or `HEADING`), `text`, and optional attribution to a Character or a plain-text `speaker` name. A `NARRATION` line in a `PROSE`-format story MAY additionally carry sub-paragraph dialogue segments, so an in-paragraph quote remains individually attributable to a Character without breaking the paragraph.
@@ -359,4 +372,5 @@ For traceability. Each row is a responsibility currently held by a legacy app an
 | Guild-scoped multi-tenancy | `vortox-bot` | **OUT OF SCOPE** (no multi-tenant model in the new System) |
 | Importing legacy data from MongoDB or Discord | n/a | **OUT OF SCOPE** |
 | Admin operator dashboard | n/a | **OUT OF SCOPE** |
+| Galaxy map + solar-system authoring (per-user Firebase sandbox) | `space-builder` (standalone Vite/Firebase app) | §3.15 Galaxy Map |
 | Bulk episode/story JSON import | n/a | §3.14 Archive Import (Admin) |

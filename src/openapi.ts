@@ -1711,6 +1711,113 @@ const spec = {
                 responses: { "200": { description: "The PNG", content: { "image/png": {} } }, "404": { description: "No such portrait, or it is someone else's" } },
             },
         },
+        "/galaxy/places": {
+            get: {
+                tags: ["Galaxy"],
+                summary: "Every place on the galaxy map, with its bodies",
+                description:
+                    "Systems and landmarks: `{id, kind, name, slug, x, y, z, region, category, description, creator: {id, username, icon}, bodies}`. " +
+                    "`x`/`y`/`z` are klyr in the Galactic Sector Grid frame (Sagittarius A at the origin). `region` (GU, ADE, LR, RIM) is set when the " +
+                    "place was put \"somewhere in\" that region, so its position is a random point in it. `name` and `slug` are null for a system " +
+                    "nobody has named. `bodies` is flat: `{id, parentId, kind, name, slug, type, radiusKm, orbit, color, description}`, the star first. " +
+                    "`orbit` is AU for a planet and km for a moon or station.",
+                security: [],
+                responses: { "200": { description: "The list" } },
+            },
+            post: {
+                tags: ["Galaxy"],
+                summary: "Add a system or a landmark (members)",
+                description:
+                    "Body `{kind, name, x, y, z?, region?, category?, description?, slug?, bodies?}`. A SYSTEM sends `bodies: [star]` with what orbits " +
+                    "the star nested under `children` (a planet orbits the star, a moon a planet, a station any of them); its `name` may be null " +
+                    "(a planet added before its star is named). A LANDMARK needs a name and takes a `category` (landmark, station, black_hole, cluster, " +
+                    "nebula). Star `type`: red_dwarf, orange, sunlike, white, blue_giant, red_giant, neutron, black_hole. Other bodies' `type`: rocky, " +
+                    "ocean, desert, ice, gas, artificial. The slug comes from the name unless sent, and is the wiki's slug for the same thing. " +
+                    "The member owns the place. A member can add 500.",
+                security: [{ bearerAuth: [] }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["kind", "x", "y"] } } } },
+                responses: { "201": { description: "The place, as GET /galaxy/places/{id}" }, "400": { description: "Invalid body" }, "409": { description: "A place or body already has that slug" } },
+            },
+        },
+        "/galaxy/places/{id}": {
+            get: {
+                tags: ["Galaxy"],
+                summary: "One place by id or slug, with its bodies and travelogue",
+                description:
+                    "As in the list, plus `travelogue`: `{id, bodyId, creatorId, episodeSlug, episode: {slug, title, episode_no, seasonTitle, seasonSlug}}` " +
+                    "for the place (`bodyId` null) and each of its bodies, in episode order. `episode` is null if that episode no longer exists.",
+                security: [],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+                responses: { "200": { description: "The place" }, "404": { description: "No such place" } },
+            },
+            patch: {
+                tags: ["Galaxy"],
+                summary: "Rename, move or describe a place (its creator, or an admin)",
+                description:
+                    "Any of `name`, `slug`, `x`+`y`(+`z`), `region`, `category`, `description`. A stored slug stays when the name changes. A system " +
+                    "getting its first name gets its slug then, and its unnamed star takes the same name.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+                responses: { "200": { description: "The place" }, "400": { description: "Invalid body" }, "403": { description: "Not its creator" }, "404": { description: "No such place" }, "409": { description: "Slug taken" } },
+            },
+            delete: {
+                tags: ["Galaxy"],
+                summary: "Remove a place with its bodies and travelogue (its creator, or an admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: { "204": { description: "Deleted" }, "403": { description: "Not its creator" }, "404": { description: "No such place" } },
+            },
+        },
+        "/galaxy/places/{id}/bodies": {
+            post: {
+                tags: ["Galaxy"],
+                summary: "Add a planet, moon or station to a system (the system's creator, or an admin)",
+                description: "Body `{kind, name, parentId, type, radiusKm, orbit, color?, description?, slug?}`. A station may leave out `type` (artificial) and `radiusKm`.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["kind", "name", "parentId"] } } } },
+                responses: { "201": { description: "The body" }, "400": { description: "Invalid body, or it cannot orbit that parent" }, "403": { description: "Not the system's creator" }, "404": { description: "No such place" }, "409": { description: "Slug taken" } },
+            },
+        },
+        "/galaxy/bodies/{id}": {
+            patch: {
+                tags: ["Galaxy"],
+                summary: "Edit a body (its system's creator, or an admin)",
+                description: "Any of `name`, `slug`, `type`, `radiusKm`, `orbit`, `color`, `description`. Its kind and parent are fixed.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+                responses: { "200": { description: "The body" }, "400": { description: "Invalid body" }, "403": { description: "Not the system's creator" }, "404": { description: "No such body" }, "409": { description: "Slug taken" } },
+            },
+            delete: {
+                tags: ["Galaxy"],
+                summary: "Remove a body and everything orbiting it (its system's creator, or an admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: { "204": { description: "Deleted" }, "400": { description: "It is the system's star" }, "403": { description: "Not the system's creator" }, "404": { description: "No such body" } },
+            },
+        },
+        "/galaxy/places/{id}/travelogue": {
+            post: {
+                tags: ["Galaxy"],
+                summary: "Tag an episode as having happened at a place or on one of its bodies (members)",
+                description: "Body `{episode, bodyId?}`: the episode's slug, and a body of this place to tag the body instead.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["episode"] } } } },
+                responses: { "201": { description: "The tag, as in the place's `travelogue`" }, "400": { description: "Invalid body" }, "404": { description: "No such place or episode" }, "409": { description: "Already tagged there" } },
+            },
+        },
+        "/galaxy/travelogue/{id}": {
+            delete: {
+                tags: ["Galaxy"],
+                summary: "Remove a travelogue tag (whoever tagged it, the place's creator, or an admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: { "204": { description: "Deleted" }, "403": { description: "Not yours to remove" }, "404": { description: "No such tag" } },
+            },
+        },
         "/admin/portrait/settings": {
             put: {
                 tags: ["Admin", "Portrait"],

@@ -1,0 +1,412 @@
+[
+  {
+    "owner": "Trey",
+    "kind": "SYSTEM",
+    "name": "Sol",
+    "slug": "sol",
+    "x": -12.122,
+    "y": 23.79,
+    "z": 0.066,
+    "description": "A popular tourist trap, and where Earth is located.",
+    "bodies": [
+      {
+        "kind": "STAR",
+        "name": "Sol",
+        "type": "sunlike",
+        "children": [
+          {
+            "kind": "PLANET",
+            "name": "Earth",
+            "slug": "earth",
+            "type": "ocean",
+            "radiusKm": 6371,
+            "orbit": 1,
+            "travelogue": [
+              {
+                "season": "FF2",
+                "no": 10
+              },
+              {
+                "season": "FF2",
+                "no": 13
+              },
+              {
+                "season": "FF2",
+                "no": 14
+              },
+              {
+                "season": "FF2",
+                "no": 15
+              }
+            ],
+            "children": [
+              {
+                "kind": "MOON",
+                "name": "Luna",
+                "type": "rocky",
+                "radiusKm": 1737,
+                "orbit": 384400
+              }
+            ]
+          },
+          {
+            "kind": "PLANET",
+            "name": "Mars",
+            "type": "desert",
+            "radiusKm": 3390,
+            "orbit": 1.52
+          },
+          {
+            "kind": "PLANET",
+            "name": "Jupiter",
+            "type": "gas",
+            "radiusKm": 69911,
+            "orbit": 5.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "owner": "Trey",
+    "kind": "SYSTEM",
+    "name": null,
+    "x": 10.813,
+    "y": -6.879,
+    "z": 0,
+    "description": "Placeholder: Barbona was added before anyone named its star.",
+    "bodies": [
+      {
+        "kind": "STAR",
+        "name": null,
+        "type": "orange",
+        "children": [
+          {
+            "kind": "PLANET",
+            "name": "Barbona",
+            "slug": "barbona",
+            "type": "ocean",
+            "radiusKm": 7800,
+            "orbit": 0.62,
+            "description": "An ocean planet, and home of the Torrid.",
+            "travelogue": [
+              {
+                "season": "FF4",
+                "no": 3
+              },
+              {
+                "season": "FF4",
+                "no": 4
+              },
+              {
+                "season": "FF4",
+                "no": 5
+              },
+              {
+                "season": "FF4",
+                "no": 6
+              },
+              {
+                "season": "FF4",
+                "no": 7
+              },
+              {
+                "season": "FF4",
+                "no": 23
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "owner": "Trey",
+    "kind": "SYSTEM",
+    "name": "Eflah",
+    "x": 12.812,
+    "y": -5.142,
+    "z": 0,
+    "description": "A less-populated system, home of Fleex.",
+    "bodies": [
+      {
+        "kind": "STAR",
+        "name": "Eflah",
+        "type": "red_dwarf",
+        "children": [
+          {
+            "kind": "PLANET",
+            "name": "Fleex",
+            "slug": "fleex",
+            "type": "rocky",
+            "radiusKm": 4100,
+            "orbit": 0.16,
+            "travelogue": [
+              {
+                "season": "FF4",
+                "no": 6
+              }
+            ]
+          },
+          {
+            "kind": "PLANET",
+            "name": "Eflah II",
+            "type": "ice",
+            "radiusKm": 9000,
+            "orbit": 1.4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "owner": "Zander",
+    "kind": "SYSTEM",
+    "name": "Eyacara",
+    "x": 7.541,
+    "y": -8.437,
+    "z": 0,
+    "bodies": [
+      {
+        "kind": "STAR",
+        "name": "Eyacara",
+        "type": "white",
+        "children": [
+          {
+            "kind": "PLANET",
+            "name": "Eyacara-6",
+            "type": "gas",
+            "radiusKm": 52000,
+            "orbit": 9,
+            "children": [
+              {
+                "kind": "STATION",
+                "name": "KYL Trade Center",
+                "type": "artificial",
+                "radiusKm": 600,
+                "orbit": 90000,
+                "description": "An artificial moon orbiting the planet Eyacara-6.",
+                "travelogue": [
+                  {
+                    "season": "FF2",
+                    "no": 13
+                  },
+                  {
+                    "season": "FF2",
+                    "no": 14
+                  },
+                  {
+                    "season": "FF2",
+                    "no": 16
+                  },
+                  {
+                    "season": "FF2",
+                    "no": 17
+                  },
+                  {
+                    "season": "FF2",
+                    "no": 21
+                  },
+                  {
+                    "season": "FF2",
+                    "no": 22
+                  },
+                  {
+                    "season": "FF2",
+                    "no": 23
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "owner": "Sean",
+    "kind": "SYSTEM",
+    "name": null,
+    "x": 22,
+    "y": -18,
+    "z": 0,
+    "bodies": [
+      {
+        "kind": "STAR",
+        "name": null,
+        "type": "sunlike",
+        "children": [
+          {
+            "kind": "PLANET",
+            "name": "Zarazoga-9",
+            "type": "ocean",
+            "radiusKm": 5900,
+            "orbit": 0.95,
+            "description": "A tropical paradise, free from GU or ADE influence.",
+            "travelogue": [
+              {
+                "season": "FF3",
+                "no": 7
+              },
+              {
+                "season": "FF3",
+                "no": 8
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "owner": "Trey",
+    "kind": "SYSTEM",
+    "name": "Ophiuchus-D",
+    "x": 15.862,
+    "y": -6.578,
+    "z": 0.3,
+    "description": "A black hole in old sector O-19. Target of Operation EVENT HORIZON.",
+    "travelogue": [
+      {
+        "season": "FF4",
+        "no": 1
+      },
+      {
+        "season": "FF4",
+        "no": 18
+      }
+    ],
+    "bodies": [
+      {
+        "kind": "STAR",
+        "name": "Ophiuchus-D",
+        "type": "black_hole"
+      }
+    ]
+  },
+  {
+    "owner": "Trey",
+    "kind": "LANDMARK",
+    "name": "Sagittarius A",
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "category": "black_hole",
+    "description": "The 729 Core Worlds share one orbit 406 AU out. One lap is one GUY."
+  },
+  {
+    "owner": "Trey",
+    "kind": "LANDMARK",
+    "name": "GU government site",
+    "x": -2.972,
+    "y": 2.224,
+    "z": 0.3,
+    "category": "station",
+    "description": "Old sector N-12."
+  },
+  {
+    "owner": "Trey",
+    "kind": "LANDMARK",
+    "name": "Independent station",
+    "x": 4.41,
+    "y": -2.603,
+    "z": 0.3,
+    "category": "station",
+    "description": "Old sector N-15."
+  },
+  {
+    "owner": "Trey",
+    "kind": "LANDMARK",
+    "name": "Omega Centauri",
+    "x": -18.775,
+    "y": 8.775,
+    "z": 4.457,
+    "category": "cluster"
+  },
+  {
+    "owner": "Trey",
+    "kind": "LANDMARK",
+    "name": "M13",
+    "x": 4.618,
+    "y": 22.619,
+    "z": 14.601,
+    "category": "cluster",
+    "description": "Out in the halo, above the disk."
+  },
+  {
+    "owner": "Trey",
+    "kind": "LANDMARK",
+    "name": "Ptorei Nebula",
+    "x": 0.449,
+    "y": 13.81,
+    "z": 0,
+    "category": "nebula"
+  },
+  {
+    "owner": "Trey",
+    "kind": "LANDMARK",
+    "name": "Bakree Nebula",
+    "x": -17.137,
+    "y": 13.904,
+    "z": 0,
+    "category": "nebula",
+    "description": "Birthplace of the Novakids."
+  },
+  {
+    "owner": "Trey",
+    "kind": "LANDMARK",
+    "name": "Bagriburg",
+    "x": -39.123,
+    "y": -10.623,
+    "z": 0,
+    "category": "landmark",
+    "description": "An invitation-only district where many reclusive species live."
+  },
+  {
+    "owner": "Trey",
+    "kind": "LANDMARK",
+    "name": "Padox District",
+    "x": -37.74,
+    "y": 1.541,
+    "z": 0,
+    "category": "landmark",
+    "description": "A densely populated district."
+  },
+  {
+    "owner": "Trey",
+    "kind": "LANDMARK",
+    "name": "Geche Customs",
+    "x": -35.275,
+    "y": 7.29,
+    "z": 0,
+    "category": "station"
+  },
+  {
+    "owner": "Trey",
+    "kind": "LANDMARK",
+    "name": "Coterr Inner Junction",
+    "x": -15.393,
+    "y": 0.673,
+    "z": 0,
+    "category": "landmark"
+  },
+  {
+    "owner": "Trey",
+    "kind": "LANDMARK",
+    "name": "Vanta Outer Junction",
+    "x": -28.617,
+    "y": -24.736,
+    "z": 0,
+    "category": "landmark"
+  },
+  {
+    "owner": "Trey",
+    "kind": "LANDMARK",
+    "name": "RSJENO base",
+    "x": -3.36,
+    "y": -7.017,
+    "z": 0,
+    "category": "station",
+    "description": "Base of the GU's research and journalism arm."
+  }
+]

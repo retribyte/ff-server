@@ -195,6 +195,28 @@ data. Don't add a species table back.
   If you add a model whose writes change archive text or who speaks it, add it to
   `ARCHIVE_MODELS`. Use the `prisma` from `src/db.ts`; a client of your own would
   bypass the hook.
+- **Galaxy map** (`src/galaxy/`, tables `map_places`, `map_bodies`, `map_travelogue`;
+  the successor to space-builder, read by ff-site's `/galaxy`): a **place** is a SYSTEM
+  or a LANDMARK at `x`/`y`/`z` in klyr, in the Galactic Sector Grid frame (Sagittarius A
+  at the origin). `region` (GU/ADE/LR/RIM) non-null means it was put "somewhere in" that
+  region and the position is a random point there. A system holds **bodies** in one
+  self-referential table: exactly one STAR (made with the system, never deleted alone),
+  planets under the star, moons under planets, stations under any of them
+  (`PARENT_KINDS`). A system's `name` may be null (a planet added before its star is
+  named); naming it later names its unnamed star too. Rulings (the user's, 2026-11-11):
+  any member adds a place; the place's creator owns it and its bodies; creator or admin
+  edits and deletes. Bodies have no owner of their own. `slug` on places and bodies is
+  the wiki's slug for the same thing (derived from the name unless sent, unique per
+  table, 409 when taken, never changed by a rename). **Travelogue** tags say an episode
+  happened at a place or on one body: any member tags (an assumed default, not yet the user's
+  ruling); the tagger, the place's creator or an admin removes. A tag holds the episode's
+  `slug` with no FK, like `view_counts`, because an episode re-import deletes and
+  recreates the row. Request rules live in `galaxy.validation.ts` (pure, tested in
+  `test/galaxy.test.ts`); its `STAR_TYPES`/`COMPOSITIONS`/`LANDMARK_CATEGORIES` key lists
+  must match ff-site's map data, which owns the labels, colors and derived physics
+  (nothing derived is stored). Routes are under `/api/galaxy/`: reads are public and
+  `GET /galaxy/places` returns the whole map. Not done yet: wiki text/pictures for a
+  place, seeding from the wiki's planet data, the map in `/api/search`.
 - **View counters** (`src/view/`, table `view_counts`): aggregate daily counts of
   episode and story page views, split into `member` (signed-in) and `anonymous`
   columns. Nothing per user is stored (the user's call, 2026-11-07: counts only, no
@@ -351,8 +373,8 @@ data. Don't add a species table back.
   `SEED_SCRIPTS` (`seed-legacy.ts`, persona/character-data scripts,
   `seed-npc-personas.ts`, `seed-vm-appended.ts`, `seed-overlay.ts`, `seed-8ball.ts`, `seed-galaxy.ts`, `backfill-story-hashes.ts`, `create-search-indexes.ts`, `create-triggers.ts`) as child processes. The first script that fails
   or is missing stops the seed with a non-zero exit (the DB is then
-  incomplete: fix and re-seed). Only `OPTIONAL_SCRIPTS` may be absent:
-  `seed-galaxy.ts`, listed but not written yet.
+  incomplete: fix and re-seed). `seed-galaxy.ts` loads the map's sample
+  places (`seed-data/galaxy.json`) through `galaxyService`, only into an empty map.
   `seed:legacy` replays the real archive: episodes from ff-site's
   `archive-to-markdown/api/<season>/*.json` (`FF_SITE_DIR`), plus Vortox
   Machina and legacy colors/avatars from `ff-site-old` (`FF_SITE_OLD_DIR`) —
