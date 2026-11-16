@@ -76,6 +76,6 @@ test("a system's bodies are one star with what may orbit under it", () => {
     assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike", children: [moon] }]), /moon orbits a planet/);
     assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike", children: [{ kind: "STAR", type: "white" }] }]), /one star/);
     assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike", children: [{ ...planet, children: [planet] }] }]), /planet orbits a star/);
-    const many = Array.from({ length: 200 }, (_, i) => ({ ...planet, name: `P${i}` }));
-    assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike", children: many }]), /at most 200/);
+    const many = Array.from({ length: 1000 }, (_, i) => ({ ...planet, name: `P${i}` }));
+    assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike", children: many }]), /at most 1000/);
 });

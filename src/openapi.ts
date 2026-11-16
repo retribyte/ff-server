@@ -1714,13 +1714,13 @@ const spec = {
         "/galaxy/places": {
             get: {
                 tags: ["Galaxy"],
-                summary: "Every place on the galaxy map, with its bodies",
+                summary: "Every place on the galaxy map, with its bodies and travelogue",
                 description:
                     "Systems and landmarks: `{id, kind, name, slug, x, y, z, region, category, description, creator: {id, username, icon}, bodies}`. " +
                     "`x`/`y`/`z` are klyr in the Galactic Sector Grid frame (Sagittarius A at the origin). `region` (GU, ADE, LR, RIM) is set when the " +
                     "place was put \"somewhere in\" that region, so its position is a random point in it. `name` and `slug` are null for a system " +
                     "nobody has named. `bodies` is flat: `{id, parentId, kind, name, slug, type, radiusKm, orbit, color, description}`, the star first. " +
-                    "`orbit` is AU for a planet and km for a moon or station.",
+                    "`orbit` is AU for a planet and km for a moon or station. `travelogue` is as in GET /galaxy/places/{id}.",
                 security: [],
                 responses: { "200": { description: "The list" } },
             },
@@ -1730,8 +1730,8 @@ const spec = {
                 description:
                     "Body `{kind, name, x, y, z?, region?, category?, description?, slug?, bodies?}`. A SYSTEM sends `bodies: [star]` with what orbits " +
                     "the star nested under `children` (a planet orbits the star, a moon a planet, a station any of them); its `name` may be null " +
-                    "(a planet added before its star is named). A LANDMARK needs a name and takes a `category` (landmark, station, black_hole, cluster, " +
-                    "nebula). Star `type`: red_dwarf, orange, sunlike, white, blue_giant, red_giant, neutron, black_hole. Other bodies' `type`: rocky, " +
+                    "(a planet added before its star is named). A LANDMARK needs a name and takes a `category` (landmark, station, cluster, nebula; a black hole " +
+                    "is a system whose star is a black_hole). Star `type`: red_dwarf, orange, sunlike, white, blue_giant, red_giant, neutron, black_hole. Other bodies' `type`: rocky, " +
                     "ocean, desert, ice, gas, artificial. The slug comes from the name unless sent, and is the wiki's slug for the same thing. " +
                     "The member owns the place. A member can add 500.",
                 security: [{ bearerAuth: [] }],
@@ -1744,7 +1744,7 @@ const spec = {
                 tags: ["Galaxy"],
                 summary: "One place by id or slug, with its bodies and travelogue",
                 description:
-                    "As in the list, plus `travelogue`: `{id, bodyId, creatorId, episodeSlug, episode: {slug, title, episode_no, seasonTitle, seasonSlug}}` " +
+                    "As in the list. `travelogue`: `{id, bodyId, creatorId, episodeSlug, episode: {slug, title, episode_no, seasonTitle, seasonSlug}}` " +
                     "for the place (`bodyId` null) and each of its bodies, in episode order. `episode` is null if that episode no longer exists.",
                 security: [],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],

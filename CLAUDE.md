@@ -205,7 +205,8 @@ data. Don't add a species table back.
   (`PARENT_KINDS`). A system's `name` may be null (a planet added before its star is
   named); naming it later names its unnamed star too. Rulings (the user's, 2026-11-11):
   any member adds a place; the place's creator owns it and its bodies; creator or admin
-  edits and deletes. Bodies have no owner of their own. `slug` on places and bodies is
+  edits and deletes. Bodies have no owner of their own. A black hole is a system whose
+  star has type `black_hole` (Sagittarius A, Ophiuchus-D), never a landmark. `slug` on places and bodies is
   the wiki's slug for the same thing (derived from the name unless sent, unique per
   table, 409 when taken, never changed by a rename). **Travelogue** tags say an episode
   happened at a place or on one body: any member tags (an assumed default, not yet the user's

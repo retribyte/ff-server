@@ -41,23 +41,30 @@ async function assertBodySlugFree(tx: Tx, slug: string | null | undefined, excep
     if (taken && taken.id !== exceptId) throw new GalaxyConflictError(`'${taken.name}' is already on the map as '${slug}'`);
 }
 
-/** Every place with its bodies (flat, each with its parentId): what the map draws and searches. */
+/** Every place with its bodies (flat, each with its parentId) and travelogue: what the map draws and searches. */
 async function getAllPlaces() {
-    return await prisma.mapPlace.findMany({ include: PLACE_INCLUDE, orderBy: { id: "asc" } });
+    const places = await prisma.mapPlace.findMany({ include: PLACE_INCLUDE, orderBy: { id: "asc" } });
+    const tags = await traveloguesOf(places.map((place) => place.id));
+    return places.map((place) => ({ ...place, travelogue: tags.get(place.id) ?? [] }));
 }
 
-/** A place's tags, each with the episode it names (null if that episode is gone). */
-async function travelogueOf(placeId: number) {
-    const tags = await prisma.travelogueTag.findMany({ where: { placeId }, orderBy: { id: "asc" } });
+/** The tags of these places by place id, each with the episode it names (null if that episode is gone), in episode order. */
+async function traveloguesOf(placeIds: number[]) {
+    const tags = await prisma.travelogueTag.findMany({ where: { placeId: { in: placeIds } }, orderBy: { id: "asc" } });
     const episodes = await prisma.episode.findMany({
         where: { slug: { in: [...new Set(tags.map((tag) => tag.episodeSlug))] } },
         select: { slug: true, title: true, episode_no: true, seasonTitle: true, season: { select: { slug: true } } },
     });
     const bySlug = new Map(episodes.map(({ season, ...episode }) => [episode.slug, { ...episode, seasonSlug: season.slug }]));
-    return tags
-        .map((tag) => ({ id: tag.id, bodyId: tag.bodyId, creatorId: tag.creatorId, episodeSlug: tag.episodeSlug, episode: bySlug.get(tag.episodeSlug) ?? null }))
+    const rows = tags
+        .map((tag) => ({ id: tag.id, placeId: tag.placeId, bodyId: tag.bodyId, creatorId: tag.creatorId, episodeSlug: tag.episodeSlug, episode: bySlug.get(tag.episodeSlug) ?? null }))
         .sort((a, b) => (a.episode?.seasonTitle ?? "").localeCompare(b.episode?.seasonTitle ?? "") || (a.episode?.episode_no ?? 0) - (b.episode?.episode_no ?? 0));
+    const byPlace = new Map<number, Omit<(typeof rows)[number], "placeId">[]>();
+    for (const { placeId, ...row } of rows) byPlace.set(placeId, [...(byPlace.get(placeId) ?? []), row]);
+    return byPlace;
 }
+
+const travelogueOf = async (placeId: number) => (await traveloguesOf([placeId])).get(placeId) ?? [];
 
 async function withTravelogue<T extends { id: number }>(place: T | null) {
     return place ? { ...place, travelogue: await travelogueOf(place.id) } : null;

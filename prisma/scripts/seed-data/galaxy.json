@@ -286,13 +286,20 @@
   },
   {
     "owner": "Trey",
-    "kind": "LANDMARK",
+    "kind": "SYSTEM",
     "name": "Sagittarius A",
     "x": 0,
     "y": 0,
     "z": 0,
-    "category": "black_hole",
-    "description": "The 729 Core Worlds share one orbit 406 AU out. One lap is one GUY."
+    "description": "The 729 Core Worlds share one orbit 406 AU out. One lap is one GUY.",
+    "slug": "sagittarius_a",
+    "bodies": [
+      {
+        "kind": "STAR",
+        "name": "Sagittarius A",
+        "type": "black_hole"
+      }
+    ]
   },
   {
     "owner": "Trey",

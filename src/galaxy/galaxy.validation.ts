@@ -12,13 +12,15 @@ export class GalaxyInputError extends Error {}
 
 export const STAR_TYPES = ["red_dwarf", "orange", "sunlike", "white", "blue_giant", "red_giant", "neutron", "black_hole"];
 export const COMPOSITIONS = ["rocky", "ocean", "desert", "ice", "gas", "artificial"];
-export const LANDMARK_CATEGORIES = ["landmark", "station", "black_hole", "cluster", "nebula"];
+// A black hole is not a landmark: it is a system whose star is of type black_hole
+export const LANDMARK_CATEGORIES = ["landmark", "station", "cluster", "nebula"];
 
 export const NAME_MAX = 100;
 export const DESCRIPTION_MAX = 5000;
 /** klyr from Sagittarius A. The disk ends at 43.7; halo objects sit a little outside it. */
 export const MAP_RADIUS = 50;
-export const BODIES_PER_PLACE = 200;
+/** Room for the 729 Core Worlds around Sagittarius A. */
+export const BODIES_PER_PLACE = 1000;
 /** Per member, so the map cannot be filled by one account. */
 export const PLACES_PER_USER = 500;
 
