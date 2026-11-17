@@ -32,6 +32,8 @@ export const PARENT_KINDS: Record<MapBodyKind, (MapBodyKind | null)[]> = {
     PLANET: ["STAR"],
     MOON: ["PLANET"],
     STATION: ["STAR", "PLANET", "MOON"],
+    // Round a star it is an asteroid belt; round a planet or moon, a ring
+    BELT: ["STAR", "PLANET", "MOON"],
 };
 
 export interface BodyInput {
@@ -41,6 +43,8 @@ export interface BodyInput {
     type: string;
     radiusKm: number | null;
     orbit: number | null;
+    /** Belts: how wide the band is, in the unit of its orbit. */
+    width: number | null;
     ordinal: number | null;
     color: string | null;
     description: string | null;
@@ -180,11 +184,15 @@ export function parseBody(body: unknown, partial = false, kind?: MapBodyKind): P
     if (o.slug !== undefined) out.slug = parseSlug(o.slug);
     if (!partial || o.type !== undefined) {
         if (kind === "STATION" && (o.type === undefined || o.type === null)) out.type = "artificial";
+        else if (kind === "BELT" && (o.type === undefined || o.type === null)) out.type = "rocky";
         else out.type = oneOf(o.type, star ? STAR_TYPES : COMPOSITIONS, "type");
     }
     if (!partial || o.radiusKm !== undefined) {
-        // Stars and stations may leave their size out
-        if (o.radiusKm === null || o.radiusKm === undefined) {
+        // Stars and stations may leave their size out; a belt has a width instead
+        if (kind === "BELT") {
+            if (o.radiusKm !== null && o.radiusKm !== undefined) throw new GalaxyInputError("A belt has a width, not a radiusKm");
+            out.radiusKm = null;
+        } else if (o.radiusKm === null || o.radiusKm === undefined) {
             if (kind === "PLANET" || kind === "MOON") throw new GalaxyInputError(`A ${kind.toLowerCase()} needs a radiusKm`);
             out.radiusKm = null;
         } else out.radiusKm = parsePositive(o.radiusKm, "radiusKm", 1e10);
@@ -195,6 +203,14 @@ export function parseBody(body: unknown, partial = false, kind?: MapBodyKind): P
             out.orbit = null;
         } else out.orbit = parsePositive(o.orbit, "orbit", kind === "PLANET" ? 1e5 : 1e9);
     }
+    if (!partial || o.width !== undefined) {
+        if (kind !== "BELT") {
+            if (o.width !== null && o.width !== undefined) throw new GalaxyInputError("Only a belt has a width");
+            out.width = null;
+        } else out.width = parsePositive(o.width, "width", 1e9);
+    }
+    // The band's inner edge stays outside what it circles (checked when both are sent; the site keeps to it on edits)
+    if (out.width && out.orbit && out.width >= out.orbit * 2) throw new GalaxyInputError("A belt's width must be less than twice its orbit");
     if (!partial || o.ordinal !== undefined) {
         if (o.ordinal === null || o.ordinal === undefined) out.ordinal = null;
         else if (kind !== "PLANET") throw new GalaxyInputError("Only a planet has an ordinal");

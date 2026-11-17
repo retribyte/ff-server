@@ -2,7 +2,7 @@
 CREATE TYPE "MapPlaceKind" AS ENUM ('SYSTEM', 'LANDMARK');
 
 -- CreateEnum
-CREATE TYPE "MapBodyKind" AS ENUM ('STAR', 'PLANET', 'MOON', 'STATION');
+CREATE TYPE "MapBodyKind" AS ENUM ('STAR', 'PLANET', 'MOON', 'STATION', 'BELT');
 
 -- CreateEnum
 CREATE TYPE "MapRegion" AS ENUM ('GU', 'ADE', 'LR', 'RIM');
@@ -37,6 +37,7 @@ CREATE TABLE "map_bodies" (
     "type" TEXT NOT NULL,
     "radiusKm" DOUBLE PRECISION,
     "orbit" DOUBLE PRECISION,
+    "width" DOUBLE PRECISION,
     "ordinal" INTEGER,
     "color" TEXT,
     "description" TEXT,

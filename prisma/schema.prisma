@@ -474,6 +474,8 @@ enum MapBodyKind {
   PLANET
   MOON
   STATION
+  // An asteroid belt round a star, or a ring round a planet or moon
+  BELT
 }
 
 // The four "somewhere in ..." regions a place can be dropped into
@@ -515,9 +517,10 @@ model MapPlace {
   @@map("map_places")
 }
 
-// A star, planet, moon or station of a SYSTEM place, in one self-referential table:
-// the star has no parent, a planet orbits the star, a moon orbits a planet, a station
-// orbits any of them. Owned through its place. Deleting a body deletes what orbits it.
+// A star, planet, moon, station or belt of a SYSTEM place, in one self-referential
+// table: the star has no parent, a planet orbits the star, a moon orbits a planet, a
+// station or a belt orbits any of them (a belt round a planet or moon is its ring).
+// Owned through its place. Deleting a body deletes what orbits it.
 model MapBody {
   id          Int             @id @default(autoincrement())
   place       MapPlace        @relation(fields: [placeId], references: [id], onDelete: Cascade)
@@ -533,8 +536,11 @@ model MapBody {
   // Stars: a key of STAR_TYPES. Everything else: a key of COMPOSITIONS.
   type        String
   radiusKm    Float? // null for stars: they take their size from the type
-  // Planets: AU from the star. Moons and stations: km from the parent. Null for the star.
+  // Planets: AU from the star. Moons and stations: km from the parent. Belts: the middle
+  // of the band, AU from a star or km from a planet or moon. Null for the star.
   orbit       Float?
+  // Belts only: how wide the band is, in the unit of its orbit
+  width       Float?
   // Planets only: "this is planet N of its star", for a planet whose inner neighbours
   // are not on the map yet. Null = it counts from the planets inside its orbit.
   ordinal     Int?
