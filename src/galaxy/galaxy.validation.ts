@@ -30,15 +30,40 @@ export const ITERATION_MAX = 99;
 /** How far from the GUY epoch a station's build year may be, either way (some are millions of years old). */
 export const BUILT_YEAR_MAX = 1_000_000_000;
 
-/** What each kind of body may orbit. null = nothing (the star). */
-export const PARENT_KINDS: Record<MapBodyKind, (MapBodyKind | null)[]> = {
-    STAR: [null],
-    PLANET: ["STAR"],
-    MOON: ["PLANET"],
-    STATION: ["STAR", "PLANET", "MOON"],
+/** A barycenter's type: the point two stars orbit, or two planets. */
+export const BARYCENTER_TYPES = ["stars", "planets"];
+
+/** A body as far as orbiting goes: its kind, and its type (which matters for a barycenter). */
+export interface Orbiter {
+    kind: MapBodyKind;
+    type: string;
+}
+
+/** What each kind may orbit: "BARYCENTER:stars" is the point two stars orbit, null nothing (the system's primary). */
+const PARENTS: Record<string, (string | null)[]> = {
+    // The primary, a companion of a star, or one of a pair
+    STAR: [null, "STAR", "BARYCENTER:stars"],
+    "BARYCENTER:stars": [null, "STAR", "BARYCENTER:stars"],
+    // A pair of planets takes a planet's slot
+    "BARYCENTER:planets": ["STAR", "BARYCENTER:stars"],
+    // Round a pair of stars it circles both; round a pair of planets it is one of them
+    PLANET: ["STAR", "BARYCENTER:stars", "BARYCENTER:planets"],
+    MOON: ["PLANET", "BARYCENTER:planets"],
+    STATION: ["STAR", "PLANET", "MOON", "BARYCENTER:stars", "BARYCENTER:planets"],
     // Round a star it is an asteroid belt; round a planet or moon, a ring
-    BELT: ["STAR", "PLANET", "MOON"],
+    BELT: ["STAR", "PLANET", "MOON", "BARYCENTER:stars", "BARYCENTER:planets"],
 };
+const key = (b: Orbiter) => (b.kind === "BARYCENTER" ? `BARYCENTER:${b.type}` : b.kind);
+const LABELS: Record<string, string> = { "BARYCENTER:stars": "a pair of stars", "BARYCENTER:planets": "a pair of planets" };
+const label = (k: string) => LABELS[k] ?? `a ${k.toLowerCase()}`;
+
+/** Whether `body` may orbit `parent` (null: be the system's primary). */
+export function canOrbit(body: Orbiter, parent: Orbiter | null): boolean {
+    return (PARENTS[key(body)] ?? []).includes(parent ? key(parent) : null);
+}
+
+/** Bodies that may be a system's primary, and so go without an orbit. */
+export const mayBePrimary = (body: Orbiter) => canOrbit(body, null);
 
 export interface BodyInput {
     kind: MapBodyKind;
@@ -104,17 +129,17 @@ function checkPrimaryName(name: string | null) {
 }
 
 /**
- * Whether `name` is written like a designation in the system whose star is `stem`:
- * Sol-3, Sol-3a, Sol-V, Sol-IX.1, Sol-5.L4, Sol.3016-02. "Sol-Runner" is not.
+ * Whether `name` is written like a designation in the system whose primary is `stem`:
+ * Sol-3, Sol-3a, Sol-V, Sol-IX.1, Sol-5.L4, Sol.3016-02, Vortox-B, Vortox-AB. "Sol-Runner" is not.
  */
 export function designationLike(name: string, stem: string | null): boolean {
     if (!stem || name.length <= stem.length || name.slice(0, stem.length).toLowerCase() !== stem.toLowerCase()) return false;
-    return /^(-(\d|[IVXLCDM]+(?![A-Za-z]))|\.-?\d)/.test(name.slice(stem.length));
+    return /^(-(\d|[IVXLCDM]+(?![A-Za-z])|[A-Z]{1,3}(?![A-Za-z]))|\.-?\d)/.test(name.slice(stem.length));
 }
 
-/** Refuses a planet, moon, belt or station named like a designation: it goes by its designation, unnamed. */
+/** Refuses a body (other than the system's primary, whose name is the stem) named like a designation: it goes by its designation, unnamed. */
 export function checkNotDesignation(name: string | null | undefined, stem: string | null, kind: MapBodyKind) {
-    if (!name || kind === "STAR" || !designationLike(name, stem)) return;
+    if (!name || !designationLike(name, stem)) return;
     if (kind === "STATION") throw new GalaxyInputError(`'${name}' is written like a designation. A station's designation comes from its builtYear and iteration: give it a name of its own`);
     throw new GalaxyInputError(`'${name}' is written like a designation. Leave the name empty and the ${kind.toLowerCase()} goes by its designation${kind === "PLANET" ? " (set its ordinal for the planet number)" : ""}`);
 }
@@ -198,7 +223,7 @@ export function parsePlace(body: unknown, partial = false, kind?: MapPlaceKind):
  * A body's fields, checked against its kind. With `partial` (an edit) only the fields
  * sent are checked and returned; `kind` and the parent cannot change.
  */
-export function parseBody(body: unknown, partial = false, kind?: MapBodyKind): Partial<BodyInput> {
+export function parseBody(body: unknown, partial = false, kind?: MapBodyKind, currentType?: string): Partial<BodyInput> {
     const o = asObject(body, "the body");
     const out: Partial<BodyInput> = {};
     if (partial) {
@@ -209,22 +234,25 @@ export function parseBody(body: unknown, partial = false, kind?: MapBodyKind): P
         out.kind = kind;
     }
     const star = kind === "STAR";
+    const barycenter = kind === "BARYCENTER";
     if (!partial || o.name !== undefined) {
         out.name = parseName(o.name);
         // A planet or moon without a name goes by its designation (Sol-3, Sol-3a)
         if (!out.name && kind === "STATION") throw new GalaxyInputError("A station needs a name");
-        if (star) checkPrimaryName(out.name);
+        if (star || barycenter) checkPrimaryName(out.name);
     }
     if (o.slug !== undefined) out.slug = parseSlug(o.slug);
     if (!partial || o.type !== undefined) {
+        if (barycenter && partial && o.type !== currentType) throw new GalaxyInputError("A barycenter cannot change between stars and planets");
         if (kind === "STATION" && (o.type === undefined || o.type === null)) out.type = "artificial";
         else if (kind === "BELT" && (o.type === undefined || o.type === null)) out.type = "rocky";
-        else out.type = oneOf(o.type, star ? STAR_TYPES : COMPOSITIONS, "type");
+        else out.type = oneOf(o.type, star ? STAR_TYPES : barycenter ? BARYCENTER_TYPES : COMPOSITIONS, "type");
     }
+    const type = out.type ?? currentType;
     if (!partial || o.radiusKm !== undefined) {
-        // Stars and stations may leave their size out; a belt has a width instead
-        if (kind === "BELT") {
-            if (o.radiusKm !== null && o.radiusKm !== undefined) throw new GalaxyInputError("A belt has a width, not a radiusKm");
+        // Stars and stations may leave their size out; a belt has a width instead, and a barycenter is a point
+        if (kind === "BELT" || barycenter) {
+            if (o.radiusKm !== null && o.radiusKm !== undefined) throw new GalaxyInputError(barycenter ? "A barycenter has no radiusKm" : "A belt has a width, not a radiusKm");
             out.radiusKm = null;
         } else if (o.radiusKm === null || o.radiusKm === undefined) {
             if (kind === "PLANET" || kind === "MOON") throw new GalaxyInputError(`A ${kind.toLowerCase()} needs a radiusKm`);
@@ -232,10 +260,9 @@ export function parseBody(body: unknown, partial = false, kind?: MapBodyKind): P
         } else out.radiusKm = parsePositive(o.radiusKm, "radiusKm", 1e10);
     }
     if (!partial || o.orbit !== undefined) {
-        if (star) {
-            if (o.orbit !== null && o.orbit !== undefined) throw new GalaxyInputError("A star has no orbit");
-            out.orbit = null;
-        } else out.orbit = parsePositive(o.orbit, "orbit", kind === "PLANET" ? 1e5 : 1e9);
+        // A star or a pair of stars has no orbit when it is the system's primary, which only its place in the tree says (checked there)
+        if ((star || (barycenter && type === "stars")) && (o.orbit === null || o.orbit === undefined)) out.orbit = null;
+        else out.orbit = parsePositive(o.orbit, "orbit", 1e9);
     }
     if (!partial || o.width !== undefined) {
         if (kind !== "BELT") {
@@ -247,7 +274,7 @@ export function parseBody(body: unknown, partial = false, kind?: MapBodyKind): P
     if (out.width && out.orbit && out.width >= out.orbit * 2) throw new GalaxyInputError("A belt's width must be less than twice its orbit");
     if (!partial || o.ordinal !== undefined) {
         if (o.ordinal === null || o.ordinal === undefined) out.ordinal = null;
-        else if (kind !== "PLANET") throw new GalaxyInputError("Only a planet has an ordinal");
+        else if (kind !== "PLANET" && !(barycenter && type === "planets")) throw new GalaxyInputError("Only a planet (or a pair of planets) has an ordinal");
         else if (!Number.isInteger(o.ordinal) || (o.ordinal as number) < 1 || (o.ordinal as number) > ORDINAL_MAX) throw new GalaxyInputError(`ordinal must be a whole number from 1 to ${ORDINAL_MAX}`);
         else out.ordinal = o.ordinal as number;
     }
@@ -269,29 +296,44 @@ export function parseBody(body: unknown, partial = false, kind?: MapBodyKind): P
 }
 
 /**
- * The bodies sent with a new system: `[{...star, children: [{...planet, children}]}]`.
- * A system has exactly one star, at the root, and every body orbits a kind it may orbit.
+ * Checks a body against what it orbits (null: it is the system's primary): the kinds
+ * (`canOrbit`), that the primary alone has no orbit, and that one of a pair of planets
+ * leaves the planet number to the pair.
+ */
+export function checkPlacement(body: Orbiter & { orbit: number | null; ordinal?: number | null }, parent: Orbiter | null) {
+    if (!canOrbit(body, parent)) throw new GalaxyInputError(orbitRule(body, parent));
+    if (!parent && body.orbit !== null) throw new GalaxyInputError("The system's primary has no orbit");
+    if (parent && body.orbit === null) throw new GalaxyInputError(`A ${body.kind === "STAR" ? "star" : "pair"} that orbits something needs an orbit`);
+    if (body.ordinal && parent && key(parent) === "BARYCENTER:planets") throw new GalaxyInputError("One of a pair of planets has no ordinal: the pair takes the planet number");
+}
+
+/**
+ * The bodies sent with a new system: `[{...primary, children: [{...planet, children}]}]`.
+ * The primary (a star, or the barycenter of a pair of stars) is the root, and every body
+ * orbits a kind it may orbit (`canOrbit`).
  */
 export function parseBodyTree(value: unknown): BodyTreeInput {
     if (!Array.isArray(value) || value.length !== 1) throw new GalaxyInputError("A system needs its star: send bodies as [star], with what orbits it under children");
     let count = 0;
     let stem: string | null = null;
-    const walk = (raw: unknown, parentKind: MapBodyKind | null): BodyTreeInput => {
+    const walk = (raw: unknown, parent: Orbiter | null): BodyTreeInput => {
         if (++count > BODIES_PER_PLACE) throw new GalaxyInputError(`A system has at most ${BODIES_PER_PLACE} bodies`);
         const o = asObject(raw, "each body");
         const body = parseBody(o) as BodyInput;
-        if (!PARENT_KINDS[body.kind].includes(parentKind)) throw new GalaxyInputError(orbitRule(body.kind));
-        if (body.kind === "STAR") stem = body.name;
-        checkNotDesignation(body.name, stem, body.kind);
+        checkPlacement(body, parent);
+        if (!parent) stem = body.name;
+        else checkNotDesignation(body.name, stem, body.kind);
         const children = o.children === undefined ? [] : o.children;
         if (!Array.isArray(children)) throw new GalaxyInputError("children must be a list of bodies");
-        return { ...body, children: children.map((child) => walk(child, body.kind)) };
+        return { ...body, children: children.map((child) => walk(child, body)) };
     };
     return walk(value[0], null);
 }
 
-export function orbitRule(kind: MapBodyKind): string {
-    if (kind === "STAR") return "A system has one star, and it orbits nothing";
-    const parents = PARENT_KINDS[kind].map((k) => `a ${k!.toLowerCase()}`);
-    return `A ${kind.toLowerCase()} orbits ${parents.length > 1 ? `${parents.slice(0, -1).join(", ")} or ${parents.at(-1)}` : parents[0]}`;
+/** Why `body` may not orbit `parent`. */
+export function orbitRule(body: Orbiter, parent: Orbiter | null = null): string {
+    if (!parent && !mayBePrimary(body)) return `A system's primary is a star or a pair of stars, not ${label(key(body))}`;
+    const parents = (PARENTS[key(body)] ?? []).filter((k): k is string => k !== null).map(label);
+    const what = label(key(body));
+    return `${what[0].toUpperCase()}${what.slice(1)} orbits ${parents.length > 1 ? `${parents.slice(0, -1).join(", ")} or ${parents.at(-1)}` : parents[0]}`;
 }

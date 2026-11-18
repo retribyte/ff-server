@@ -1,7 +1,7 @@
 // Galaxy map request checks (src/galaxy/galaxy.validation.ts): no database.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { GalaxyInputError, checkNotDesignation, designationLike, parseBody, parseBodyTree, parsePlace, slugFor } from "../src/galaxy/galaxy.validation.js";
+import { GalaxyInputError, canOrbit, checkNotDesignation, checkPlacement, designationLike, parseBody, parseBodyTree, parsePlace, slugFor } from "../src/galaxy/galaxy.validation.js";
 
 const planet = { kind: "PLANET", name: "Barbona", type: "ocean", radiusKm: 7800, orbit: 0.62 };
 
@@ -67,17 +67,19 @@ test("bodies are held to their kind's rules", () => {
     assert.equal(parseBody({ ...planet, ordinal: 3 }).ordinal, 3);
     assert.equal(parseBody({ ordinal: null }, true, "PLANET").ordinal, null);
     for (const bad of [0, 1.5, 100, "3"]) assert.throws(() => parseBody({ ...planet, ordinal: bad }), /ordinal must be/, String(bad));
-    assert.throws(() => parseBody({ kind: "MOON", name: "Luna", type: "rocky", radiusKm: 1737, orbit: 384400, ordinal: 1 }), /Only a planet/);
+    assert.throws(() => parseBody({ kind: "MOON", name: "Luna", type: "rocky", radiusKm: 1737, orbit: 384400, ordinal: 1 }), /Only a planet \(or a pair of planets\)/);
     assert.throws(() => parseBody({ ...planet, type: "sunlike" }), /type must be one of/);
     assert.throws(() => parseBody({ kind: "STAR", type: "ocean" }), /type must be one of/);
-    assert.throws(() => parseBody({ kind: "STAR", type: "sunlike", orbit: 1 }), /no orbit/);
+    // A star's orbit is checked against its place in the tree (checkPlacement): a companion has one, the primary none
+    assert.equal(parseBody({ kind: "STAR", type: "sunlike", orbit: 40 }).orbit, 40);
+    assert.equal(parseBody({ kind: "STAR", type: "sunlike" }).orbit, null);
     assert.throws(() => parseBody({ ...planet, radiusKm: undefined }), /needs a radiusKm/);
     assert.throws(() => parseBody({ ...planet, orbit: 0 }), /orbit must be above 0/);
     assert.throws(() => parseBody({ ...planet, color: "red" }), /#rrggbb/);
     assert.equal(parseBody({ color: "#AABBCC" }, true, "PLANET").color, "#aabbcc");
 });
 
-test("a system's bodies are one star with what may orbit under it", () => {
+test("a system's bodies are one primary with what may orbit under it", () => {
     const moon = { kind: "MOON", name: "Luna", type: "rocky", radiusKm: 1737, orbit: 384400 };
     const station = { kind: "STATION", name: "Dock", orbit: 9000 };
     const tree = parseBodyTree([{ kind: "STAR", type: "sunlike", children: [{ ...planet, children: [{ ...moon, children: [station] }] }, station] }]);
@@ -85,14 +87,15 @@ test("a system's bodies are one star with what may orbit under it", () => {
     assert.equal(tree.children[0].children[0].children[0].kind, "STATION");
     assert.throws(() => parseBodyTree(undefined), /needs its star/);
     assert.throws(() => parseBodyTree([]), /needs its star/);
-    assert.throws(() => parseBodyTree([planet]), /planet orbits a star/);
+    assert.throws(() => parseBodyTree([planet]), /primary is a star or a pair of stars, not a planet/);
     assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike" }, { kind: "STAR", type: "white" }]), /needs its star/);
     assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike", children: [moon] }]), /moon orbits a planet/);
     // A belt circles the star, a planet or a moon (where it is a ring)
     const ring = { kind: "BELT", type: "ice", orbit: 100000, width: 60000 };
     const belted = parseBodyTree([{ kind: "STAR", type: "sunlike", children: [{ kind: "BELT", orbit: 2.7, width: 1 }, { ...planet, children: [ring, { ...moon, children: [ring] }] }] }]);
     assert.deepEqual([belted.children[0].kind, belted.children[1].children[0].kind, belted.children[1].children[1].children[0].kind], ["BELT", "BELT", "BELT"]);
-    assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike", children: [{ kind: "STAR", type: "white" }] }]), /one star/);
+    assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike", children: [{ kind: "STAR", type: "white" }] }]), /needs an orbit/);
+    assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike", orbit: 3 }]), /primary has no orbit/);
     assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike", children: [{ ...planet, children: [planet] }] }]), /planet orbits a star/);
     const many = Array.from({ length: 1000 }, (_, i) => ({ ...planet, name: `P${i}` }));
     assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike", children: many }]), /at most 1000/);
@@ -141,4 +144,41 @@ test("nothing is named like its system's designations", () => {
     const tree = (name: string) => [{ kind: "STAR", name: "Eyacara", type: "white", children: [{ ...planet, name }] }];
     assert.throws(() => parseBodyTree(tree("Eyacara-6")), /written like a designation/);
     assert.equal(parseBodyTree(tree("Barbona")).children[0].name, "Barbona");
+});
+
+test("a star may have companion stars, and a pair of stars or planets orbits its barycenter", () => {
+    const moon = { kind: "MOON", type: "rocky", radiusKm: 1737, orbit: 384400 };
+    // A companion orbits the primary with planets of its own
+    const companion = parseBodyTree([{ kind: "STAR", name: "Gemella", type: "sunlike", children: [planet, { kind: "STAR", type: "red_dwarf", orbit: 40, children: [planet] }] }]);
+    assert.equal(companion.children[1].children[0].kind, "PLANET");
+    // A pair of stars as the primary, a planet round both, and a pair of planets in a planet's slot with a moon round both
+    const pair = { kind: "BARYCENTER", type: "planets", orbit: 3, ordinal: 4, children: [{ ...planet, orbit: 9000 }, { ...planet, name: "Other", orbit: 11000 }, moon] };
+    const tree = parseBodyTree([{ kind: "BARYCENTER", type: "stars", children: [{ kind: "STAR", type: "sunlike", orbit: 0.1 }, { kind: "STAR", type: "orange", orbit: 0.12 }, planet, pair] }]);
+    assert.deepEqual(tree.children.map((c) => c.kind), ["STAR", "STAR", "PLANET", "BARYCENTER"]);
+    assert.equal(tree.children[3].ordinal, 4);
+    // A hierarchical triple: a pair inside a pair
+    parseBodyTree([{ kind: "BARYCENTER", type: "stars", children: [{ kind: "STAR", type: "sunlike", orbit: 1 }, { kind: "BARYCENTER", type: "stars", orbit: 1.5, children: [{ kind: "STAR", type: "red_dwarf", orbit: 0.01 }] }] }]);
+
+    assert.ok(canOrbit({ kind: "MOON", type: "rocky" }, { kind: "BARYCENTER", type: "planets" }));
+    assert.ok(!canOrbit({ kind: "MOON", type: "rocky" }, { kind: "BARYCENTER", type: "stars" }));
+    assert.ok(!canOrbit({ kind: "STAR", type: "sunlike" }, { kind: "BARYCENTER", type: "planets" }));
+    assert.ok(!canOrbit({ kind: "BARYCENTER", type: "planets" }, null));
+    assert.throws(() => parseBodyTree([{ kind: "BARYCENTER", type: "planets", orbit: 3, children: [planet] }]), /primary is a star or a pair of stars, not a pair of planets/);
+    assert.throws(() => parseBodyTree([{ kind: "STAR", type: "sunlike", children: [{ ...planet, children: [{ kind: "BARYCENTER", type: "planets", orbit: 9000 }] }] }]), /pair of planets orbits a star or a pair of stars/);
+    // One of a pair of planets leaves the planet number to the pair
+    assert.throws(() => checkPlacement({ kind: "PLANET", type: "rocky", orbit: 9000, ordinal: 2 }, { kind: "BARYCENTER", type: "planets" }), /pair takes the planet number/);
+    // A barycenter is a point of one of two types, and a planet pair alone takes an ordinal
+    assert.throws(() => parseBody({ kind: "BARYCENTER", type: "moons" }), /type must be one of: stars, planets/);
+    assert.throws(() => parseBody({ kind: "BARYCENTER", type: "stars", radiusKm: 5 }), /no radiusKm/);
+    assert.throws(() => parseBody({ kind: "BARYCENTER", type: "stars", ordinal: 2 }), /Only a planet/);
+    assert.throws(() => parseBody({ kind: "BARYCENTER", type: "planets" }), /orbit must be a number/);
+    assert.throws(() => parseBody({ type: "planets" }, true, "BARYCENTER", "stars"), /cannot change between stars and planets/);
+    assert.equal(parseBody({ ordinal: 5 }, true, "BARYCENTER", "planets").ordinal, 5);
+});
+
+test("a companion star named like a designation is refused too", () => {
+    assert.ok(designationLike("Gemella-B", "Gemella"));
+    assert.ok(designationLike("Gemella-AB", "Gemella"));
+    assert.ok(!designationLike("Gemella Test B", "Gemella Test"));
+    assert.throws(() => parseBodyTree([{ kind: "STAR", name: "Gemella", type: "sunlike", children: [{ kind: "STAR", name: "Gemella-B", type: "red_dwarf", orbit: 40 }] }]), /star goes by its designation/);
 });

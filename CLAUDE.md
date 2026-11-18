@@ -195,14 +195,20 @@ data. Don't add a species table back.
   If you add a model whose writes change archive text or who speaks it, add it to
   `ARCHIVE_MODELS`. Use the `prisma` from `src/db.ts`; a client of your own would
   bypass the hook.
-- **Galaxy map** (`src/galaxy/`, tables `map_places`, `map_bodies`, `map_travelogue`; Each place and body carries `wiki`: the wiki-cache row of the same slug from the map's buckets (`MAP_BUCKETS` in `wiki.client.ts`: planets, stars, satellites, celestial_bodies, locations), with the article's opening as `intro` and its picture's address as `image_url`; cache-only, filled by `npm run refresh:wiki-cache`. A planet or moon may have no name: the site then shows its GU designation (Sol-3, Sol-3a), which is derived there, never stored. A `BELT` body circles a star (an asteroid belt), a planet or a moon (a ring): it has `orbit` (the middle of the band) and `width` in the same unit (AU round a star, km otherwise) and no `radiusKm`; it too may go unnamed (Sol-I, Sol-6-I on the site). `MapBody.ordinal` (planets only) records "this is planet N of its star" for a planet whose inner neighbours are not on the map yet; the site numbers planets outward by orbit, never below a stored ordinal.
+- **Galaxy map** (`src/galaxy/`, tables `map_places`, `map_bodies`, `map_travelogue`; Each place and body carries `wiki`: the wiki-cache row of the same slug from the map's buckets (`MAP_BUCKETS` in `wiki.client.ts`: planets, stars, satellites, celestial_bodies, locations), with the article's opening as `intro` and its picture's address as `image_url`; cache-only, filled by `npm run refresh:wiki-cache`. A planet or moon may have no name: the site then shows its GU designation (Sol-3, Sol-3a), which is derived there, never stored (the rules: `wiki/reports/astronomical-designations.md` in the workspace). A station's `builtYear` (GUY) and `iteration` are entered by the member and make its designation (Sol-3.3016-02). A star or system name has at least two characters, and no body but the primary may be named like a designation of its system (`checkNotDesignation`). A `BELT` body circles a star (an asteroid belt), a planet or a moon (a ring): it has `orbit` (the middle of the band) and `width` in the same unit (AU round a star, km otherwise) and no `radiusKm`; it too may go unnamed (Sol-V, Sol-6-I on the site). `MapBody.ordinal` (planets only) records "this is planet N of its star" for a planet whose inner neighbours are not on the map yet; the site numbers planets outward by orbit, never below a stored ordinal.
   the successor to space-builder, read by ff-site's `/galaxy`): a **place** is a SYSTEM
   or a LANDMARK at `x`/`y`/`z` in klyr, in the Galactic Sector Grid frame (Sagittarius A
   at the origin). `region` (GU/ADE/LR/RIM) non-null means it was put "somewhere in" that
   region and the position is a random point there. A system holds **bodies** in one
-  self-referential table: exactly one STAR (made with the system, never deleted alone),
-  planets under the star, moons under planets, stations under any of them
-  (`PARENT_KINDS`). A system's `name` may be null (a planet added before its star is
+  self-referential table under one parentless **primary** (made with the system, never
+  deleted alone): a STAR, or a BARYCENTER of type `stars`. A BARYCENTER is the point a
+  co-equal pair orbits, its components being its children: type `stars` (Vortox-AB) or
+  `planets` (Sol-3AB, which takes a planet's slot and `ordinal`). A star may orbit a
+  star (a companion, still one primary) or a pair of stars; planets orbit a star or a
+  barycenter; moons a planet or a pair of planets; stations and belts any of them
+  (`canOrbit`, `checkPlacement`). `POST /galaxy/bodies/:id/pair` makes a star or planet
+  one of a pair (a barycenter takes its place in the tree). Orbits are AU round a star
+  or pair of stars, km round anything else. A system's `name` may be null (a planet added before its star is
   named); naming it later names its unnamed star too. Rulings (the user's, 2026-11-11):
   any member adds a place; the place's creator owns it and its bodies; creator or admin
   edits and deletes. Bodies have no owner of their own. A black hole is a system whose

@@ -5,10 +5,9 @@ import { MAP_BUCKETS } from "../wiki/wiki.client.js";
 import {
     BODIES_PER_PLACE,
     GalaxyInputError,
-    PARENT_KINDS,
     PLACES_PER_USER,
     checkNotDesignation,
-    orbitRule,
+    checkPlacement,
     parseBody,
     parseBodyTree,
     parsePlace,
@@ -97,9 +96,10 @@ async function getPlaceBySlug(slug: string) {
     return await withTravelogue(await prisma.mapPlace.findUnique({ where: { slug: normalizeSlug(slug) }, include: PLACE_INCLUDE }));
 }
 
-/** The name of a system's star: what its designations start with (null while it has none). */
+/** What a system's designations start with: its primary's name, else the system's (null while neither has one). */
 async function stemOf(tx: Tx, placeId: number) {
-    return (await tx.mapBody.findFirst({ where: { placeId, kind: "STAR" }, orderBy: { id: "asc" }, select: { name: true } }))?.name ?? null;
+    const primary = await tx.mapBody.findFirst({ where: { placeId, parentId: null }, select: { name: true } });
+    return primary?.name ?? (await tx.mapPlace.findUnique({ where: { id: placeId }, select: { name: true } }))?.name ?? null;
 }
 
 /** Just enough of a place to check who owns it. */
@@ -155,7 +155,8 @@ async function updatePlace(id: number, body: unknown) {
         if (fields.slug !== undefined) await assertPlaceSlugFree(tx, fields.slug, id);
         await tx.mapPlace.update({ where: { id }, data: fields });
         if (!place.name && fields.name) {
-            const star = await tx.mapBody.findFirst({ where: { placeId: id, kind: "STAR", name: null } });
+            // The primary, when it is an unnamed star (an unnamed pair of stars goes by the system's name anyway)
+            const star = await tx.mapBody.findFirst({ where: { placeId: id, parentId: null, kind: "STAR", name: null } });
             if (star) {
                 const slug = slugFor(fields.name, null);
                 await assertBodySlugFree(tx, slug, star.id);
@@ -179,10 +180,11 @@ async function createBody(placeId: number, body: unknown) {
         const place = await tx.mapPlace.findUniqueOrThrow({ where: { id: placeId }, select: { kind: true } });
         if (place.kind !== "SYSTEM") throw new GalaxyInputError("Only a system has bodies");
         if ((await tx.mapBody.count({ where: { placeId } })) >= BODIES_PER_PLACE) throw new GalaxyInputError(`A system has at most ${BODIES_PER_PLACE} bodies`);
-        // The star is made with its system, so nothing added later may be parentless
-        const parent = parentId === null ? null : await tx.mapBody.findFirst({ where: { id: parentId as number, placeId }, select: { kind: true } });
-        if (parentId !== null && !parent) throw new GalaxyInputError("parentId is not a body of this system");
-        if (!parent || !PARENT_KINDS[fields.kind].includes(parent.kind)) throw new GalaxyInputError(orbitRule(fields.kind));
+        // The primary is made with its system, so nothing added later may be parentless
+        if (parentId === null) throw new GalaxyInputError("Send parentId: a system has one primary, made with it");
+        const parent = await tx.mapBody.findFirst({ where: { id: parentId as number, placeId }, select: { kind: true, type: true } });
+        if (!parent) throw new GalaxyInputError("parentId is not a body of this system");
+        checkPlacement(fields, parent);
         checkNotDesignation(fields.name, await stemOf(tx, placeId), fields.kind);
         const slug = slugFor(fields.name, fields.slug);
         await assertBodySlugFree(tx, slug);
@@ -193,19 +195,60 @@ async function createBody(placeId: number, body: unknown) {
 /** Edits a body. Its slug follows the rule in updatePlace. */
 async function updateBody(id: number, body: unknown) {
     return await prisma.$transaction(async (tx) => {
-        const current = await tx.mapBody.findUniqueOrThrow({ where: { id } });
-        const fields = parseBody(body, true, current.kind);
-        if (fields.name) checkNotDesignation(fields.name, await stemOf(tx, current.placeId), current.kind);
+        const current = await tx.mapBody.findUniqueOrThrow({ where: { id }, include: { parent: { select: { kind: true, type: true } } } });
+        const fields = parseBody(body, true, current.kind, current.type);
+        if (fields.orbit !== undefined || fields.ordinal !== undefined) checkPlacement({ ...current, ...fields }, current.parent);
+        if (fields.name && current.parentId !== null) checkNotDesignation(fields.name, await stemOf(tx, current.placeId), current.kind);
         if (fields.slug === undefined && !current.slug && fields.name) fields.slug = slugFor(fields.name, null);
         if (fields.slug !== undefined) await assertBodySlugFree(tx, fields.slug, id);
         return await tx.mapBody.update({ where: { id }, data: fields });
     });
 }
 
-/** Deletes a body and everything that orbits it. A system keeps its star. */
+/**
+ * Makes a star or planet one of a co-equal pair: a barycenter takes its place in the
+ * tree (its parent, orbit and, for a planet, its planet number), the body orbits the
+ * barycenter at `orbit`, and `companion` (a body of the same kind, with its own `orbit`
+ * round the barycenter) joins it. With `circumbinary`, what orbited the body and may
+ * orbit the pair (a star's planets, belts and stations; a planet's moons, rings and
+ * stations) moves to the barycenter; otherwise it stays with the body. Answers the place.
+ */
+async function pairBody(id: number, body: unknown) {
+    const o = (typeof body === "object" && body !== null && !Array.isArray(body) ? body : {}) as Record<string, unknown>;
+    const placeId = await prisma.$transaction(async (tx) => {
+        const current = await tx.mapBody.findUniqueOrThrow({ where: { id }, include: { parent: { select: { kind: true, type: true } } } });
+        if (current.kind !== "STAR" && current.kind !== "PLANET") throw new GalaxyInputError("Only a star or a planet can be one of a pair");
+        if (current.parent?.kind === "BARYCENTER" && current.parent.type === (current.kind === "STAR" ? "stars" : "planets")) {
+            throw new GalaxyInputError("That body is already one of a pair");
+        }
+        if (typeof o.orbit !== "number" || !Number.isFinite(o.orbit) || o.orbit <= 0 || o.orbit > 1e9) throw new GalaxyInputError("Send orbit: the body's distance from the pair's barycenter");
+        const companion = parseBody(o.companion) as BodyInput;
+        if (companion.kind !== current.kind) throw new GalaxyInputError(`The companion must be a ${current.kind.toLowerCase()} too`);
+        if (companion.orbit === null) throw new GalaxyInputError("The companion needs an orbit round the barycenter");
+        if (companion.ordinal) throw new GalaxyInputError("One of a pair of planets has no ordinal: the pair takes the planet number");
+        if ((await tx.mapBody.count({ where: { placeId: current.placeId } })) + 2 > BODIES_PER_PLACE) throw new GalaxyInputError(`A system has at most ${BODIES_PER_PLACE} bodies`);
+        checkNotDesignation(companion.name, await stemOf(tx, current.placeId), companion.kind);
+        const type = current.kind === "STAR" ? "stars" : "planets";
+        const barycenter = await tx.mapBody.create({
+            data: { placeId: current.placeId, parentId: current.parentId, kind: "BARYCENTER", type, orbit: current.orbit, ordinal: current.ordinal },
+        });
+        await tx.mapBody.update({ where: { id }, data: { parentId: barycenter.id, orbit: o.orbit, ordinal: null } });
+        const slug = slugFor(companion.name, companion.slug);
+        await assertBodySlugFree(tx, slug);
+        await tx.mapBody.create({ data: { ...companion, slug, placeId: current.placeId, parentId: barycenter.id } });
+        if (o.circumbinary === true) {
+            const kinds = current.kind === "STAR" ? (["PLANET", "BELT", "STATION"] as const) : (["MOON", "BELT", "STATION"] as const);
+            await tx.mapBody.updateMany({ where: { parentId: id, kind: { in: [...kinds] } }, data: { parentId: barycenter.id } });
+        }
+        return current.placeId;
+    });
+    return (await getPlaceById(placeId))!;
+}
+
+/** Deletes a body and everything that orbits it. A system keeps its primary. */
 async function deleteBody(id: number): Promise<void> {
-    const body = await prisma.mapBody.findUniqueOrThrow({ where: { id }, select: { kind: true } });
-    if (body.kind === "STAR") throw new GalaxyInputError("A system keeps its star: delete the system instead");
+    const body = await prisma.mapBody.findUniqueOrThrow({ where: { id }, select: { parentId: true } });
+    if (body.parentId === null) throw new GalaxyInputError("A system keeps its primary: delete the system instead");
     await prisma.mapBody.delete({ where: { id } });
 }
 
@@ -249,6 +292,7 @@ export default {
     deletePlace,
     createBody,
     updateBody,
+    pairBody,
     deleteBody,
     createTravelogueTag,
     getTravelogueTag,

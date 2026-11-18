@@ -1719,7 +1719,7 @@ const spec = {
                     "Systems and landmarks: `{id, kind, name, slug, x, y, z, region, category, description, creator: {id, username, icon}, bodies}`. " +
                     "`x`/`y`/`z` are klyr in the Galactic Sector Grid frame (Sagittarius A at the origin). `region` (GU, ADE, LR, RIM) is set when the " +
                     "place was put \"somewhere in\" that region, so its position is a random point in it. `name` and `slug` are null for a system " +
-                    "nobody has named. `bodies` is flat: `{id, parentId, kind, name, slug, type, radiusKm, orbit, width, ordinal, builtYear, iteration, color, description}`, the star first. " +
+                    "nobody has named. `bodies` is flat: `{id, parentId, kind, name, slug, type, radiusKm, orbit, width, ordinal, builtYear, iteration, color, description}`, the primary first. " +
                     "`orbit` is AU for a planet and km for a moon or station. `travelogue` is as in GET /galaxy/places/{id}. A place or body whose slug has a wiki page carries `wiki`, that page's cached row (`page_name`, `image_url`, `intro`, `faction`, ...), else null.",
                 security: [],
                 responses: { "200": { description: "The list" } },
@@ -1728,8 +1728,10 @@ const spec = {
                 tags: ["Galaxy"],
                 summary: "Add a system or a landmark (members)",
                 description:
-                    "Body `{kind, name, x, y, z?, region?, category?, description?, slug?, bodies?}`. A SYSTEM sends `bodies: [star]` with what orbits " +
-                    "the star nested under `children` (a planet orbits the star, a moon a planet, a station any of them); its `name` may be null " +
+                    "Body `{kind, name, x, y, z?, region?, category?, description?, slug?, bodies?}`. A SYSTEM sends `bodies: [primary]` with what orbits " +
+                    "it nested under `children`. The primary is a STAR, or a BARYCENTER of `type` stars (the point a pair of stars orbits, with both stars among its children). " +
+                    "A star may orbit a star (a companion) or a pair of stars; a planet orbits a star or either kind of barycenter (a `planets` BARYCENTER takes a planet's slot and its " +
+                    "PLANET children are the pair); a moon orbits a planet or a pair of planets; a station or belt orbits any of them. Only the primary has no `orbit`. Its `name` may be null " +
                     "(a planet added before its star is named). A LANDMARK needs a name and takes a `category` (landmark, station, cluster, nebula; a black hole " +
                     "is a system whose star is a black_hole). Star `type`: red_dwarf, orange, sunlike, white, blue_giant, red_giant, neutron, black_hole. Other bodies' `type`: rocky, " +
                     "ocean, desert, ice, gas, artificial. The slug comes from the name unless sent, and is the wiki's slug for the same thing. " +
@@ -1800,7 +1802,21 @@ const spec = {
                 summary: "Remove a body and everything orbiting it (its system's creator, or an admin)",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
-                responses: { "204": { description: "Deleted" }, "400": { description: "It is the system's star" }, "403": { description: "Not the system's creator" }, "404": { description: "No such body" } },
+                responses: { "204": { description: "Deleted" }, "400": { description: "It is the system's primary" }, "403": { description: "Not the system's creator" }, "404": { description: "No such body" } },
+            },
+        },
+        "/galaxy/bodies/{id}/pair": {
+            post: {
+                tags: ["Galaxy"],
+                summary: "Make a star or planet one of a co-equal pair (its system's creator, or an admin)",
+                description:
+                    "Body `{orbit, companion, circumbinary?}`. A BARYCENTER takes the body's place (its parent, orbit and planet number); the body orbits it at `orbit` " +
+                    "and `companion` (a body of the same kind, with its own `orbit`) joins it, both in AU for stars and km for planets. With `circumbinary: true`, what orbited the body " +
+                    "and may orbit the pair (a star's planets, belts and stations; a planet's moons, rings and stations) moves to the barycenter.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["orbit", "companion"] } } } },
+                responses: { "201": { description: "The place, as GET /galaxy/places/{id}" }, "400": { description: "Invalid body, or already one of a pair" }, "403": { description: "Not the system's creator" }, "404": { description: "No such body" }, "409": { description: "Slug taken" } },
             },
         },
         "/galaxy/places/{id}/travelogue": {

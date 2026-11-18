@@ -120,6 +120,20 @@ const initializeGalaxyRoutes = (): Router => {
         }
     });
 
+    // POST /api/galaxy/bodies/:id/pair: Make a star or planet one of a pair (its place's creator or admin)
+    router.post("/galaxy/bodies/:id/pair", authenticate, async (req: Request, res: Response) => {
+        const id = idParam(req, res, "Body");
+        if (id === null) return;
+        try {
+            const body = await galaxyService.getBodyOwner(id);
+            if (!body) return res.status(404).json({ status: "error", message: `Body '${id}' not found` });
+            if (!mayEdit(req, body.creatorId)) return res.status(403).json({ status: "error", message: "Forbidden" });
+            res.status(201).json({ status: "success", data: await galaxyService.pairBody(id, req.body) });
+        } catch (error) {
+            fail(res, "Failed to make the pair", error);
+        }
+    });
+
     // DELETE /api/galaxy/bodies/:id: Remove a body and what orbits it (its place's creator or admin)
     router.delete("/galaxy/bodies/:id", authenticate, async (req: Request, res: Response) => {
         const id = idParam(req, res, "Body");
