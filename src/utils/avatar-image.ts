@@ -11,6 +11,33 @@ export const AVATAR_MAX_BYTES = 16 * 1024;
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const DATA_URL = /^data:image\/png;base64,([A-Za-z0-9+/]+={0,2})$/;
 
+// Chunks that tag a PNG with a color space. A browser color-manages a tagged
+// image into the viewer's monitor profile but leaves untagged pixels alone, so
+// on a wide-gamut display a tagged sprite (Aseprite stamps every export with
+// sRGB) shows different colors than the exact CSS-colored outline PixelAvatar
+// traces around it, and than the values the artist picked.
+const COLOR_SPACE_CHUNKS = new Set(["sRGB", "gAMA", "cHRM", "iCCP", "cICP", "mDCV", "cLLI"]);
+
+/**
+ * The PNG without its color-space chunks, so browsers show the stored pixel
+ * values as-is. Other chunks are copied untouched (their CRCs stay valid);
+ * returns the same buffer when there's nothing to strip or it isn't a PNG.
+ */
+export function stripColorSpace(png: Buffer): Buffer {
+    if (png.length < PNG_SIGNATURE.length || !png.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE)) return png;
+    const kept: Buffer[] = [png.subarray(0, PNG_SIGNATURE.length)];
+    let stripped = false;
+    let offset = PNG_SIGNATURE.length;
+    while (offset + 12 <= png.length) {
+        const next = offset + 12 + png.readUInt32BE(offset);
+        if (next > png.length) return png;
+        if (COLOR_SPACE_CHUNKS.has(png.toString("latin1", offset + 4, offset + 8))) stripped = true;
+        else kept.push(png.subarray(offset, next));
+        offset = next;
+    }
+    return stripped ? Buffer.concat(kept) : png;
+}
+
 /** The upload breaks a rule; the message is shown to the uploader. */
 export class AvatarImageError extends Error {}
 
@@ -37,7 +64,7 @@ export function decodePngDataUrl(dataUrl: string, maxSide: number, maxBytes: num
     if (width === 0 || height === 0 || width > maxSide || height > maxSide) {
         throw new AvatarImageError(`${what} can be at most ${maxSide}x${maxSide} pixels (this one is ${width}x${height})`);
     }
-    return png;
+    return stripColorSpace(png);
 }
 
 // Signature, then chunks from IHDR through IDAT to an IEND that ends the file
