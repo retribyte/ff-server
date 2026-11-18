@@ -25,6 +25,10 @@ export const BODIES_PER_PLACE = 1000;
 export const PLACES_PER_USER = 500;
 /** The highest "this is planet N" a planet may claim. */
 export const ORDINAL_MAX = 99;
+/** The highest iteration a station may claim (its designation writes it with two digits: 3016-02). */
+export const ITERATION_MAX = 99;
+/** How far from the GUY epoch a station's build year may be, either way (some are millions of years old). */
+export const BUILT_YEAR_MAX = 1_000_000_000;
 
 /** What each kind of body may orbit. null = nothing (the star). */
 export const PARENT_KINDS: Record<MapBodyKind, (MapBodyKind | null)[]> = {
@@ -46,6 +50,10 @@ export interface BodyInput {
     /** Belts: how wide the band is, in the unit of its orbit. */
     width: number | null;
     ordinal: number | null;
+    /** Stations: the GUY year it was built. */
+    builtYear: number | null;
+    /** Stations: which iteration of the station it is. */
+    iteration: number | null;
     color: string | null;
     description: string | null;
 }
@@ -85,6 +93,30 @@ function parseName(value: unknown): string | null {
     const name = value.trim();
     if (name.length > NAME_MAX) throw new GalaxyInputError(`A name has at most ${NAME_MAX} characters`);
     return name || null;
+}
+
+/**
+ * A star's name (and so a system's, which its star shares) is never one character: it
+ * would read as a designation's letter or numeral (Sol-V, Vortox-A).
+ */
+function checkPrimaryName(name: string | null) {
+    if (name && [...name].length < 2) throw new GalaxyInputError("A star or system's name needs at least two characters");
+}
+
+/**
+ * Whether `name` is written like a designation in the system whose star is `stem`:
+ * Sol-3, Sol-3a, Sol-V, Sol-IX.1, Sol-5.L4, Sol.3016-02. "Sol-Runner" is not.
+ */
+export function designationLike(name: string, stem: string | null): boolean {
+    if (!stem || name.length <= stem.length || name.slice(0, stem.length).toLowerCase() !== stem.toLowerCase()) return false;
+    return /^(-(\d|[IVXLCDM]+(?![A-Za-z]))|\.-?\d)/.test(name.slice(stem.length));
+}
+
+/** Refuses a planet, moon, belt or station named like a designation: it goes by its designation, unnamed. */
+export function checkNotDesignation(name: string | null | undefined, stem: string | null, kind: MapBodyKind) {
+    if (!name || kind === "STAR" || !designationLike(name, stem)) return;
+    if (kind === "STATION") throw new GalaxyInputError(`'${name}' is written like a designation. A station's designation comes from its builtYear and iteration: give it a name of its own`);
+    throw new GalaxyInputError(`'${name}' is written like a designation. Leave the name empty and the ${kind.toLowerCase()} goes by its designation${kind === "PLANET" ? " (set its ordinal for the planet number)" : ""}`);
 }
 
 function parseSlug(value: unknown): string | null {
@@ -148,6 +180,7 @@ export function parsePlace(body: unknown, partial = false, kind?: MapPlaceKind):
     if (!partial || o.name !== undefined) {
         out.name = parseName(o.name);
         if (!out.name && kind === "LANDMARK") throw new GalaxyInputError("A landmark needs a name");
+        if (kind === "SYSTEM") checkPrimaryName(out.name);
     }
     if (o.slug !== undefined) out.slug = parseSlug(o.slug);
     if (!partial || o.x !== undefined || o.y !== undefined || o.z !== undefined) Object.assign(out, parsePosition(o));
@@ -180,6 +213,7 @@ export function parseBody(body: unknown, partial = false, kind?: MapBodyKind): P
         out.name = parseName(o.name);
         // A planet or moon without a name goes by its designation (Sol-3, Sol-3a)
         if (!out.name && kind === "STATION") throw new GalaxyInputError("A station needs a name");
+        if (star) checkPrimaryName(out.name);
     }
     if (o.slug !== undefined) out.slug = parseSlug(o.slug);
     if (!partial || o.type !== undefined) {
@@ -217,6 +251,18 @@ export function parseBody(body: unknown, partial = false, kind?: MapBodyKind): P
         else if (!Number.isInteger(o.ordinal) || (o.ordinal as number) < 1 || (o.ordinal as number) > ORDINAL_MAX) throw new GalaxyInputError(`ordinal must be a whole number from 1 to ${ORDINAL_MAX}`);
         else out.ordinal = o.ordinal as number;
     }
+    if (!partial || o.builtYear !== undefined) {
+        if (o.builtYear === null || o.builtYear === undefined) out.builtYear = null;
+        else if (kind !== "STATION") throw new GalaxyInputError("Only a station has a builtYear");
+        else if (!Number.isInteger(o.builtYear) || Math.abs(o.builtYear as number) > BUILT_YEAR_MAX) throw new GalaxyInputError("builtYear must be a whole GUY year");
+        else out.builtYear = o.builtYear as number;
+    }
+    if (!partial || o.iteration !== undefined) {
+        if (o.iteration === null || o.iteration === undefined) out.iteration = null;
+        else if (kind !== "STATION") throw new GalaxyInputError("Only a station has an iteration");
+        else if (!Number.isInteger(o.iteration) || (o.iteration as number) < 1 || (o.iteration as number) > ITERATION_MAX) throw new GalaxyInputError(`iteration must be a whole number from 1 to ${ITERATION_MAX}`);
+        else out.iteration = o.iteration as number;
+    }
     if (!partial || o.color !== undefined) out.color = o.color === undefined ? null : parseColor(o.color);
     if (!partial || o.description !== undefined) out.description = parseDescription(o.description);
     return out;
@@ -229,11 +275,14 @@ export function parseBody(body: unknown, partial = false, kind?: MapBodyKind): P
 export function parseBodyTree(value: unknown): BodyTreeInput {
     if (!Array.isArray(value) || value.length !== 1) throw new GalaxyInputError("A system needs its star: send bodies as [star], with what orbits it under children");
     let count = 0;
+    let stem: string | null = null;
     const walk = (raw: unknown, parentKind: MapBodyKind | null): BodyTreeInput => {
         if (++count > BODIES_PER_PLACE) throw new GalaxyInputError(`A system has at most ${BODIES_PER_PLACE} bodies`);
         const o = asObject(raw, "each body");
         const body = parseBody(o) as BodyInput;
         if (!PARENT_KINDS[body.kind].includes(parentKind)) throw new GalaxyInputError(orbitRule(body.kind));
+        if (body.kind === "STAR") stem = body.name;
+        checkNotDesignation(body.name, stem, body.kind);
         const children = o.children === undefined ? [] : o.children;
         if (!Array.isArray(children)) throw new GalaxyInputError("children must be a list of bodies");
         return { ...body, children: children.map((child) => walk(child, body.kind)) };

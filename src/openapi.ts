@@ -1719,7 +1719,7 @@ const spec = {
                     "Systems and landmarks: `{id, kind, name, slug, x, y, z, region, category, description, creator: {id, username, icon}, bodies}`. " +
                     "`x`/`y`/`z` are klyr in the Galactic Sector Grid frame (Sagittarius A at the origin). `region` (GU, ADE, LR, RIM) is set when the " +
                     "place was put \"somewhere in\" that region, so its position is a random point in it. `name` and `slug` are null for a system " +
-                    "nobody has named. `bodies` is flat: `{id, parentId, kind, name, slug, type, radiusKm, orbit, width, ordinal, color, description}`, the star first. " +
+                    "nobody has named. `bodies` is flat: `{id, parentId, kind, name, slug, type, radiusKm, orbit, width, ordinal, builtYear, iteration, color, description}`, the star first. " +
                     "`orbit` is AU for a planet and km for a moon or station. `travelogue` is as in GET /galaxy/places/{id}. A place or body whose slug has a wiki page carries `wiki`, that page's cached row (`page_name`, `image_url`, `intro`, `faction`, ...), else null.",
                 security: [],
                 responses: { "200": { description: "The list" } },
@@ -1774,9 +1774,11 @@ const spec = {
                 tags: ["Galaxy"],
                 summary: "Add a planet, moon or station to a system (the system's creator, or an admin)",
                 description:
-                    "Body `{kind, name, parentId, type, radiusKm, orbit, ordinal?, color?, description?, slug?}`. A station may leave out `type` (artificial) and `radiusKm`. A `BELT` (round a star, planet or moon) sends `width` in place of `radiusKm`, both in the unit of its `orbit`. " +
+                    "Body `{kind, name, parentId, type, radiusKm, orbit, ordinal?, builtYear?, iteration?, color?, description?, slug?}`. A station may leave out `type` (artificial) and `radiusKm`. A `BELT` (round a star, planet or moon) sends `width` in place of `radiusKm`, both in the unit of its `orbit`. " +
                     "A planet or moon may have no name (`null`): it then goes by its designation, which the site derives (Sol-3, Sol-3a). " +
-                    "`ordinal` (planets, 1 to 99) says \"this is planet N of its star\" when the planets inside its orbit are not on the map.",
+                    "`ordinal` (planets, 1 to 99) says \"this is planet N of its star\" when the planets inside its orbit are not on the map. " +
+                    "`builtYear` (a GUY year) and `iteration` (1 to 99) are a station's, entered by hand; they make its designation (Sol-3.3016-02). " +
+                    "A star or system name has at least two characters, and no other body may be named like a designation of its system (Sol-3, Sol-V): it is left unnamed instead.",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["kind", "name", "parentId"] } } } },
@@ -1787,7 +1789,7 @@ const spec = {
             patch: {
                 tags: ["Galaxy"],
                 summary: "Edit a body (its system's creator, or an admin)",
-                description: "Any of `name`, `slug`, `type`, `radiusKm`, `orbit`, `width` (belts), `ordinal`, `color`, `description`. Its kind and parent are fixed.",
+                description: "Any of `name`, `slug`, `type`, `radiusKm`, `orbit`, `width` (belts), `ordinal` (planets), `builtYear` and `iteration` (stations), `color`, `description`. Its kind and parent are fixed.",
                 security: [{ bearerAuth: [] }],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
                 requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },

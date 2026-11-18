@@ -544,6 +544,11 @@ model MapBody {
   // Planets only: "this is planet N of its star", for a planet whose inner neighbours
   // are not on the map yet. Null = it counts from the planets inside its orbit.
   ordinal     Int?
+  // Stations only, entered by the member (the map never assigns them): the GUY year it was
+  // built and which iteration of the station it is. Its designation is <primary>.<year>-<iteration>
+  // (Sol-3.3016-02); without a year it has none.
+  builtYear   Int?
+  iteration   Int?
   color       String? // "#rrggbb" override of the type's color
   description String?
   travelogue  TravelogueTag[]

@@ -45,14 +45,17 @@ async function main() {
         if (!user) throw new Error(`No user '${owner}' and no admin to own '${fields.name}'`);
         const place = await galaxyService.createPlace(fields, user.id);
 
-        const tag = async (tags: Tag[] | undefined, bodyName?: string | null) => {
+        // createPlace makes the bodies depth-first in file order, so their ids follow it (a body may be unnamed, so not by name)
+        const byFileOrder = [...place.bodies].sort((a, b) => a.id - b.id);
+        let next = 0;
+        const tag = async (tags: Tag[] | undefined, bodyId?: number) => {
             for (const { season, no } of tags ?? []) {
                 const episode = await prisma.episode.findUnique({ where: { seasonTitle_episode_no: { seasonTitle: season, episode_no: no } }, select: { slug: true } });
                 if (!episode) {
-                    console.warn(`  no episode ${season} #${no}; tag on '${bodyName ?? fields.name}' skipped`);
+                    const body = byFileOrder.find((b) => b.id === bodyId);
+                    console.warn(`  no episode ${season} #${no}; tag on '${body ? (body.name ?? `body ${body.id}`) : fields.name}' skipped`);
                     continue;
                 }
-                const bodyId = bodyName === undefined ? undefined : place.bodies.find((body) => body.name === bodyName)!.id;
                 await galaxyService.createTravelogueTag(place.id, { episode: episode.slug, bodyId }, user.id);
                 tagged++;
             }
@@ -60,7 +63,7 @@ async function main() {
         await tag(fields.travelogue);
         const walk = async (bodies: SeedBody[] | undefined) => {
             for (const body of bodies ?? []) {
-                await tag(body.travelogue, body.name);
+                await tag(body.travelogue, byFileOrder[next++].id);
                 await walk(body.children);
             }
         };

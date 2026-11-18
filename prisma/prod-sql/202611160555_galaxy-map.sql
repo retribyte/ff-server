@@ -39,6 +39,8 @@ CREATE TABLE "map_bodies" (
     "orbit" DOUBLE PRECISION,
     "width" DOUBLE PRECISION,
     "ordinal" INTEGER,
+    "builtYear" INTEGER,
+    "iteration" INTEGER,
     "color" TEXT,
     "description" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

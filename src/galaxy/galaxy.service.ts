@@ -7,6 +7,7 @@ import {
     GalaxyInputError,
     PARENT_KINDS,
     PLACES_PER_USER,
+    checkNotDesignation,
     orbitRule,
     parseBody,
     parseBodyTree,
@@ -96,6 +97,11 @@ async function getPlaceBySlug(slug: string) {
     return await withTravelogue(await prisma.mapPlace.findUnique({ where: { slug: normalizeSlug(slug) }, include: PLACE_INCLUDE }));
 }
 
+/** The name of a system's star: what its designations start with (null while it has none). */
+async function stemOf(tx: Tx, placeId: number) {
+    return (await tx.mapBody.findFirst({ where: { placeId, kind: "STAR" }, orderBy: { id: "asc" }, select: { name: true } }))?.name ?? null;
+}
+
 /** Just enough of a place to check who owns it. */
 async function getPlaceOwner(id: number) {
     return await prisma.mapPlace.findUnique({ where: { id }, select: { id: true, kind: true, creatorId: true } });
@@ -177,6 +183,7 @@ async function createBody(placeId: number, body: unknown) {
         const parent = parentId === null ? null : await tx.mapBody.findFirst({ where: { id: parentId as number, placeId }, select: { kind: true } });
         if (parentId !== null && !parent) throw new GalaxyInputError("parentId is not a body of this system");
         if (!parent || !PARENT_KINDS[fields.kind].includes(parent.kind)) throw new GalaxyInputError(orbitRule(fields.kind));
+        checkNotDesignation(fields.name, await stemOf(tx, placeId), fields.kind);
         const slug = slugFor(fields.name, fields.slug);
         await assertBodySlugFree(tx, slug);
         return await tx.mapBody.create({ data: { ...fields, slug, placeId, parentId: parentId as number } });
@@ -188,6 +195,7 @@ async function updateBody(id: number, body: unknown) {
     return await prisma.$transaction(async (tx) => {
         const current = await tx.mapBody.findUniqueOrThrow({ where: { id } });
         const fields = parseBody(body, true, current.kind);
+        if (fields.name) checkNotDesignation(fields.name, await stemOf(tx, current.placeId), current.kind);
         if (fields.slug === undefined && !current.slug && fields.name) fields.slug = slugFor(fields.name, null);
         if (fields.slug !== undefined) await assertBodySlugFree(tx, fields.slug, id);
         return await tx.mapBody.update({ where: { id }, data: fields });

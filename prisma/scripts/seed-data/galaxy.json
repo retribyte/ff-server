@@ -147,11 +147,12 @@
                 "season": "FF4",
                 "no": 6
               }
-            ]
+            ],
+            "ordinal": 4
           },
           {
             "kind": "PLANET",
-            "name": "Eflah II",
+            "name": null,
             "type": "ice",
             "radiusKm": 9000,
             "orbit": 1.4
@@ -175,7 +176,7 @@
         "children": [
           {
             "kind": "PLANET",
-            "name": "Eyacara-6",
+            "name": null,
             "type": "gas",
             "radiusKm": 52000,
             "orbit": 9,
@@ -218,7 +219,8 @@
                   }
                 ]
               }
-            ]
+            ],
+            "ordinal": 6
           }
         ]
       }
@@ -227,19 +229,19 @@
   {
     "owner": "Sean",
     "kind": "SYSTEM",
-    "name": null,
+    "name": "Zarazoga",
     "x": 22,
     "y": -18,
     "z": 0,
     "bodies": [
       {
         "kind": "STAR",
-        "name": null,
+        "name": "Zarazoga",
         "type": "sunlike",
         "children": [
           {
             "kind": "PLANET",
-            "name": "Zarazoga-9",
+            "name": null,
             "type": "ocean",
             "radiusKm": 5900,
             "orbit": 0.95,
@@ -253,7 +255,8 @@
                 "season": "FF3",
                 "no": 8
               }
-            ]
+            ],
+            "ordinal": 9
           }
         ]
       }
