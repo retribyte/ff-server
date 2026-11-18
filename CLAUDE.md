@@ -203,7 +203,7 @@ data. Don't add a species table back.
   self-referential table under one parentless **primary** (made with the system, never
   deleted alone): a STAR, or a BARYCENTER of type `stars`. A BARYCENTER is the point a
   co-equal pair orbits, its components being its children: type `stars` (Vortox-AB) or
-  `planets` (Sol-3AB, which takes a planet's slot and `ordinal`). A star may orbit a
+  `planets` (Sol-3-AB, with Sol-3-A and Sol-3-B, which takes a planet's slot and `ordinal`). A star may orbit a
   star (a companion, still one primary) or a pair of stars; planets orbit a star or a
   barycenter; moons a planet or a pair of planets; stations and belts any of them
   (`canOrbit`, `checkPlacement`). `POST /galaxy/bodies/:id/pair` makes a star or planet

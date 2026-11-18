@@ -477,7 +477,7 @@ enum MapBodyKind {
   // An asteroid belt round a star, or a ring round a planet or moon
   BELT
   // The point a co-equal pair orbits: two stars (type "stars": Vortox-AB) or two planets
-  // (type "planets": Sol-3AB, in a planet's slot). Its components are its children
+  // (type "planets": Sol-3-AB, in a planet's slot). Its components are its children
   BARYCENTER
 }
 
