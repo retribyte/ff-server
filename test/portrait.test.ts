@@ -175,7 +175,7 @@ test("the admin panel's partial edits are validated", () => {
 });
 
 test("a saved portrait's body is checked", async () => {
-    const { parsePortrait, PortraitInputError, PORTRAIT_MAX_SIDE } = await import("../src/portrait/saved.service.js");
+    const { parsePortrait, PortraitInputError, PORTRAIT_MAX_SIDE } = await import("../src/portrait/saved.validation.js");
     // a 1x1 PNG
     const png = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
     const good = { name: "  Matthias  ", race: "avian", recipe: { v: 1, species: "avian", wear: {} }, image: png };

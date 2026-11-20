@@ -4,7 +4,8 @@ import { importJson } from "../utils/import.js";
 import { logger } from "../utils/logger.js";
 import portraitService from "./portrait.service.js";
 import { acceptsGzip, etagMatches, plain, type Assembled } from "./portrait.bundle.js";
-import savedService, { parsePortrait, PortraitInputError, type PortraitInput } from "./saved.service.js";
+import savedService from "./saved.service.js";
+import { parsePortrait, PortraitInputError, type PortraitInput } from "./saved.validation.js";
 import { CHUNK_MAX_BYTES, UploadError, validModId, validSession } from "./portrait.upload.js";
 import { parseCurationPatch, parseModPatch, parseRaces, parseSettings, SettingsError } from "./portrait.validation.js";
 
