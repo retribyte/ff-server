@@ -15,6 +15,8 @@ export const IMPORT_PATHS = new Set([
     "/api/episodes/import",
     "/api/admin/episode-import",
     "/api/admin/episode-import/preview",
+    // The portrait creator's settings (races, curation) come to a few hundred KB
+    "/api/admin/portrait/settings",
 ]);
 // PUT /api/stories/:slug/import (revision) carries a whole story too, and so
 // does POST /api/stories/:slug/voices/carry (the revision draft, pre-filled)

@@ -1592,6 +1592,181 @@ const spec = {
                 responses: { "200": { description: "Counted" }, "400": { description: "Bad kind or slug" }, "404": { description: "No such episode or story" } },
             },
         },
+        "/portrait/settings": {
+            get: {
+                tags: ["Portrait"],
+                summary: "Portrait creator settings: races, categories, curation and the mod list (members)",
+                description:
+                    "`races` are in list order, as ff-site's RaceDef (empty fields left out). `mods` is every bundle folder " +
+                    "on the server and every remembered switch: {id, name, enabled, present}.",
+                security: [{ bearerAuth: [] }],
+                responses: { "200": { description: "{ categories, races, curation: {hideItemPattern, hideItems, itemsOnlyFor, erase}, mods }" }, "401": { description: "Not signed in" } },
+            },
+        },
+        "/portrait/bundle/mods.json": {
+            get: {
+                tags: ["Portrait"],
+                summary: "The sprite bundle's mod index: every present, enabled mod's mod.json, in load order (members)",
+                description:
+                    "Not the usual envelope: the file itself, `{\"version\":2,\"mods\":[...]}`. Gzipped when the client accepts it; " +
+                    "send If-None-Match to get a 304. 404 when the server has no bundle directory (PORTRAIT_BUNDLE_DIR).",
+                security: [{ bearerAuth: [] }],
+                responses: { "200": { description: "The index file" }, "304": { description: "Unchanged" }, "401": { description: "Not signed in" }, "404": { description: "No bundle installed" } },
+            },
+        },
+        "/portrait/bundle/items.json": {
+            get: {
+                tags: ["Portrait"],
+                summary: "The sprite bundle's clothing index: every present, enabled mod's items.json, in load order (members)",
+                description: "Same shape and caching as mods.json.",
+                security: [{ bearerAuth: [] }],
+                responses: { "200": { description: "The index file" }, "304": { description: "Unchanged" }, "401": { description: "Not signed in" }, "404": { description: "No bundle installed" } },
+            },
+        },
+        "/portrait/bundle/{mod}/sprites.pack": {
+            get: {
+                tags: ["Portrait"],
+                summary: "One mod's sprite pack, with byte ranges (members)",
+                description: "Supports `Range`. Cached for a year (clients add ?v=<build>). A disabled or absent mod is 404.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "mod", in: "path", required: true, description: "The mod's folder name (workshop id, or `vanilla`)", schema: { type: "string" } }],
+                responses: { "200": { description: "The whole pack" }, "206": { description: "The requested range" }, "401": { description: "Not signed in" }, "404": { description: "No such pack" } },
+            },
+        },
+        "/portrait/mods/{id}/upload": {
+            put: {
+                tags: ["Portrait"],
+                summary: "Upload a mod folder for the portrait creator, one piece at a time (members)",
+                description:
+                    "The site extracts a mod's folder from the member's own Starbound files in their browser and sends it as one file in pieces " +
+                    "(`FFPM1\\n`, a 4-byte length and mod.json, a 4-byte length and items.json, then the sprite pack). Each request carries the next " +
+                    "piece as `application/octet-stream` (at most 4 MB); `offset` must be where the last piece ended (0 starts over) and `total` the " +
+                    "whole size (at most 128 MB). When the last piece arrives the folder is checked and swapped in, and the mod is served from the next " +
+                    "request on. An upload replaces the mod's files; it does not switch a mod an admin turned off back on.",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: "id", in: "path", required: true, schema: { type: "string" }, description: "The mod's folder name: its workshop number, `vanilla`, or a slug" },
+                    { name: "session", in: "query", required: true, schema: { type: "string" }, description: "16 to 64 hex characters, the same for every piece of one upload" },
+                    { name: "offset", in: "query", required: true, schema: { type: "integer" } },
+                    { name: "total", in: "query", required: true, schema: { type: "integer" } },
+                ],
+                requestBody: { required: true, content: { "application/octet-stream": { schema: { type: "string", format: "binary" } } } },
+                responses: {
+                    "200": { description: "`{received, done}`, and `mod` (id, name, counts) once it is installed" },
+                    "400": { description: "A piece out of place, or a folder that fails the checks (the upload is dropped)" },
+                    "404": { description: "No bundle directory is configured on this server" },
+                },
+            },
+        },
+        "/portraits": {
+            get: {
+                tags: ["Portrait"],
+                summary: "My saved portraits (members)",
+                description: "The signed-in member's own portraits, most recently changed first: `{id, name, race, ownerId, createdAt, updatedAt}`, without recipes or images.",
+                security: [{ bearerAuth: [] }],
+                responses: { "200": { description: "The list" }, "401": { description: "Not signed in" } },
+            },
+            post: {
+                tags: ["Portrait"],
+                summary: "Save a portrait (members)",
+                description:
+                    "Body `{name, race, recipe, image}`: `race` is the creator's race id, `recipe` the creator's recipe object (at most 32 KB), " +
+                    "`image` the rendered PNG as a `data:` URL (at most 256x256 and 64 KB). A member can keep 300.",
+                security: [{ bearerAuth: [] }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["name", "race", "recipe", "image"] } } } },
+                responses: { "201": { description: "The saved portrait's summary" }, "400": { description: "Invalid body, or the member's limit is reached" } },
+            },
+        },
+        "/portraits/{id}": {
+            get: {
+                tags: ["Portrait"],
+                summary: "One saved portrait with its recipe (its owner, or an admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: { "200": { description: "The portrait" }, "404": { description: "No such portrait, or it is someone else's" } },
+            },
+            put: {
+                tags: ["Portrait"],
+                summary: "Change a saved portrait (its owner)",
+                description: "Any of `name`, `race`, `recipe`, `image`, as in POST /portraits.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+                responses: { "200": { description: "The portrait's summary" }, "400": { description: "Invalid body" }, "403": { description: "An admin who is not its owner" }, "404": { description: "No such portrait, or it is someone else's" } },
+            },
+            delete: {
+                tags: ["Portrait"],
+                summary: "Delete a saved portrait (its owner, or an admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: { "204": { description: "Deleted" }, "404": { description: "No such portrait, or it is someone else's" } },
+            },
+        },
+        "/portraits/{id}/image.png": {
+            get: {
+                tags: ["Portrait"],
+                summary: "A saved portrait's PNG (its owner, or an admin)",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                responses: { "200": { description: "The PNG", content: { "image/png": {} } }, "404": { description: "No such portrait, or it is someone else's" } },
+            },
+        },
+        "/admin/portrait/settings": {
+            put: {
+                tags: ["Admin", "Portrait"],
+                summary: "Replace all portrait settings in one transaction (admin)",
+                description:
+                    "Body is the contents of ff-site's races.json and curation.json: `{categories, races, curation: {skipMods?, " +
+                    "hideItemPattern, hideItems, itemsOnlyFor, erase}}`. `skipMods` (id -> name) switches those mods off and all others on; " +
+                    "leave it out to keep the switches. Strictly validated (400). Answers the new settings.",
+                security: [{ bearerAuth: [] }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+                responses: { "200": { description: "The saved settings, as GET /portrait/settings" }, "400": { description: "Invalid settings" }, "403": { description: "Not an admin" } },
+            },
+        },
+        "/admin/portrait/races": {
+            put: {
+                tags: ["Admin", "Portrait"],
+                summary: "Replace the portrait creator's race list (admin)",
+                description: "Body `{races: [...]}`, each entry as in GET /portrait/settings; the order given is the order shown. No id twice (400).",
+                security: [{ bearerAuth: [] }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["races"], properties: { races: { type: "array", items: { type: "object" } } } } } } },
+                responses: { "200": { description: "The settings as they now stand, as GET /portrait/settings" }, "400": { description: "Invalid race list" }, "403": { description: "Not an admin" } },
+            },
+        },
+        "/admin/portrait/curation": {
+            patch: {
+                tags: ["Admin", "Portrait"],
+                summary: "Change the portrait creator's categories, hidden items or pixel repairs (admin)",
+                description:
+                    "Any of `categories` (string[]), `hideItemPattern` (regex source, '' for none), `hideItems` (item ids) and " +
+                    "`erase` ({\"<mod id><image path>\": [[x, y], ...]}). What is left out stays as it is.",
+                security: [{ bearerAuth: [] }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+                responses: { "200": { description: "The settings as they now stand" }, "400": { description: "Invalid body" }, "403": { description: "Not an admin" } },
+            },
+        },
+        "/admin/portrait/mods/{id}": {
+            patch: {
+                tags: ["Admin", "Portrait"],
+                summary: "Switch a portrait mod on or off, rename it, or limit who wears its clothing (admin)",
+                description:
+                    "Any of `enabled` (false: the mod's sprites and items are no longer served, at once), `name`, and `itemsOnlyFor` " +
+                    "(species kinds that may wear its clothing; empty for anyone). The mod must be a folder in the bundle or already have a row.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+                requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+                responses: { "200": { description: "The settings as they now stand" }, "400": { description: "Invalid body" }, "403": { description: "Not an admin" }, "404": { description: "No such mod" } },
+            },
+            delete: {
+                tags: ["Admin", "Portrait"],
+                summary: "Delete a portrait mod's files from the server (admin)",
+                description: "Removes the mod's folder from the bundle directory (its sprites are gone until someone uploads them again) and its settings row.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+                responses: { "200": { description: "The settings as they now stand" }, "403": { description: "Not an admin" }, "404": { description: "No such mod" } },
+            },
+        },
         "/admin/views": {
             get: {
                 tags: ["Admin", "Views"],

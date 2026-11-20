@@ -75,6 +75,7 @@ model User {
   commentaries       Commentary[]
   stories            Story[]
   jobRuns            JobRun[]
+  portraits          Portrait[]
 }
 
 model Character {
@@ -397,4 +398,64 @@ model ViewCount {
   @@id([kind, slug, day])
   @@index([day])
   @@map("view_counts")
+}
+
+// Portrait creator (ff-site /portraits). The sprite files themselves live in a
+// directory on the server (PORTRAIT_BUNDLE_DIR), never in the database or in git.
+// A mod is switched by `enabled`; a bundle folder with no row counts as enabled, and
+// a row with no folder is a remembered switch. `itemsOnlyFor`: species kinds (lowercase)
+// that may wear this mod's clothing; empty = anyone.
+model PortraitMod {
+  id           String   @id // bundle folder name (the workshop id, or "vanilla")
+  name         String
+  enabled      Boolean  @default(true)
+  itemsOnlyFor String[]
+  // Set when a member uploads the folder through the site (not by the push script)
+  uploadedBy   String?
+  uploadedAt   DateTime?
+
+  @@map("portrait_mods")
+}
+
+// One race in the creator's list (a species can be several races). Mirrors RaceDef
+// in ff-site's src/lib/portrait/races.ts; `position` is the list order.
+model PortraitRace {
+  id         String   @id
+  species    String?
+  name       String?
+  descriptor String?
+  category   String?
+  exclude    String[]
+  prefer     String[]
+  hidden     Boolean  @default(false)
+  lock       Json?
+  position   Int
+
+  @@map("portrait_races")
+}
+
+// Whole-bundle settings, one row each: `categories` (string[]), `hideItemPattern`
+// (string), `hideItems` (string[]), `erase` ({"<mod id><image path>": [[x, y], ...]}).
+model PortraitSetting {
+  key   String @id
+  value Json
+
+  @@map("portrait_settings")
+}
+
+// A portrait a member made in the creator and kept: the recipe to reopen it and the
+// rendered PNG. Private to its owner (and admins); it need not belong to a character.
+model Portrait {
+  id        Int      @id @default(autoincrement())
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   Int
+  name      String
+  race      String // the creator's race id the recipe was made with
+  recipe    Json
+  image     Bytes // PNG, 1 pixel per sprite pixel
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
+  @@map("portraits")
 }

@@ -48,6 +48,7 @@ with the session, and SSH sessions have a 180 s CPU limit.
 | `/home/protected/pgsock/` | Postgres unix socket, group `web` | me + web |
 | `/home/protected/ff-server/` | the API: deployed code, `.env`, `run.sh` | me + web |
 | `/home/protected/ff-site/` | the site: `app/` (deployed standalone build), `run.sh` | me + web |
+| `/home/protected/portrait-bundle/` | the portrait creator's sprites, one folder per mod (not there until first pushed; see "Portrait creator sprites") | me + web (web writes: an admin can delete a mod) |
 | `/home/logs/daemon_<tag>.log` | each daemon's stdout/stderr | |
 
 Postgres listens on the socket only (no TCP), with scram passwords. App
@@ -155,6 +156,32 @@ scripts/deploy-nfsn.sh     # from a clean, committed checkout on Linux
 It builds locally (the Prisma CLI can't run on FreeBSD), uploads `dist/` and
 the generated client, reinstalls prod dependencies on the host when the
 lockfile changed, writes `REVISION` and restarts `ffserver`.
+
+## Portrait creator sprites
+
+The portrait creator's sprites are Starbound and mod assets. They are never in git and
+never part of a deploy: they sit in `/home/protected/portrait-bundle/`, outside both
+deployed folders, one folder per mod. The API serves them to signed-in members only.
+
+- **Putting mods on the server:** members add them at `/portraits/mods` on the site (their
+  browser reads their own Starbound files and uploads the mod's folder; live at once), and
+  admins can also use `scripts/portrait-push.sh` in ff-site (rsync over SSH;
+  `--dry-run` to look first). It copies the folders built on a dev machine by
+  `scripts/portrait-extract/extract.py`, replaces a mod that is already there, and leaves
+  other mods alone unless `--prune` is given. Nothing is restarted.
+- **Removing a mod:** the site's `/admin/portraits` page (switch it off, or delete its
+  files), or `rm -r` its folder over SSH. No code change and no deploy either way.
+- **One-time setup:** make the folder so the API (user `web`) can write to it, since uploads
+  and admin deletes happen there: `mkdir /home/protected/portrait-bundle && chgrp web
+  /home/protected/portrait-bundle && chmod 2770 /home/protected/portrait-bundle`. Then add
+  `PORTRAIT_BUNDLE_DIR=/home/protected/portrait-bundle` to the
+  API's `.env` on the host and restart `ffserver` (`nfsn stop-daemon ffserver; nfsn
+  start-daemon ffserver`). Until then the bundle endpoints answer 404 and the creator
+  says the server has no sprites. Then load the first settings (races, categories,
+  hidden clothing) from a dev machine, signed in as an admin: `PUT
+  /api/admin/portrait/settings` with the contents of ff-site's
+  `src/data/portrait/races.json` and `curation.json` (see that route in the API docs),
+  or enter them at `/admin/portraits`.
 
 ## Schema changes
 

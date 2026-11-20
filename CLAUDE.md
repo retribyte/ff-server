@@ -30,6 +30,8 @@ data. Don't add a species table back.
   `src/openapi.ts`) at `/api/docs`.
 - `.env` (gitignored; see `README.md` for the template) — `DATABASE_URL`,
   `JWT_SECRET`, `JWT_EXPIRATION`, `SALT_ROUNDS`, `PORT`, and
+  `PORTRAIT_BUNDLE_DIR` (absolute path of the portrait sprite bundle; see "Portrait
+  bundle" below; unset or missing is fine, those endpoints answer 404), and
   `REGISTRATION_OPEN` (`"true"` to allow self-registration; anything else
   closes it — `POST /api/register` answers 403 and the site hides its form;
   `GET /api/register` reports `{ open }`). `FF_SITE_DIR`
@@ -285,6 +287,43 @@ data. Don't add a species table back.
     every episode in one transaction (`importEpisodeTx`), never replacing one.
     Re-imports (`--replace`) still go through ff-site's
     `archive-to-markdown/api-import.py` via the chunked append endpoints.
+- **Portrait bundle** (`src/portrait/`, tables `portrait_mods`, `portrait_races`,
+  `portrait_settings`): the server hosts the sprites for ff-site's portrait creator,
+  to signed-in members only, from `PORTRAIT_BUNDLE_DIR`: one folder per mod (`mod.json`,
+  `items.json`, `sprites.pack`), built by ff-site's `scripts/portrait-extract/extract.py`.
+  Game and mod assets never go in git and prod keeps the folder outside the deploy
+  directory (the deploy mirrors with `--delete`). The folders on disk are the truth:
+  `GET /api/portrait/bundle/mods.json` and `items.json` concatenate the present, enabled
+  folders' files in `order` (as the extractor's top-level files; only the gzip is kept in memory, about 1 MB,
+  because the production daemon has little; re-checked by a stat pass; gzipped by hand
+  since the app has no compression; ETag and 304), and `.../bundle/:mod/sprites.pack` sends one pack with `Range`. `:mod` is matched
+  against the directory listing, never joined into a path. Removing a mod is deleting its
+  folder or setting `PortraitMod.enabled` false: no code change or deploy. A folder with
+  no row is enabled; a row with no folder is a remembered switch. Nothing may name a
+  specific mod. Settings (what `races.json`/`curation.json` held in ff-site) are the
+  three tables: `GET /api/portrait/settings` (members) and `PUT
+  /api/admin/portrait/settings` (admin, replaces everything in one transaction, 10mb
+  body limit via `utils/import.ts`); `npm run portrait:import-settings` loads the two
+  JSON files through the same service function. The site's /admin/portraits page edits
+  piecewise: `PUT /admin/portrait/races` (the whole list, in order), `PATCH
+  /admin/portrait/curation` (categories, hidden items, pixel repairs), `PATCH
+  /admin/portrait/mods/:id` (on/off, clothing limits) and `DELETE /admin/portrait/mods/:id`,
+  which deletes that mod's folder from the bundle directory: the one place the API
+  removes files. **Member uploads**
+  (`portrait.upload.ts`; the user's call 2026-11-14: any member, live at once): `PUT
+  /api/portrait/mods/:id/upload?session=&offset=&total=` takes a mod folder in pieces
+  (the site builds it in the member's browser from their own Starbound files, so the
+  server never sees a pak or runs an extractor), checks the two JSON files against the
+  pack's size and swaps the folder in by rename; unfinished pieces sit in
+  `<bundle>/.uploads/` and are swept after two hours. It records `uploadedBy`/`uploadedAt`
+  on the mod's row and leaves `enabled` alone. Sprite bytes are not decoded here.
+  **Saved portraits** (`src/portrait/saved.service.ts`, table `portraits`):
+  a member keeps a name, the creator's recipe (JSON) and the rendered PNG (bytes, at most
+  256x256 and 64 KB, checked like avatars; 300 per member). `/api/portraits` (GET mine,
+  POST), `/api/portraits/:id` (GET, PUT, DELETE) and `.../image.png`. Private (the user's
+  open question, so the safe default): only the owner reads or changes one, an admin may
+  read and delete, anyone else gets a 404. They are not linked to characters. The disabled-mod set is cached 5 s
+  (writes through the service clear it; psql edits show within 5 s).
 - **Admin jobs** (`src/jobs/`, `src/admin/`): idempotent, database-only
   maintenance jobs (`JOBS` in `src/jobs/registry.ts`) and the episode import
   run through `runJob`: one transaction (a dry run rolls back), recorded as a
