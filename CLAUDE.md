@@ -168,7 +168,7 @@ data. Don't add a species table back.
 - **Logging** (`src/utils/logger.ts`, `src/utils/request-log.ts`): never `console.*`
   in `src/` (CLI scripts in `prisma/` may). `logger.info|warn|error|debug(event, fields)`
   writes one JSON line to stdout/stderr, a 2000-entry in-memory ring buffer
-  (`GET /api/admin/logs`, shown on the site's /admin page) and a daily file
+  (`GET /api/admin/logs`, shown on the site's /admin/log page; `GET /api/admin/metrics` (`src/admin/metrics.ts`) summarizes its last 24 hours of `http` entries for the /admin dashboard) and a daily file
   `$LOG_DIR/app-YYYY-MM-DD.log` (default `./logs`, gitignored; `LOG_DIR=` empty turns
   files off; files older than `LOG_RETENTION_DAYS`, default 90, are deleted;
   `LOG_LEVEL` default info). `requestLogger` (first middleware) logs every request as
@@ -202,7 +202,7 @@ data. Don't add a species table back.
   episode page or a story page/chapter (ff-site's `recordView`, in `after()`); the
   bearer token, if valid, makes it a member view, and a bad token is just anonymous.
   No dedupe: a refresh counts again. `GET /api/admin/views?days=30` feeds the
-  /admin page's Views panel. The key is the permanent `slug` with no FK (it spans
+  site's /admin/views page, and `GET /api/admin/metrics` its per-day chart on /admin. The key is the permanent `slug` with no FK (it spans
   two tables), so deleting an episode or story leaves its old counts behind.
 - **Response envelope**, every JSON response: `{ status: "success", data }` or
   `{ status: "error", message }`. Never leak raw Prisma objects or stack

@@ -6,6 +6,7 @@ import { JOBS, EPISODE_IMPORT_JOB } from "../jobs/registry.js";
 import { runJob, JobBusyError, type JobContext } from "../jobs/runner.js";
 import { parsePayloads, previewEpisodeImport, importEpisodes } from "../jobs/episodeImport.js";
 import { logger, queryLogs, type Level } from "../utils/logger.js";
+import { getAdminMetrics } from "./metrics.js";
 import {
     MESSAGE_REASSIGN_JOB,
     OWNER_CHANGE_JOB,
@@ -88,6 +89,18 @@ const initializeAdminRoutes = (): Router => {
                 limit: parseInt(String(req.query.limit ?? "200"), 10) || 200,
             }),
         });
+    });
+
+    // GET /api/admin/metrics?days=30: the dashboard's numbers (views per day, job outcomes,
+    // archive totals, and the last 24 hours of requests from the log buffer)
+    router.get("/admin/metrics", authenticate, isAdmin, async (req: Request, res: Response) => {
+        const days = Math.min(Math.max(parseInt(String(req.query.days ?? "30"), 10) || 30, 7), 90);
+        try {
+            res.json({ status: "success", data: await getAdminMetrics(days) });
+        } catch (error) {
+            logger.caught("Error building admin metrics", error);
+            res.status(500).json({ status: "error", message: "Failed to build the metrics" });
+        }
     });
 
     // GET /api/admin/job-runs?job=&limit=&before=: recent runs, newest first, without their logs.
