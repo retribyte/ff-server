@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { summarizeTraffic } from "../src/admin/metrics.js";
+import { summarizeTraffic } from "../src/admin/traffic.js";
 import type { LogEntry } from "../src/utils/logger.js";
 
 const NOW = Date.parse("2026-11-20T15:30:00Z");
