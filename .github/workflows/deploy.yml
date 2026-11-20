@@ -1,12 +1,13 @@
 name: CI / Deploy
 
-# PRs: typecheck + tests. Push to main: the same, then deploy to NearlyFreeSpeech
-# with scripts/deploy-nfsn.sh (see docs/deploy-nfsn.md).
+# PRs: typecheck + tests. Push to main: the same, then deploy on the home
+# server with scripts/deploy-local.sh (self-hosted runner; scripts/deploy-nfsn.sh is
+# the NearlyFreeSpeech failover). See docs/migrate-home-server.md and docs/deploy-nfsn.md.
 #
 # SCHEMA CHANGES: a PR that changes prisma/schema.prisma adds a SQL file under
 # prisma/prod-sql/. The `schema` job lints it and proves on a scratch Postgres that
 # it gives exactly the new schema; the deploy then backs up the database and applies
-# it on the host (through the jobs queue) before uploading the new code. See
+# it on the host before installing the new code. See
 # prisma/prod-sql/README.md.
 on:
   pull_request:
@@ -96,39 +97,28 @@ jobs:
           export PR_TEXT
           scripts/tag-release.sh
 
+
+  # Runs on the home server's self-hosted runner (docs/migrate-home-server.md in
+  # ff-server). The repo is public, so NOTHING else may run there: this job only
+  # runs for main, and the runner's job-started hook refuses any job that isn't a
+  # push or manual run on main of this repo (fork PRs can edit workflows, so the
+  # `if:` alone isn't enough). scripts/deploy-nfsn.sh stays as the failover path.
   deploy:
     needs: [test, version]
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: [self-hosted, ff-home]
     environment: production
-    # Longer than the slowest real path: a migration's 10-minute wait, plus npm ci
-    # on the host when the lockfile changes.
+    # Longer than the slowest real path: a migration, plus npm ci when the lockfile
+    # changes.
     timeout-minutes: 30
-    # One deploy at a time; a newer push waits rather than cancelling mid-upload
+    # One deploy at a time; a newer push waits rather than cancelling mid-install
     concurrency:
-      group: deploy-nfsn-ff-server
+      group: deploy-home-ff-server
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # tags, for the version in the build (scripts/write-version.mjs)
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-      - name: SSH key and pinned host key
-        env:
-          NFSN_DEPLOY_KEY: ${{ secrets.NFSN_DEPLOY_KEY }}
-          NFSN_KNOWN_HOSTS: ${{ secrets.NFSN_KNOWN_HOSTS }}
-        run: |
-          install -d -m 700 ~/.ssh
-          printf '%s\n' "$NFSN_DEPLOY_KEY" > ~/.ssh/nfsn_deploy
-          chmod 600 ~/.ssh/nfsn_deploy
-          printf '%s\n' "$NFSN_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          fetch-depth: 0 # tags, for the version in the build
+      # Node 24 is installed system-wide on the box (what production runs)
       - name: Deploy
-        env:
-          NFSN_SSH: ${{ vars.NFSN_SSH }}
-        run: |
-          export NFSN_KEY="$HOME/.ssh/nfsn_deploy"
-          [ -n "$NFSN_SSH" ] || unset NFSN_SSH
-          scripts/deploy-nfsn.sh
+        run: scripts/deploy-local.sh
