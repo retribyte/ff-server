@@ -620,6 +620,7 @@ const spec = {
             get: {
                 tags: ["Auth"],
                 summary: "List all users (full accounts for admins; {id, username, icon} for other members)",
+                description: "For admins each account also carries `inactive` (as on the public profile) and `_count` of its characters, messages, stories and commentaries.",
                 security: [{ bearerAuth: [] }],
                 responses: {
                     "200": { description: "Array of users" },
