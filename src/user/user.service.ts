@@ -90,9 +90,14 @@ type ProfileUpdate = {
     color?: string | null;
 };
 
-async function getAllUsers(): Promise<SafeUser[]> {
-    const users = await prisma.user.findMany({ orderBy: { id: "asc" } });
-    return users.map(toSafe);
+/** Every account in full (admins only), with the profile's `inactive` flag and counts for /admin/users. */
+async function getAllUsers() {
+    const users = await prisma.user.findMany({
+        orderBy: { id: "asc" },
+        include: { _count: { select: { characters: true, messages: true, stories: true, commentaries: true } } },
+    });
+    // Same rule as getPublicProfile's `inactive`
+    return users.map((u) => ({ ...toSafe(u), inactive: u.mustChangePassword && !u.loginDisabled }));
 }
 
 /** Every user's public identity, for pickers such as a story's authors (any member). */
