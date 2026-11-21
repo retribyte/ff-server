@@ -1780,6 +1780,19 @@ const spec = {
                 responses: { "200": { description: "{kind, slug, title, member, anonymous}[]" }, "403": { description: "Not an admin" } },
             },
         },
+        "/admin/metrics": {
+            get: {
+                tags: ["Admin"],
+                summary: "The admin dashboard's numbers (admin)",
+                description:
+                    "Views per UTC day (zero-filled) and the previous window's total, job runs by outcome, archive totals, " +
+                    "and request metrics for the last 24 hours from the in-memory log buffer (requests per hour by outcome, " +
+                    "p50/p95 response time, busiest routes). `traffic.coveredSince` is the oldest buffered entry.",
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: "days", in: "query", description: "Views and jobs window, in UTC days including today", schema: { type: "integer", default: 30, minimum: 7, maximum: 90 } }],
+                responses: { "200": { description: "{days, views[], previousViews, runs, archive, traffic}" }, "403": { description: "Not an admin" } },
+            },
+        },
         "/admin/logs": {
             get: {
                 tags: ["Admin"],
