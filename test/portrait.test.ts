@@ -134,7 +134,7 @@ test("rejects junk", () => {
     bad((b) => (b.races = [{ id: "a", exclude: "1" }]));
     bad((b) => (b.races = [{ id: "a", surprise: 1 }]));
     bad((b) => (b.races = [{ id: "a", lock: { hair: 1 } }]));
-    bad((b) => (b.races = [{ id: "a", lock: { beard: "" } }]));
+    bad((b) => (b.races = [{ id: "a", lock: { "no spaces": "" } }]));
     bad((b) => (b.curation.hideItemPattern = "("));
     bad((b) => (b.curation.hideItemPattern = 5));
     bad((b) => (b.curation.hideItems = "a"));
@@ -171,6 +171,8 @@ test("the admin panel's partial edits are validated", () => {
     for (const bad of [{}, { hideItemPattern: "(" }, { categories: "animal" }, { erase: { a: [[1]] } }, { hideItems: [1] }]) assert.throws(() => parseCurationPatch(bad), SettingsError);
 
     assert.equal(parseRaces([{ id: "human" }, { id: "blazekid", species: "novakid", lock: { facialHair: "" } }]).length, 2);
+    // A species' own style layers can be fixed too (ffLayers ids)
+    assert.deepEqual(parseRaces([{ id: "squoat", lock: { markings: "stripes", hair: "" } }])[0].lock, { markings: "stripes", hair: "" });
     for (const bad of [undefined, {}, [{ id: "a" }, { id: "a" }], [{ name: "no id" }]]) assert.throws(() => parseRaces(bad), SettingsError);
 });
 
