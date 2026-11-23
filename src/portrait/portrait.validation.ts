@@ -12,7 +12,8 @@ export interface RaceInput {
     exclude?: string[];
     prefer?: string[];
     hidden?: boolean;
-    lock?: Partial<Record<"hair" | "facialHair" | "facialMask", string>>;
+    /** Style layer id (the game's hair, facialHair, facialMask, or a species file's own ffLayers id) -> its one style ("" = none). */
+    lock?: Record<string, string>;
 }
 
 export interface SettingsInput {
@@ -28,7 +29,9 @@ export interface SettingsInput {
     };
 }
 
-const LOCKS = ["hair", "facialHair", "facialMask"];
+/** A style layer id as ff-site's species files name them: letters, digits, _ and -. */
+const LAYER_ID = /^[A-Za-z][\w-]{0,63}$/;
+const MAX_LOCKS = 32;
 const MAX_TEXT = 500;
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -66,9 +69,13 @@ function race(v: unknown, i: number): RaceInput {
     }
     if (o.lock !== undefined) {
         const lock = object(o.lock, `${where}.lock`);
-        only(lock, LOCKS, `${where}.lock`);
+        const keys = Object.keys(lock);
+        if (keys.length > MAX_LOCKS) throw new SettingsError(`${where}.lock may fix at most ${MAX_LOCKS} layers`);
         out.lock = {};
-        for (const key of LOCKS) if (lock[key] !== undefined) out.lock[key as "hair"] = text(lock[key], `${where}.lock.${key}`, true);
+        for (const key of keys) {
+            if (!LAYER_ID.test(key)) throw new SettingsError(`${where}.lock has "${key}", which is not a style layer id`);
+            out.lock[key] = text(lock[key], `${where}.lock.${key}`, true);
+        }
     }
     return out;
 }
